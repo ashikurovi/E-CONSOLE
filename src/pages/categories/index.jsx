@@ -1,5 +1,5 @@
+// CategoriesPage component
 import React, { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import {
   useDeleteCategoryMutation,
   useToggleCategoryActiveMutation,
 } from "@/features/category/categoryApiSlice";
+import CategoryForm from "./components/CategoryForm";
 
 const CategoriesPage = () => {
   const { data: categories = [], isLoading } = useGetCategoriesQuery();
@@ -30,7 +31,7 @@ const CategoriesPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [parentOption, setParentOption] = useState(null);
 
-  const { register, handleSubmit, reset } = useForm();
+
 
   const headers = useMemo(
     () => [
@@ -122,61 +123,11 @@ const CategoriesPage = () => {
     <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">Categories</h3>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm">Add Category</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create Category</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
-              <TextField placeholder="Category name" register={register} name="name" />
-              <TextField placeholder="Slug (optional)" register={register} name="slug" />
-              <TextField placeholder="Photo URL (optional)" register={register} name="photo" />
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  name="isActive"
-                  value={true}
-                  setValue={() => {}}
-                  disabled
-                >
-                  Active by default
-                </Checkbox>
-              </div>
-              <div className="flex items-center gap-2">
-                <Dropdown
-                  name="Parent Category"
-                  options={parentOptions}
-                  setSelectedOption={setParentOption}
-                  className="py-2"
-                >
-                  {parentOption?.label || <span className="text-black/50 dark:text-white/50">Select Parent</span>}
-                </Dropdown>
-                {parentOption && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setParentOption(null)}
-                    type="button"
-                  >
-                    Clear
-                  </Button>
-                )}
-              </div>
-              <DialogFooter>
-                <Button variant="ghost" type="button" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isCreating}>
-                  {isCreating ? "Creating..." : "Create"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        {/* Moved form into its own component */}
+        <CategoryForm parentOptions={parentOptions} />
       </div>
 
+      {/* Removed inline Dialog+form here */}
       <ReusableTable
         data={tableData}
         headers={headers}

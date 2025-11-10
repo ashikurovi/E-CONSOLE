@@ -2,17 +2,11 @@ import { apiSlice } from "../api/apiSlice";
 
 export const categoryApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getCategories: builder.query({
-      query: () => ({ url: "/categories", method: "GET" }),
-      transformResponse: (res) => res.data,
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map((cat) => ({ type: "categories", id: cat.id })),
-              { type: "categories", id: "LIST" },
-            ]
-          : [{ type: "categories", id: "LIST" }],
-    }),
+ getCategories: builder.query({
+  query: () => ({ url: "/categories", method: "GET" }),
+  transformResponse: (res) => res.data,
+  providesTags: [{ type: "categories", id: "LIST" }],
+}),
 
     getCategory: builder.query({
       query: (id) => ({ url: `/categories/${id}`, method: "GET" }),
