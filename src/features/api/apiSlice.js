@@ -88,7 +88,7 @@ const customMiddleware = (api) => (next) => (action) => {
 export const apiSlice = createApi({
   reducerPath: "apiSlice",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["auth"],
+  tagTypes: ["auth", "categories"],
   keepUnusedDataFor: 0, // Don't keep any unused data
   refetchOnMountOrArgChange: true, // Always refetch when component mounts
   refetchOnReconnect: true, // Refetch on reconnection

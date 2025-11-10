@@ -13,6 +13,7 @@ import ForgotPasswordRequestPage from "./pages/auth/forgot-password/password-req
 import ResetPasswordPage from "./pages/auth/forgot-password/reset-password";
 import RegisterPage from "./pages/auth/register";
 import DashboardPage from "./pages/dashboard";
+import CategoriesPage from "./pages/categories";
 
 export const routes = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ export const routes = createBrowserRouter([
       {
         path: "/",
         element: <DashboardPage />,
+      },
+      {
+        path: "/categories",
+        element: <CategoriesPage />,
       },
     ],
   },
