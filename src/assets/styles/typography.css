@@ -1,0 +1,38 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+body {
+  font-family: "Inter", sans-serif;
+}
+
+.h1 {
+  font-family: "Archivo", sans-serif;
+  font-size: 3rem;
+  font-weight: 600;
+  line-height: 57.6px;
+}
+
+.h3 {
+  font-family: "Archivo", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 33.6px;
+}
+
+.h4 {
+  font-family: "Inter", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.h5 {
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 22.4px;
+}
+
+.subtitle {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 25.2px;
+}

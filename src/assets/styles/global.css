@@ -1,0 +1,114 @@
+.tr {
+  transition: 300ms;
+}
+
+/* BUTTONS */
+.btn {
+  padding: 12px 16px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  transition: 300ms;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background-color: rgb(224, 26, 92);
+  color: #efefef;
+}
+.btn-primary:hover {
+  background-color: rgb(245, 46, 113);
+}
+
+.input {
+  border: 1px solid #ffffff0b;
+  padding: 12px 16px !important;
+  border-radius: 8px;
+  width: 100%;
+  background-color: #ffffff0e;
+}
+
+.input:focus {
+  background-color: #ffffff17;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+/* SCROLLBAR */
+.restro_scrollbar::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 10px;
+}
+body::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+body.dark::-webkit-scrollbar-track {
+  background: #000000e6;
+}
+.restro_scrollbar::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary));
+  border-radius: 10px;
+  width: 10px;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.restro_scrollbar_mini {
+  overflow-y: auto;
+}
+.restro_scrollbar_mini::-webkit-scrollbar {
+  width: 8px;
+}
+.restro_scrollbar_mini::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary), 0.6);
+  border-radius: 10px;
+  width: 8px;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.restro_scrollbar_mini_white {
+  overflow-y: auto;
+}
+.restro_scrollbar_mini_white::-webkit-scrollbar {
+  width: 6px;
+}
+.restro_scrollbar_mini_white::-webkit-scrollbar-track {
+  background: #ffffff40;
+  border-radius: 6px;
+}
+.restro_scrollbar_mini_white::-webkit-scrollbar-thumb {
+  background: #fff;
+  border-radius: 6px;
+  width: 6px;
+  margin-left: 6px;
+}
+.scroll-horizon {
+  overflow-x: auto;
+}
+.scroll-horizon::-webkit-scrollbar {
+  height: 6px;
+}
+.scroll-horizon::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 6px;
+}
+.scroll-horizon::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary), 0.6);
+  border-radius: 6px;
+  height: 6px;
+}
+
+@media screen and (max-width: 640px) {
+  .card {
+    padding: 10px;
+  }
+}

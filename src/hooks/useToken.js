@@ -1,0 +1,34 @@
+import { getAuthCookie, removeAuthCookie } from "./useCookie";
+
+export const getTokens = () => {
+  const { accessToken: cookieAccessToken, refreshToken: cookieRefreshToken } =
+    getAuthCookie();
+
+  const sessionAccessToken = sessionStorage.getItem("accessToken");
+  const sessionRefreshToken = sessionStorage.getItem("refreshToken");
+
+  if (!!cookieRefreshToken) {
+    return {
+      accessToken: cookieAccessToken,
+      refreshToken: cookieRefreshToken,
+      rememberMe: true,
+    };
+  } else {
+    return {
+      accessToken: sessionAccessToken,
+      refreshToken: sessionRefreshToken,
+      rememberMe: false,
+    };
+  }
+};
+
+export const clearTokens = () => {
+  sessionStorage.removeItem("accessToken");
+  sessionStorage.removeItem("refreshToken");
+  removeAuthCookie();
+};
+
+export const setSessionToken = (accessToken, refreshToken) => {
+  sessionStorage.setItem("accessToken", accessToken);
+  sessionStorage.setItem("refreshToken", refreshToken);
+};
