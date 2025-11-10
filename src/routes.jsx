@@ -12,6 +12,7 @@ import PrivateRoute from "./hooks/usePrivateRoute";
 import ForgotPasswordRequestPage from "./pages/auth/forgot-password/password-request";
 import ResetPasswordPage from "./pages/auth/forgot-password/reset-password";
 import RegisterPage from "./pages/auth/register";
+import DashboardPage from "./pages/dashboard";
 
 export const routes = createBrowserRouter([
   {
@@ -24,7 +25,7 @@ export const routes = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <></>,
+        element: <DashboardPage />,
       },
     ],
   },

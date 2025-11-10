@@ -7,13 +7,10 @@ import { io } from "socket.io-client";
 import NavLogo from "../logo/nav-logo";
 import IconButton from "../buttons/icon-button";
 import SidebarMenu from "./SidebarMenu";
-
-// data
-import { navLinks } from "./data";
-
-// const socket = io(import.meta.env.VITE_BACKEND_URL || "", {
-//   autoConnect: false,
-// });
+// ... existing code ...
+import SearchBar from "@/components/input/search-bar";
+import { Bell, Settings, HelpCircle, User } from "lucide-react";
+// ... existing code ...
 
 const TopNavbar = () => {
   const { user } = useSelector((state) => state?.auth);
@@ -23,73 +20,34 @@ const TopNavbar = () => {
   const [notifications, setNotifications] = useState([]);
   const userId = user?._id;
 
-  // const { data: notificationData } = useGetNotificationHistoryQuery();
-
-  // useEffect(() => {
-  //   if (!userId) return;
-  //   socket.connect();
-  //   socket.emit("join", userId);
-
-  //   socket.on("new_notification", (notification) => {
-  //     setNotifications((prev) => [notification, ...prev]);
-  //     setNewNotificationCount(newNotificationCount + 1);
-  //   });
-
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, [userId]);
-
-  // const unReadCount = notificationData?.data?.meta?.totalUnread || 0;
-
-  // useEffect(() => {
-  //   if (notificationData?.data?.notifications) {
-  //     setNotifications(notificationData?.data?.notifications);
-  //   }
-  //   if (unReadCount) {
-  //     setNewNotificationCount(unReadCount);
-  //   }
-  // }, [notificationData]);
-  // const isActive = (link) =>
-  //   link === "/" ? link === pathname : pathname.includes(link);
+  // ... existing code ...
 
   return (
-    <nav className="dark:bg-[#242424] bg-white lg:rounded-full lg:p-3 p-1 mb-5 z-50 sticky lg:static top-0">
-      <div className="flbx gap-3">
-        <div className="fl gap-4 pl-2">
-          <SidebarMenu />
+    <nav className="dark:bg-[#242424] bg-white  lg:p-3  p-1 mb-5 z-50 sticky lg:static top-0">
+      <div className="flbx py-2 gap-3">
+        {/* <div className="fl gap-4 pl-2">
+    
           <NavLogo />
+        </div> */}
+
+        <div className="flex-1 lg:flex hidden max-w-[720px]">
+          <SearchBar placeholder="Search" />
         </div>
 
-        <div className="lg:flex hidden h-[60px] fl gap-2 p-2 rounded-full bg-bg50 dark:bg-white/5 dark:hover:bg-white/10 hover:bg-gray-100 tr">
-          {navLinks?.map(({ title, link }, index) => (
-            <Link
-              key={index}
-              to={link}
-              // className={`py-3 px-4 rounded-full ${
-              //   isActive(link)
-              //     ? "text-primary font-semibold"
-              //     : "hover:text-primary/20"
-              // }`}
-            >
-              {title}
-            </Link>
-          ))}
-        </div>
-
-        <div className="fl lg:gap-4 gap-2">
-          {/* <IconButton icon={Search} /> */}
-          {/* <NotificationDropdown data={notifications} unReadCount={unReadCount}>
-            <div className="relative">
-              <IconButton type="icon" icon={Bell} />
-              {newNotificationCount > 0 && (
-                <span className="absolute -top-3 -right-3 bg-primary h-6 w-6 center rounded-full text-xs font-medium text-white">
-                  {newNotificationCount}
-                </span>
-              )}
-            </div>
-          </NotificationDropdown> */}
-          {/* <ProfileDropdown /> */}
+        <div className="fl lg:gap-3 gap-2 pr-2">
+          <IconButton icon={HelpCircle} />
+          <IconButton icon={Settings} />
+          <div className="relative">
+            <IconButton type="icon" icon={Bell} />
+            {newNotificationCount > 0 && (
+              <span className="absolute -top-3 -right-3 bg-primary h-6 w-6 center rounded-full text-xs font-medium text-white">
+                {newNotificationCount}
+              </span>
+            )}
+          </div>
+          <div className="h-9 w-9 rounded-full bg-black/5 dark:bg-white/10 center overflow-hidden">
+            <User className="h-5 w-5 opacity-70" />
+          </div>
         </div>
       </div>
     </nav>
