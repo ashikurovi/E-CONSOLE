@@ -24,7 +24,7 @@ const Dropdown = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div
-          className={`py-1.5 pl-4 pr-2.5 rounded-full text-sm border flbx gap-2 select-none  ${
+          className={`py-1.5 pl-4 pr-2.5  text-sm border flbx gap-2 select-none  ${
             primary
               ? "border-white/75 text-white"
               : "border-black/15 dark:border-white/20 text-black dark:text-white/75"

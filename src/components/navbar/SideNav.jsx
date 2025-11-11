@@ -3,6 +3,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { navLinks } from "./data";
 import { FileText, ShieldAlert, HelpCircle, Settings, User2, ClipboardList, Image } from "lucide-react";
+import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
 
 // Icons (inline SVGs to avoid extra deps)
 const BagIcon = (props) => (
@@ -136,6 +137,10 @@ function Item({ to, label, Icon, badge }) {
 }
 
 export default function SideNav() {
+
+  const result = useGetCategoriesQuery();
+console.log(result);
+
   return (
     <aside className="sticky left-0 top-0 h-screen w-64 bg-[#0b0f14] text-gray-200 border-r border-gray-800 flex flex-col">
       {/* Header */}

@@ -14,6 +14,10 @@ import ResetPasswordPage from "./pages/auth/forgot-password/reset-password";
 import RegisterPage from "./pages/auth/register";
 import DashboardPage from "./pages/dashboard";
 import CategoriesPage from "./pages/categories";
+import ProductsPage from "./pages/products";
+import InventoryPage from "./pages/inventory";
+import CustomersPage from "./pages/customers";
+import OrdersPage from "./pages/orders";
 
 export const routes = createBrowserRouter([
   {
@@ -31,6 +35,22 @@ export const routes = createBrowserRouter([
       {
         path: "/categories",
         element: <CategoriesPage />,
+      },
+      {
+        path: "/products",
+        element: <ProductsPage />,
+      },
+      {
+        path: "/inventory",
+        element: <InventoryPage />,
+      },
+      {
+        path: "/customers",
+        element: <CustomersPage />,
+      },
+      {
+        path: "/orders",
+        element: <OrdersPage />,
       },
     ],
   },

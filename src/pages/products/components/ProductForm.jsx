@@ -13,67 +13,67 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { useCreateCategoryMutation } from "@/features/category/categoryApiSlice";
+import { useCreateProductMutation } from "@/features/product/productApiSlice";
 
-function CategoryForm({ parentOptions = [] }) {
+function ProductForm({ categoryOptions = [] }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [parentOption, setParentOption] = useState(null);
+  const [categoryOption, setCategoryOption] = useState(null);
   const { register, handleSubmit, reset } = useForm();
-  const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
+  const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
 
   const onSubmit = async (data) => {
     const payload = {
       name: data.name,
-      slug: data.slug,
-      isActive: !!data.isActive,
+      sku: data.sku,
+      price: parseFloat(data.price),
       photo: data.photo || null,
-      parentId: parentOption?.value || null,
+      isActive: !!data.isActive,
+      categoryId: categoryOption?.value || null,
     };
 
-    const res = await createCategory(payload);
+    const res = await createProduct(payload);
     if (res?.data) {
-      toast.success("Category created");
+      toast.success("Product created");
       reset();
-      setParentOption(null);
+      setCategoryOption(null);
       setIsOpen(false);
     } else {
-      toast.error(res?.error?.data?.message || "Failed to create category");
+      toast.error(res?.error?.data?.message || "Failed to create product");
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">Add Category</Button>
+        <Button size="sm">Add Product</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Category</DialogTitle>
+          <DialogTitle>Create Product</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
-          <TextField placeholder="Category name" register={register} name="name" />
-          <TextField placeholder="Slug (optional)" register={register} name="slug" />
+          <TextField placeholder="Product name" register={register} name="name" />
+          <TextField placeholder="SKU (optional)" register={register} name="sku" />
+          <TextField placeholder="Price" register={register} name="price" type="number" />
           <TextField placeholder="Photo URL (optional)" register={register} name="photo" />
+
+          <Dropdown
+            name="Category"
+            options={categoryOptions}
+            setSelectedOption={setCategoryOption}
+            className="py-2"
+          >
+            {categoryOption?.label || (
+              <span className="text-black/50 dark:text-white/50">Select Category</span>
+            )}
+          </Dropdown>
+
           <div className="flex items-center gap-2">
-            <Checkbox
-              name="isActive"
-              value={true}
-              setValue={() => {}}
-              disabled
-            >
+            <Checkbox name="isActive" value={true} setValue={() => {}} disabled>
               Active by default
             </Checkbox>
           </div>
-        
-            <Dropdown
-              name="Parent Category"
-              options={parentOptions}
-              setSelectedOption={setParentOption}
-              className="py-2 "
-            >
-              {parentOption?.label || <span className="text-black/50 dark:text-white/50">Select Parent</span>}
-            </Dropdown>
-         
+
           <DialogFooter>
             <Button variant="ghost" type="button" onClick={() => setIsOpen(false)}>
               Cancel
@@ -86,6 +86,6 @@ function CategoryForm({ parentOptions = [] }) {
       </DialogContent>
     </Dialog>
   );
-};
+}
 
-export default CategoryForm;
+export default ProductForm;

@@ -24,14 +24,11 @@ import CategoryForm from "./components/CategoryForm";
 
 const CategoriesPage = () => {
   const { data: categories = [], isLoading } = useGetCategoriesQuery();
-  const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
   const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
   const [toggleActive, { isLoading: isToggling }] = useToggleCategoryActiveMutation();
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [parentOption, setParentOption] = useState(null);
 
-
+  console.log(categories)
 
   const headers = useMemo(
     () => [
@@ -99,25 +96,7 @@ const CategoriesPage = () => {
     [categories, deleteCategory, toggleActive, isDeleting, isToggling]
   );
 
-  const onSubmit = async (formData) => {
-    const payload = {
-      name: formData.name,
-      slug: formData.slug,
-      isActive: !!formData.isActive,
-      photo: formData.photo || undefined,
-      parentId: parentOption?.value || undefined,
-    };
 
-    const res = await createCategory(payload);
-    if (res?.data) {
-      toast.success("Category created");
-      reset();
-      setParentOption(null);
-      setIsDialogOpen(false);
-    } else {
-      toast.error(res?.error?.data?.message || "Failed to create category");
-    }
-  };
 
   return (
     <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
