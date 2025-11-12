@@ -86,7 +86,16 @@ const customMiddleware = (api) => (next) => (action) => {
 export const apiSlice = createApi({
   reducerPath: "apiSlice",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["auth", "categories", "products", "inventory", "users", "orders"],
+  tagTypes: [
+    "auth",
+    "categories",
+    "products",
+    "inventory",
+    "users",
+    "orders",
+    "ordersitem",
+    "fraudchecker"
+  ],
 
   // ✅ Keep cache for 60s (avoid data disappearing)
   keepUnusedDataFor: 60,

@@ -18,15 +18,14 @@ import ProductsPage from "./pages/products";
 import InventoryPage from "./pages/inventory";
 import CustomersPage from "./pages/customers";
 import OrdersPage from "./pages/orders";
+import OrdersItemsPage from "./pages/ordersitem";
+import FraudPage from "./pages/fraud";
+import BannerPage from "./pages/banner";
 
 export const routes = createBrowserRouter([
   {
     path: "/",
-    element: (
-      // <PrivateRoute>
-      <Layout />
-      // </PrivateRoute>
-    ),
+    element: <Layout />,
     children: [
       {
         path: "/",
@@ -51,6 +50,19 @@ export const routes = createBrowserRouter([
       {
         path: "/orders",
         element: <OrdersPage />,
+      },
+      {
+        path: "/order-items",
+        element: <OrdersItemsPage />,
+      },
+      {
+        path: "/fraud",
+        element: <FraudPage />,
+      },
+
+        {
+        path: "/banners",
+        element: <BannerPage/>,
       },
     ],
   },
