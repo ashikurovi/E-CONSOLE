@@ -21,6 +21,10 @@ import OrdersPage from "./pages/orders";
 import OrdersItemsPage from "./pages/ordersitem";
 import FraudPage from "./pages/fraud";
 import BannerPage from "./pages/banner";
+import PromocodePage from "./pages/promocode";
+import HelpPage from "./pages/help";
+import SettingsPage from "./pages/settings"; // add settings import
+import ManageUsersPage from "./pages/manageuser"; // add manage users import
 
 export const routes = createBrowserRouter([
   {
@@ -59,10 +63,25 @@ export const routes = createBrowserRouter([
         path: "/fraud",
         element: <FraudPage />,
       },
-
-        {
+      {
         path: "/banners",
-        element: <BannerPage/>,
+        element: <BannerPage />,
+      },
+      {
+        path: "/promocodes",
+        element: <PromocodePage />,
+      },
+      {
+        path: "/help",
+        element: <HelpPage />,
+      },
+      {
+        path: "/settings",
+        element: <SettingsPage />, // add settings route
+      },
+      {
+        path: "/manage-users",
+        element: <ManageUsersPage />, // add manage users route
       },
     ],
   },

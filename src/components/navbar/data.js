@@ -9,14 +9,15 @@ export const navLinks = [
   { id: 6, title: "Order", link: "/orders" },
   { id: 7, title: "OrderItems", link: "/order-items" },
      { id: 8, title: "Fraud Checker", link: "/fraud" },
-   { id: 9, title: "Banners", link: "/banners" },
+  { id: 9, title: "Banners", link: "/banners" },
+  { id: 10, title: "Promocodes", link: "/promocodes" },
   // { id: 6, title: "Review", link: "/reviews" },
 
  
   // { id: 9, title: "Integration", link: "/integrations" },
-  { id: 10, title: "Settings", link: "/settings" },
-  { id: 11, title: "Help", link: "/help" },
-  { id: 12, title: "Manage Users", link: "/users" },
+  { id: 11, title: "Settings", link: "/settings" },
+  { id: 12, title: "Help", link: "/help" },
+  { id: 13, title: "Manage Users", link: "/manage-users" },
 ];
 
 export const DROPDOWN_NAV_ITEMS = [

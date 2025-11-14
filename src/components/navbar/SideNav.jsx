@@ -74,6 +74,7 @@ const iconMap = {
   Settings: Settings,
   Help: HelpCircle,
   "Manage Users": User2,
+  Promocodes: ClipboardList,
 };
 
 const generalSet = new Set([
@@ -86,6 +87,8 @@ const generalSet = new Set([
   "OrderItems",
   "Banners",
   "Fraud Checker",
+  "Promocodes",
+  
 ]);
 
 const accountSet = new Set(["Settings", "Help", "Manage Users"]);
