@@ -27,6 +27,7 @@ import {
   useDeleteBannerMutation,
   useUpdateBannerMutation,
 } from "@/features/banners/bannersApiSlice";
+import { Power, Trash2 } from "lucide-react";
 
 const BannerPage = () => {
 
@@ -70,7 +71,7 @@ const BannerPage = () => {
             <BannerEditForm banner={b} />
             <Button
               variant={b.isActive ? "outline" : "default"}
-              size="sm"
+              size="icon"
               onClick={async () => {
                 const res = await updateBanner({ id: b.id, isActive: !b.isActive });
                 if (res?.data) {
@@ -80,12 +81,13 @@ const BannerPage = () => {
                 }
               }}
               disabled={isUpdatingBanner}
+              title={b.isActive ? "Disable" : "Activate"}
             >
-              {b.isActive ? "Disable" : "Activate"}
+              <Power className="h-4 w-4" />
             </Button>
             <Button
               variant="destructive"
-              size="sm"
+              size="icon"
               onClick={async () => {
                 if (!confirm(`Delete banner "${b.title}"?`)) return;
                 const res = await deleteBanner(b.id);
@@ -96,8 +98,9 @@ const BannerPage = () => {
                 }
               }}
               disabled={isDeletingBanner}
+              title="Delete"
             >
-              Delete
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         ),

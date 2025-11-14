@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
 import TextField from "@/components/input/TextField";
 import {
   Dialog,
@@ -55,7 +56,9 @@ const OrderEditForm = ({ order }) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">Edit</Button>
+        <Button variant="ghost" size="icon" title="Edit">
+          <Pencil className="h-4 w-4" />
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>

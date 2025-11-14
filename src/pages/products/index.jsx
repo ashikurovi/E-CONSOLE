@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
+import { Power, Trash2 } from "lucide-react";
 import {
   useGetProductsQuery,
   useDeleteProductMutation,
@@ -53,7 +54,7 @@ const ProductsPage = () => {
           <div className="flex items-center gap-2 justify-end">
             <Button
               variant={p.isActive ? "outline" : "default"}
-              size="sm"
+              size="icon"
               onClick={async () => {
                 const res = await toggleActive({ id: p.id });
                 if (res?.data) {
@@ -63,15 +64,16 @@ const ProductsPage = () => {
                 }
               }}
               disabled={isToggling}
+              title={p.isActive ? "Disable" : "Activate"}
             >
-              {p.isActive ? "Disable" : "Activate"}
+              <Power className="h-4 w-4" />
             </Button>
 
             <ProductEditForm product={p} categoryOptions={categoryOptions} />
 
             <Button
               variant="destructive"
-              size="sm"
+              size="icon"
               onClick={async () => {
                 if (!confirm(`Delete product "${p.name ?? p.title}"?`)) return;
                 const res = await deleteProduct(p.id);
@@ -82,8 +84,9 @@ const ProductsPage = () => {
                 }
               }}
               disabled={isDeleting}
+              title="Delete"
             >
-              Delete
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         ),

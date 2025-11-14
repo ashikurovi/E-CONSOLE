@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
 import TextField from "@/components/input/TextField";
 import Dropdown from "@/components/dropdown/dropdown";
 import {
@@ -63,7 +64,9 @@ function BannerEditForm({ banner }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">Edit</Button>
+        <Button variant="outline" size="icon" title="Edit">
+          <Pencil className="h-4 w-4" />
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

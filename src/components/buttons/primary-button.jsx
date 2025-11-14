@@ -36,16 +36,16 @@ const buttonVariants = cva("border font-medium rounded-full select-none tr", {
   variants: {
     variant: {
       default:
-        "border-secondary text-white dark:text-black dark:hover:text-white bg-secondary hover:bg-primary hover:border-primary",
+        "border-black text-white bg-black hover:bg-black/90",
       secondary:
-        "border-secondary text-secondary bg-transparent hover:bg-primary hover:border-primary hover:text-white",
+        "border-black text-white bg-black hover:bg-black/90",
       primary:
-        "border-primary text-white bg-primary hover:bg-red-600 hover:border-red-600",
+        "border-black text-white bg-black hover:bg-black/90",
       accent:
-        "bg-white text-primary hover:bg-primary hover:border-primary dark:border-none hover:text-white dark:hover:text-primary",
-      rubix: "bg-red-500/20 text-primary hover:bg-primary hover:text-white",
+        "bg-black text-white hover:bg-black/90",
+      rubix: "bg-black text-white hover:bg-black/90",
       outline:
-        "border-primary text-primary bg-transparent hover:bg-red-500/10 tr",
+        "border-black text-white bg-black hover:bg-black/90 tr",
     },
     size: {
       default: "py-3 px-4",
@@ -53,7 +53,7 @@ const buttonVariants = cva("border font-medium rounded-full select-none tr", {
       sm: "py-2.5 px-5 text-sm",
     },
     onPrimary: {
-      true: "hover:bg-secondary",
+      true: "hover:bg-black/90",
       false: "",
     },
   },

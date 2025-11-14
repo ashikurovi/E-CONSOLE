@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
+import { ShieldX, ShieldCheck, Trash2 } from "lucide-react";
 import {
   useGetUsersQuery,
   useDeleteUserMutation,
@@ -44,20 +45,21 @@ const CustomersPage = () => {
             {u.isBanned ? (
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
                 onClick={async () => {
                   const res = await unbanUser(u.id);
                   if (res?.data) toast.success("User unbanned");
                   else toast.error(res?.error?.data?.message || "Failed to unban");
                 }}
                 disabled={isUnbanning}
+                title="Unban"
               >
-                {isUnbanning ? "..." : "Unban"}
+                <ShieldCheck className="h-4 w-4" />
               </Button>
             ) : (
               <Button
                 variant="destructive"
-                size="sm"
+                size="icon"
                 onClick={async () => {
                   const reason = window.prompt("Ban reason (optional):") || undefined;
                   const res = await banUser({ id: u.id, reason });
@@ -65,13 +67,14 @@ const CustomersPage = () => {
                   else toast.error(res?.error?.data?.message || "Failed to ban");
                 }}
                 disabled={isBanning}
+                title="Ban"
               >
-                {isBanning ? "..." : "Ban"}
+                <ShieldX className="h-4 w-4" />
               </Button>
             )}
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={async () => {
                 if (!window.confirm("Delete this user?")) return;
                 const res = await deleteUser(u.id);
@@ -79,8 +82,9 @@ const CustomersPage = () => {
                 else toast.error(res?.error?.data?.message || "Failed to delete");
               }}
               disabled={isDeleting}
+              title="Delete"
             >
-              Delete
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         ),

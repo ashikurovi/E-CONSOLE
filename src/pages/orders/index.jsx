@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
+import { CheckCircle, Truck, Package, XCircle, RotateCcw } from "lucide-react";
 import {
   useGetOrdersQuery,
   useCompleteOrderMutation,
@@ -52,7 +53,7 @@ const OrdersPage = () => {
 
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={async () => {
                 const paymentRef = window.prompt("Payment reference (optional):") || undefined;
                 const res = await completeOrder({ id: o.id, paymentRef });
@@ -60,26 +61,28 @@ const OrdersPage = () => {
                 else toast.error(res?.error?.data?.message || "Failed to complete");
               }}
               disabled={isCompleting}
+              title="Complete"
             >
-              {isCompleting ? "..." : "Complete"}
+              <CheckCircle className="h-4 w-4" />
             </Button>
 
             <Button
               variant="default"
-              size="sm"
+              size="icon"
               onClick={async () => {
                 const res = await deliverOrder(o.id);
                 if (res?.data) toast.success("Order delivered");
                 else toast.error(res?.error?.data?.message || "Failed to deliver");
               }}
               disabled={isDelivering}
+              title="Deliver"
             >
-              {isDelivering ? "..." : "Deliver"}
+              <Truck className="h-4 w-4" />
             </Button>
 
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={async () => {
                 const trackingId = window.prompt("Tracking ID:") || undefined;
                 const provider = window.prompt("Shipping Provider:") || undefined;
@@ -88,13 +91,14 @@ const OrdersPage = () => {
                 else toast.error(res?.error?.data?.message || "Failed to ship");
               }}
               disabled={isShipping}
+              title="Ship"
             >
-              {isShipping ? "..." : "Ship"}
+              <Package className="h-4 w-4" />
             </Button>
 
             <Button
               variant="destructive"
-              size="sm"
+              size="icon"
               onClick={async () => {
                 if (!confirm("Cancel this order?")) return;
                 const res = await cancelOrder(o.id);
@@ -102,13 +106,14 @@ const OrdersPage = () => {
                 else toast.error(res?.error?.data?.message || "Failed to cancel");
               }}
               disabled={isCancelling}
+              title="Cancel"
             >
-              {isCancelling ? "..." : "Cancel"}
+              <XCircle className="h-4 w-4" />
             </Button>
 
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={async () => {
                 if (!confirm("Refund this order?")) return;
                 const res = await refundOrder(o.id);
@@ -116,8 +121,9 @@ const OrdersPage = () => {
                 else toast.error(res?.error?.data?.message || "Failed to refund");
               }}
               disabled={isRefunding}
+              title="Refund"
             >
-              {isRefunding ? "..." : "Refund"}
+              <RotateCcw className="h-4 w-4" />
             </Button>
           </div>
         ),

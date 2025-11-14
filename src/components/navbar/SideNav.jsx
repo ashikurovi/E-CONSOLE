@@ -154,7 +154,7 @@ console.log(result);
           </div>
           <span className="font-semibold">subcom</span>
         </div>
-        <button className="text-gray-400 hover:text-white">
+        <button className="bg-black text-white hover:bg-black/90">
           <MenuIcon />
         </button>
       </div>

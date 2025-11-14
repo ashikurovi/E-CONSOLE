@@ -16,11 +16,11 @@
 }
 
 .btn-primary {
-  background-color: rgb(224, 26, 92);
-  color: #efefef;
+  background-color: #000000;
+  color: #ffffff;
 }
 .btn-primary:hover {
-  background-color: rgb(245, 46, 113);
+  background-color: rgba(0, 0, 0, 0.9);
 }
 
 .input {

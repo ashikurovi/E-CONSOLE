@@ -9,7 +9,7 @@ const SubmitButton = ({
   ...props
 }) => {
   return (
-    <button {...props} type={type} className={`bg-primary py-3 rounded-full text-white font-medium ${className}`}>
+    <button {...props} type={type} className={`bg-black py-3 rounded-full text-white font-medium ${className}`}>
       {isLoading && <AtomLoader />}
       {children}
     </button>

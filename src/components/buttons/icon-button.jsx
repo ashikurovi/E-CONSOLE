@@ -10,7 +10,7 @@ const IconButton = ({
   if (type === "button")
     return (
       <button
-        className={`h-10 w-10 rounded-full center bg-bg50 dark:hover:bg-white/10 hover:bg-gray-100 tr ${className}`}
+        className={`h-10 w-10 rounded-full center bg-black text-white hover:bg-black/90 tr ${className}`}
         onClick={onClick}
         {...props}
       >
@@ -20,7 +20,7 @@ const IconButton = ({
   else
     return (
       <div
-        className={`h-10 w-10 rounded-full center bg-bg50 dark:hover:bg-white/10 hover:bg-gray-100 tr ${className}`}
+        className={`h-10 w-10 rounded-full center bg-black text-white hover:bg-black/90 tr ${className}`}
       >
         <Icon className="h-4" />
       </div>

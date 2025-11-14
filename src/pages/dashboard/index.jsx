@@ -73,7 +73,7 @@ const DashboardPage = () => {
         ))}
         <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4 flex items-center justify-between">
           <span className="text-sm text-black/60 dark:text-white/60">Period</span>
-          <button className="px-3 py-1 rounded-lg bg-black text-white text-sm dark:bg-white dark:text-black">
+          <button className="px-3 py-1 rounded-lg bg-black text-white text-sm">
             View All Time
           </button>
         </div>
@@ -115,7 +115,7 @@ const DashboardPage = () => {
               {topCustomers.map((c, idx) => (
                 <li key={idx} className="flex items-center justify-between">
                   <p className="font-medium">{c.name}</p>
-                  <button className="text-xs px-2 py-1 rounded-lg bg-gray-100 dark:bg-white/10">
+                  <button className="text-xs px-2 py-1 rounded-lg bg-black text-white">
                     {c.orders}
                   </button>
                 </li>
@@ -129,7 +129,7 @@ const DashboardPage = () => {
       <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium">Recent Orders</h3>
-          <button className="text-sm px-3 py-1 rounded-lg bg-gray-100 dark:bg-white/10">View All</button>
+          <button className="text-sm px-3 py-1 rounded-lg bg-black text-white">View All</button>
         </div>
         <ReusableTable data={recentOrders} headers={tableHeaders} total={recentOrders.length} isLoading={false} py="py-2" />
       </div>

@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import {
   useGetInventoryQuery,
   useDeleteInventoryMutation,
@@ -52,7 +53,7 @@ const InventoryPage = () => {
             <InventoryEditForm item={inv} productOptions={productOptions} />
             <Button
               variant="destructive"
-              size="sm"
+              size="icon"
               onClick={async () => {
                 if (!confirm(`Delete inventory for "${inv?.product?.name ?? inv?.product?.title}"?`)) return;
                 const res = await deleteInventory(inv.id);
@@ -63,8 +64,9 @@ const InventoryPage = () => {
                 }
               }}
               disabled={isDeleting}
+              title="Delete"
             >
-              Delete
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         ),

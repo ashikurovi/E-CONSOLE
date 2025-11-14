@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
+import { Pencil, Trash2 } from "lucide-react";
 import {
   useGetSystemusersQuery,
   useDeleteSystemuserMutation,
@@ -38,14 +39,15 @@ const ManageUsersPage = () => {
           <div className="flex items-center gap-2 justify-end">
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={() => setEditingUser(u)}
+              title="Edit"
             >
-              Edit
+              <Pencil className="h-4 w-4" />
             </Button>
             <Button
               variant="destructive"
-              size="sm"
+              size="icon"
               onClick={async () => {
                 if (!window.confirm(`Delete "${u.email}"?`)) return;
                 const res = await deleteSystemuser(u.id);
@@ -53,8 +55,9 @@ const ManageUsersPage = () => {
                 else toast.error(res?.error?.data?.message || "Failed to delete");
               }}
               disabled={isDeleting}
+              title="Delete"
             >
-              Delete
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         ),
