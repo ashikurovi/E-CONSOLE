@@ -9,6 +9,7 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
     url: "/categories",
     method: "POST",
     body,
+    headers: { "Content-Type": "application/json;charset=UTF-8" },
    }),
   invalidatesTags: [{ type: "categories", id: "LIST" }],
     }),

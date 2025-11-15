@@ -9,6 +9,7 @@ const TextField = ({
   register,
   name,
   icon,
+  error,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
@@ -21,7 +22,11 @@ const TextField = ({
           type={isPassword && !showPassword ? "password" : "text"}
           placeholder={placeholder}
           {...register(name)}
-          className={`border border-black/5 dark:border-white/10 py-2.5 pr-10  bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 ${
+          className={`border ${
+            error
+              ? "border-red-500 dark:border-red-500"
+              : "border-black/5 dark:border-white/10"
+          } py-2.5 pr-10 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 ${
             icon ? "pl-11" : "pl-4"
           } password-input`}
         />
@@ -36,6 +41,9 @@ const TextField = ({
           </button>
         )}
       </div>
+      {error && (
+        <span className="text-red-500 text-xs ml-1">{error.message}</span>
+      )}
     </div>
   );
 };

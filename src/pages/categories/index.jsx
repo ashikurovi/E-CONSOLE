@@ -3,8 +3,9 @@ import React, { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
-import { Power, Trash2, Pencil } from "lucide-react";
+import { Power, Trash2, Pencil, MoreVertical } from "lucide-react";
 import TextField from "@/components/input/TextField";
+import FileUpload from "@/components/input/FileUpload";
 import Checkbox from "@/components/input/Checkbox";
 import Dropdown from "@/components/dropdown/dropdown";
 import {
@@ -24,12 +25,15 @@ import {
 } from "@/features/category/categoryApiSlice";
 import CategoryForm from "./components/CategoryForm";
 import { useForm } from "react-hook-form";
+import useImageUpload from "@/hooks/useImageUpload";
 
 const CategoryEditForm = ({ category, parentOptions, onClose }) => {
   const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
   const [selectedParent, setSelectedParent] = useState(
     parentOptions.find((p) => p.value === category?.parent?.id) || null
   );
+  const [selectedFile, setSelectedFile] = useState(null);
+  const { uploadImage, isUploading } = useImageUpload();
 
   const { register, handleSubmit } = useForm({
     defaultValues: {
@@ -40,11 +44,23 @@ const CategoryEditForm = ({ category, parentOptions, onClose }) => {
   });
 
   const onSubmit = async (data) => {
+    let photoUrl = category?.photo || null;
+
+    // Upload new image to imgBB if file is selected
+    if (selectedFile) {
+      photoUrl = await uploadImage(selectedFile);
+      if (!photoUrl) {
+        // Upload failed, error already shown by hook
+        return;
+      }
+    }
+
     const payload = {
       id: category.id,
       name: data.name,
       slug: data.slug,
       isActive: data.isActive,
+      photo: photoUrl,
       parentId: selectedParent?.value || null,
     };
 
@@ -65,6 +81,15 @@ const CategoryEditForm = ({ category, parentOptions, onClose }) => {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
         <TextField placeholder="Category name" register={register} name="name" />
         <TextField placeholder="Slug" register={register} name="slug" />
+        <FileUpload
+          placeholder="Choose photo (optional)"
+          label="Category Photo"
+          register={register}
+          name="photo"
+          accept="image/*"
+          onChange={setSelectedFile}
+          value={category?.photo}
+        />
         <Dropdown
           name="Parent Category (optional)"
           options={parentOptions.filter((p) => p.value !== category?.id)}
@@ -83,8 +108,8 @@ const CategoryEditForm = ({ category, parentOptions, onClose }) => {
           <Button variant="ghost" type="button" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isUpdating}>
-            {isUpdating ? "Updating..." : "Update"}
+          <Button type="submit" disabled={isUpdating || isUploading}>
+            {isUpdating || isUploading ? "Processing..." : "Update"}
           </Button>
         </DialogFooter>
       </form>
@@ -104,7 +129,16 @@ const CategoriesPage = () => {
       { header: "Slug", field: "slug" },
       { header: "Parent", field: "parentName" },
       { header: "Status", field: "status" },
-      { header: "Actions", field: "actions" },
+      {
+        header: (
+          <span className="inline-flex items-center gap-1.5">
+            <MoreVertical className="h-4 w-4" />
+            Actions
+          </span>
+        ),
+        field: "actions",
+        sortable: false
+      },
     ],
     []
   );
@@ -183,7 +217,7 @@ const CategoriesPage = () => {
 
   return (
     <div className=" bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center py-2 justify-between">
         <h3 className="text-lg font-medium">Categories</h3>
         {/* Moved form into its own component */}
         <CategoryForm parentOptions={parentOptions} />
