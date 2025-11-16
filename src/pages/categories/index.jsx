@@ -4,124 +4,26 @@ import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
 import { Power, Trash2, Pencil, MoreVertical } from "lucide-react";
-import TextField from "@/components/input/TextField";
-import FileUpload from "@/components/input/FileUpload";
-import Checkbox from "@/components/input/Checkbox";
-import Dropdown from "@/components/dropdown/dropdown";
 import {
   Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   useGetCategoriesQuery,
-  useCreateCategoryMutation,
   useDeleteCategoryMutation,
   useToggleCategoryActiveMutation,
-  useUpdateCategoryMutation,
 } from "@/features/category/categoryApiSlice";
 import CategoryForm from "./components/CategoryForm";
-import { useForm } from "react-hook-form";
-import useImageUpload from "@/hooks/useImageUpload";
-
-const CategoryEditForm = ({ category, parentOptions, onClose }) => {
-  const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
-  const [selectedParent, setSelectedParent] = useState(
-    parentOptions.find((p) => p.value === category?.parent?.id) || null
-  );
-  const [selectedFile, setSelectedFile] = useState(null);
-  const { uploadImage, isUploading } = useImageUpload();
-
-  const { register, handleSubmit } = useForm({
-    defaultValues: {
-      name: category?.name ?? "",
-      slug: category?.slug ?? "",
-      isActive: category?.isActive ?? false,
-    },
-  });
-
-  const onSubmit = async (data) => {
-    let photoUrl = category?.photo || null;
-
-    // Upload new image to imgBB if file is selected
-    if (selectedFile) {
-      photoUrl = await uploadImage(selectedFile);
-      if (!photoUrl) {
-        // Upload failed, error already shown by hook
-        return;
-      }
-    }
-
-    const payload = {
-      id: category.id,
-      name: data.name,
-      slug: data.slug,
-      isActive: data.isActive,
-      photo: photoUrl,
-      parentId: selectedParent?.value || null,
-    };
-
-    const res = await updateCategory(payload);
-    if (res?.data) {
-      toast.success("Category updated");
-      onClose();
-    } else {
-      toast.error(res?.error?.data?.message || "Failed to update category");
-    }
-  };
-
-  return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Edit Category</DialogTitle>
-      </DialogHeader>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
-        <TextField placeholder="Category name" register={register} name="name" />
-        <TextField placeholder="Slug" register={register} name="slug" />
-        <FileUpload
-          placeholder="Choose photo (optional)"
-          label="Category Photo"
-          register={register}
-          name="photo"
-          accept="image/*"
-          onChange={setSelectedFile}
-          value={category?.photo}
-        />
-        <Dropdown
-          name="Parent Category (optional)"
-          options={parentOptions.filter((p) => p.value !== category?.id)}
-          setSelectedOption={setSelectedParent}
-          className="py-2"
-        >
-          {selectedParent?.label || (
-            <span className="text-black/50 dark:text-white/50">Select Parent (optional)</span>
-          )}
-        </Dropdown>
-        <label className="flex items-center gap-2">
-          <input type="checkbox" {...register("isActive")} />
-          <span>Active</span>
-        </label>
-        <DialogFooter>
-          <Button variant="ghost" type="button" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isUpdating || isUploading}>
-            {isUpdating || isUploading ? "Processing..." : "Update"}
-          </Button>
-        </DialogFooter>
-      </form>
-    </DialogContent>
-  );
-};
+import CategoryEditForm from "./components/CategoryEditForm";
+import DeleteModal from "@/components/modals/DeleteModal";
+import ConfirmModal from "@/components/modals/ConfirmModal";
 
 const CategoriesPage = () => {
   const { data: categories = [], isLoading } = useGetCategoriesQuery();
   const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
   const [toggleActive, { isLoading: isToggling }] = useToggleCategoryActiveMutation();
   const [editingCategory, setEditingCategory] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, category: null });
+  const [toggleModal, setToggleModal] = useState({ isOpen: false, category: null });
 
   const headers = useMemo(
     () => [
@@ -173,14 +75,7 @@ const CategoriesPage = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={async () => {
-                const res = await toggleActive({ id: cat.id });
-                if (res?.data) {
-                  toast.success("Category state updated");
-                } else {
-                  toast.error("Failed to update category");
-                }
-              }}
+              onClick={() => setToggleModal({ isOpen: true, category: cat })}
               disabled={isToggling}
               className={`${cat.isActive
                 ? "bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
@@ -192,15 +87,7 @@ const CategoriesPage = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={async () => {
-                if (!confirm(`Delete category "${cat.name}"?`)) return;
-                const res = await deleteCategory(cat.id);
-                if (res?.data) {
-                  toast.success("Category deleted");
-                } else {
-                  toast.error("Failed to delete category");
-                }
-              }}
+              onClick={() => setDeleteModal({ isOpen: true, category: cat })}
               disabled={isDeleting}
               className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
               title="Delete"
@@ -241,6 +128,48 @@ const CategoriesPage = () => {
           />
         </Dialog>
       )}
+
+      <DeleteModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, category: null })}
+        onConfirm={async () => {
+          if (!deleteModal.category) return;
+          const res = await deleteCategory(deleteModal.category.id);
+          if (res?.data) {
+            toast.success("Category deleted");
+            setDeleteModal({ isOpen: false, category: null });
+          } else {
+            toast.error("Failed to delete category");
+          }
+        }}
+        title="Delete Category"
+        description="This will permanently delete the category and cannot be undone."
+        itemName={deleteModal.category?.name}
+        isLoading={isDeleting}
+      />
+
+      <ConfirmModal
+        isOpen={toggleModal.isOpen}
+        onClose={() => setToggleModal({ isOpen: false, category: null })}
+        onConfirm={async () => {
+          if (!toggleModal.category) return;
+          const res = await toggleActive({ id: toggleModal.category.id });
+          if (res?.data) {
+            toast.success(`Category ${toggleModal.category.isActive ? "disabled" : "enabled"}`);
+            setToggleModal({ isOpen: false, category: null });
+          } else {
+            toast.error("Failed to update category");
+          }
+        }}
+        title={toggleModal.category?.isActive ? "Disable Category" : "Enable Category"}
+        description={toggleModal.category?.isActive
+          ? "This will disable the category and it will not be visible to users."
+          : "This will enable the category and make it visible to users."}
+        itemName={`Are you sure you want to ${toggleModal.category?.isActive ? "disable" : "enable"} "${toggleModal.category?.name}"?`}
+        isLoading={isToggling}
+        type={toggleModal.category?.isActive ? "warning" : "success"}
+        confirmText={toggleModal.category?.isActive ? "Disable" : "Enable"}
+      />
     </div>
   );
 };

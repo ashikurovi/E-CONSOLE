@@ -6,15 +6,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FolderOpen, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { FolderOpen, ArrowUp, ArrowDown, ArrowUpDown, Search, X } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import TablePaginate from "./pagination";
 
-export default function ReusableTable({ data, headers, py, total, isLoading }) {
+export default function ReusableTable({ 
+  data, 
+  headers, 
+  py, 
+  total, 
+  isLoading,
+  searchable = true,
+  searchPlaceholder = "Search...",
+  searchFields = null, // If null, search all string fields
+}) {
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const onHeaderClick = (field) => {
     if (!field) return;
@@ -26,9 +36,32 @@ export default function ReusableTable({ data, headers, py, total, isLoading }) {
     }
   };
 
+  // Filter data based on search term
+  const filteredData = useMemo(() => {
+    if (!Array.isArray(data) || !searchTerm.trim()) return data;
+    
+    const searchLower = searchTerm.toLowerCase().trim();
+    const fieldsToSearch = searchFields || headers?.map(h => h.field).filter(Boolean) || [];
+    
+    return data.filter((item) => {
+      return fieldsToSearch.some((field) => {
+        const value = item[field];
+        if (value == null) return false;
+        
+        // Handle React elements (like action buttons) - skip them
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          return false;
+        }
+        
+        const stringValue = String(value).toLowerCase();
+        return stringValue.includes(searchLower);
+      });
+    });
+  }, [data, searchTerm, searchFields, headers]);
+
   const sortedData = useMemo(() => {
-    if (!Array.isArray(data) || !sortKey) return data;
-    const copy = [...data];
+    if (!Array.isArray(filteredData) || !sortKey) return filteredData;
+    const copy = [...filteredData];
     copy.sort((a, b) => {
       const av = a?.[sortKey];
       const bv = b?.[sortKey];
@@ -45,7 +78,7 @@ export default function ReusableTable({ data, headers, py, total, isLoading }) {
       return sortDir === "asc" ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr);
     });
     return copy;
-  }, [data, sortKey, sortDir]);
+  }, [filteredData, sortKey, sortDir]);
 
   // Paginate the sorted data
   const paginatedData = useMemo(() => {
@@ -61,8 +94,36 @@ export default function ReusableTable({ data, headers, py, total, isLoading }) {
     }
   }, [sortedData.length, currentPage, pageSize]);
 
+  // Reset to page 1 when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
   return (
     <>
+      {searchable && (
+        <div className="mb-4">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-black/50 dark:text-white/50" />
+            <input
+              type="text"
+              placeholder={searchPlaceholder}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 rounded-md outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 focus:border-transparent text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
       <div className="border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] shadow-sm overflow-hidden">
         <Table className="mt-0">
           <TableHeader className="sticky top-0 z-10 bg-black">

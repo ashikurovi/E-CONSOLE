@@ -64,7 +64,7 @@ function CategoryForm({ parentOptions = [] }) {
     const payload = {
       name: data.name,
       slug: data.slug || null, // Ensure null instead of empty string
-      isActive: !!data.isActive,
+      isActive: true,
       photo: photoUrl || null,
       parentId: parentOption?.value || null,
     };
@@ -96,7 +96,7 @@ function CategoryForm({ parentOptions = [] }) {
       <DialogTrigger asChild>
         <Button size="sm">Add Category</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="h-[600px]">
         <DialogHeader>
           <DialogTitle>Create Category</DialogTitle>
         </DialogHeader>
@@ -142,7 +142,12 @@ function CategoryForm({ parentOptions = [] }) {
           </Dropdown>
 
           <DialogFooter>
-            <Button variant="ghost" type="button" onClick={() => setIsOpen(false)}>
+            <Button
+              variant="ghost"
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700"
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isCreating || isUploading}>
