@@ -1,7 +1,8 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
+import { Power, Trash2 } from "lucide-react";
 import {
   useGetPromocodesQuery,
   useDeletePromocodeMutation,
@@ -9,11 +10,13 @@ import {
 } from "@/features/promocode/promocodeApiSlice";
 import PromocodeForm from "./components/PromocodeForm";
 import PromocodeEditForm from "./components/PromocodeEditForm";
+import DeleteModal from "@/components/modals/DeleteModal";
 
 const PromocodePage = () => {
   const { data: promos = [], isLoading } = useGetPromocodesQuery();
   const [deletePromocode, { isLoading: isDeleting }] = useDeletePromocodeMutation();
   const [toggleActive, { isLoading: isToggling }] = useTogglePromocodeActiveMutation();
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, promocode: null });
 
   const headers = useMemo(
     () => [
@@ -44,8 +47,8 @@ const PromocodePage = () => {
           typeof p?.minOrderAmount === "number"
             ? `$${Number(p.minOrderAmount).toFixed(2)}`
             : p?.minOrderAmount
-            ? `$${Number(p.minOrderAmount || 0).toFixed(2)}`
-            : "-";
+              ? `$${Number(p.minOrderAmount || 0).toFixed(2)}`
+              : "-";
 
         const starts =
           p?.startsAt ? new Date(p.startsAt).toLocaleString() : "-";
@@ -68,8 +71,8 @@ const PromocodePage = () => {
           actions: (
             <div className="flex items-center gap-2 justify-end">
               <Button
-                variant={p?.isActive ? "outline" : "default"}
-                size="sm"
+                variant="ghost"
+                size="icon"
                 onClick={async () => {
                   const res = await toggleActive({ id: p.id, active: !p.isActive });
                   if (res?.data) {
@@ -79,27 +82,25 @@ const PromocodePage = () => {
                   }
                 }}
                 disabled={isToggling}
+                className={`${p?.isActive
+                  ? "bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
+                  : "bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"}`}
+                title={p?.isActive ? "Disable" : "Activate"}
               >
-                {p?.isActive ? "Disable" : "Activate"}
+                <Power className="h-4 w-4" />
               </Button>
 
               <PromocodeEditForm promocode={p} />
 
               <Button
-                variant="destructive"
-                size="sm"
-                onClick={async () => {
-                  if (!confirm(`Delete promocode "${p?.code}"?`)) return;
-                  const res = await deletePromocode(p.id);
-                  if (res?.data) {
-                    toast.success("Promocode deleted");
-                  } else {
-                    toast.error(res?.error?.data?.message || "Failed to delete promocode");
-                  }
-                }}
+                variant="ghost"
+                size="icon"
+                onClick={() => setDeleteModal({ isOpen: true, promocode: p })}
                 disabled={isDeleting}
+                className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
+                title="Delete"
               >
-                Delete
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
           ),
@@ -121,6 +122,26 @@ const PromocodePage = () => {
         total={promos.length}
         isLoading={isLoading}
         py="py-2"
+      />
+
+      {/* Delete Modal */}
+      <DeleteModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, promocode: null })}
+        onConfirm={async () => {
+          if (!deleteModal.promocode) return;
+          const res = await deletePromocode(deleteModal.promocode.id);
+          if (res?.data) {
+            toast.success("Promocode deleted");
+            setDeleteModal({ isOpen: false, promocode: null });
+          } else {
+            toast.error(res?.error?.data?.message || "Failed to delete promocode");
+          }
+        }}
+        title="Delete Promocode"
+        description="This action cannot be undone. This will permanently delete the promocode."
+        itemName={deleteModal.promocode?.code}
+        isLoading={isDeleting}
       />
     </div>
   );

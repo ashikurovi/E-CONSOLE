@@ -14,7 +14,7 @@ const ManageUsersPage = () => {
   const { data: users = [], isLoading } = useGetSystemusersQuery();
   const [deleteSystemuser, { isLoading: isDeleting }] = useDeleteSystemuserMutation();
   const [editingUser, setEditingUser] = useState(null);
-
+  console.log("users", users)
   const headers = useMemo(
     () => [
       { header: "Company", field: "companyName" },
@@ -42,6 +42,7 @@ const ManageUsersPage = () => {
               size="icon"
               onClick={() => setEditingUser(u)}
               title="Edit"
+              className="bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
             >
               <Pencil className="h-4 w-4" />
             </Button>
@@ -56,6 +57,7 @@ const ManageUsersPage = () => {
               }}
               disabled={isDeleting}
               title="Delete"
+              className="bg-red-500 hover:bg-red-600 text-white"
             >
               <Trash2 className="h-4 w-4" />
             </Button>

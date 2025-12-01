@@ -5,14 +5,14 @@ export const systemuserApiSlice = apiSlice.injectEndpoints({
     // List system users
     getSystemusers: builder.query({
       query: () => ({ url: "/systemuser", method: "GET" }),
-      transformResponse: (res) => res?.data ?? [],
+      transformResponse: (res) => res,
       providesTags: [{ type: "systemuser", id: "LIST" }],
     }),
 
     // Get single system user
     getSystemuser: builder.query({
       query: (id) => ({ url: `/systemuser/${id}`, method: "GET" }),
-      transformResponse: (res) => res?.data,
+      transformResponse: (res) => res,
       providesTags: (result, error, id) => [{ type: "systemuser", id }],
     }),
 

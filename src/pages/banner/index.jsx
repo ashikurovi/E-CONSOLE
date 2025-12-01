@@ -1,25 +1,7 @@
-// CategoriesPage component
 import React, { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
-import TextField from "@/components/input/TextField";
-import Checkbox from "@/components/input/Checkbox";
-import Dropdown from "@/components/dropdown/dropdown";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  useGetCategoriesQuery,
-  useCreateCategoryMutation,
-  useDeleteCategoryMutation,
-  useToggleCategoryActiveMutation,
-} from "@/features/category/categoryApiSlice";
 import BannerForm from "./components/BannerForm";
 import BannerEditForm from "./components/BannerEditForm";
 import {
@@ -28,16 +10,13 @@ import {
   useUpdateBannerMutation,
 } from "@/features/banners/bannersApiSlice";
 import { Power, Trash2 } from "lucide-react";
+import DeleteModal from "@/components/modals/DeleteModal";
 
 const BannerPage = () => {
-
-
-
   const { data: banners = [], isLoading: isBannersLoading } = useGetBannersQuery();
   const [deleteBanner, { isLoading: isDeletingBanner }] = useDeleteBannerMutation();
   const [updateBanner, { isLoading: isUpdatingBanner }] = useUpdateBannerMutation();
-
-  console.log(banners)
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, banner: null });
 
   const headers = useMemo(
     () => [
@@ -70,7 +49,7 @@ const BannerPage = () => {
           <div className="flex items-center gap-2 justify-end">
             <BannerEditForm banner={b} />
             <Button
-              variant={b.isActive ? "outline" : "default"}
+              variant="ghost"
               size="icon"
               onClick={async () => {
                 const res = await updateBanner({ id: b.id, isActive: !b.isActive });
@@ -81,23 +60,19 @@ const BannerPage = () => {
                 }
               }}
               disabled={isUpdatingBanner}
+              className={`${b.isActive
+                ? "bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
+                : "bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"}`}
               title={b.isActive ? "Disable" : "Activate"}
             >
               <Power className="h-4 w-4" />
             </Button>
             <Button
-              variant="destructive"
+              variant="ghost"
               size="icon"
-              onClick={async () => {
-                if (!confirm(`Delete banner "${b.title}"?`)) return;
-                const res = await deleteBanner(b.id);
-                if (res?.data) {
-                  toast.success("Banner deleted");
-                } else {
-                  toast.error("Failed to delete banner");
-                }
-              }}
+              onClick={() => setDeleteModal({ isOpen: true, banner: b })}
               disabled={isDeletingBanner}
+              className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
               title="Delete"
             >
               <Trash2 className="h-4 w-4" />
@@ -105,7 +80,7 @@ const BannerPage = () => {
           </div>
         ),
       })),
-    [banners, deleteBanner, updateBanner, isDeletingBanner, isUpdatingBanner]
+    [banners, updateBanner, isDeletingBanner, isUpdatingBanner]
   );
 
 
@@ -135,6 +110,26 @@ const BannerPage = () => {
         total={banners.length}
         isLoading={isBannersLoading}
         py="py-2"
+      />
+
+      {/* Delete Modal */}
+      <DeleteModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, banner: null })}
+        onConfirm={async () => {
+          if (!deleteModal.banner) return;
+          const res = await deleteBanner(deleteModal.banner.id);
+          if (res?.data) {
+            toast.success("Banner deleted");
+            setDeleteModal({ isOpen: false, banner: null });
+          } else {
+            toast.error(res?.error?.data?.message || "Failed to delete banner");
+          }
+        }}
+        title="Delete Banner"
+        description="This action cannot be undone. This will permanently delete the banner."
+        itemName={deleteModal.banner?.title}
+        isLoading={isDeletingBanner}
       />
     </div>
   );

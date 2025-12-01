@@ -72,10 +72,10 @@ function CustomerForm() {
           </Dropdown>
 
           <DialogFooter>
-            <Button variant="ghost" type="button" onClick={() => setIsOpen(false)}>
+            <Button variant="ghost" type="button" className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400" onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isCreating}>
+            <Button type="submit" disabled={isCreating} className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400">
               {isCreating ? "Creating..." : "Create"}
             </Button>
           </DialogFooter>

@@ -56,7 +56,12 @@ const OrderEditForm = ({ order }) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" title="Edit">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
+          title="Edit"
+        >
           <Pencil className="h-4 w-4" />
         </Button>
       </DialogTrigger>
@@ -84,7 +89,7 @@ const OrderEditForm = ({ order }) => {
               <TextField label="Tracking ID" placeholder="Tracking ID" register={register} name="trackingId" />
               <TextField label="Shipping Provider" placeholder="e.g., DHL" register={register} name="provider" />
               <DialogFooter>
-                <Button type="submit" variant="outline" disabled={isShipping}>
+                <Button className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400" type="submit" variant="outline" disabled={isShipping}>
                   {isShipping ? "Updating..." : "Update Shipping"}
                 </Button>
               </DialogFooter>
@@ -92,7 +97,7 @@ const OrderEditForm = ({ order }) => {
           </section>
 
           <div className="fl justify-end gap-2">
-            <Button variant="outline" onClick={closeAndReset}>Close</Button>
+            <Button className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400" variant="outline" onClick={closeAndReset}>Close</Button>
           </div>
         </div>
       </DialogContent>

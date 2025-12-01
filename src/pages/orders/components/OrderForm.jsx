@@ -174,10 +174,10 @@ const OrderForm = () => {
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+            <Button type="button" variant="ghost" className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400" onClick={() => setIsOpen(false)}>
               Close
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400">
               {isLoading ? "Creating..." : "Create Order"}
             </Button>
           </DialogFooter>

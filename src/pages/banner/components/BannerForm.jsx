@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/input/TextField";
 import Dropdown from "@/components/dropdown/dropdown";
+import FileUpload from "@/components/input/FileUpload";
 import {
   Dialog,
   DialogTrigger,
@@ -14,12 +17,65 @@ import {
 } from "@/components/ui/dialog";
 
 import { useCreateBannerMutation } from "@/features/banners/bannersApiSlice";
+import useImageUpload from "@/hooks/useImageUpload";
+
+const bannerSchema = yup.object().shape({
+  title: yup
+    .string()
+    .required("Title is required")
+    .min(2, "Title must be at least 2 characters")
+    .max(200, "Title must be less than 200 characters"),
+  subtitle: yup
+    .string()
+    .max(500, "Subtitle must be less than 500 characters"),
+  imageUrl: yup
+    .string()
+    .nullable()
+    .transform((value, originalValue) => (originalValue === "" ? null : value))
+    .test("url-or-empty", "Please enter a valid URL or leave it empty", function (value) {
+      if (!value || value.trim() === "") return true;
+      try {
+        new URL(value);
+        return true;
+      } catch {
+        return false;
+      }
+    }),
+  buttonText: yup
+    .string()
+    .max(50, "Button text must be less than 50 characters"),
+  buttonLink: yup
+    .string()
+    .nullable()
+    .transform((value, originalValue) => (originalValue === "" ? null : value))
+    .test("url-or-empty", "Please enter a valid URL or leave it empty", function (value) {
+      if (!value || value.trim() === "") return true;
+      try {
+        new URL(value);
+        return true;
+      } catch {
+        return false;
+      }
+    }),
+  order: yup
+    .number()
+    .typeError("Order must be a number")
+    .integer("Order must be an integer")
+    .min(0, "Order must be 0 or greater")
+    .required("Order is required"),
+  isActive: yup
+    .boolean()
+    .required("Status is required"),
+});
 
 function BannerForm({ productOptions = [] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const { uploadImage, isUploading } = useImageUpload();
 
-  const { register, handleSubmit, reset } = useForm({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    resolver: yupResolver(bannerSchema),
     defaultValues: {
       title: "",
       subtitle: "",
@@ -36,10 +92,28 @@ function BannerForm({ productOptions = [] }) {
   const sanitizeUrl = (u) => (u || "").replace(/`/g, "").trim();
 
   const onSubmit = async (data) => {
+    let imageUrl = sanitizeUrl(data.imageUrl);
+
+    // If a file is selected, upload it first
+    if (imageFile) {
+      const uploadedUrl = await uploadImage(imageFile);
+      if (!uploadedUrl) {
+        toast.error("Failed to upload image");
+        return;
+      }
+      imageUrl = uploadedUrl;
+    }
+
+    // If neither file nor URL is provided, show error
+    if (!imageUrl) {
+      toast.error("Please provide an image URL or upload an image file");
+      return;
+    }
+
     const payload = {
       title: data.title,
       subtitle: data.subtitle,
-      imageUrl: sanitizeUrl(data.imageUrl),
+      imageUrl: imageUrl,
       buttonText: data.buttonText,
       buttonLink: data.buttonLink,
       isActive: Boolean(data.isActive),
@@ -53,6 +127,7 @@ function BannerForm({ productOptions = [] }) {
         toast.success("Banner created");
         reset();
         setSelectedProduct(null);
+        setImageFile(null);
         setIsOpen(false);
       } else {
         toast.error(res?.error?.data?.message || "Failed to create banner");
@@ -74,32 +149,74 @@ function BannerForm({ productOptions = [] }) {
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
-        
+          <TextField
+            placeholder="Title *"
+            register={register}
+            name="title"
+            error={errors.title}
+          />
+          <TextField
+            placeholder="Subtitle *"
+            register={register}
+            name="subtitle"
+            error={errors.subtitle}
+          />
 
-          <TextField placeholder="Title" register={register} name="title" />
-          <TextField placeholder="Subtitle" register={register} name="subtitle" />
-          <TextField placeholder="Image URL" register={register} name="imageUrl" />
-          <TextField placeholder="Button Text" register={register} name="buttonText" />
-          <TextField placeholder="Button Link" register={register} name="buttonLink" />
-          <TextField placeholder="Order" register={register} name="order" type="number" />
+          <FileUpload
+            placeholder="Choose image file"
+            label="Upload Image"
+            name="image"
+            accept="image/*"
+            onChange={setImageFile}
+            value={imageFile}
+          />
+
+          <div className="text-center text-sm text-black/50 dark:text-white/50">OR</div>
+
+
+
+          <TextField
+            placeholder="Button Text *"
+            register={register}
+            name="buttonText"
+            error={errors.buttonText}
+          />
+          <TextField
+            placeholder="Button Link *"
+            register={register}
+            name="buttonLink"
+            error={errors.buttonLink}
+          />
+          <TextField
+            placeholder="Order *"
+            register={register}
+            name="order"
+            type="number"
+            error={errors.order}
+          />
 
           {/* Active Toggle */}
-          <label className="flex items-center gap-2">
-            <input type="checkbox" {...register("isActive")} />
-            <span>Active</span>
-          </label>
+          <div className="flex flex-col gap-2">
+            <label className="flex items-center gap-2">
+              <input type="checkbox" {...register("isActive")} />
+              <span>Active</span>
+            </label>
+            {errors.isActive && (
+              <span className="text-red-500 text-xs ml-1">{errors.isActive.message}</span>
+            )}
+          </div>
 
           <DialogFooter>
-            <Button variant="ghost" type="button" onClick={() => setIsOpen(false)}>
+            <Button variant="ghost" type="button" onClick={() => setIsOpen(false)} className="bg-red-500 hover:bg-red-600 text-white">
               Cancel
             </Button>
-            <Button type="submit" disabled={isCreating}>
-              {isCreating ? "Creating..." : "Create"}
+            <Button type="submit" disabled={isCreating || isUploading} className=" bg-green-500/20  hover:bg-green-500/20 text-green-600 dark:text-green-400">
+              {isCreating || isUploading ? "Processing..." : "Create"}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 }
 
