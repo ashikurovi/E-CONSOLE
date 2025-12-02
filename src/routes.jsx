@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 
 // LAYOUTS
 import Layout from "./layout/layout";
+import SuperAdminLayout from "./layout/superadmin/layout";
 
 import ErrorPage from "./pages/common/errorPage";
 
@@ -23,8 +24,9 @@ import FraudPage from "./pages/fraud";
 import BannerPage from "./pages/banner";
 import PromocodePage from "./pages/promocode";
 import HelpPage from "./pages/help";
-import SettingsPage from "./pages/settings"; // add settings import
-import ManageUsersPage from "./pages/manageuser"; // add manage users import
+import SettingsPage from "./pages/settings"; // settings
+import ManageUsersPage from "./pages/manageuser"; // manage users
+import SuperAdminOverviewPage from "./pages/superadmin"; // super admin overview
 
 export const routes = createBrowserRouter([
   {
@@ -82,6 +84,16 @@ export const routes = createBrowserRouter([
       {
         path: "/manage-users",
         element: <ManageUsersPage />, // add manage users route
+      },
+    ],
+  },
+  {
+    path: "/superadmin",
+    element: <SuperAdminLayout />,
+    children: [
+      {
+        path: "/superadmin",
+        element: <SuperAdminOverviewPage />,
       },
     ],
   },

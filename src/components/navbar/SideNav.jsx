@@ -67,9 +67,9 @@ const iconMap = {
   Product: BoxIcon,
   Inventory: ListIcon,
   Customers: User2,
-    Order: FileText,
-    OrderItems: ClipboardList,
-    Banners: Image,
+  Order: FileText,
+  OrderItems: ClipboardList,
+  Banners: Image,
   "Fraud Checker": ShieldAlert,
   Settings: Settings,
   Help: HelpCircle,
@@ -88,7 +88,7 @@ const generalSet = new Set([
   "Banners",
   "Fraud Checker",
   "Promocodes",
-  
+
 ]);
 
 const accountSet = new Set(["Settings", "Help", "Manage Users"]);
@@ -142,7 +142,7 @@ function Item({ to, label, Icon, badge }) {
 export default function SideNav() {
 
   const result = useGetCategoriesQuery();
-console.log(result);
+  console.log(result);
 
   return (
     <aside className="sticky left-0 top-0 h-screen w-64 bg-[#0b0f14] text-gray-200 border-r border-gray-800 flex flex-col">
