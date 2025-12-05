@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/input/TextField";
@@ -48,6 +49,8 @@ function InventoryForm({ productOptions = [], existingInventory = [] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [productError, setProductError] = useState("");
+  const authUser = useSelector((state) => state.auth.user);
+  const companyId = authUser?.companyId;
 
   const {
     register,
@@ -89,6 +92,11 @@ function InventoryForm({ productOptions = [], existingInventory = [] }) {
   };
 
   const onSubmit = async (data) => {
+    if (!companyId) {
+      toast.error("Company ID not found. Please log in again.");
+      return;
+    }
+
     // Final check for duplicate product
     if (data.productId) {
       const productExists = existingInventory.some(
@@ -105,6 +113,7 @@ function InventoryForm({ productOptions = [], existingInventory = [] }) {
       productId: data.productId || null,
       stock: parseInt(data.stock, 10) || 0,
       sold: data.sold !== "" && data.sold !== undefined && data.sold !== null ? parseInt(data.sold, 10) || 0 : undefined,
+      companyId: companyId,
     };
 
     const res = await createInventory(payload);

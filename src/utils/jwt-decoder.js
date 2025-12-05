@@ -7,6 +7,10 @@ const base64UrlDecode = (str) => {
 };
 
 export const decodeJWT = (token) => {
+  if (!token || typeof token !== "string") {
+    throw new Error("Invalid JWT token: token is missing or not a string.");
+  }
+
   const parts = token.split(".");
   if (parts.length !== 3) {
     throw new Error("Invalid JWT token.");

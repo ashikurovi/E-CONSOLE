@@ -12,10 +12,10 @@ import AuthPage from "..";
 
 // hooks and function
 import {
-  useUserLoginMutation,
-  // useVerifyRegistrationMutation,
-} from "@/features/auth/authApiSlice";
-import { userLoggedIn } from "@/features/auth/authSlice";
+  useLoginSystemuserMutation,
+  // other systemuser mutations if needed
+} from "@/features/systemuser/systemuserApiSlice";
+import { userLoggedIn, userDetailsFetched } from "@/features/auth/authSlice";
 
 // icons
 import { letter, password } from "@/assets/icons/svgIcons";
@@ -33,12 +33,18 @@ const LoginPage = () => {
   const token = searchParams.get("token");
   const email = searchParams.get("email");
 
-  const [userLogin, { isLoading: loginLoading }] = useUserLoginMutation();
+  const [loginSystemuser, { isLoading: loginLoading }] =
+    useLoginSystemuserMutation();
   // const [verifyRegistration, { isLoading: verifyLoading }] =
   //   useVerifyRegistrationMutation();
 
   // Handle successful authentication
   const handleAuthSuccess = (accessToken, refreshToken) => {
+    if (!accessToken) {
+      toast.error("Login failed: Access token is missing.");
+      return;
+    }
+
     dispatch(userLoggedIn({ accessToken, refreshToken, rememberMe }));
     toast.success("You are Successfully Logged In.");
     navigate("/");
@@ -46,37 +52,36 @@ const LoginPage = () => {
 
   const onSubmit = async (data) => {
     try {
-      if (token && email && email === data?.email) {
-        // const verifyRes = await verifyRegistration({ token, email });
+      const loginRes = await loginSystemuser(data);
 
-        // if (!verifyRes?.data?.success) {
-        //   toast.error(verifyRes?.data?.error || "Verification Failed!");
-        //   return;
-        // }
+      // Handle RTK Query response structure
+      // Response can be: { data: { accessToken, user } } or { error: {...} }
+      if (loginRes?.data) {
+        const responseData = loginRes.data;
 
-        const loginRes = await userLogin(data);
+        // Check if response has success wrapper or direct accessToken
+        const accessToken = responseData?.accessToken || responseData?.data?.accessToken;
+        const refreshToken = responseData?.refreshToken || responseData?.data?.refreshToken;
+        const user = responseData?.user || responseData?.data?.user;
 
-        if (loginRes?.data?.success) {
-          handleAuthSuccess(
-            loginRes.data?.data?.accessToken,
-            loginRes.data?.data?.refreshToken
-          );
-        } else {
-          toast.error(loginRes?.error?.data?.message || "Login Failed!");
+        if (!accessToken) {
+          toast.error("Login failed: Access token is missing.");
+          return;
         }
+
+        // Dispatch user data if available
+        if (user) {
+          dispatch(userDetailsFetched(user));
+        }
+
+        handleAuthSuccess(accessToken, refreshToken);
+      } else if (loginRes?.error) {
+        toast.error(loginRes?.error?.data?.message || loginRes?.error?.message || "Login Failed!");
       } else {
-        const loginRes = await userLogin(data);
-
-        if (loginRes?.data?.success) {
-          handleAuthSuccess(
-            loginRes.data?.data?.accessToken,
-            loginRes.data?.data?.refreshToken
-          );
-        } else {
-          toast.error(loginRes?.error?.data?.message || "Login Failed!");
-        }
+        toast.error("Login Failed!");
       }
     } catch (error) {
+      console.error("Login error:", error);
       toast.error("An error occurred. Please try again.");
     }
   };
@@ -136,12 +141,7 @@ const LoginPage = () => {
             {isLoading ? "Logging In..." : "Login"}
           </SubmitButton>
         </form>
-        <p className="mt-8 text-sm text-center text-black/50 dark:text-white/50">
-          New? Create{" "}
-          <Link to="/register" className="text-primary">
-            A New Account
-          </Link>
-        </p>
+
       </>
     </AuthPage>
   );

@@ -1,64 +1,102 @@
-import React from "react";
-import { DollarSign, Users, Headset, ClipboardList } from "lucide-react";
+import React, { useMemo } from "react";
+import { DollarSign, Users, Headset } from "lucide-react";
 import StatCard from "@/components/cards/stat-card";
+import { useGetOverviewQuery } from "@/features/overview/overviewApiSlice";
 
 const SuperAdminOverviewPage = () => {
-  const kpis = [
-    {
-      title: "Total Earnings",
-      value: "$845,320",
-      delta: "+18.4%",
-      icon: DollarSign,
-      tone: "green",
-      description: "Overall revenue across all stores",
-    },
-    {
-      title: "Active Customers",
-      value: "12,584",
-      delta: "+6.2%",
-      icon: Users,
-      tone: "blue",
-      description: "Users who purchased in the last 90 days",
-    },
-    {
-      title: "Open Support Tickets",
-      value: "32",
-      delta: "-9.1%",
-      icon: Headset,
-      tone: "default",
-      description: "Conversations waiting for agent response",
-    },
-    {
-      title: "Service Requests",
-      value: "14",
-      delta: "+2.7%",
-      icon: ClipboardList,
-      tone: "red",
-      description: "Pending technical / onboarding tasks",
-    },
-  ];
+  const { data: overviewData, isLoading } = useGetOverviewQuery();
+
+  // Format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount || 0);
+  };
+
+  // Format percentage
+  const formatPercentage = (value) => {
+    return `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
+  };
+
+  const kpis = useMemo(() => {
+    if (!overviewData?.kpis) {
+      return [
+        {
+          title: "Total Earnings",
+          value: "$0",
+          delta: "+0%",
+          icon: DollarSign,
+          tone: "green",
+          description: "Overall revenue across all stores",
+        },
+        {
+          title: "Active Customers",
+          value: "0",
+          delta: "+0%",
+          icon: Users,
+          tone: "blue",
+          description: "Users who purchased in the last 90 days",
+        },
+        {
+          title: "Open Support Tickets",
+          value: "0",
+          delta: "+0%",
+          icon: Headset,
+          tone: "default",
+          description: "Conversations waiting for agent response",
+        },
+      ];
+    }
+
+    const { kpis: kpiData } = overviewData;
+    return [
+      {
+        title: "Total Earnings",
+        value: formatCurrency(kpiData.totalEarnings),
+        delta: formatPercentage(kpiData.totalEarningsDelta || 0),
+        icon: DollarSign,
+        tone: "green",
+        description: "Overall revenue across all stores",
+      },
+      {
+        title: "Active Customers",
+        value: new Intl.NumberFormat("en-US").format(kpiData.activeCustomers || 0),
+        delta: formatPercentage(kpiData.activeCustomersDelta || 0),
+        icon: Users,
+        tone: "blue",
+        description: "Users who purchased in the last 90 days",
+      },
+      {
+        title: "Open Support Tickets",
+        value: String(kpiData.openSupportTickets || 0),
+        delta: formatPercentage(kpiData.openSupportTicketsDelta || 0),
+        icon: Headset,
+        tone: "default",
+        description: "Conversations waiting for agent response",
+      },
+    ];
+  }, [overviewData]);
 
   const quickLinks = [
     {
       label: "View Earnings Dashboard",
-      href: "/",
+      href: "/superadmin/earnings",
       description: "See detailed revenue, orders and payments analytics.",
     },
     {
       label: "Manage Customers",
-      href: "/customers",
+      href: "/superadmin/customers",
       description: "View, filter and manage all customer accounts.",
     },
     {
       label: "Support Inbox",
-      href: "/help",
+      href: "/superadmin/support",
       description: "Review help center tickets and reply to users.",
     },
-    {
-      label: "Orders & Service Requests",
-      href: "/orders",
-      description: "Track customer orders and operational requests.",
-    },
+
   ];
 
   return (
@@ -67,7 +105,7 @@ const SuperAdminOverviewPage = () => {
       <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5 flex flex-col gap-2">
         <h1 className="text-2xl font-semibold">Super Admin Overview</h1>
         <p className="text-sm text-black/60 dark:text-white/60">
-          High level control panel with earnings overview, customers, support and service requests in one place.
+          High level control panel with earnings overview, customers, and support in one place.
         </p>
       </div>
 
@@ -91,15 +129,14 @@ const SuperAdminOverviewPage = () => {
             </div>
             <div className="flex items-center justify-between text-xs">
               <span
-                className={`px-2 py-0.5 rounded-full font-medium ${
-                  item.tone === "green"
-                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
-                    : item.tone === "red"
+                className={`px-2 py-0.5 rounded-full font-medium ${item.tone === "green"
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
+                  : item.tone === "red"
                     ? "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300"
                     : item.tone === "blue"
-                    ? "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300"
-                    : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200"
-                }`}
+                      ? "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300"
+                      : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                  }`}
               >
                 {item.delta}
               </span>
@@ -109,7 +146,7 @@ const SuperAdminOverviewPage = () => {
         ))}
       </div>
 
-      {/* Two-column layout: customers + support / service requests */}
+      {/* Two-column layout: customers + support */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Customers summary */}
         <section className="xl:col-span-2 rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
@@ -147,9 +184,8 @@ const SuperAdminOverviewPage = () => {
           </div>
         </section>
 
-        {/* Support & Service requests */}
-        <section className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4 space-y-4">
-          {/* Support */}
+        {/* Support */}
+        <section className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
           <div>
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-md font-medium flex items-center gap-2">
@@ -178,38 +214,6 @@ const SuperAdminOverviewPage = () => {
               </li>
             </ul>
           </div>
-
-          <div className="h-px bg-black/5 dark:bg-white/10" />
-
-          {/* Service requests */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-md font-medium flex items-center gap-2">
-                <ClipboardList className="w-4 h-4" />
-                Service Requests
-              </h2>
-              <a
-                href="/orders"
-                className="text-xs px-2 py-1 rounded-lg bg-black text-white hover:bg-black/90"
-              >
-                View all requests
-              </a>
-            </div>
-            <ul className="space-y-2 text-xs text-black/70 dark:text-white/70">
-              <li className="flex items-center justify-between">
-                <span>Pending onboarding</span>
-                <span className="font-medium">6</span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span>Integration / technical</span>
-                <span className="font-medium">5</span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span>Priority incidents</span>
-                <span className="font-medium text-rose-400">3</span>
-              </li>
-            </ul>
-          </div>
         </section>
       </div>
 
@@ -234,5 +238,6 @@ const SuperAdminOverviewPage = () => {
 };
 
 export default SuperAdminOverviewPage;
+
 
 

@@ -8,7 +8,6 @@ const SuperAdminSideNav = () => {
     { label: "Earnings", to: "/superadmin/earnings", Icon: DollarSign },
     { label: "Our Customers", to: "/superadmin/customers", Icon: Users },
     { label: "Support", to: "/superadmin/support", Icon: Headset },
-    { label: "Service Requests", to: "/superadmin/service-requests", Icon: ClipboardList },
   ];
 
   return (
@@ -52,5 +51,6 @@ const SuperAdminSideNav = () => {
 };
 
 export default SuperAdminSideNav;
+
 
 

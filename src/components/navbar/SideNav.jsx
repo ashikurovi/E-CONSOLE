@@ -1,9 +1,14 @@
 // iconMap constant
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { userLoggedOut } from "@/features/auth/authSlice";
+import { apiSlice } from "@/features/api/apiSlice";
+import toast from "react-hot-toast";
 import { navLinks } from "./data";
 import { FileText, ShieldAlert, HelpCircle, Settings, User2, ClipboardList, Image } from "lucide-react";
 import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
+import { hasPermission } from "@/constants/feature-permission";
 
 // Icons (inline SVGs to avoid extra deps)
 const BagIcon = (props) => (
@@ -93,22 +98,24 @@ const generalSet = new Set([
 
 const accountSet = new Set(["Settings", "Help", "Manage Users"]);
 
-const nav = {
-  general: navLinks
-    .filter((item) => generalSet.has(item.title))
-    .map((item) => ({
-      label: item.title,
-      to: item.link,
-      icon: iconMap[item.title],
-      badge: item.title === "Review" ? "02" : undefined,
-    })),
-  account: navLinks
-    .filter((item) => accountSet.has(item.title))
-    .map((item) => ({
-      label: item.title,
-      to: item.link,
-      icon: iconMap[item.title],
-    })),
+const getFilteredNav = (user) => {
+  return {
+    general: navLinks
+      .filter((item) => generalSet.has(item.title) && hasPermission(user, item.permission))
+      .map((item) => ({
+        label: item.title,
+        to: item.link,
+        icon: iconMap[item.title],
+        badge: item.title === "Review" ? "02" : undefined,
+      })),
+    account: navLinks
+      .filter((item) => accountSet.has(item.title) && hasPermission(user, item.permission))
+      .map((item) => ({
+        label: item.title,
+        to: item.link,
+        icon: iconMap[item.title],
+      })),
+  };
 };
 
 function SectionTitle({ children }) {
@@ -140,65 +147,94 @@ function Item({ to, label, Icon, badge }) {
 }
 
 export default function SideNav() {
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
   const result = useGetCategoriesQuery();
   console.log(result);
+
+  const nav = getFilteredNav(user);
+
+  const handleLogout = () => {
+    dispatch(userLoggedOut());
+    dispatch(apiSlice.util.resetApiState());
+    toast.success("Logged out successfully");
+    navigate("/sign-in");
+  };
 
   return (
     <aside className="sticky left-0 top-0 h-screen w-64 bg-[#0b0f14] text-gray-200 border-r border-gray-800 flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 h-14 border-b border-gray-800">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-md bg-green-600 text-white grid place-items-center">
-            <BagIcon />
-          </div>
-          <span className="font-semibold">subcom</span>
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          {user?.companyLogo ? (
+            <img
+              src={user.companyLogo}
+              alt={user?.companyName || "Company Logo"}
+              className="w-8 h-8 rounded-md object-cover flex-shrink-0"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-md bg-green-600 text-white grid place-items-center flex-shrink-0">
+              <BagIcon />
+            </div>
+          )}
+          <span className="font-semibold truncate">
+            {user?.companyName || "Company"}
+          </span>
         </div>
-        <button className="bg-black text-white hover:bg-black/90">
+        <button className="bg-black text-white hover:bg-black/90 flex-shrink-0">
           <MenuIcon />
         </button>
       </div>
 
       {/* Body */}
       <nav className="flex-1 overflow-y-auto py-2">
-        <SectionTitle>GENERAL</SectionTitle>
-        <div className="space-y-1">
-          {nav.general.map((item) => (
-            <Item
-              key={item.label}
-              to={item.to}
-              label={item.label}
-              Icon={item.icon}
-              badge={item.badge}
-            />
-          ))}
-        </div>
+        {nav.general.length > 0 && (
+          <>
+            <SectionTitle>GENERAL</SectionTitle>
+            <div className="space-y-1">
+              {nav.general.map((item) => (
+                <Item
+                  key={item.label}
+                  to={item.to}
+                  label={item.label}
+                  Icon={item.icon}
+                  badge={item.badge}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
-        <SectionTitle>ACCOUNT</SectionTitle>
-        <div className="space-y-1">
-          {nav.account.map((item) => (
-            <Item
-              key={item.label}
-              to={item.to}
-              label={item.label}
-              Icon={item.icon}
-            />
-          ))}
-        </div>
+        {nav.account.length > 0 && (
+          <>
+            <SectionTitle>ACCOUNT</SectionTitle>
+            <div className="space-y-1">
+              {nav.account.map((item) => (
+                <Item
+                  key={item.label}
+                  to={item.to}
+                  label={item.label}
+                  Icon={item.icon}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </nav>
 
       {/* Footer */}
       <div className="mt-auto px-4 py-3 border-t border-gray-800">
-        <NavLink
-          to="/logout"
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-xl transition-colors
-             ${isActive ? "bg-gray-800 text-white" : "text-gray-300 hover:bg-gray-800/60 hover:text-white"}`
-          }
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-2 rounded-xl transition-colors text-gray-300 hover:bg-gray-800/60 hover:text-white"
         >
           <LogoutIcon />
           <span>Logout</span>
-        </NavLink>
+        </button>
       </div>
     </aside>
   );

@@ -3,6 +3,10 @@ import { decodeJWT } from "@/utils/jwt-decoder";
 export const setAuthCookie = (auth, name = "restro", path = "/") => {
   const { accessToken, refreshToken } = auth;
 
+  if (!accessToken) {
+    throw new Error("Access token is required to set authentication cookies.");
+  }
+
   try {
     const { exp } = decodeJWT(accessToken);
     const millisecondsUntilExpiration = exp ? exp * 1000 - Date.now() : 0;

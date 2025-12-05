@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -15,10 +16,15 @@ import {
     useSendCustomerEmailNotificationMutation,
     useSendCustomerSmsNotificationMutation,
 } from "@/features/notifications/notificationsApiSlice";
+import { hasPermission, FeaturePermission } from "@/constants/feature-permission";
 
 function CustomerNotifications() {
+    const { user } = useSelector((state) => state.auth);
     const [isEmailOpen, setIsEmailOpen] = useState(false);
     const [isSmsOpen, setIsSmsOpen] = useState(false);
+
+    const hasEmailPermission = hasPermission(user, FeaturePermission.EMAIL_CONFIGURATION);
+    const hasSmsPermission = hasPermission(user, FeaturePermission.SMS_CONFIGURATION);
 
     const {
         register: registerEmail,
@@ -88,127 +94,131 @@ function CustomerNotifications() {
 
     return (
         <div className="flex items-center gap-2">
-            <Dialog open={isEmailOpen} onOpenChange={setIsEmailOpen}>
-                <DialogTrigger asChild>
-                    <Button size="sm" variant="outline">
-                        Email Broadcast
-                    </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-xl h-[600px]">
-                    <DialogHeader>
-                        <DialogTitle>Broadcast Email to Customers</DialogTitle>
-                    </DialogHeader>
-                    <form
-                        onSubmit={handleEmailSubmit(onEmailSubmit)}
-                        className="flex flex-col gap-4 mt-4"
-                    >
-                        <TextField
-                            label="Subject *"
-                            placeholder="Flash Sale Starts Now"
-                            register={registerEmail}
-                            name="subject"
-                            error={emailErrors.subject}
-                            registerOptions={{
-                                required: "Subject is required",
-                            }}
-                        />
-                        <TextField
-                            label="Body (plain text) *"
-                            placeholder="Plain-text fallback message"
-                            register={registerEmail}
-                            name="body"
-                            error={emailErrors.body}
-                            multiline
-                            rows={4}
-                            registerOptions={{
-                                required: "Body is required",
-                            }}
-                        />
-                        <TextField
-                            label="HTML (optional)"
-                            placeholder="<p><strong>Flash Sale</strong> is live!</p>"
-                            register={registerEmail}
-                            name="html"
-                            multiline
-                            rows={4}
-                        />
-                        <DialogFooter className="gap-2">
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700"
-                                onClick={() => {
-                                    resetEmailForm();
-                                    setIsEmailOpen(false);
-                                }}
-                                disabled={isSendingEmail}
-                            >
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={isSendingEmail}>
-                                {isSendingEmail ? "Sending..." : "Send Email"}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
-
-            <Dialog open={isSmsOpen} onOpenChange={setIsSmsOpen}>
-                <DialogTrigger asChild>
-                    <Button size="sm" variant="outline">
-                        SMS Broadcast
-                    </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-xl h-[400px]">
-                    <DialogHeader>
-                        <DialogTitle>Broadcast SMS to Customers</DialogTitle>
-                    </DialogHeader>
-                    <form
-                        onSubmit={handleSmsSubmit(onSmsSubmit)}
-                        className="flex flex-col gap-4 mt-4"
-                    >
-                        <div className="space-y-1">
+            {hasEmailPermission && (
+                <Dialog open={isEmailOpen} onOpenChange={setIsEmailOpen}>
+                    <DialogTrigger asChild>
+                        <Button size="sm" variant="outline">
+                            Email Broadcast
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-xl h-[600px]">
+                        <DialogHeader>
+                            <DialogTitle>Broadcast Email to Customers</DialogTitle>
+                        </DialogHeader>
+                        <form
+                            onSubmit={handleEmailSubmit(onEmailSubmit)}
+                            className="flex flex-col gap-4 mt-4"
+                        >
                             <TextField
-                                label="Message *"
-                                placeholder="Write your message here..."
-                                register={registerSms}
-                                name="message"
-                                error={smsErrors.message}
-                                multiline
-                                rows={4}
-                                maxLength={480}
+                                label="Subject *"
+                                placeholder="Flash Sale Starts Now"
+                                register={registerEmail}
+                                name="subject"
+                                error={emailErrors.subject}
                                 registerOptions={{
-                                    required: "Message is required",
-                                    maxLength: {
-                                        value: 480,
-                                        message: "Message cannot exceed 480 characters",
-                                    },
+                                    required: "Subject is required",
                                 }}
                             />
-                            <p className="text-xs text-black/50 dark:text-white/50">
-                                Max 480 characters.
-                            </p>
-                        </div>
-                        <DialogFooter className="gap-2">
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700"
-                                onClick={() => {
-                                    resetSmsForm();
-                                    setIsSmsOpen(false);
+                            <TextField
+                                label="Body (plain text) *"
+                                placeholder="Plain-text fallback message"
+                                register={registerEmail}
+                                name="body"
+                                error={emailErrors.body}
+                                multiline
+                                rows={4}
+                                registerOptions={{
+                                    required: "Body is required",
                                 }}
-                                disabled={isSendingSms}
-                            >
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={isSendingSms}>
-                                {isSendingSms ? "Sending..." : "Send SMS"}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
+                            />
+                            <TextField
+                                label="HTML (optional)"
+                                placeholder="<p><strong>Flash Sale</strong> is live!</p>"
+                                register={registerEmail}
+                                name="html"
+                                multiline
+                                rows={4}
+                            />
+                            <DialogFooter className="gap-2">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700"
+                                    onClick={() => {
+                                        resetEmailForm();
+                                        setIsEmailOpen(false);
+                                    }}
+                                    disabled={isSendingEmail}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button type="submit" disabled={isSendingEmail}>
+                                    {isSendingEmail ? "Sending..." : "Send Email"}
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
+            )}
+
+            {hasSmsPermission && (
+                <Dialog open={isSmsOpen} onOpenChange={setIsSmsOpen}>
+                    <DialogTrigger asChild>
+                        <Button size="sm" variant="outline">
+                            SMS Broadcast
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-xl h-[400px]">
+                        <DialogHeader>
+                            <DialogTitle>Broadcast SMS to Customers</DialogTitle>
+                        </DialogHeader>
+                        <form
+                            onSubmit={handleSmsSubmit(onSmsSubmit)}
+                            className="flex flex-col gap-4 mt-4"
+                        >
+                            <div className="space-y-1">
+                                <TextField
+                                    label="Message *"
+                                    placeholder="Write your message here..."
+                                    register={registerSms}
+                                    name="message"
+                                    error={smsErrors.message}
+                                    multiline
+                                    rows={4}
+                                    maxLength={480}
+                                    registerOptions={{
+                                        required: "Message is required",
+                                        maxLength: {
+                                            value: 480,
+                                            message: "Message cannot exceed 480 characters",
+                                        },
+                                    }}
+                                />
+                                <p className="text-xs text-black/50 dark:text-white/50">
+                                    Max 480 characters.
+                                </p>
+                            </div>
+                            <DialogFooter className="gap-2">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700"
+                                    onClick={() => {
+                                        resetSmsForm();
+                                        setIsSmsOpen(false);
+                                    }}
+                                    disabled={isSendingSms}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button type="submit" disabled={isSendingSms}>
+                                    {isSendingSms ? "Sending..." : "Send SMS"}
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
+            )}
         </div>
     );
 }

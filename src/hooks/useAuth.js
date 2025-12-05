@@ -21,9 +21,12 @@ const useAuth = () => {
       return;
     }
 
+    // Set authChecked to true when authenticated
+    // Profile fetching is handled separately if needed
+    setAuthChecked(true);
+
     // if (isSuccess && data?.data) {
     //   dispatch(userDetailsFetched(data.data));
-    //   setAuthChecked(true);
     // }
   }, [
     // isSuccess,

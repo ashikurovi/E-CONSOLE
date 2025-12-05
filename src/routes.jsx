@@ -7,8 +7,12 @@ import SuperAdminLayout from "./layout/superadmin/layout";
 import ErrorPage from "./pages/common/errorPage";
 
 import LoginPage from "./pages/auth/login";
+import SuperAdminLoginPage from "./pages/superadmin/login";
 
 import PrivateRoute from "./hooks/usePrivateRoute";
+import SuperAdminPrivateRoute from "./hooks/useSuperAdminPrivateRoute";
+import PermissionRoute from "./hooks/PermissionRoute";
+import { FeaturePermission } from "./constants/feature-permission";
 
 import ForgotPasswordRequestPage from "./pages/auth/forgot-password/password-request";
 import ResetPasswordPage from "./pages/auth/forgot-password/reset-password";
@@ -27,11 +31,20 @@ import HelpPage from "./pages/help";
 import SettingsPage from "./pages/settings"; // settings
 import ManageUsersPage from "./pages/manageuser"; // manage users
 import SuperAdminOverviewPage from "./pages/superadmin"; // super admin overview
+import SuperAdminEarningsPage from "./pages/superadmin/earnings";
+import SuperAdminCustomersPage from "./pages/superadmin/customers";
+import SuperAdminCustomerDetailPage from "./pages/superadmin/customers-components/customer-detail";
+import SuperAdminSupportPage from "./pages/superadmin/support";
+import SuperAdminSupportDetailPage from "./pages/superadmin/support-detail";
 
 export const routes = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />,
+    element: (
+      <PrivateRoute>
+        <Layout />
+      </PrivateRoute>
+    ),
     children: [
       {
         path: "/",
@@ -39,65 +52,138 @@ export const routes = createBrowserRouter([
       },
       {
         path: "/categories",
-        element: <CategoriesPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.CATEGORY}>
+            <CategoriesPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/products",
-        element: <ProductsPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.PRODUCTS}>
+            <ProductsPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/inventory",
-        element: <InventoryPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.INVENTORY}>
+            <InventoryPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/customers",
-        element: <CustomersPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.CUSTOMERS}>
+            <CustomersPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/orders",
-        element: <OrdersPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.ORDERS}>
+            <OrdersPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/order-items",
-        element: <OrdersItemsPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.ORDERS}>
+            <OrdersItemsPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/fraud",
-        element: <FraudPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.REPORTS}>
+            <FraudPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/banners",
-        element: <BannerPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.SETTINGS}>
+            <BannerPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/promocodes",
-        element: <PromocodePage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.SETTINGS}>
+            <PromocodePage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/help",
-        element: <HelpPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.SETTINGS}>
+            <HelpPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/settings",
-        element: <SettingsPage />, // add settings route
+        element: (
+          <PermissionRoute permission={FeaturePermission.SETTINGS}>
+            <SettingsPage />
+          </PermissionRoute>
+        ), // add settings route
       },
       {
         path: "/manage-users",
-        element: <ManageUsersPage />, // add manage users route
+        element: (
+          <PermissionRoute permission={FeaturePermission.STAFF}>
+            <ManageUsersPage />
+          </PermissionRoute>
+        ), // add manage users route
       },
     ],
   },
   {
     path: "/superadmin",
-    element: <SuperAdminLayout />,
+    element: (
+      <SuperAdminPrivateRoute>
+        <SuperAdminLayout />
+      </SuperAdminPrivateRoute>
+    ),
     children: [
       {
         path: "/superadmin",
-        element: <SuperAdminOverviewPage />,
+        element: <SuperAdminPrivateRoute><SuperAdminOverviewPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/earnings",
+        element: <SuperAdminPrivateRoute><SuperAdminEarningsPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/customers",
+        element: <SuperAdminPrivateRoute><SuperAdminCustomersPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/customers/:id",
+        element: <SuperAdminPrivateRoute><SuperAdminCustomerDetailPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/support",
+        element: <SuperAdminPrivateRoute><SuperAdminSupportPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/support/:id",
+        element: <SuperAdminPrivateRoute><SuperAdminSupportDetailPage /></SuperAdminPrivateRoute>,
       },
     ],
   },
 
+  { path: "/superadmin/login", element: <SuperAdminLoginPage /> },
   { path: "/sign-in", element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/forgot-password", element: <ForgotPasswordRequestPage /> },

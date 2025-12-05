@@ -78,9 +78,7 @@ const promocodeSchema = yup.object().shape({
       if (!value || !startsAt) return true;
       return new Date(value) > new Date(startsAt);
     }),
-  isActive: yup
-    .boolean()
-    .required("Status is required"),
+
 });
 
 function PromocodeForm() {
@@ -99,6 +97,8 @@ function PromocodeForm() {
   };
 
   const onSubmit = async (data) => {
+
+    console.log(data);
     // Validate discount type
     if (!discountType?.value) {
       setValue("discountType", "", { shouldValidate: true });

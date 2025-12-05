@@ -1,35 +1,44 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { DollarSign, ShoppingCart, Users, Package } from "lucide-react";
 import StatCard from "@/components/cards/stat-card";
 import LineChartComponent from "@/components/charts/line-chart";
 import RadialChartComponent from "@/components/charts/radial-chart";
 import ReusableTable from "@/components/table/reusable-table";
+import { useGetDashboardQuery } from "@/features/dashboard/dashboardApiSlice";
 
 const DashboardPage = () => {
-  const stats = [
-    { title: "Ecommerce Revenue", value: "$245,450", delta: "+14.9%", icon: DollarSign, tone: "green" },
-    { title: "New Customers", value: "684", delta: "-8.6%", icon: Users, tone: "red" },
-    { title: "Repeat Purchase Rate", value: "75.12 %", delta: "+25.4%", icon: ShoppingCart, tone: "blue" },
-    { title: "Average Order Value", value: "$2,412.23", delta: "+3.5%", icon: Package, tone: "default" },
+  const { data: dashboardData, isLoading, isError } = useGetDashboardQuery();
+  const authUser = useSelector((state) => state.auth.user);
+  const userName = authUser?.name || "User";
+
+  // Default values while loading or on error
+  const stats = dashboardData?.stats || [
+    { title: "Ecommerce Revenue", value: "$0.00", delta: "+0.0%", icon: DollarSign, tone: "green" },
+    { title: "New Customers", value: "0", delta: "+0.0%", icon: Users, tone: "red" },
+    { title: "Repeat Purchase Rate", value: "0.00%", delta: "+0.0%", icon: ShoppingCart, tone: "blue" },
+    { title: "Average Order Value", value: "$0.00", delta: "+0.0%", icon: Package, tone: "default" },
   ];
+
+  // Map stats to include icons
+  const statsWithIcons = stats.map((stat, index) => {
+    const icons = [DollarSign, Users, ShoppingCart, Package];
+    return {
+      ...stat,
+      icon: icons[index] || DollarSign,
+    };
+  });
 
   const lineChartConfig = {
     desktop: { label: "Income Growth", color: "hsl(var(--chart-3))" },
   };
-  const lineChartData = [
-    { month: "2025-09-01", totalPNL: 4300 },
-    { month: "2025-09-05", totalPNL: 5200 },
-    { month: "2025-09-09", totalPNL: 4800 },
-    { month: "2025-09-12", totalPNL: 6100 },
-    { month: "2025-09-13", totalPNL: 5700 },
-    { month: "2025-09-15", totalPNL: 6600 },
-  ];
+  const lineChartData = dashboardData?.lineChartData || [];
 
   const radialChartConfig = {
     paid: { label: "Paid", color: "hsl(var(--chart-2))" },
     unpaid: { label: "Unpaid", color: "hsl(var(--chart-5))" },
   };
-  const radialChartData = [{ paid: 65, unpaid: 35 }];
+  const radialChartData = dashboardData?.radialChartData || [{ paid: 0, unpaid: 0 }];
 
   const tableHeaders = [
     { header: "Product", field: "product" },
@@ -38,37 +47,41 @@ const DashboardPage = () => {
     { header: "Date", field: "date" },
     { header: "Status", field: "status" },
   ];
-  const recentOrders = [
-    { product: "Water Bottle", customer: "Peterson Jack", id: "#841573", date: "27 Jun 2025", status: "Pending" },
-    { product: "Iphone 15 Pro", customer: "Michel Datta", id: "#245784", date: "26 Jun 2025", status: "Canceled" },
-    { product: "Headphone", customer: "Jesiya Rose", id: "#1024784", date: "20 Jun 2025", status: "Shipped" },
-  ];
+  const recentOrders = dashboardData?.recentOrders || [];
 
-  const bestSellers = [
-    { name: "Snicker Vento", sales: "128 Sales", id: "2443130" },
-    { name: "Blue Backpack", sales: "401 Sales", id: "1243138" },
-    { name: "Water Bottle", sales: "1k+ Sales", id: "8441573" },
-  ];
+  const bestSellers = dashboardData?.bestSellers || [];
 
-  const topCustomers = [
-    { name: "Marks Hoverson", orders: "25 Orders" },
-    { name: "Marks Hoverson", orders: "15 Orders" },
-    { name: "Jhony Peters", orders: "23 Orders" },
-  ];
+  const topCustomers = dashboardData?.topCustomers || [];
+
+  // Calculate paid percentage for radial chart
+  const paidPercentage = radialChartData[0]?.paid || 0;
+
+  if (isError) {
+    return (
+      <div className="space-y-6">
+        <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5">
+          <p className="text-xl font-semibold text-red-500">Error loading dashboard data</p>
+          <p className="text-sm text-black/60 dark:text-white/60">
+            Please try refreshing the page
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Welcome */}
       <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5">
-        <p className="text-xl font-semibold">Welcome Back, Mahfuzul!</p>
+        <p className="text-xl font-semibold">Welcome Back, {userName}!</p>
         <p className="text-sm text-black/60 dark:text-white/60">
-          Here’s what’s happening with your store today
+          Here's what's happening with your store today
         </p>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-        {stats.map((s, i) => (
+        {statsWithIcons.map((s, i) => (
           <StatCard key={i} title={s.title} value={s.value} delta={s.delta} icon={s.icon} tone={s.tone} />
         ))}
         <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4 flex items-center justify-between">
@@ -131,7 +144,7 @@ const DashboardPage = () => {
           <h3 className="text-lg font-medium">Recent Orders</h3>
           <button className="text-sm px-3 py-1 rounded-lg bg-black text-white">View All</button>
         </div>
-        <ReusableTable data={recentOrders} headers={tableHeaders} total={recentOrders.length} isLoading={false} py="py-2" />
+        <ReusableTable data={recentOrders} headers={tableHeaders} total={recentOrders.length} isLoading={isLoading} py="py-2" />
       </div>
 
       {/* Payments breakdown */}
@@ -140,7 +153,7 @@ const DashboardPage = () => {
         <RadialChartComponent
           chartData={radialChartData}
           chartConfig={radialChartConfig}
-          total={"65%"}
+          total={`${paidPercentage}%`}
           name="Paid Orders"
           className="max-w-[340px]"
         />

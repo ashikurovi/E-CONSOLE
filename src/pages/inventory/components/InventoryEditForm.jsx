@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
@@ -40,6 +41,8 @@ const editInventorySchema = yup.object().shape({
 
 export default function InventoryEditForm({ item, productOptions = [] }) {
   const [isOpen, setIsOpen] = useState(false);
+  const authUser = useSelector((state) => state.auth.user);
+  const companyId = authUser?.companyId;
 
   const {
     register,
@@ -58,11 +61,17 @@ export default function InventoryEditForm({ item, productOptions = [] }) {
   const [updateInventory, { isLoading: isUpdating }] = useUpdateInventoryMutation();
 
   const onSubmit = async (data) => {
+    if (!companyId) {
+      toast.error("Company ID not found. Please log in again.");
+      return;
+    }
+
     const payload = {
       id: item.id,
       stock: parseInt(data.stock, 10),
       sold: parseInt(data.sold, 10),
       newStock: data.newStock !== null && data.newStock !== "" ? parseInt(data.newStock, 10) : undefined,
+      companyId: companyId,
     };
 
     const res = await updateInventory(payload);

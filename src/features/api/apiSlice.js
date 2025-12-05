@@ -44,18 +44,27 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
         );
 
         if (refreshResult.data?.success) {
-          // ✅ Store new tokens
-          api.dispatch(
-            userLoggedIn({
-              accessToken: refreshResult.data.data.accessToken,
-              refreshToken: refreshResult.data.data.refreshToken,
-              rememberMe,
-            })
-          );
+          const newAccessToken = refreshResult.data.data?.accessToken;
+          const newRefreshToken = refreshResult.data.data?.refreshToken;
 
-          // Retry original request with new token
-          result = await baseQuery(args, api, extraOptions);
-          break;
+          if (newAccessToken) {
+            // ✅ Store new tokens
+            api.dispatch(
+              userLoggedIn({
+                accessToken: newAccessToken,
+                refreshToken: newRefreshToken,
+                rememberMe,
+              })
+            );
+
+            // Retry original request with new token
+            result = await baseQuery(args, api, extraOptions);
+            break;
+          } else {
+            console.error("Refresh token response missing accessToken");
+            api.dispatch(userLoggedOut());
+            break;
+          }
         } else {
           api.dispatch(userLoggedOut());
           break;
@@ -98,7 +107,10 @@ export const apiSlice = createApi({
     "promocode",
     "settings",
     "help",
-    "systemuser"
+    "systemuser",
+    "earnings",
+    "overview",
+    "dashboard"
   ],
 
   // ✅ Keep cache for 60s (avoid data disappearing)
