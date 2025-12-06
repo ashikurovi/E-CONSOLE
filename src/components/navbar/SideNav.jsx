@@ -6,7 +6,7 @@ import { userLoggedOut } from "@/features/auth/authSlice";
 import { apiSlice } from "@/features/api/apiSlice";
 import toast from "react-hot-toast";
 import { navLinks } from "./data";
-import { FileText, ShieldAlert, HelpCircle, Settings, User2, ClipboardList, Image } from "lucide-react";
+import { FileText, ShieldAlert, HelpCircle, Settings, User2, ClipboardList, Image, Shield, FileCheck, Receipt } from "lucide-react";
 import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
 import { hasPermission } from "@/constants/feature-permission";
 
@@ -80,6 +80,9 @@ const iconMap = {
   Help: HelpCircle,
   "Manage Users": User2,
   Promocodes: ClipboardList,
+  "Privacy Policy": Shield,
+  "Terms & Conditions": FileCheck,
+  "Refund Policy": Receipt,
 };
 
 const generalSet = new Set([
@@ -96,7 +99,7 @@ const generalSet = new Set([
 
 ]);
 
-const accountSet = new Set(["Settings", "Help", "Manage Users"]);
+const accountSet = new Set(["Settings", "Help", "Manage Users", "Privacy Policy", "Terms & Conditions", "Refund Policy"]);
 
 const getFilteredNav = (user) => {
   return {

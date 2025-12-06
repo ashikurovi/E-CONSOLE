@@ -60,6 +60,33 @@ export const productApiSlice = apiSlice.injectEndpoints({
         { type: "products", id: "LIST" },
       ],
     }),
+
+    // Set flash sell for products
+    setFlashSell: builder.mutation({
+      query: (body) => ({
+        url: "/products/flash-sell",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: [{ type: "products", id: "LIST" }],
+    }),
+
+    // Remove flash sell from products
+    removeFlashSell: builder.mutation({
+      query: (body) => ({
+        url: "/products/flash-sell",
+        method: "DELETE",
+        body,
+      }),
+      invalidatesTags: [{ type: "products", id: "LIST" }],
+    }),
+
+    // Get active flash sell products
+    getActiveFlashSellProducts: builder.query({
+      query: () => ({ url: "/products/flash-sell/active", method: "GET" }),
+      transformResponse: (res) => res?.data ?? [],
+      providesTags: [{ type: "products", id: "FLASH_SELL" }],
+    }),
   }),
 });
 
@@ -70,4 +97,7 @@ export const {
   useUpdateProductMutation,
   useDeleteProductMutation,
   useToggleProductActiveMutation,
+  useSetFlashSellMutation,
+  useRemoveFlashSellMutation,
+  useGetActiveFlashSellProductsQuery,
 } = productApiSlice;

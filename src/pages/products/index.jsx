@@ -12,6 +12,7 @@ import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
 import ProductForm from "./components/ProductForm";
 import ProductEditForm from "./components/ProductEditForm";
 import ProductViewModal from "./components/ProductViewModal";
+import FlashSell from "./components/FlashSell";
 import DeleteModal from "@/components/modals/DeleteModal";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import Dropdown from "@/components/dropdown/dropdown";
@@ -153,6 +154,7 @@ const ProductsPage = () => {
             <Download className="h-4 w-4" />
             Export to Excel
           </Button>
+          <FlashSell products={filteredProducts} categoryOptions={categoryOptions} />
           <ProductForm categoryOptions={categoryOptions} />
         </div>
       </div>

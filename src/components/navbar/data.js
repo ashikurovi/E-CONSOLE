@@ -17,7 +17,10 @@ export const navLinks = [
   // { id: 9, title: "Integration", link: "/integrations" },
   { id: 11, title: "Settings", link: "/settings", permission: FeaturePermission.SETTINGS },
   { id: 12, title: "Help", link: "/help", permission: FeaturePermission.SETTINGS },
-  // { id: 13, title: "Manage Users", link: "/manage-users", permission: FeaturePermission.STAFF },
+  { id: 13, title: "Privacy Policy", link: "/privacy-policy", permission: FeaturePermission.PRIVACY_POLICY },
+  { id: 14, title: "Terms & Conditions", link: "/terms-conditions", permission: FeaturePermission.TERMS_CONDITIONS },
+  { id: 15, title: "Refund Policy", link: "/refund-policy", permission: FeaturePermission.REFUND_POLICY },
+  // { id: 16, title: "Manage Users", link: "/manage-users", permission: FeaturePermission.STAFF },
 ];
 
 export const DROPDOWN_NAV_ITEMS = [

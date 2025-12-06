@@ -110,7 +110,10 @@ export const apiSlice = createApi({
     "systemuser",
     "earnings",
     "overview",
-    "dashboard"
+    "dashboard",
+    "privacyPolicy",
+    "termsConditions",
+    "refundPolicy"
   ],
 
   // ✅ Keep cache for 60s (avoid data disappearing)

@@ -45,6 +45,9 @@ const PERMISSION_OPTIONS = [
     { label: "Repeat Purchase Rate", value: "REPEAT_PURCHASE_RATE" },
     { label: "Average Order Value", value: "AVERAGE_ORDER_VALUE" },
     { label: "Stats", value: "STATS" },
+    { label: "Privacy Policy", value: "PRIVACY_POLICY" },
+    { label: "Terms & Conditions", value: "TERMS_CONDITIONS" },
+    { label: "Refund Policy", value: "REFUND_POLICY" },
 ];
 
 const PAYMENT_STATUS_OPTIONS = [

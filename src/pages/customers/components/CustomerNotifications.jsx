@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import TextField from "@/components/input/TextField";
+import RichTextEditor from "@/components/input/RichTextEditor";
 import {
     useSendCustomerEmailNotificationMutation,
     useSendCustomerSmsNotificationMutation,
@@ -28,6 +29,7 @@ function CustomerNotifications() {
 
     const {
         register: registerEmail,
+        control: controlEmail,
         handleSubmit: handleEmailSubmit,
         reset: resetEmailForm,
         formState: { errors: emailErrors },
@@ -131,13 +133,18 @@ function CustomerNotifications() {
                                     required: "Body is required",
                                 }}
                             />
-                            <TextField
-                                label="HTML (optional)"
-                                placeholder="<p><strong>Flash Sale</strong> is live!</p>"
-                                register={registerEmail}
+                            <Controller
                                 name="html"
-                                multiline
-                                rows={4}
+                                control={controlEmail}
+                                render={({ field }) => (
+                                    <RichTextEditor
+                                        label="HTML (optional)"
+                                        placeholder="Create rich HTML content for your email..."
+                                        value={field.value || ""}
+                                        onChange={field.onChange}
+                                        height="300px"
+                                    />
+                                )}
                             />
                             <DialogFooter className="gap-2">
                                 <Button

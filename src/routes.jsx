@@ -36,6 +36,9 @@ import SuperAdminCustomersPage from "./pages/superadmin/customers";
 import SuperAdminCustomerDetailPage from "./pages/superadmin/customers-components/customer-detail";
 import SuperAdminSupportPage from "./pages/superadmin/support";
 import SuperAdminSupportDetailPage from "./pages/superadmin/support-detail";
+import PrivacyPolicyPage from "./pages/privacy-policy";
+import TermsConditionsPage from "./pages/terms-conditions";
+import RefundPolicyPage from "./pages/refund-policy";
 
 export const routes = createBrowserRouter([
   {
@@ -101,7 +104,7 @@ export const routes = createBrowserRouter([
       {
         path: "/fraud",
         element: (
-          <PermissionRoute permission={FeaturePermission.REPORTS}>
+          <PermissionRoute permission={FeaturePermission.FRAUD_CHECKER}>
             <FraudPage />
           </PermissionRoute>
         ),
@@ -109,7 +112,7 @@ export const routes = createBrowserRouter([
       {
         path: "/banners",
         element: (
-          <PermissionRoute permission={FeaturePermission.SETTINGS}>
+          <PermissionRoute permission={FeaturePermission.BANNERS}>
             <BannerPage />
           </PermissionRoute>
         ),
@@ -117,7 +120,7 @@ export const routes = createBrowserRouter([
       {
         path: "/promocodes",
         element: (
-          <PermissionRoute permission={FeaturePermission.SETTINGS}>
+          <PermissionRoute permission={FeaturePermission.PROMOCODES}>
             <PromocodePage />
           </PermissionRoute>
         ),
@@ -125,7 +128,7 @@ export const routes = createBrowserRouter([
       {
         path: "/help",
         element: (
-          <PermissionRoute permission={FeaturePermission.SETTINGS}>
+          <PermissionRoute permission={FeaturePermission.HELP}>
             <HelpPage />
           </PermissionRoute>
         ),
@@ -145,6 +148,30 @@ export const routes = createBrowserRouter([
             <ManageUsersPage />
           </PermissionRoute>
         ), // add manage users route
+      },
+      {
+        path: "/privacy-policy",
+        element: (
+          <PermissionRoute permission={FeaturePermission.PRIVACY_POLICY}>
+            <PrivacyPolicyPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/terms-conditions",
+        element: (
+          <PermissionRoute permission={FeaturePermission.TERMS_CONDITIONS}>
+            <TermsConditionsPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/refund-policy",
+        element: (
+          <PermissionRoute permission={FeaturePermission.REFUND_POLICY}>
+            <RefundPolicyPage />
+          </PermissionRoute>
+        ),
       },
     ],
   },
