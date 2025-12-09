@@ -5,10 +5,11 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
       
     // createCategory 
     createCategory: builder.mutation({
-   query: (body) => ({
+   query: ({ body, params }) => ({
     url: "/categories",
     method: "POST",
     body,
+    params,
     headers: { "Content-Type": "application/json;charset=UTF-8" },
    }),
   invalidatesTags: [{ type: "categories", id: "LIST" }],
@@ -27,10 +28,12 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
     }),
 
     updateCategory: builder.mutation({
-      query: ({ id, ...body }) => ({
+      // expect shape: { id, body, params }
+      query: ({ id, body, params }) => ({
         url: `/categories/${id}`,
         method: "PATCH",
         body,
+        params,
         headers: { "Content-Type": "application/json;charset=UTF-8" },
       }),
       invalidatesTags: (result, error, { id }) => [

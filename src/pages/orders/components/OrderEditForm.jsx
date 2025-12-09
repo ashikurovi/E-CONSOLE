@@ -16,8 +16,9 @@ import {
   useCompleteOrderMutation,
   useShipOrderMutation,
 } from "@/features/order/orderApiSlice";
-
+import { useSelector } from "react-redux";
 const OrderEditForm = ({ order }) => {
+  const { user } = useSelector((state) => state.auth);
   const [isOpen, setIsOpen] = useState(false);
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -31,7 +32,8 @@ const OrderEditForm = ({ order }) => {
   const [shipOrder, { isLoading: isShipping }] = useShipOrderMutation();
 
   const onComplete = async (data) => {
-    const res = await completeOrder({ id: order.id, paymentRef: data.paymentRef || undefined });
+    const params = { companyId: user?.companyId };
+    const res = await completeOrder({ id: order.id, body: { paymentRef: data.paymentRef || undefined }, params });
     if (res?.data) {
       toast.success("Order marked as paid");
     } else {
@@ -40,7 +42,8 @@ const OrderEditForm = ({ order }) => {
   };
 
   const onShip = async (data) => {
-    const res = await shipOrder({ id: order.id, trackingId: data.trackingId || undefined, provider: data.provider || undefined });
+    const params = { companyId: user?.companyId };
+    const res = await shipOrder({ id: order.id, body: { trackingId: data.trackingId || undefined, provider: data.provider || undefined }, params });
     if (res?.data) {
       toast.success("Shipping info updated");
     } else {

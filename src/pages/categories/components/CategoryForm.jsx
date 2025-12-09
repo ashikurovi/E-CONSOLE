@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { useCreateCategoryMutation } from "@/features/category/categoryApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
+import { useSelector } from "react-redux";
 
 // Validation schema
 const categorySchema = yup.object().shape({
@@ -38,6 +39,7 @@ function CategoryForm({ parentOptions = [] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [parentOption, setParentOption] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const { user } = useSelector((state) => state.auth);
   const {
     register,
     handleSubmit,
@@ -48,6 +50,7 @@ function CategoryForm({ parentOptions = [] }) {
   });
   const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
   const { uploadImage, isUploading } = useImageUpload();
+  console.log(user)
 
   const onSubmit = async (data) => {
     let photoUrl = null;
@@ -67,10 +70,15 @@ function CategoryForm({ parentOptions = [] }) {
       isActive: true,
       photo: photoUrl || null,
       parentId: parentOption?.value || null,
+
+    };
+
+    const params = {
+      companyId: user ? user.companyId : null,
     };
 
     try {
-      const res = await createCategory(payload);
+      const res = await createCategory({ body: payload, params });
       if (res?.data) {
         toast.success("Category created");
         reset();

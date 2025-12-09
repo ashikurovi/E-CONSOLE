@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { useUpdateCategoryMutation } from "@/features/category/categoryApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
-
+import { useSelector } from "react-redux";
 const CategoryEditForm = ({ category, parentOptions, onClose }) => {
     const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
     const [selectedParent, setSelectedParent] = useState(
@@ -21,7 +21,8 @@ const CategoryEditForm = ({ category, parentOptions, onClose }) => {
     );
     const [selectedFile, setSelectedFile] = useState(null);
     const { uploadImage, isUploading } = useImageUpload();
-
+    const { user } = useSelector((state) => state.auth);
+    console.log(user)
     const { register, handleSubmit } = useForm({
         defaultValues: {
             name: category?.name ?? "",
@@ -42,8 +43,8 @@ const CategoryEditForm = ({ category, parentOptions, onClose }) => {
             }
         }
 
+        // Backend uses path param for id and forbids extra fields (id in body)
         const payload = {
-            id: category.id,
             name: data.name,
             slug: data.slug,
             isActive: data.isActive,
@@ -51,7 +52,10 @@ const CategoryEditForm = ({ category, parentOptions, onClose }) => {
             parentId: selectedParent?.value || null,
         };
 
-        const res = await updateCategory(payload);
+        const params = {
+            companyId: user?.companyId,
+        };
+        const res = await updateCategory({ id: category.id, body: payload, params });
         if (res?.data) {
             toast.success("Category updated");
             onClose();

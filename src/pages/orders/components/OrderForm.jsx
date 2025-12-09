@@ -15,12 +15,12 @@ import {
 import { useCreateOrderMutation } from "@/features/order/orderApiSlice";
 import { useGetProductsQuery } from "@/features/product/productApiSlice";
 import { useGetUsersQuery } from "@/features/user/userApiSlice";
-
+import { useSelector } from "react-redux";
 const OrderForm = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { register, handleSubmit, reset } = useForm();
   const [createOrder, { isLoading }] = useCreateOrderMutation();
-
+  const { user } = useSelector((state) => state.auth);
   const { data: products = [] } = useGetProductsQuery();
   const { data: users = [] } = useGetUsersQuery();
 
@@ -77,7 +77,8 @@ const OrderForm = () => {
       paymentMethod: selectedPayment?.value,
     };
 
-    const res = await createOrder(payload);
+    const params = { companyId: user?.companyId };
+    const res = await createOrder({ body: payload, params });
     if (res?.data) {
       toast.success("Order created");
       reset();

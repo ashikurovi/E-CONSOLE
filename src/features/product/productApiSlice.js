@@ -28,10 +28,12 @@ export const productApiSlice = apiSlice.injectEndpoints({
 
     // Update product by id
     updateProduct: builder.mutation({
-      query: ({ id, ...body }) => ({
+      // expects { id, body, params }
+      query: ({ id, body, params }) => ({
         url: `/products/${id}`,
         method: "PATCH",
         body,
+        params,
         headers: { "Content-Type": "application/json;charset=UTF-8" },
       }),
       invalidatesTags: (result, error, { id }) => [

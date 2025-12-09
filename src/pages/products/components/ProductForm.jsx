@@ -17,6 +17,7 @@ import { useCreateProductMutation } from "@/features/product/productApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
 import FileUpload from "@/components/input/FileUpload";
 import { X, Plus } from "lucide-react";
+import { useSelector } from "react-redux";
 
 function ProductForm({ categoryOptions = [] }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +27,7 @@ function ProductForm({ categoryOptions = [] }) {
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [imageFiles, setImageFiles] = useState([]);
   const { uploadImage, isUploading } = useImageUpload();
-
+  const { user } = useSelector((state) => state.auth);
   const addImage = () => {
     setImageFiles([...imageFiles, { url: "", alt: "", isPrimary: imageFiles.length === 0 }]);
   };
@@ -93,7 +94,8 @@ function ProductForm({ categoryOptions = [] }) {
       category: categoryOption?.value || null,
     };
 
-    const res = await createProduct(payload);
+    const params = { companyId: user.companyId };
+    const res = await createProduct({ body: payload, params });
     if (res?.data) {
       toast.success("Product created");
       reset();

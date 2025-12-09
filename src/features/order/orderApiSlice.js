@@ -3,24 +3,32 @@ import { apiSlice } from "../api/apiSlice";
 export const orderApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createOrder: builder.mutation({
-      query: (body) => ({ url: "/orders", method: "POST", body }),
+      // expects { body, params }
+      query: ({ body, params }) => ({
+        url: "/orders",
+        method: "POST",
+        body,
+        params,
+      }),
       invalidatesTags: [{ type: "orders", id: "LIST" }],
     }),
     getOrders: builder.query({
-      query: () => ({ url: "/orders", method: "GET" }),
+      query: (params) => ({ url: "/orders", method: "GET", params }),
       transformResponse: (res) => res?.data ?? [],
       providesTags: [{ type: "orders", id: "LIST" }],
     }),
     getOrder: builder.query({
-      query: (id) => ({ url: `/orders/${id}`, method: "GET" }),
+      query: ({ id, params }) => ({ url: `/orders/${id}`, method: "GET", params }),
       transformResponse: (res) => res?.data,
       providesTags: (result, error, id) => [{ type: "orders", id }],
     }),
     completeOrder: builder.mutation({
-      query: ({ id, paymentRef }) => ({
+      // expects { id, body, params }
+      query: ({ id, body, params }) => ({
         url: `/orders/${id}/complete`,
         method: "PATCH",
-        body: paymentRef ? { paymentRef } : undefined,
+        body,
+        params,
       }),
       invalidatesTags: (result, error, { id }) => [
         { type: "orders", id },
@@ -28,17 +36,19 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       ],
     }),
     deliverOrder: builder.mutation({
-      query: (id) => ({ url: `/orders/${id}/deliver`, method: "PATCH" }),
+      query: ({ id, params }) => ({ url: `/orders/${id}/deliver`, method: "PATCH", params }),
       invalidatesTags: (result, error, id) => [
         { type: "orders", id },
         { type: "orders", id: "LIST" },
       ],
     }),
     shipOrder: builder.mutation({
-      query: ({ id, trackingId, provider }) => ({
+      // expects { id, body, params }
+      query: ({ id, body, params }) => ({
         url: `/orders/${id}/ship`,
         method: "PATCH",
-        body: { trackingId, provider },
+        body,
+        params,
       }),
       invalidatesTags: (result, error, { id }) => [
         { type: "orders", id },
@@ -46,21 +56,21 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       ],
     }),
     cancelOrder: builder.mutation({
-      query: (id) => ({ url: `/orders/${id}/cancel`, method: "PATCH" }),
+      query: ({ id, params }) => ({ url: `/orders/${id}/cancel`, method: "PATCH", params }),
       invalidatesTags: (result, error, id) => [
         { type: "orders", id },
         { type: "orders", id: "LIST" },
       ],
     }),
     refundOrder: builder.mutation({
-      query: (id) => ({ url: `/orders/${id}/refund`, method: "PATCH" }),
+      query: ({ id, params }) => ({ url: `/orders/${id}/refund`, method: "PATCH", params }),
       invalidatesTags: (result, error, id) => [
         { type: "orders", id },
         { type: "orders", id: "LIST" },
       ],
     }),
     deleteOrder: builder.mutation({
-      query: (id) => ({ url: `/orders/${id}`, method: "DELETE" }),
+      query: ({ id, params }) => ({ url: `/orders/${id}`, method: "DELETE", params }),
       invalidatesTags: (result, error, id) => [
         { type: "orders", id },
         { type: "orders", id: "LIST" },

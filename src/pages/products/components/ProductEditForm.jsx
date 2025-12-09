@@ -17,6 +17,7 @@ import {
 import { useUpdateProductMutation } from "@/features/product/productApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
 import FileUpload from "@/components/input/FileUpload";
+import { useSelector } from "react-redux";
 
 export default function ProductEditForm({ product, categoryOptions = [] }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,7 +31,7 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [imageFiles, setImageFiles] = useState([]);
   const { uploadImage, isUploading } = useImageUpload();
-
+  const { user } = useSelector((state) => state.auth);
   const { register, handleSubmit } = useForm({
     defaultValues: {
       name: product?.name ?? product?.title ?? "",
@@ -123,19 +124,28 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
       uploadedImages[0].isPrimary = true;
     }
 
+    if (!selectedCategory?.value) {
+      toast.error("Category is required");
+      return;
+    }
+    if (!user?.companyId) {
+      toast.error("Missing company context");
+      return;
+    }
+
     const payload = {
-      id: product.id,
-      name: data.name,
-      sku: data.sku,
+      name: data.name?.trim(),
+      sku: data.sku?.trim() || "",
       price: parseFloat(data.price) || 0,
-      discountPrice: data.discountPrice ? parseFloat(data.discountPrice) : null,
-      description: data.description || "",
+      discountPrice: data.discountPrice ? parseFloat(data.discountPrice) : undefined,
+      description: data.description?.trim() || "",
       images: uploadedImages,
-      thumbnail: thumbnailUrl || null,
-      category: selectedCategory?.value || null,
+      thumbnail: thumbnailUrl || undefined,
+      categoryId: Number(selectedCategory.value),
     };
 
-    const res = await updateProduct(payload);
+    const params = { companyId: user.companyId };
+    const res = await updateProduct({ id: product.id, body: payload, params });
     if (res?.data) {
       toast.success("Product updated");
       setIsOpen(false);
