@@ -3,14 +3,15 @@ import { apiSlice } from "../api/apiSlice";
 export const bannersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createBanner: builder.mutation({
-      query: (body) => ({
+      query: ({ body, params }) => ({
         url: "/banners",
         method: "POST",
         body,
+        params,
       }),
       invalidatesTags: [{ type: "banners", id: "LIST" }],
     }),
-    
+
     getBanners: builder.query({
       query: () => ({ url: "/banners", method: "GET" }),
       transformResponse: (res) => res?.data ?? [],

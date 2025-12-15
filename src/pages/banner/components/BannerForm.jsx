@@ -18,6 +18,7 @@ import {
 
 import { useCreateBannerMutation } from "@/features/banners/bannersApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
+import { useSelector } from "react-redux";
 
 const bannerSchema = yup.object().shape({
   title: yup
@@ -73,7 +74,7 @@ function BannerForm({ productOptions = [] }) {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const { uploadImage, isUploading } = useImageUpload();
-
+  const { user } = useSelector((state) => state.auth);
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(bannerSchema),
     defaultValues: {
@@ -121,8 +122,12 @@ function BannerForm({ productOptions = [] }) {
       productId: selectedProduct?.value || null,
     };
 
+    const params = {
+      companyId: user?.companyId,
+    };
+
     try {
-      const res = await createBanner(payload);
+      const res = await createBanner({ body: payload, params });
       if (res?.data) {
         toast.success("Banner created");
         reset();
