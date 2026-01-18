@@ -6,7 +6,7 @@ import { userLoggedOut } from "@/features/auth/authSlice";
 import { apiSlice } from "@/features/api/apiSlice";
 import toast from "react-hot-toast";
 import { navLinks } from "./data";
-import { FileText, ShieldAlert, HelpCircle, Settings, User2, ClipboardList, Image, Shield, FileCheck, Receipt } from "lucide-react";
+import { FileText, ShieldAlert, HelpCircle, Settings, User2, ClipboardList, Image, Shield, FileCheck, Receipt, Truck } from "lucide-react";
 import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
 import { hasPermission } from "@/constants/feature-permission";
 
@@ -83,6 +83,8 @@ const iconMap = {
   "Privacy Policy": Shield,
   "Terms & Conditions": FileCheck,
   "Refund Policy": Receipt,
+  "Steadfast Courier": Truck,
+  "Pathao Courier": Truck,
 };
 
 const generalSet = new Set([
@@ -96,6 +98,8 @@ const generalSet = new Set([
   "Banners",
   "Fraud Checker",
   "Promocodes",
+  "Steadfast Courier",
+  "Pathao Courier",
 
 ]);
 

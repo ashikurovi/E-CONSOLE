@@ -22,6 +22,12 @@ import useImageUpload from "@/hooks/useImageUpload";
 const PERMISSION_OPTIONS = [
     { label: "Products", value: "PRODUCTS" },
     { label: "Orders", value: "ORDERS" },
+    { label: "Order Items", value: "ORDER_ITEMS" },
+    { label: "Steadfast Courier", value: "STEADFAST" },
+    { label: "Pathao Courier", value: "PATHAO" },
+    { label: "Notifications", value: "NOTIFICATIONS" },
+    { label: "Email Notifications", value: "EMAIL_NOTIFICATIONS" },
+    { label: "Whatsapp Notifications", value: "WHATSAPP_NOTIFICATIONS" },
     { label: "Category", value: "CATEGORY" },
     { label: "Customers", value: "CUSTOMERS" },
     { label: "Reports", value: "REPORTS" },

@@ -2,10 +2,17 @@ import React, { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Truck, Package, XCircle, RotateCcw, FileText, Trash2 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { CheckCircle, Truck, Package, XCircle, RotateCcw, FileText, Trash2, ClipboardCheck } from "lucide-react";
 import {
   useGetOrdersQuery,
   useCompleteOrderMutation,
+  useProcessOrderMutation,
   useDeliverOrderMutation,
   useShipOrderMutation,
   useCancelOrderMutation,
@@ -21,6 +28,7 @@ import { generateOrderInvoice } from "@/utils/orderInvoice";
 const OrdersPage = () => {
   const { data: orders = [], isLoading } = useGetOrdersQuery();
   const [completeOrder, { isLoading: isCompleting }] = useCompleteOrderMutation();
+  const [processOrder, { isLoading: isProcessing }] = useProcessOrderMutation();
   const [deliverOrder, { isLoading: isDelivering }] = useDeliverOrderMutation();
   const [shipOrder, { isLoading: isShipping }] = useShipOrderMutation();
   const [cancelOrder, { isLoading: isCancelling }] = useCancelOrderMutation();
@@ -55,6 +63,7 @@ const OrdersPage = () => {
         createdAt: o.createdAt ? new Date(o.createdAt).toLocaleString() : "-",
         actions: (() => {
           const status = o.status?.toLowerCase() || "";
+          const isProcessing = status === "processing";
           const isCompleted = status === "completed" || status === "paid";
           const isDelivered = status === "delivered";
           const isShipped = status === "shipped";
@@ -63,134 +72,201 @@ const OrdersPage = () => {
           const isFinalStatus = isShipped || isDelivered || isCancelled || isRefunded;
 
           return (
-            <div className="flex items-center gap-2 justify-end">
-              <OrderViewModal order={o} />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
-                onClick={() => {
-                  try {
-                    generateOrderInvoice(o);
-                    toast.success("Invoice generated successfully");
-                  } catch (error) {
-                    toast.error("Failed to generate invoice");
-                    console.error("Invoice generation error:", error);
-                  }
-                }}
-                title="Generate Invoice"
-              >
-                <FileText className="h-4 w-4" />
-              </Button>
-              {!isFinalStatus && <OrderEditForm order={o} />}
+            <TooltipProvider>
+              <div className="flex items-center gap-2 justify-end">
+                <OrderViewModal order={o} />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
+                      onClick={() => {
+                        try {
+                          generateOrderInvoice(o);
+                          toast.success("Invoice generated successfully");
+                        } catch (error) {
+                          toast.error("Failed to generate invoice");
+                          console.error("Invoice generation error:", error);
+                        }
+                      }}
+                    >
+                      <FileText className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Generate Invoice</p>
+                  </TooltipContent>
+                </Tooltip>
+                {!isFinalStatus && <OrderEditForm order={o} />}
 
-              {!isCompleted && !isFinalStatus && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"
-                  onClick={async () => {
-                    const paymentRef = window.prompt("Payment reference (optional):") || undefined;
-                    const res = await completeOrder({ id: o.id, paymentRef });
-                    if (res?.data) toast.success("Order marked as paid");
-                    else toast.error(res?.error?.data?.message || "Failed to complete");
-                  }}
-                  disabled={isCompleting}
-                  title="Complete"
-                >
-                  <CheckCircle className="h-4 w-4" />
-                </Button>
-              )}
+                {!isProcessing && !isCompleted && !isFinalStatus && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
+                        onClick={async () => {
+                          const res = await processOrder({ id: o.id });
+                          if (res?.data) toast.success("Order marked as processing");
+                          else toast.error(res?.error?.data?.message || "Failed to process");
+                        }}
+                        disabled={isProcessing}
+                      >
+                        <ClipboardCheck className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Mark as Processing</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
 
-              {!isDelivered && !isShipped && !isCancelled && !isRefunded && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-                  onClick={async () => {
-                    const res = await deliverOrder(o.id);
-                    if (res?.data) toast.success("Order delivered");
-                    else toast.error(res?.error?.data?.message || "Failed to deliver");
-                  }}
-                  disabled={isDelivering}
-                  title="Deliver"
-                >
-                  <Truck className="h-4 w-4" />
-                </Button>
-              )}
+                {!isCompleted && !isFinalStatus && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"
+                        onClick={async () => {
+                          const paymentRef = window.prompt("Payment reference (optional):") || undefined;
+                          const res = await completeOrder({ id: o.id, paymentRef });
+                          if (res?.data) toast.success("Order marked as paid");
+                          else toast.error(res?.error?.data?.message || "Failed to complete");
+                        }}
+                        disabled={isCompleting}
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Mark as Completed/Paid</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
 
-              {!isShipped && !isDelivered && !isCancelled && !isRefunded && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
-                  onClick={async () => {
-                    const trackingId = window.prompt("Tracking ID:") || undefined;
-                    const provider = window.prompt("Shipping Provider:") || undefined;
-                    const res = await shipOrder({ id: o.id, trackingId, provider });
-                    if (res?.data) toast.success("Order shipped");
-                    else toast.error(res?.error?.data?.message || "Failed to ship");
-                  }}
-                  disabled={isShipping}
-                  title="Ship"
-                >
-                  <Package className="h-4 w-4" />
-                </Button>
-              )}
+                {!isDelivered && !isShipped && !isCancelled && !isRefunded && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                        onClick={async () => {
+                          const res = await deliverOrder(o.id);
+                          if (res?.data) toast.success("Order delivered");
+                          else toast.error(res?.error?.data?.message || "Failed to deliver");
+                        }}
+                        disabled={isDelivering}
+                      >
+                        <Truck className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Mark as Delivered</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
 
-              {!isCancelled && !isRefunded && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
-                  onClick={async () => {
-                    if (!confirm("Cancel this order?")) return;
-                    const res = await cancelOrder(o.id);
-                    if (res?.data) toast.success("Order cancelled");
-                    else toast.error(res?.error?.data?.message || "Failed to cancel");
-                  }}
-                  disabled={isCancelling}
-                  title="Cancel"
-                >
-                  <XCircle className="h-4 w-4" />
-                </Button>
-              )}
+                {!isShipped && !isDelivered && !isCancelled && !isRefunded && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
+                        onClick={async () => {
+                          const trackingId = window.prompt("Tracking ID:") || undefined;
+                          const provider = window.prompt("Shipping Provider:") || undefined;
+                          const res = await shipOrder({ id: o.id, trackingId, provider });
+                          if (res?.data) toast.success("Order shipped");
+                          else toast.error(res?.error?.data?.message || "Failed to ship");
+                        }}
+                        disabled={isShipping}
+                      >
+                        <Package className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Mark as Shipped</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
 
-              {!isRefunded && !isCancelled && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400"
-                  onClick={async () => {
-                    if (!confirm("Refund this order?")) return;
-                    const res = await refundOrder(o.id);
-                    if (res?.data) toast.success("Order refunded");
-                    else toast.error(res?.error?.data?.message || "Failed to refund");
-                  }}
-                  disabled={isRefunding}
-                  title="Refund"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                </Button>
-              )}
+                {!isCancelled && !isRefunded && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
+                        onClick={async () => {
+                          if (!confirm("Cancel this order?")) return;
+                          const res = await cancelOrder(o.id);
+                          if (res?.data) toast.success("Order cancelled");
+                          else toast.error(res?.error?.data?.message || "Failed to cancel");
+                        }}
+                        disabled={isCancelling}
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Cancel Order</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
 
-              {(isRefunded || isCancelled) && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
-                  onClick={() => setDeleteModal({ isOpen: true, order: o })}
-                  disabled={isDeleting}
-                  title="Delete"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
+                {!isRefunded && !isCancelled && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400"
+                        onClick={async () => {
+                          if (!confirm("Refund this order?")) return;
+                          const res = await refundOrder(o.id);
+                          if (res?.data) toast.success("Order refunded");
+                          else toast.error(res?.error?.data?.message || "Failed to refund");
+                        }}
+                        disabled={isRefunding}
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Refund Order</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+
+                {(isRefunded || isCancelled) && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
+                        onClick={() => setDeleteModal({ isOpen: true, order: o })}
+                        disabled={isDeleting}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Delete Order</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+            </TooltipProvider>
           );
         })(),
       })),
-    [orders, completeOrder, deliverOrder, shipOrder, cancelOrder, refundOrder, deleteOrder, isCompleting, isDelivering, isShipping, isCancelling, isRefunding, isDeleting]
+    [orders, completeOrder, processOrder, deliverOrder, shipOrder, cancelOrder, refundOrder, deleteOrder, isCompleting, isProcessing, isDelivering, isShipping, isCancelling, isRefunding, isDeleting]
   );
 
   const handleDelete = async () => {

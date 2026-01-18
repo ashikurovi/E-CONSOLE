@@ -5,6 +5,7 @@ import { routes } from "./routes";
 
 // hooks
 import useAuth from "./hooks/useAuth";
+import useStorageSync from "./hooks/useStorageSync";
 import { DarkModeProvider } from "./hooks/dark-mode";
 
 // components
@@ -17,6 +18,9 @@ import "./assets/styles/layout.css";
 
 const App = () => {
   const { isLoading, authChecked } = useAuth();
+  
+  // Enable real-time storage sync across tabs
+  useStorageSync();
 
   if (!authChecked || isLoading) {
     return (

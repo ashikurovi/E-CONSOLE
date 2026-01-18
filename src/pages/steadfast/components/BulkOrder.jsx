@@ -1,0 +1,181 @@
+import React, { useState } from "react";
+import { useCreateBulkOrdersMutation } from "@/features/steadfast/steadfastApiSlice";
+import toast from "react-hot-toast";
+import PrimaryButton from "@/components/buttons/primary-button";
+import { Upload, Download } from "lucide-react";
+
+const BulkOrder = () => {
+  const [createBulkOrders, { isLoading }] = useCreateBulkOrdersMutation();
+  const [ordersJson, setOrdersJson] = useState("");
+  const [results, setResults] = useState(null);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const content = event.target.result;
+        const parsed = JSON.parse(content);
+        setOrdersJson(JSON.stringify(parsed, null, 2));
+        toast.success("File loaded successfully");
+      } catch (error) {
+        toast.error("Invalid JSON file");
+        console.error("File read error:", error);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!ordersJson.trim()) {
+      toast.error("Please provide orders data");
+      return;
+    }
+
+    try {
+      const orders = JSON.parse(ordersJson);
+      
+      if (!Array.isArray(orders)) {
+        toast.error("Orders must be an array");
+        return;
+      }
+
+      if (orders.length > 500) {
+        toast.error("Maximum 500 orders allowed");
+        return;
+      }
+
+      // Validate each order
+      const invalidOrders = orders.filter(
+        (order) =>
+          !order.invoice ||
+          !order.recipient_name ||
+          !order.recipient_phone ||
+          !order.recipient_address ||
+          order.cod_amount === undefined
+      );
+
+      if (invalidOrders.length > 0) {
+        toast.error(`${invalidOrders.length} order(s) missing required fields`);
+        return;
+      }
+
+      const result = await createBulkOrders(orders).unwrap();
+      setResults(result);
+      
+      const successCount = result.filter((r) => r.status === "success").length;
+      const errorCount = result.filter((r) => r.status === "error").length;
+      
+      toast.success(
+        `Bulk order created: ${successCount} successful, ${errorCount} failed`
+      );
+    } catch (error) {
+      const errorMessage = error?.data?.message || "Failed to create bulk orders";
+      const errorDetails = error?.data?.details;
+      
+      if (error?.status === 429) {
+        toast.error(
+          `${errorMessage}${errorDetails ? ` - ${errorDetails}` : ""}`,
+          { duration: 6000 }
+        );
+      } else if (error?.status === 401) {
+        toast.error(
+          `${errorMessage}${errorDetails ? ` - ${errorDetails}` : ""}`,
+          { duration: 6000 }
+        );
+      } else {
+        toast.error(errorMessage);
+      }
+      console.error("Bulk order error:", error);
+    }
+  };
+
+  const downloadTemplate = () => {
+    const template = [
+      {
+        invoice: "INV-001",
+        recipient_name: "John Doe",
+        recipient_address: "House 44, Road 2/A, Dhanmondi, Dhaka 1209",
+        recipient_phone: "01711111111",
+        cod_amount: "1000.00",
+        note: "Deliver within 3 PM",
+        item_description: "Sample item",
+        total_lot: "1",
+        delivery_type: 0,
+      },
+    ];
+    const blob = new Blob([JSON.stringify(template, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "bulk-order-template.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="max-w-4xl">
+      <h3 className="text-lg font-semibold mb-4">Bulk Order Create</h3>
+      <p className="text-sm text-black/60 dark:text-white/60 mb-4">
+        Upload a JSON file with up to 500 orders. Each order must include: invoice, recipient_name, recipient_phone, recipient_address, and cod_amount.
+      </p>
+
+      <div className="flex gap-4 mb-4">
+        <label className="flex items-center gap-2 px-4 py-2 bg-black/5 dark:bg-white/5 rounded-lg cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
+          <Upload className="h-4 w-4" />
+          <span>Upload JSON File</span>
+          <input
+            type="file"
+            accept=".json"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+        </label>
+        <button
+          onClick={downloadTemplate}
+          className="flex items-center gap-2 px-4 py-2 bg-black/5 dark:bg-white/5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+        >
+          <Download className="h-4 w-4" />
+          <span>Download Template</span>
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="text-black/50 dark:text-white/50 text-sm ml-1 mb-2 block">
+            Orders JSON (Array format)
+          </label>
+          <textarea
+            value={ordersJson}
+            onChange={(e) => setOrdersJson(e.target.value)}
+            placeholder='[{"invoice": "INV-001", "recipient_name": "John Doe", "recipient_phone": "01711111111", "recipient_address": "Address", "cod_amount": "1000.00"}]'
+            className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded min-h-[300px] font-mono text-sm"
+            rows={15}
+          />
+        </div>
+        <PrimaryButton type="submit" isLoading={isLoading}>
+          Create Bulk Orders
+        </PrimaryButton>
+      </form>
+
+      {results && (
+        <div className="mt-6">
+          <h4 className="text-md font-semibold mb-2">Results</h4>
+          <div className="max-h-96 overflow-y-auto border border-black/10 dark:border-white/10 rounded-lg p-4">
+            <pre className="text-xs font-mono overflow-x-auto">
+              {JSON.stringify(results, null, 2)}
+            </pre>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default BulkOrder;

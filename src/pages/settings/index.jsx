@@ -10,7 +10,9 @@ import useImageUpload from "@/hooks/useImageUpload";
 import {
   useUpdateSystemuserMutation,
 } from "@/features/systemuser/systemuserApiSlice";
-import { MapPin, Shield, Package, Building2, CreditCard, DollarSign, CheckCircle, Calendar, Mail, Phone, User } from "lucide-react";
+import { MapPin, Shield, Package, Building2, CreditCard, DollarSign, CheckCircle, Calendar, Mail, Phone, User, Truck, Key } from "lucide-react";
+import OrderNotificationSettings from "./components/OrderNotificationSettings";
+import { hasPermission, FeaturePermission } from "@/constants/feature-permission";
 
 const SettingsPage = () => {
   const authUser = useSelector((state) => state.auth.user);
@@ -23,6 +25,7 @@ const SettingsPage = () => {
   const [logoFile, setLogoFile] = useState(null);
   const { uploadImage, isUploading } = useImageUpload();
 
+  // Profile form
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       name: "",
@@ -30,6 +33,22 @@ const SettingsPage = () => {
       companyName: "",
       phone: "",
       branchLocation: "",
+    },
+  });
+
+  // Pathao credentials form
+  const { register: registerPathao, handleSubmit: handleSubmitPathao, reset: resetPathao } = useForm({
+    defaultValues: {
+      clientId: "",
+      clientSecret: "",
+    },
+  });
+
+  // Steadfast credentials form
+  const { register: registerSteadfast, handleSubmit: handleSubmitSteadfast, reset: resetSteadfast } = useForm({
+    defaultValues: {
+      apiKey: "",
+      secretKey: "",
     },
   });
 
@@ -45,6 +64,21 @@ const SettingsPage = () => {
       setLogoFile(null);
     }
   }, [user, reset]);
+
+  // Load credentials from user data or localStorage on mount
+  useEffect(() => {
+    if (user) {
+      resetPathao({
+        clientId: user.pathaoConfig?.clientId || localStorage.getItem("pathaoClientId") || import.meta.env.VITE_PATHAO_CLIENT_ID || "",
+        clientSecret: user.pathaoConfig?.clientSecret || localStorage.getItem("pathaoClientSecret") || import.meta.env.VITE_PATHAO_CLIENT_SECRET || "",
+      });
+
+      resetSteadfast({
+        apiKey: user.steadfastConfig?.apiKey || localStorage.getItem("steadfastApiKey") || import.meta.env.VITE_STEADFAST_API_KEY || "",
+        secretKey: user.steadfastConfig?.secretKey || localStorage.getItem("steadfastSecretKey") || import.meta.env.VITE_STEADFAST_SECRET_KEY || "",
+      });
+    }
+  }, [user, resetPathao, resetSteadfast]);
 
 
   const onSubmit = async (data) => {
@@ -81,6 +115,62 @@ const SettingsPage = () => {
       }
     } catch (e) {
       toast.error("Something went wrong");
+    }
+  };
+
+  const onSubmitPathao = async (data) => {
+    if (!userId) {
+      toast.error("User ID not found");
+      return;
+    }
+
+    try {
+      const payload = {
+        pathaoConfig: {
+          clientId: data.clientId,
+          clientSecret: data.clientSecret,
+        },
+      };
+
+      const res = await updateSystemuser({ id: userId, ...payload });
+      if (res?.data) {
+        // Also save to localStorage for backward compatibility
+        localStorage.setItem("pathaoClientId", data.clientId);
+        localStorage.setItem("pathaoClientSecret", data.clientSecret);
+        toast.success("Pathao credentials saved successfully");
+      } else {
+        toast.error(res?.error?.data?.message || "Failed to save Pathao credentials");
+      }
+    } catch (e) {
+      toast.error("Failed to save Pathao credentials");
+    }
+  };
+
+  const onSubmitSteadfast = async (data) => {
+    if (!userId) {
+      toast.error("User ID not found");
+      return;
+    }
+
+    try {
+      const payload = {
+        steadfastConfig: {
+          apiKey: data.apiKey,
+          secretKey: data.secretKey,
+        },
+      };
+
+      const res = await updateSystemuser({ id: userId, ...payload });
+      if (res?.data) {
+        // Also save to localStorage for backward compatibility
+        localStorage.setItem("steadfastApiKey", data.apiKey);
+        localStorage.setItem("steadfastSecretKey", data.secretKey);
+        toast.success("Steadfast credentials saved successfully");
+      } else {
+        toast.error(res?.error?.data?.message || "Failed to save Steadfast credentials");
+      }
+    } catch (e) {
+      toast.error("Failed to save Steadfast credentials");
     }
   };
 
@@ -328,6 +418,111 @@ const SettingsPage = () => {
           </Card>
         </div>
       </div>
+
+      {/* Courier Credentials Section */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Courier Integration Settings</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          
+          {/* Pathao Credentials */}
+          {hasPermission(user, FeaturePermission.PATHAO) && (
+          <Card className="border border-black/10 dark:border-white/10">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Truck className="h-5 w-5 text-blue-500" />
+                <CardTitle className="text-base font-semibold">Pathao Courier Credentials</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmitPathao(onSubmitPathao)} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
+                    Client ID
+                  </label>
+                  <input
+                    type="text"
+                    {...registerPathao("clientId")}
+                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter Pathao Client ID"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
+                    Client Secret
+                  </label>
+                  <input
+                    type="password"
+                    {...registerPathao("clientSecret")}
+                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter Pathao Client Secret"
+                  />
+                </div>
+                <div className="pt-2">
+                  <Button type="submit" className="w-full" disabled={isUpdating}>
+                    <Key className="h-4 w-4 mr-2" />
+                    {isUpdating ? "Saving..." : "Save Pathao Credentials"}
+                  </Button>
+                </div>
+                <div className="text-xs text-black/50 dark:text-white/50 mt-2">
+                  Get your credentials from <a href="https://merchant.pathao.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Pathao Merchant Portal</a>
+                </div>  
+              </form>
+            </CardContent>
+          </Card>
+          )}
+          {/* Steadfast Credentials */}
+          {hasPermission(user, FeaturePermission.STEADFAST) && (
+          <Card className="border border-black/10 dark:border-white/10">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Truck className="h-5 w-5 text-green-500" />
+                <CardTitle className="text-base font-semibold">Steadfast Courier Credentials</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmitSteadfast(onSubmitSteadfast)} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
+                    API Key
+                  </label>
+                  <input
+                    type="text"
+                    {...registerSteadfast("apiKey")}
+                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Enter Steadfast API Key"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
+                    Secret Key
+                  </label>
+                  <input
+                    type="password"
+                    {...registerSteadfast("secretKey")}
+                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Enter Steadfast Secret Key"
+                  />
+                </div>
+                <div className="pt-2">
+                  <Button type="submit" className="w-full" disabled={isUpdating}>
+                    <Key className="h-4 w-4 mr-2" />
+                    {isUpdating ? "Saving..." : "Save Steadfast Credentials"}
+                  </Button>
+                </div>
+                <div className="text-xs text-black/50 dark:text-white/50 mt-2">
+                  Get your credentials from <a href="https://portal.packzy.com" target="_blank" rel="noopener noreferrer" className="text-green-500 hover:underline">Steadfast Portal</a>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+          )}
+        </div>
+      </div>
+
+
+      {hasPermission(user, FeaturePermission.NOTIFICATIONS) && (
+      <OrderNotificationSettings />
+      )}
 
       {/* Profile Update Form */}
       <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">

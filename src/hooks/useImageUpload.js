@@ -1,11 +1,11 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { getTokens } from "./useToken";
 
-const IMGBB_API_KEY = "fb4646f769fcf0581bd72ca9c56c5f53";
-const IMGBB_API_URL = "https://api.imgbb.com/1/upload";
+const API_BASE_URL = 'https://squadlog-cdn.up.railway.app';
 
 /**
- * Custom hook for uploading images to imgBB
+ * Custom hook for uploading images to backend server
  * @returns {Object} { uploadImage, isUploading, error }
  */
 const useImageUpload = () => {
@@ -13,7 +13,7 @@ const useImageUpload = () => {
   const [error, setError] = useState(null);
 
   /**
-   * Upload image to imgBB
+   * Upload image to backend server
    * @param {File} file - The image file to upload
    * @returns {Promise<string|null>} The image URL or null if upload fails
    */
@@ -41,29 +41,20 @@ const useImageUpload = () => {
     setError(null);
 
     try {
-      // Convert file to base64
-      const base64 = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          // Remove data:image/...;base64, prefix
-          const base64String = reader.result.split(",")[1];
-          resolve(base64String);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      // Create FormData with file
+      const formData = new FormData();
+      formData.append("file", file);
 
-      // Upload to imgBB (requires URL-encoded form data)
-      const formData = new URLSearchParams();
-      formData.append("key", IMGBB_API_KEY);
-      formData.append("image", base64);
+      // Get auth token
+      const { accessToken } = getTokens();
 
-      const response = await fetch(IMGBB_API_URL, {
+      // Upload to backend server
+      const response = await fetch(`${API_BASE_URL}/upload/image`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
         },
-        body: formData.toString(),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -72,11 +63,11 @@ const useImageUpload = () => {
 
       const data = await response.json();
 
-      if (data.success && data.data?.url) {
-        toast.success("Image uploaded successfully");
-        return data.data.url;
+      if (data.success && data.url) {
+        toast.success(data.message || "Image uploaded successfully");
+        return data.url;
       } else {
-        throw new Error(data.error?.message || "Upload failed");
+        throw new Error(data.message || "Upload failed");
       }
     } catch (err) {
       const errorMessage = err.message || "Failed to upload image";

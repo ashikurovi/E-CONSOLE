@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { triggerStorageSync } from "@/hooks/useStorageSync";
 
 // Check if superadmin is already logged in (from localStorage)
 const getSuperAdminAuth = () => {
@@ -21,10 +22,16 @@ export const superadminAuthSlice = createSlice({
         superadminLoggedIn: (state) => {
             state.isAuthenticated = true;
             localStorage.setItem("superadmin_auth", JSON.stringify({ isAuthenticated: true }));
+            
+            // Trigger storage sync to notify other tabs about superadmin login
+            triggerStorageSync(false, "superadmin_auth_change");
         },
         superadminLoggedOut: (state) => {
             state.isAuthenticated = false;
             localStorage.removeItem("superadmin_auth");
+            
+            // Trigger storage sync to notify other tabs about superadmin logout
+            triggerStorageSync(false, "superadmin_auth_change");
         },
     },
 });

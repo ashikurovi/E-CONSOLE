@@ -26,11 +26,28 @@ export const notificationsApiSlice = apiSlice.injectEndpoints({
         headers: { "Content-Type": "application/json;charset=UTF-8" },
       }),
     }),
+    getOrderCreatedNotifications: builder.query({
+      query: (companyId) => ({
+        url: "/notifications/order-created",
+        method: "GET",
+        params: companyId ? { companyId } : {},
+        headers: { 
+          "Content-Type": "application/json",
+          ...(companyId && { "x-company-id": companyId })
+        },
+      }),
+      transformResponse: (response) => {
+        // Extract data array from response and return only recent 5
+        const notifications = response?.data || [];
+        return notifications.slice(0, 5);
+      },
+    }),
   }),
 });
 
 export const {
   useSendCustomerEmailNotificationMutation,
   useSendCustomerSmsNotificationMutation,
+  useGetOrderCreatedNotificationsQuery,
 } = notificationsApiSlice;
 

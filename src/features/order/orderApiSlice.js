@@ -35,6 +35,13 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         { type: "orders", id: "LIST" },
       ],
     }),
+    processOrder: builder.mutation({
+      query: ({ id, params }) => ({ url: `/orders/${id}/process`, method: "PATCH", params }),
+      invalidatesTags: (result, error, id) => [
+        { type: "orders", id },
+        { type: "orders", id: "LIST" },
+      ],
+    }),
     deliverOrder: builder.mutation({
       query: ({ id, params }) => ({ url: `/orders/${id}/deliver`, method: "PATCH", params }),
       invalidatesTags: (result, error, id) => [
@@ -84,6 +91,7 @@ export const {
   useGetOrderQuery,
   useCreateOrderMutation,
   useCompleteOrderMutation,
+  useProcessOrderMutation,
   useDeliverOrderMutation,
   useShipOrderMutation,
   useCancelOrderMutation,

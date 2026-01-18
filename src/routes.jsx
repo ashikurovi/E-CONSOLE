@@ -39,6 +39,8 @@ import SuperAdminSupportDetailPage from "./pages/superadmin/support-detail";
 import PrivacyPolicyPage from "./pages/privacy-policy";
 import TermsConditionsPage from "./pages/terms-conditions";
 import RefundPolicyPage from "./pages/refund-policy";
+import SteadfastPage from "./pages/steadfast";
+import PathaoPage from "./pages/pathao";
 
 export const routes = createBrowserRouter([
   {
@@ -170,6 +172,22 @@ export const routes = createBrowserRouter([
         element: (
           <PermissionRoute permission={FeaturePermission.REFUND_POLICY}>
             <RefundPolicyPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/steadfast",
+        element: (
+          <PermissionRoute permission={FeaturePermission.STEADFAST}>
+            <SteadfastPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/pathao",
+        element: (
+          <PermissionRoute permission={FeaturePermission.PATHAO}>
+            <PathaoPage />
           </PermissionRoute>
         ),
       },

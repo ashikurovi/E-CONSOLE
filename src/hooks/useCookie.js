@@ -1,4 +1,5 @@
 import { decodeJWT } from "@/utils/jwt-decoder";
+import { triggerStorageSync } from "./useStorageSync";
 
 export const setAuthCookie = (auth, name = "restro", path = "/") => {
   const { accessToken, refreshToken } = auth;
@@ -31,6 +32,9 @@ export const setAuthCookie = (auth, name = "restro", path = "/") => {
 
     // Store token expiration time in localStorage for quick validation
     localStorage.setItem(`${name}_exp`, exp.toString());
+    
+    // Trigger storage sync to notify other tabs about cookie update
+    triggerStorageSync(true);
   } catch (error) {
     console.error("Failed to set authentication cookies:", error);
     throw error;
@@ -72,6 +76,9 @@ export const removeAuthCookie = (name = "restro", path = "/") => {
 
   // Clear localStorage
   localStorage.removeItem(`${name}_exp`);
+  
+  // Trigger storage sync to notify other tabs about cookie removal
+  triggerStorageSync(false);
 };
 
 // New function to check if user is authenticated

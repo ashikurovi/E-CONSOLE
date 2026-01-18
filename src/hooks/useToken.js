@@ -1,4 +1,5 @@
 import { getAuthCookie, removeAuthCookie } from "./useCookie";
+import { triggerStorageSync } from "./useStorageSync";
 
 export const getTokens = () => {
   const { accessToken: cookieAccessToken, refreshToken: cookieRefreshToken } =
@@ -26,9 +27,15 @@ export const clearTokens = () => {
   sessionStorage.removeItem("accessToken");
   sessionStorage.removeItem("refreshToken");
   removeAuthCookie();
+  
+  // Trigger storage sync to notify other tabs about logout
+  triggerStorageSync(false);
 };
 
 export const setSessionToken = (accessToken, refreshToken) => {
   sessionStorage.setItem("accessToken", accessToken);
   sessionStorage.setItem("refreshToken", refreshToken);
+  
+  // Trigger storage sync to notify about token update
+  triggerStorageSync(false);
 };

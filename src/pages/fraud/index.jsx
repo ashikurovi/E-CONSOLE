@@ -1,94 +1,52 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
-import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
-import {
-  useLazyCheckUserRiskQuery,
-  useFlagUserMutation,
-  useUnflagUserMutation,
-} from "@/features/fraud/fraudApiSlice";
 
 const FraudPage = () => {
-  const [checkType, setCheckType] = useState("email"); // 'email' | 'name' | 'phone'
-  const [queryValue, setQueryValue] = useState("");
-  const [triggerCheck, { data, isFetching, isLoading: isChecking }] = useLazyCheckUserRiskQuery();
-  const [flagUser, { isLoading: isFlagging }] = useFlagUserMutation();
-  const [unflagUser, { isLoading: isUnflagging }] = useUnflagUserMutation();
-
-  const results = useMemo(() => {
-    // API returns res.data which is either an object (email/phone) or array (name)
-    if (!data) return [];
-    return Array.isArray(data) ? data : [data];
-  }, [data]);
-
-  const headers = useMemo(
-    () => [
-      { header: "User ID", field: "id" },
-      { header: "Name", field: "name" },
-      { header: "Email", field: "email" },
-      { header: "Phone", field: "phone" },
-      { header: "Risk Score", field: "riskScore" },
-      { header: "Actions", field: "actions" },
-    ],
-    []
-  );
-
-  const tableData = useMemo(
-    () =>
-      results.map((u) => ({
-        id: u?.id ?? "-",
-        name: u?.name ?? u?.fullName ?? "-",
-        email: u?.email ?? "-",
-        phone: u?.phone ?? "-",
-        riskScore:
-          typeof u?.riskScore === "number"
-            ? `${u.riskScore}`
-            : u?.riskScore ?? u?.risk?.score ?? "-",
-        actions: (
-          <div className="flex items-center gap-2 justify-end">
-            <Button
-              size="sm"
-              variant="destructive"
-              disabled={isFlagging}
-              onClick={async () => {
-                const reason = window.prompt("Enter reason to flag (ban) this user:");
-                if (!reason || !reason.trim()) return;
-                const res = await flagUser({ id: u?.id, reason });
-                if (res?.data) toast.success("User flagged");
-                else toast.error(res?.error?.data?.message || "Failed to flag user");
-              }}
-            >
-              {isFlagging ? "Flagging..." : "Flag User"}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={isUnflagging}
-              onClick={async () => {
-                const res = await unflagUser({ id: u?.id });
-                if (res?.data) toast.success("User unflagged");
-                else toast.error(res?.error?.data?.message || "Failed to unflag user");
-              }}
-            >
-              {isUnflagging ? "Unflagging..." : "Unflag User"}
-            </Button>
-          </div>
-        ),
-      })),
-    [results, flagUser, unflagUser, isFlagging, isUnflagging]
-  );
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [fraudData, setFraudData] = useState(null);
 
   const runCheck = async () => {
-    const value = queryValue?.trim();
-    if (!value) {
-      toast.error("Please provide a value for the selected check type.");
+    const phone = phoneNumber?.trim();
+    if (!phone) {
+      toast.error("Please enter a phone number");
       return;
     }
+
+    setIsLoading(true);
     try {
-      await triggerCheck({ [checkType]: value }).unwrap();
-      toast.success("Risk check complete");
-    } catch (e) {
-      toast.error(e?.data?.message || "Failed to run risk check");
+      const response = await fetch(
+        `https://fraudchecker.link/free-fraud-checker-bd/api/search.php?phone=${encodeURIComponent(phone)}`
+      );
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        setFraudData(result.data);
+        toast.success("Fraud check completed");
+      } else {
+        toast.error("No data found for this phone number");
+        setFraudData(null);
+      }
+    } catch (error) {
+      console.error("Fraud check error:", error);
+      toast.error("Failed to check fraud data");
+      setFraudData(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getRiskBadgeColor = (riskColor) => {
+    switch (riskColor) {
+      case "success":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      case "warning":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      case "danger":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
     }
   };
 
@@ -99,42 +57,118 @@ const FraudPage = () => {
       </div>
 
       <div className="flex flex-col md:flex-row gap-3 items-start md:items-end mb-4">
-        <div className="flex flex-col">
-          <label className="text-sm font-medium mb-1">Check Type</label>
-          <select
-            className="border rounded-md px-3 py-2 dark:bg-[#242424]"
-            value={checkType}
-            onChange={(e) => setCheckType(e.target.value)}
-          >
-            <option value="email">Email</option>
-            <option value="name">Name</option>
-            <option value="phone">Phone</option>
-          </select>
-        </div>
-
         <div className="flex-1 w-full md:w-auto">
-          <label className="text-sm font-medium mb-1 block">Value</label>
+          <label className="text-sm font-medium mb-1 block">Phone Number</label>
           <input
             type="text"
-            placeholder={`Enter ${checkType}`}
+            placeholder="Enter phone number (e.g., 01581782193)"
             className="border rounded-md px-3 py-2 w-full dark:bg-[#242424]"
-            value={queryValue}
-            onChange={(e) => setQueryValue(e.target.value)}
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && runCheck()}
           />
         </div>
 
-        <Button size="sm" variant="outline" disabled={isChecking || isFetching} onClick={runCheck}>
-          {isChecking || isFetching ? "Checking..." : "Run Check"}
+        <Button size="sm" variant="outline" onClick={runCheck} disabled={isLoading}>
+          {isLoading ? "Checking..." : "Run Check"}
         </Button>
       </div>
 
-      <ReusableTable
-        data={tableData}
-        headers={headers}
-        total={results.length}
-        isLoading={isChecking || isFetching}
-        py="py-2"
-      />
+      {fraudData && (
+        <div className="space-y-4">
+          {/* Summary Card */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 rounded-lg border border-black/10 dark:border-white/10">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Phone Number</p>
+              <p className="text-lg font-semibold">{fraudData.phoneNumber}</p>
+            </div>
+            <div className="p-4 rounded-lg border border-black/10 dark:border-white/10">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Orders</p>
+              <p className="text-lg font-semibold">{fraudData.totalOrders}</p>
+            </div>
+            <div className="p-4 rounded-lg border border-black/10 dark:border-white/10">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Delivered</p>
+              <p className="text-lg font-semibold text-green-600 dark:text-green-400">
+                {fraudData.totalDelivered}
+              </p>
+            </div>
+            <div className="p-4 rounded-lg border border-black/10 dark:border-white/10">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Cancelled</p>
+              <p className="text-lg font-semibold text-red-600 dark:text-red-400">
+                {fraudData.totalCancelled}
+              </p>
+            </div>
+          </div>
+
+          {/* Risk Assessment */}
+          <div className="p-4 rounded-lg border border-black/10 dark:border-white/10">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Risk Assessment</p>
+                <p className="text-lg font-semibold mb-2">{fraudData.riskMessage}</p>
+                <p className="text-sm">
+                  Delivery Rate: <span className="font-semibold">{fraudData.deliveryRate}%</span>
+                </p>
+              </div>
+              <span
+                className={`px-4 py-2 rounded-full text-sm font-semibold uppercase ${getRiskBadgeColor(
+                  fraudData.riskColor
+                )}`}
+              >
+                {fraudData.riskLevel}
+              </span>
+            </div>
+          </div>
+
+          {/* Courier Breakdown */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Courier Breakdown</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {fraudData.couriers?.map((courier, index) => (
+                <div
+                  key={index}
+                  className="p-4 rounded-lg border border-black/10 dark:border-white/10 hover:shadow-md transition-shadow"
+                >
+                  <h4 className="text-lg font-semibold mb-3">{courier.name}</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Total Orders</span>
+                      <span className="font-semibold">{courier.orders}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Delivered</span>
+                      <span className="font-semibold text-green-600 dark:text-green-400">
+                        {courier.delivered}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Cancelled</span>
+                      <span className="font-semibold text-red-600 dark:text-red-400">
+                        {courier.cancelled}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-black/10 dark:border-white/10">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Delivery Rate</span>
+                      <span className="font-bold text-lg">{courier.delivery_rate}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Search Date */}
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            Last checked: {new Date(fraudData.searchDate).toLocaleString()}
+          </div>
+        </div>
+      )}
+
+      {!fraudData && !isLoading && (
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          Enter a phone number to check fraud history
+        </div>
+      )}
     </div>
   );
 };
