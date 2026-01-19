@@ -43,9 +43,26 @@ function HelpForm() {
         <DialogHeader>
           <DialogTitle>Create Help Ticket</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
-          <TextField placeholder="Requester Email" type="email" register={register} name="email" />
-          <TextField placeholder="Describe the issue" multiline rows={4} register={register} name="issue" />
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
+          {/* Contact Information Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Contact Information
+              </h3>
+            </div>
+            <TextField label="Your Email Address *" placeholder="your.email@example.com" type="email" register={register} name="email" />
+          </div>
+
+          {/* Issue Description Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Issue Details
+              </h3>
+            </div>
+            <TextField label="Issue Description *" placeholder="Please describe your issue in detail..." multiline rows={4} register={register} name="issue" />
+          </div>
           <DialogFooter>
             <div className="flex items-center w-full justify-end gap-2">
               <Button className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400" variant="ghost" type="button" onClick={() => setIsOpen(false)}>

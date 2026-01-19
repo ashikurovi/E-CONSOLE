@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,8 +8,10 @@ import { Bell } from "lucide-react";
 import {
   useUpdateSystemuserMutation,
 } from "@/features/systemuser/systemuserApiSlice";
+import { userDetailsFetched } from "@/features/auth/authSlice";
 
 const OrderNotificationSettings = () => {
+  const dispatch = useDispatch();
   const authUser = useSelector((state) => state.auth.user);
   const userId = authUser?.userId || authUser?.sub || authUser?.id;
   const user = authUser || null;
@@ -53,6 +55,10 @@ const OrderNotificationSettings = () => {
         // Also save to localStorage for backward compatibility
         localStorage.setItem("notificationEmail", data.email);
         localStorage.setItem("notificationWhatsapp", data.whatsapp);
+        
+        // Update Redux state and localStorage immediately
+        dispatch(userDetailsFetched(payload));
+        
         toast.success("Notification settings saved successfully");
       } else {
         toast.error(res?.error?.data?.message || "Failed to save notification settings");

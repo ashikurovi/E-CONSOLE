@@ -36,11 +36,14 @@ import SuperAdminCustomersPage from "./pages/superadmin/customers";
 import SuperAdminCustomerDetailPage from "./pages/superadmin/customers-components/customer-detail";
 import SuperAdminSupportPage from "./pages/superadmin/support";
 import SuperAdminSupportDetailPage from "./pages/superadmin/support-detail";
+import PackageManagementPage from "./pages/superadmin/packagemanagement";
+import InvoiceManagementPage from "./pages/superadmin/invoice";
 import PrivacyPolicyPage from "./pages/privacy-policy";
 import TermsConditionsPage from "./pages/terms-conditions";
 import RefundPolicyPage from "./pages/refund-policy";
 import SteadfastPage from "./pages/steadfast";
 import PathaoPage from "./pages/pathao";
+import UpgradePlanPage from "./pages/upgrade-plan";
 
 export const routes = createBrowserRouter([
   {
@@ -191,6 +194,10 @@ export const routes = createBrowserRouter([
           </PermissionRoute>
         ),
       },
+      {
+        path: "/upgrade-plan",
+        element: <UpgradePlanPage />, // always accessible
+      },
     ],
   },
   {
@@ -224,6 +231,14 @@ export const routes = createBrowserRouter([
       {
         path: "/superadmin/support/:id",
         element: <SuperAdminPrivateRoute><SuperAdminSupportDetailPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/packages",
+        element: <SuperAdminPrivateRoute><PackageManagementPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/invoices",
+        element: <SuperAdminPrivateRoute><InvoiceManagementPage /></SuperAdminPrivateRoute>,
       },
     ],
   },

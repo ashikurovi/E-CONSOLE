@@ -1,11 +1,12 @@
 import { setAuthCookie } from "@/hooks/useCookie";
 import { clearTokens, getTokens, setSessionToken } from "@/hooks/useToken";
-import { decodeJWT } from "@/utils/jwt-decoder";
 import { createSlice } from "@reduxjs/toolkit";
 
 const { accessToken } = getTokens();
 
 const initialState = (() => {
+  // Only store authentication status and token
+  // User data will be fetched from API using /auth/me
   if (!accessToken) {
     return {
       accessToken: null,
@@ -14,20 +15,11 @@ const initialState = (() => {
     };
   }
 
-  try {
-    const { payload } = decodeJWT(accessToken);
-    return {
-      accessToken,
-      user: payload || null,
-      isAuthenticated: true,
-    };
-  } catch {
-    return {
-      accessToken: null,
-      user: null,
-      isAuthenticated: false,
-    };
-  }
+  return {
+    accessToken,
+    user: null, // Will be fetched from API
+    isAuthenticated: true,
+  };
 })();
 
 export const authSlice = createSlice({
@@ -44,13 +36,8 @@ export const authSlice = createSlice({
 
       state.accessToken = token;
       state.isAuthenticated = true;
-
-      try {
-        const { payload } = decodeJWT(token);
-        state.user = payload || null;
-      } catch {
-        state.user = null;
-      }
+      // User data will be fetched from API, not stored here
+      state.user = null;
 
       if (action.payload.rememberMe) {
         try {
@@ -66,7 +53,9 @@ export const authSlice = createSlice({
       }
     },
     userDetailsFetched: (state, action) => {
-      state.user = action.payload;
+      // Merge new details with existing user data
+      // This is used when user data is fetched from API
+      state.user = { ...state.user, ...action.payload };
     },
     userLoggedOut: (state) => {
       state.accessToken = null;

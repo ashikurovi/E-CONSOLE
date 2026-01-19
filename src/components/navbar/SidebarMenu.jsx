@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
 
 import { AlignLeft } from "lucide-react";
 import { navLinks } from "./data";
@@ -9,7 +9,8 @@ import { hasPermission } from "@/constants/feature-permission";
 const SidebarMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const sidebarRef = useRef(null);
-  const { user } = useSelector((state) => state.auth);
+  // Fetch user data from API instead of Redux
+  const { data: user, isLoading: isLoadingUser } = useGetCurrentUserQuery();
 
   const handleSideMenu = () => {
     setIsOpen((prev) => !prev);

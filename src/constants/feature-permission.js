@@ -36,7 +36,7 @@ export const FeaturePermission = Object.freeze({
 
 export const hasPermission = (user, permission) => {
   if (!permission) return true;
-  const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
+  const permissions = Array.isArray(user?.package?.features) ? user.package.features   : [];
   return permissions.includes(permission);
 };
 

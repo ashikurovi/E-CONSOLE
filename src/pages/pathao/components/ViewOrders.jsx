@@ -54,36 +54,56 @@ const ViewOrders = () => {
 
         {/* Single Order Details */}
         {singleOrder && (
-          <div className="mt-4 p-4 border border-black/10 dark:border-white/10 rounded-lg bg-white dark:bg-[#242424]">
-            <h5 className="font-semibold mb-3">Order Details</h5>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <span className="text-black/50 dark:text-white/50">Consignment ID:</span>
-                <p className="font-medium">{singleOrder.consignment_id}</p>
+          <div className="mt-4 p-4 border border-black/10 dark:border-white/10 rounded-lg bg-white dark:bg-[#242424] space-y-6">
+            {/* Order Information Section */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                  Order Information
+                </h3>
               </div>
-              <div>
-                <span className="text-black/50 dark:text-white/50">Merchant Order ID:</span>
-                <p className="font-medium">{singleOrder.merchant_order_id}</p>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">Consignment ID</label>
+                  <p className="font-medium">{singleOrder.consignment_id}</p>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">Merchant Order ID</label>
+                  <p className="font-medium">{singleOrder.merchant_order_id}</p>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">Status</label>
+                  <span className="inline-flex px-2 py-1 rounded-full text-xs bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">
+                    {singleOrder.order_status}
+                  </span>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">Amount to Collect</label>
+                  <p className="font-semibold text-lg">৳{singleOrder.amount_to_collect}</p>
+                </div>
               </div>
-              <div>
-                <span className="text-black/50 dark:text-white/50">Status:</span>
-                <p className="font-medium">{singleOrder.order_status}</p>
+            </div>
+
+            {/* Recipient Information Section */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                  Recipient Information
+                </h3>
               </div>
-              <div>
-                <span className="text-black/50 dark:text-white/50">Recipient:</span>
-                <p className="font-medium">{singleOrder.recipient_name}</p>
-              </div>
-              <div>
-                <span className="text-black/50 dark:text-white/50">Phone:</span>
-                <p className="font-medium">{singleOrder.recipient_phone}</p>
-              </div>
-              <div>
-                <span className="text-black/50 dark:text-white/50">Amount:</span>
-                <p className="font-medium">৳{singleOrder.amount_to_collect}</p>
-              </div>
-              <div className="col-span-2">
-                <span className="text-black/50 dark:text-white/50">Address:</span>
-                <p className="font-medium">{singleOrder.recipient_address}</p>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">Name</label>
+                  <p className="font-medium">{singleOrder.recipient_name}</p>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">Phone</label>
+                  <p className="font-medium">{singleOrder.recipient_phone}</p>
+                </div>
+                <div className="col-span-2">
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">Address</label>
+                  <p className="font-medium">{singleOrder.recipient_address}</p>
+                </div>
               </div>
             </div>
           </div>

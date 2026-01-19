@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { userLoggedIn, userLoggedOut } from "@/features/auth/authSlice";
+import { userLoggedIn, userLoggedOut, userDetailsFetched } from "@/features/auth/authSlice";
 import { superadminLoggedIn, superadminLoggedOut } from "@/features/superadminAuth/superadminAuthSlice";
 import { getTokens } from "./useToken";
 import { decodeJWT } from "@/utils/jwt-decoder";
@@ -38,6 +38,8 @@ const useStorageSync = () => {
           }
         }
       }
+
+      // User data is now fetched from API, no localStorage sync needed
 
       // Handle superadmin auth changes
       if (event.key === "superadmin_auth") {
@@ -82,6 +84,8 @@ const useStorageSync = () => {
           }
         }
       }
+
+      // User data is now fetched from API, no custom event sync needed
 
       // Handle superadmin auth custom events
       if (event.detail?.type === "superadmin_auth_change") {

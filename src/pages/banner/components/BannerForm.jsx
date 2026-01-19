@@ -153,62 +153,102 @@ function BannerForm({ productOptions = [] }) {
           <DialogTitle>Create Banner</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
-          <TextField
-            placeholder="Title *"
-            register={register}
-            name="title"
-            error={errors.title}
-          />
-          <TextField
-            placeholder="Subtitle *"
-            register={register}
-            name="subtitle"
-            error={errors.subtitle}
-          />
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
+          {/* Banner Content Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Banner Content
+              </h3>
+            </div>
+            <TextField
+              label="Banner Title *"
+              placeholder="Enter banner title"
+              register={register}
+              name="title"
+              error={errors.title}
+            />
+            <TextField
+              label="Subtitle *"
+              placeholder="Enter banner subtitle"
+              register={register}
+              name="subtitle"
+              error={errors.subtitle}
+            />
+          </div>
 
-          <FileUpload
-            placeholder="Choose image file"
-            label="Upload Image"
-            name="image"
-            accept="image/*"
-            onChange={setImageFile}
-            value={imageFile}
-          />
+          {/* Banner Image Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Banner Image
+              </h3>
+            </div>
+            <FileUpload
+              placeholder="Choose image file"
+              label="Upload Image"
+              name="image"
+              accept="image/*"
+              onChange={setImageFile}
+              value={imageFile}
+            />
+            <div className="text-center text-sm text-black/50 dark:text-white/50">OR</div>
+            <TextField
+              label="Image URL"
+              placeholder="https://example.com/image.jpg (optional)"
+              register={register}
+              name="imageUrl"
+              error={errors.imageUrl}
+            />
+          </div>
 
-          <div className="text-center text-sm text-black/50 dark:text-white/50">OR</div>
+          {/* Call to Action Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Call to Action
+              </h3>
+            </div>
+            <TextField
+              label="Button Text *"
+              placeholder="Shop Now"
+              register={register}
+              name="buttonText"
+              error={errors.buttonText}
+            />
+            <TextField
+              label="Button Link *"
+              placeholder="https://example.com"
+              register={register}
+              name="buttonLink"
+              error={errors.buttonLink}
+            />
+          </div>
 
-
-
-          <TextField
-            placeholder="Button Text *"
-            register={register}
-            name="buttonText"
-            error={errors.buttonText}
-          />
-          <TextField
-            placeholder="Button Link *"
-            register={register}
-            name="buttonLink"
-            error={errors.buttonLink}
-          />
-          <TextField
-            placeholder="Order *"
-            register={register}
-            name="order"
-            type="number"
-            error={errors.order}
-          />
-
-          {/* Active Toggle */}
-          <div className="flex flex-col gap-2">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" {...register("isActive")} />
-              <span>Active</span>
-            </label>
-            {errors.isActive && (
-              <span className="text-red-500 text-xs ml-1">{errors.isActive.message}</span>
-            )}
+          {/* Settings Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Settings
+              </h3>
+            </div>
+            <TextField
+              label="Display Order *"
+              placeholder="1"
+              register={register}
+              name="order"
+              type="number"
+              error={errors.order}
+            />
+            <div className="flex flex-col gap-2">
+              <label className="flex items-center gap-2">
+                <input type="checkbox" {...register("isActive")} />
+                <span>Active</span>
+              </label>
+              {errors.isActive && (
+                <span className="text-red-500 text-xs ml-1">{errors.isActive.message}</span>
+              )}
+            </div>
           </div>
 
           <DialogFooter>

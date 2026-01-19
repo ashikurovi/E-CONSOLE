@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
 
@@ -16,34 +15,214 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useGetOrderCreatedNotificationsQuery } from "@/features/notifications/notificationsApiSlice";
+import { 
+  useGetOrderCreatedNotificationsQuery, 
+  useGetAllNotificationsQuery,
+  useGetOrderStatusNotificationsQuery,
+  useGetNewCustomerNotificationsQuery,
+  useGetLowStockNotificationsQuery,
+} from "@/features/notifications/notificationsApiSlice";
+import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
 import moment from "moment";
 // ... existing code ...
 
 const TopNavbar = () => {
-  const { user } = useSelector((state) => state?.auth);
+  // Fetch user data from API instead of Redux
+  const { data: user, isLoading: isLoadingUser } = useGetCurrentUserQuery();
   const { pathname } = useLocation();
 
   const companyId = user?.companyId;
-  const { data: orderNotifications = [], isLoading, refetch } = useGetOrderCreatedNotificationsQuery(companyId, {
-    skip: !companyId, // Skip the query if companyId is not available
-  });
   const userId = user?._id;
+  
+  // Fetch all types of notifications
+  const { data: allNotifications = [], isLoading: isLoadingAll, refetch: refetchAll } = useGetAllNotificationsQuery(
+    { companyId },
+    { skip: !companyId }
+  );
+  
+  const { data: orderNotifications = [], isLoading: isLoadingOrders, refetch: refetchOrders } = useGetOrderCreatedNotificationsQuery(companyId, {
+    skip: !companyId,
+  });
+  
+  const { data: orderStatusNotifications = [], isLoading: isLoadingOrderStatus, refetch: refetchOrderStatus } = useGetOrderStatusNotificationsQuery(companyId, {
+    skip: !companyId,
+  });
+  
+  const { data: newCustomerNotifications = [], isLoading: isLoadingCustomers, refetch: refetchCustomers } = useGetNewCustomerNotificationsQuery(companyId, {
+    skip: !companyId,
+  });
+  
+  const { data: lowStockNotifications = [], isLoading: isLoadingStock, refetch: refetchStock } = useGetLowStockNotificationsQuery(companyId, {
+    skip: !companyId,
+  });
+  
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+  
+  const isLoading = isLoadingAll || isLoadingOrders || isLoadingOrderStatus || isLoadingCustomers || isLoadingStock;
 
+  // Combine notifications from all sources
+  const combinedNotifications = [
+    ...allNotifications, 
+    ...orderNotifications, 
+    ...orderStatusNotifications,
+    ...newCustomerNotifications,
+    ...lowStockNotifications,
+  ];
+  
+  // Remove duplicates based on id
+  const uniqueNotifications = combinedNotifications.reduce((acc, current) => {
+    const exists = acc.find(item => (item.id || item._id) === (current.id || current._id));
+    if (!exists) {
+      return acc.concat([current]);
+    }
+    return acc;
+  }, []);
+  
   // Transform API notifications to match UI format
-  const notifications = orderNotifications.map((notification) => ({
-    id: notification.id || notification._id,
-    type: "order",
-    title: notification.title || "New Order Created",
-    message: notification.message || `Order has been created successfully`,
-    time: notification.createdAt 
-      ? moment(notification.createdAt).fromNow()
-      : "Just now",
-    icon: ShoppingCart,
-    iconColor: "text-blue-500",
-    read: notification.isRead || false,
-  }));
+  const notifications = uniqueNotifications.map((notification) => {
+    // Determine icon and color based on notification type (matching backend enum)
+    let icon = Bell;
+    let iconColor = "text-gray-500";
+    let title = notification.subject || notification.title || "Notification";
+    
+    switch(notification.type) {
+      // Order notifications
+      case "order_created":
+      case "ORDER_CREATED":
+        icon = ShoppingCart;
+        iconColor = "text-blue-500";
+        title = notification.subject || notification.title || "New Order Created";
+        break;
+      case "order_confirmed":
+      case "ORDER_CONFIRMED":
+        icon = CheckCircle;
+        iconColor = "text-blue-600";
+        title = notification.subject || notification.title || "Order Confirmed";
+        break;
+      case "order_processing":
+      case "ORDER_PROCESSING":
+        icon = Package;
+        iconColor = "text-yellow-500";
+        title = notification.subject || notification.title || "Order Processing";
+        break;
+      case "order_shipped":
+      case "ORDER_SHIPPED":
+        icon = Truck;
+        iconColor = "text-purple-500";
+        title = notification.subject || notification.title || "Order Shipped";
+        break;
+      case "order_delivered":
+      case "ORDER_DELIVERED":
+        icon = CheckCircle;
+        iconColor = "text-green-500";
+        title = notification.subject || notification.title || "Order Delivered";
+        break;
+      case "order_cancelled":
+      case "ORDER_CANCELLED":
+        icon = AlertCircle;
+        iconColor = "text-red-500";
+        title = notification.subject || notification.title || "Order Cancelled";
+        break;
+      case "order_refunded":
+      case "ORDER_REFUNDED":
+        icon = AlertCircle;
+        iconColor = "text-orange-600";
+        title = notification.subject || notification.title || "Order Refunded";
+        break;
+      
+      // Payment notifications
+      case "payment_received":
+      case "PAYMENT_RECEIVED":
+        icon = CheckCircle;
+        iconColor = "text-green-600";
+        title = notification.subject || notification.title || "Payment Received";
+        break;
+      case "payment_failed":
+      case "PAYMENT_FAILED":
+        icon = AlertCircle;
+        iconColor = "text-red-600";
+        title = notification.subject || notification.title || "Payment Failed";
+        break;
+      
+      // Customer notifications
+      case "new_customer":
+      case "NEW_CUSTOMER":
+        icon = User;
+        iconColor = "text-indigo-500";
+        title = notification.subject || notification.title || "New Customer";
+        break;
+      case "customer_updated":
+      case "CUSTOMER_UPDATED":
+        icon = User;
+        iconColor = "text-blue-400";
+        title = notification.subject || notification.title || "Customer Updated";
+        break;
+      
+      // Stock notifications
+      case "low_stock":
+      case "LOW_STOCK":
+        icon = AlertCircle;
+        iconColor = "text-orange-500";
+        title = notification.subject || notification.title || "Low Stock Alert";
+        break;
+      case "out_of_stock":
+      case "OUT_OF_STOCK":
+        icon = AlertCircle;
+        iconColor = "text-red-500";
+        title = notification.subject || notification.title || "Out of Stock";
+        break;
+      
+      // Product notifications
+      case "product_added":
+      case "PRODUCT_ADDED":
+        icon = Package;
+        iconColor = "text-green-500";
+        title = notification.subject || notification.title || "Product Added";
+        break;
+      case "product_updated":
+      case "PRODUCT_UPDATED":
+        icon = Package;
+        iconColor = "text-blue-500";
+        title = notification.subject || notification.title || "Product Updated";
+        break;
+      
+      // Broadcast notifications
+      case "broadcast_email":
+      case "BROADCAST_EMAIL":
+        icon = Bell;
+        iconColor = "text-indigo-500";
+        title = notification.subject || notification.title || "Email Broadcast";
+        break;
+      case "broadcast_sms":
+      case "BROADCAST_SMS":
+        icon = Bell;
+        iconColor = "text-teal-500";
+        title = notification.subject || notification.title || "SMS Broadcast";
+        break;
+      
+      default:
+        icon = Bell;
+        iconColor = "text-gray-500";
+        title = notification.subject || notification.title || "Notification";
+    }
+    
+    return {
+      id: notification.id || notification._id,
+      type: notification.type || "general",
+      title: title,
+      message: notification.message || `Notification message`,
+      time: notification.createdAt 
+        ? moment(notification.createdAt).fromNow()
+        : "Just now",
+      icon: icon,
+      iconColor: iconColor,
+      read: notification.isRead || false,
+    };
+  }).sort((a, b) => {
+    // Sort by read status (unread first) and then by time
+    if (a.read === b.read) return 0;
+    return a.read ? 1 : -1;
+  });
 
   const newNotificationCount = notifications.filter(n => !n.read).length;
 
@@ -146,8 +325,12 @@ const TopNavbar = () => {
             <div className="mt-4 pt-4 border-t dark:border-gray-700">
               <button
                 onClick={() => {
-                  // Refetch to get latest notifications
-                  refetch();
+                  // Refetch to get latest notifications from all sources
+                  refetchAll();
+                  refetchOrders();
+                  refetchOrderStatus();
+                  refetchCustomers();
+                  refetchStock();
                 }}
                 className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors font-medium"
               >

@@ -3,8 +3,23 @@ import TopNavbar from "@/components/navbar/TopNavbar";
 import React from "react";
 import { Outlet } from "react-router-dom";
 import SideNav from "@/components/navbar/SideNav";
+import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
+import { useDispatch } from "react-redux";
+import { userDetailsFetched } from "@/features/auth/authSlice";
 
 const Layout = () => {
+    const dispatch = useDispatch();
+    
+    // Fetch user data at layout level so it's cached and available to all child components
+    const { data: user, isLoading } = useGetCurrentUserQuery();
+
+    // Update Redux state when user data is fetched (for backward compatibility)
+    React.useEffect(() => {
+        if (user) {
+            dispatch(userDetailsFetched(user));
+        }
+    }, [user, dispatch]);
+
     return (
         <main className="w-screen min-h-screen dark:bg-black/90 bg-gray-100 dark:text-white/75 text-black/75 ">
             <div className="w-full ">

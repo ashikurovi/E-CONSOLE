@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { DollarSign, Users, Headset } from "lucide-react";
+import { DollarSign, Users, Headset, FileText, CheckCircle, Clock, XCircle } from "lucide-react";
 import StatCard from "@/components/cards/stat-card";
 import { useGetOverviewQuery } from "@/features/overview/overviewApiSlice";
 
@@ -168,18 +168,30 @@ const SuperAdminOverviewPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="rounded-xl bg-gray-50 dark:bg-black/30 p-4">
               <p className="text-xs text-black/60 dark:text-white/60">New customers (7 days)</p>
-              <p className="mt-1 text-lg font-semibold">428</p>
-              <p className="mt-1 text-xs text-emerald-500">+12.3% vs last week</p>
+              <p className="mt-1 text-lg font-semibold">
+                {overviewData?.customers?.newCustomersLast7Days || 0}
+              </p>
+              <p className="mt-1 text-xs text-emerald-500">
+                {overviewData?.customers?.newCustomersLast7Days > 0 ? "+12.3% vs last week" : "No new customers yet"}
+              </p>
             </div>
             <div className="rounded-xl bg-gray-50 dark:bg-black/30 p-4">
               <p className="text-xs text-black/60 dark:text-white/60">Returning customers</p>
-              <p className="mt-1 text-lg font-semibold">64%</p>
-              <p className="mt-1 text-xs text-emerald-500">Healthy loyalty segment</p>
+              <p className="mt-1 text-lg font-semibold">
+                {overviewData?.customers?.returningCustomersPercentage || 0}%
+              </p>
+              <p className="mt-1 text-xs text-emerald-500">
+                {overviewData?.customers?.returningCustomersPercentage > 50 ? "Healthy loyalty segment" : "Building loyalty"}
+              </p>
             </div>
             <div className="rounded-xl bg-gray-50 dark:bg-black/30 p-4">
               <p className="text-xs text-black/60 dark:text-white/60">At-risk customers</p>
-              <p className="mt-1 text-lg font-semibold">213</p>
-              <p className="mt-1 text-xs text-rose-400">Need win-back campaigns</p>
+              <p className="mt-1 text-lg font-semibold">
+                {overviewData?.customers?.atRiskCustomers || 0}
+              </p>
+              <p className="mt-1 text-xs text-rose-400">
+                {overviewData?.customers?.atRiskCustomers > 0 ? "Need win-back campaigns" : "No at-risk customers"}
+              </p>
             </div>
           </div>
         </section>
@@ -202,20 +214,96 @@ const SuperAdminOverviewPage = () => {
             <ul className="space-y-2 text-xs text-black/70 dark:text-white/70">
               <li className="flex items-center justify-between">
                 <span>New tickets today</span>
-                <span className="font-medium">9</span>
+                <span className="font-medium">{overviewData?.support?.newTicketsToday || 0}</span>
               </li>
               <li className="flex items-center justify-between">
                 <span>Waiting for reply</span>
-                <span className="font-medium text-amber-400">18</span>
+                <span className={`font-medium ${(overviewData?.support?.waitingForReply || 0) > 0 ? 'text-amber-400' : ''}`}>
+                  {overviewData?.support?.waitingForReply || 0}
+                </span>
               </li>
               <li className="flex items-center justify-between">
                 <span>Average first response time</span>
-                <span className="font-medium">12 min</span>
+                <span className="font-medium">{overviewData?.support?.averageResponseTime || "N/A"}</span>
               </li>
             </ul>
           </div>
         </section>
       </div>
+
+      {/* Invoices summary */}
+      <section className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h2 className="text-lg font-medium">Invoice Overview</h2>
+            <p className="text-xs text-black/60 dark:text-white/60">
+              Summary of all invoices across the platform.
+            </p>
+          </div>
+          <a
+            href="/superadmin/invoice"
+            className="text-xs px-3 py-1 rounded-lg bg-black text-white hover:bg-black/90"
+          >
+            View all invoices
+          </a>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          {/* Total Invoices */}
+          <div className="rounded-xl bg-gray-50 dark:bg-black/30 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <FileText className="w-5 h-5 text-blue-500" />
+              <span className="text-xs text-black/60 dark:text-white/60">Total</span>
+            </div>
+            <p className="text-2xl font-semibold">{overviewData?.invoices?.totalInvoices || 0}</p>
+            <p className="text-xs text-black/60 dark:text-white/60 mt-1">
+              +{overviewData?.invoices?.newInvoicesLast7Days || 0} in last 7 days
+            </p>
+          </div>
+
+          {/* Paid Invoices */}
+          <div className="rounded-xl bg-gray-50 dark:bg-black/30 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <CheckCircle className="w-5 h-5 text-emerald-500" />
+              <span className="text-xs text-black/60 dark:text-white/60">Paid</span>
+            </div>
+            <p className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
+              {overviewData?.invoices?.paidInvoices || 0}
+            </p>
+            <p className="text-xs text-black/60 dark:text-white/60 mt-1">
+              {formatCurrency(overviewData?.invoices?.totalPaidAmount || 0)} collected
+            </p>
+          </div>
+
+          {/* Pending Invoices */}
+          <div className="rounded-xl bg-gray-50 dark:bg-black/30 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <Clock className="w-5 h-5 text-amber-500" />
+              <span className="text-xs text-black/60 dark:text-white/60">Pending</span>
+            </div>
+            <p className="text-2xl font-semibold text-amber-600 dark:text-amber-400">
+              {overviewData?.invoices?.pendingInvoices || 0}
+            </p>
+            <p className="text-xs text-black/60 dark:text-white/60 mt-1">
+              {formatCurrency(overviewData?.invoices?.totalPendingAmount || 0)} awaiting
+            </p>
+          </div>
+
+          {/* Payment Success Rate */}
+          <div className="rounded-xl bg-gray-50 dark:bg-black/30 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <XCircle className="w-5 h-5 text-rose-500" />
+              <span className="text-xs text-black/60 dark:text-white/60">Success Rate</span>
+            </div>
+            <p className="text-2xl font-semibold">
+              {overviewData?.invoices?.paidPercentage?.toFixed(1) || 0}%
+            </p>
+            <p className="text-xs text-black/60 dark:text-white/60 mt-1">
+              {overviewData?.invoices?.failedInvoices || 0} failed, {overviewData?.invoices?.cancelledInvoices || 0} cancelled
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* Quick navigation */}
       <section className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">

@@ -1,12 +1,23 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
 import { hasPermission } from "@/constants/feature-permission";
+import AtomLoader from "@/components/loader/AtomLoader";
 
 const PermissionRoute = ({ children, permission, redirectTo = "/" }) => {
   const location = useLocation();
-  const { user } = useSelector((state) => state.auth);
+  // Fetch user data from API instead of Redux
+  const { data: user, isLoading: isLoadingUser } = useGetCurrentUserQuery();
 
   if (!permission) return children;
+
+  // Show loader while fetching user data
+  if (isLoadingUser) {
+    return (
+      <div className="h-screen w-screen center">
+        <AtomLoader />
+      </div>
+    );
+  }
 
   const allowed = hasPermission(user, permission);
 

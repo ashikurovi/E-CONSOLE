@@ -170,37 +170,59 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
         <DialogHeader>
           <DialogTitle>Edit Product</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
-          <TextField placeholder="Product name" register={register} name="name" required />
-          <TextField placeholder="SKU (optional)" register={register} name="sku" />
-          <div className="grid grid-cols-2 gap-4">
-            <TextField placeholder="Price" register={register} name="price" type="number" step="0.01" required />
-            <TextField placeholder="Discount Price (optional)" register={register} name="discountPrice" type="number" step="0.01" />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-black/50 dark:text-white/50 text-sm ml-1">Description</label>
-            <textarea
-              {...register("description")}
-              placeholder="Product description"
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
+          {/* Basic Information Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Basic Information
+              </h3>
+            </div>
+            <TextField label="Product Name *" placeholder="Enter product name" register={register} name="name" required />
+            <TextField label="SKU" placeholder="Enter SKU (optional)" register={register} name="sku" />
+            <TextField 
+              label="Description"
+              placeholder="Enter product description"
+              register={register}
+              name="description"
+              multiline
               rows={4}
-              className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 resize-none"
             />
           </div>
 
-          <FileUpload
-            placeholder="Choose thumbnail (optional)"
-            label="Thumbnail"
-            register={register}
-            name="thumbnail"
-            accept="image/*"
-            onChange={setThumbnailFile}
-            value={thumbnailFile}
-          />
+          {/* Pricing Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Pricing
+              </h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <TextField label="Price *" placeholder="0.00" register={register} name="price" type="number" step="0.01" required />
+              <TextField label="Discount Price" placeholder="0.00 (optional)" register={register} name="discountPrice" type="number" step="0.01" />
+            </div>
+          </div>
 
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <label className="text-black/50 dark:text-white/50 text-sm ml-1">Product Images</label>
+          {/* Images Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Product Images
+              </h3>
+            </div>
+            <FileUpload
+              placeholder="Choose thumbnail (optional)"
+              label="Thumbnail"
+              register={register}
+              name="thumbnail"
+              accept="image/*"
+              onChange={setThumbnailFile}
+              value={thumbnailFile}
+            />
+
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <label className="text-black/50 dark:text-white/50 text-sm ml-1">Gallery Images</label>
               <Button
                 type="button"
                 variant="outline"
@@ -294,18 +316,27 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
                 </p>
               )}
             </div>
+            </div>
           </div>
 
-          <Dropdown
-            name="Category"
-            options={categoryOptions}
-            setSelectedOption={setSelectedCategory}
-            className="py-2"
-          >
-            {selectedCategory?.label || (
-              <span className="text-black/50 dark:text-white/50">Select Category</span>
-            )}
-          </Dropdown>
+          {/* Category Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Category & Classification
+              </h3>
+            </div>
+            <Dropdown
+              name="Category"
+              options={categoryOptions}
+              setSelectedOption={setSelectedCategory}
+              className="py-2"
+            >
+              {selectedCategory?.label || (
+                <span className="text-black/50 dark:text-white/50">Select Category</span>
+              )}
+            </Dropdown>
+          </div>
 
           <DialogFooter>
             <Button variant="ghost" type="button" className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700" onClick={() => setIsOpen(false)}>

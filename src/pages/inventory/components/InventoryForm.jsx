@@ -146,29 +146,45 @@ function InventoryForm({ productOptions = [], existingInventory = [] }) {
         <DialogHeader>
           <DialogTitle>Create Inventory</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
           <input type="hidden" {...register("productId")} />
-          <div>
-            <Dropdown
-              name="Product"
-              options={productOptions}
-              setSelectedOption={handleProductSelect}
-              className="py-2"
-            >
-              {selectedProduct?.label || (
-                <span className="text-black/50 dark:text-white/50">Select Product</span>
+          
+          {/* Product Selection Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Product Selection
+              </h3>
+            </div>
+            <div>
+              <Dropdown
+                name="Product"
+                options={productOptions}
+                setSelectedOption={handleProductSelect}
+                className="py-2"
+              >
+                {selectedProduct?.label || (
+                  <span className="text-black/50 dark:text-white/50">Select Product</span>
+                )}
+              </Dropdown>
+              {(errors.productId || productError) && (
+                <span className="text-red-500 text-xs ml-1 mt-1 block">
+                  {errors.productId?.message || productError}
+                </span>
               )}
-            </Dropdown>
-            {(errors.productId || productError) && (
-              <span className="text-red-500 text-xs ml-1 mt-1 block">
-                {errors.productId?.message || productError}
-              </span>
-            )}
+            </div>
           </div>
 
-          <div>
+          {/* Inventory Details Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Stock Information
+              </h3>
+            </div>
             <TextField
-              placeholder="Stock"
+              label="Available Stock *"
+              placeholder="100"
               register={register}
               name="stock"
               type="number"

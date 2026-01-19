@@ -29,106 +29,137 @@ export default function OrderViewModal({ order }) {
           <DialogTitle>Order Details #{order.id}</DialogTitle>
         </DialogHeader>
         <div className="space-y-6 mt-4">
-          {/* Basic Information */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70">Order ID</label>
-              <p className="text-base text-black dark:text-white mt-1">{order.id || "-"}</p>
+          {/* Order Summary Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Order Summary
+              </h3>
             </div>
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70">Status</label>
-              <p className="text-base text-black dark:text-white mt-1">
-                <span
-                  className={`px-2 py-1 rounded text-sm ${
-                    order.status === "completed" || order.status === "delivered"
-                      ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-                      : order.status === "cancelled"
-                      ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
-                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
-                  }`}
-                >
-                  {order.status || "-"}
-                </span>
-              </p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70">Customer</label>
-              <p className="text-base text-black dark:text-white mt-1">
-                {order.customer?.name || order.customerName || "-"}
-              </p>
-            </div>
-            {order.customer?.email && (
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-black/70 dark:text-white/70">Customer Email</label>
-                <p className="text-base text-black dark:text-white mt-1">{order.customer.email}</p>
+                <label className="text-sm font-medium text-black/70 dark:text-white/70">Order ID</label>
+                <p className="text-base text-black dark:text-white mt-1">{order.id || "-"}</p>
               </div>
-            )}
-            {order.customer?.phone && (
               <div>
-                <label className="text-sm font-medium text-black/70 dark:text-white/70">Customer Phone</label>
-                <p className="text-base text-black dark:text-white mt-1">{order.customer.phone}</p>
-              </div>
-            )}
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70">Payment Status</label>
-              <p className="text-base text-black dark:text-white mt-1">
-                <span
-                  className={`px-2 py-1 rounded text-sm ${
-                    order.isPaid
-                      ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-                      : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
-                  }`}
-                >
-                  {order.isPaid ? "Paid" : "Unpaid"}
-                </span>
-              </p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70">Payment Method</label>
-              <p className="text-base text-black dark:text-white mt-1">{order.paymentMethod || "-"}</p>
-            </div>
-            {order.paymentReference && (
-              <div>
-                <label className="text-sm font-medium text-black/70 dark:text-white/70">Payment Reference</label>
-                <p className="text-base text-black dark:text-white mt-1">{order.paymentReference}</p>
-              </div>
-            )}
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70">Total Amount</label>
-              <p className="text-base text-black dark:text-white mt-1 font-semibold">
-                {typeof order.totalAmount === "number"
-                  ? `$${Number(order.totalAmount).toFixed(2)}`
-                  : order.totalAmount || "-"}
-              </p>
-            </div>
-            {order.createdAt && (
-              <div>
-                <label className="text-sm font-medium text-black/70 dark:text-white/70">Created At</label>
+                <label className="text-sm font-medium text-black/70 dark:text-white/70">Status</label>
                 <p className="text-base text-black dark:text-white mt-1">
-                  {new Date(order.createdAt).toLocaleString()}
+                  <span
+                    className={`px-2 py-1 rounded text-sm ${
+                      order.status === "completed" || order.status === "delivered"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                        : order.status === "cancelled"
+                        ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
+                    }`}
+                  >
+                    {order.status || "-"}
+                  </span>
                 </p>
               </div>
-            )}
-            {order.updatedAt && (
               <div>
-                <label className="text-sm font-medium text-black/70 dark:text-white/70">Updated At</label>
-                <p className="text-base text-black dark:text-white mt-1">
-                  {new Date(order.updatedAt).toLocaleString()}
+                <label className="text-sm font-medium text-black/70 dark:text-white/70">Total Amount</label>
+                <p className="text-lg text-black dark:text-white mt-1 font-bold">
+                  {typeof order.totalAmount === "number"
+                    ? `$${Number(order.totalAmount).toFixed(2)}`
+                    : order.totalAmount || "-"}
                 </p>
               </div>
-            )}
+              {order.createdAt && (
+                <div>
+                  <label className="text-sm font-medium text-black/70 dark:text-white/70">Created At</label>
+                  <p className="text-base text-black dark:text-white mt-1">
+                    {new Date(order.createdAt).toLocaleString()}
+                  </p>
+                </div>
+              )}
+              {order.updatedAt && (
+                <div>
+                  <label className="text-sm font-medium text-black/70 dark:text-white/70">Last Updated</label>
+                  <p className="text-base text-black dark:text-white mt-1">
+                    {new Date(order.updatedAt).toLocaleString()}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Shipping Information */}
+          {/* Customer Information Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Customer Information
+              </h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-black/70 dark:text-white/70">Customer Name</label>
+                <p className="text-base text-black dark:text-white mt-1">
+                  {order.customer?.name || order.customerName || "-"}
+                </p>
+              </div>
+              {order.customer?.email && (
+                <div>
+                  <label className="text-sm font-medium text-black/70 dark:text-white/70">Email</label>
+                  <p className="text-base text-black dark:text-white mt-1">{order.customer.email}</p>
+                </div>
+              )}
+              {order.customer?.phone && (
+                <div>
+                  <label className="text-sm font-medium text-black/70 dark:text-white/70">Phone</label>
+                  <p className="text-base text-black dark:text-white mt-1">{order.customer.phone}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Payment Information Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Payment Information
+              </h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-black/70 dark:text-white/70">Payment Status</label>
+                <p className="text-base text-black dark:text-white mt-1">
+                  <span
+                    className={`px-2 py-1 rounded text-sm ${
+                      order.isPaid
+                        ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                        : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                    }`}
+                  >
+                    {order.isPaid ? "Paid" : "Unpaid"}
+                  </span>
+                </p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-black/70 dark:text-white/70">Payment Method</label>
+                <p className="text-base text-black dark:text-white mt-1">{order.paymentMethod || "-"}</p>
+              </div>
+              {order.paymentReference && (
+                <div>
+                  <label className="text-sm font-medium text-black/70 dark:text-white/70">Payment Reference</label>
+                  <p className="text-base text-black dark:text-white mt-1">{order.paymentReference}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Shipping Information Section */}
           {(order.shippingAddress || order.shippingTrackingId || order.shippingProvider) && (
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
-                Shipping Information
-              </label>
-              <div className="border border-black/5 dark:border-white/10 rounded-md p-4 space-y-2">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                  Shipping Information
+                </h3>
+              </div>
+              <div className="border border-black/5 dark:border-white/10 rounded-md p-4 space-y-3 bg-black/5 dark:bg-white/5">
                 {order.shippingAddress && (
                   <div>
-                    <p className="text-xs uppercase text-black/50 dark:text-white/50">Address</p>
+                    <label className="text-xs uppercase font-medium text-black/60 dark:text-white/60">Address</label>
                     <p className="text-sm text-black dark:text-white mt-1 whitespace-pre-wrap">
                       {order.shippingAddress}
                     </p>
@@ -136,13 +167,13 @@ export default function OrderViewModal({ order }) {
                 )}
                 {order.shippingTrackingId && (
                   <div>
-                    <p className="text-xs uppercase text-black/50 dark:text-white/50">Tracking ID</p>
-                    <p className="text-sm text-black dark:text-white mt-1">{order.shippingTrackingId}</p>
+                    <label className="text-xs uppercase font-medium text-black/60 dark:text-white/60">Tracking ID</label>
+                    <p className="text-sm text-black dark:text-white mt-1 font-mono">{order.shippingTrackingId}</p>
                   </div>
                 )}
                 {order.shippingProvider && (
                   <div>
-                    <p className="text-xs uppercase text-black/50 dark:text-white/50">Shipping Provider</p>
+                    <label className="text-xs uppercase font-medium text-black/60 dark:text-white/60">Provider</label>
                     <p className="text-sm text-black dark:text-white mt-1">{order.shippingProvider}</p>
                   </div>
                 )}
@@ -150,12 +181,14 @@ export default function OrderViewModal({ order }) {
             </div>
           )}
 
-          {/* Order Items */}
+          {/* Order Items Section */}
           {order.items && order.items.length > 0 && (
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
-                Order Items ({order.items.length})
-              </label>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                  Order Items ({order.items.length})
+                </h3>
+              </div>
               <div className="border border-black/5 dark:border-white/10 rounded-md overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">

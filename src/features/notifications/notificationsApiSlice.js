@@ -26,6 +26,24 @@ export const notificationsApiSlice = apiSlice.injectEndpoints({
         headers: { "Content-Type": "application/json;charset=UTF-8" },
       }),
     }),
+    getAllNotifications: builder.query({
+      query: ({ type, companyId } = {}) => ({
+        url: "/notifications",
+        method: "GET",
+        params: {
+          ...(type && { type }),
+          ...(companyId && { companyId }),
+        },
+        headers: { 
+          "Content-Type": "application/json",
+        },
+      }),
+      transformResponse: (response) => {
+        // Extract data array from response
+        return response?.data || [];
+      },
+      providesTags: ['Notifications'],
+    }),
     getOrderCreatedNotifications: builder.query({
       query: (companyId) => ({
         url: "/notifications/order-created",
@@ -33,7 +51,6 @@ export const notificationsApiSlice = apiSlice.injectEndpoints({
         params: companyId ? { companyId } : {},
         headers: { 
           "Content-Type": "application/json",
-          ...(companyId && { "x-company-id": companyId })
         },
       }),
       transformResponse: (response) => {
@@ -41,6 +58,49 @@ export const notificationsApiSlice = apiSlice.injectEndpoints({
         const notifications = response?.data || [];
         return notifications.slice(0, 5);
       },
+      providesTags: ['Notifications'],
+    }),
+    getOrderStatusNotifications: builder.query({
+      query: (companyId) => ({
+        url: "/notifications/order-status",
+        method: "GET",
+        params: companyId ? { companyId } : {},
+        headers: { 
+          "Content-Type": "application/json",
+        },
+      }),
+      transformResponse: (response) => {
+        return response?.data || [];
+      },
+      providesTags: ['Notifications'],
+    }),
+    getNewCustomerNotifications: builder.query({
+      query: (companyId) => ({
+        url: "/notifications/new-customers",
+        method: "GET",
+        params: companyId ? { companyId } : {},
+        headers: { 
+          "Content-Type": "application/json",
+        },
+      }),
+      transformResponse: (response) => {
+        return response?.data || [];
+      },
+      providesTags: ['Notifications'],
+    }),
+    getLowStockNotifications: builder.query({
+      query: (companyId) => ({
+        url: "/notifications/low-stock",
+        method: "GET",
+        params: companyId ? { companyId } : {},
+        headers: { 
+          "Content-Type": "application/json",
+        },
+      }),
+      transformResponse: (response) => {
+        return response?.data || [];
+      },
+      providesTags: ['Notifications'],
     }),
   }),
 });
@@ -48,6 +108,10 @@ export const notificationsApiSlice = apiSlice.injectEndpoints({
 export const {
   useSendCustomerEmailNotificationMutation,
   useSendCustomerSmsNotificationMutation,
+  useGetAllNotificationsQuery,
   useGetOrderCreatedNotificationsQuery,
+  useGetOrderStatusNotificationsQuery,
+  useGetNewCustomerNotificationsQuery,
+  useGetLowStockNotificationsQuery,
 } = notificationsApiSlice;
 

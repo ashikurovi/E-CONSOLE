@@ -61,6 +61,20 @@ export const authApiSlice = apiSlice.injectEndpoints({
         };
       },
     }),
+
+    // Get current user profile data
+    getCurrentUser: builder.query({
+      query: () => ({
+        url: `/auth/me`,
+        method: "GET",
+        credentials: "include",
+      }),
+      providesTags: ["my-profile"],
+      transformResponse: (response) => {
+        // Return the user data directly
+        return response?.data || response;
+      },
+    }),
   }),
 });
 
@@ -70,4 +84,5 @@ export const {
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useChangePasswordMutation,
+  useGetCurrentUserQuery,
 } = authApiSlice;

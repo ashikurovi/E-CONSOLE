@@ -23,9 +23,11 @@ const TextField = ({
   const registerProps =
     register && name ? register(name, registerOptions) : {};
 
-  const fieldClassNames = `border ${
-    error ? "border-red-500 dark:border-red-500" : "border-black/5 dark:border-white/10"
-  } py-2.5 pr-10 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 ${
+  const fieldClassNames = `border-2 rounded-xl ${
+    error ? "border-red-500 dark:border-red-500" : "border-gray-200 dark:border-gray-700 focus:border-primary dark:focus:border-primary"
+  } py-3 bg-gray-50 dark:bg-gray-800/50 w-full outline-none transition-all duration-300 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:shadow-lg focus:shadow-primary/10 ${
+    isPassword ? "pr-12" : "pr-4"
+  } ${
     icon && !multiline ? "pl-11" : "pl-4"
   } ${disabled ? "opacity-60 cursor-not-allowed" : ""} ${
     multiline ? "min-h-[120px] resize-y" : ""
@@ -62,7 +64,8 @@ const TextField = ({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute top-1/2 right-3 -translate-y-1/2 text-black/50 dark:text-white/50"
+            className="absolute top-1/2 right-3 -translate-y-1/2 text-black/50 dark:text-white/50 hover:text-black/70 dark:hover:text-white/70 transition-colors z-10 cursor-pointer"
+            tabIndex={-1}
           >
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>

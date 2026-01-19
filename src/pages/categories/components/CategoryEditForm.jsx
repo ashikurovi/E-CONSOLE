@@ -69,32 +69,67 @@ const CategoryEditForm = ({ category, parentOptions, onClose }) => {
             <DialogHeader>
                 <DialogTitle>Edit Category</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
-                <TextField placeholder="Category name" register={register} name="name" />
-                <TextField placeholder="Slug" register={register} name="slug" />
-                <FileUpload
-                    placeholder="Choose photo (optional)"
-                    label="Category Photo"
-                    register={register}
-                    name="photo"
-                    accept="image/*"
-                    onChange={setSelectedFile}
-                    value={category?.photo}
-                />
-                <Dropdown
-                    name="Parent Category (optional)"
-                    options={parentOptions.filter((p) => p.value !== category?.id)}
-                    setSelectedOption={setSelectedParent}
-                    className="py-2"
-                >
-                    {selectedParent?.label || (
-                        <span className="text-black/50 dark:text-white/50">Select Parent (optional)</span>
-                    )}
-                </Dropdown>
-                <label className="flex items-center gap-2">
-                    <input type="checkbox" {...register("isActive")} />
-                    <span>Active</span>
-                </label>
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
+                {/* Basic Information Section */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                        <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                            Basic Information
+                        </h3>
+                    </div>
+                    <TextField label="Category Name *" placeholder="Enter category name" register={register} name="name" />
+                    <TextField label="Slug" placeholder="category-slug (optional)" register={register} name="slug" />
+                </div>
+
+                {/* Media Section */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                        <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                            Category Image
+                        </h3>
+                    </div>
+                    <FileUpload
+                        placeholder="Choose photo (optional)"
+                        label="Category Photo"
+                        register={register}
+                        name="photo"
+                        accept="image/*"
+                        onChange={setSelectedFile}
+                        value={category?.photo}
+                    />
+                </div>
+
+                {/* Hierarchy Section */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                        <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                            Category Hierarchy
+                        </h3>
+                    </div>
+                    <Dropdown
+                        name="Parent Category"
+                        options={parentOptions.filter((p) => p.value !== category?.id)}
+                        setSelectedOption={setSelectedParent}
+                        className="py-2"
+                    >
+                        {selectedParent?.label || (
+                            <span className="text-black/50 dark:text-white/50">Select Parent (optional)</span>
+                        )}
+                    </Dropdown>
+                </div>
+
+                {/* Status Section */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                        <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                            Status
+                        </h3>
+                    </div>
+                    <label className="flex items-center gap-2">
+                        <input type="checkbox" {...register("isActive")} />
+                        <span>Active</span>
+                    </label>
+                </div>
                 <DialogFooter>
                     <Button
                         variant="ghost"

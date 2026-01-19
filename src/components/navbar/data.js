@@ -1,4 +1,4 @@
-import { FileText, Settings, ShieldAlert, User2, Truck } from "lucide-react";
+import { FileText, Settings, ShieldAlert, User2, Truck, Crown } from "lucide-react";
 import { FeaturePermission } from "@/constants/feature-permission";
 
 // Map each nav item to the same permission used in routes
@@ -17,8 +17,9 @@ export const navLinks = [
   { id: 10, title: "Promocodes", link: "/promocodes", permission: FeaturePermission.SETTINGS },
   // { id: 6, title: "Review", link: "/reviews" },
   // { id: 9, title: "Integration", link: "/integrations" },
-  { id: 11, title: "Settings", link: "/settings", permission: FeaturePermission.SETTINGS },
-  { id: 12, title: "Help", link: "/help", permission: FeaturePermission.SETTINGS },
+  { id: 10.5, title: "Upgrade Plan", link: "/upgrade-plan", icon: Crown }, // always visible
+  { id: 11, title: "Settings", link: "/settings" }, // always visible
+  { id: 12, title: "Help", link: "/help" }, // always visible
   { id: 13, title: "Privacy Policy", link: "/privacy-policy", permission: FeaturePermission.PRIVACY_POLICY },
   { id: 14, title: "Terms & Conditions", link: "/terms-conditions", permission: FeaturePermission.TERMS_CONDITIONS },
   { id: 15, title: "Refund Policy", link: "/refund-policy", permission: FeaturePermission.REFUND_POLICY },

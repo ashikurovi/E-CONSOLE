@@ -43,56 +43,96 @@ const SuperAdminSupportDetailPage = () => {
         )}
 
         {!isLoading && ticket && (
-          <div className="space-y-4 text-sm">
-            <div className="flex flex-wrap gap-4 justify-between">
-              <div>
-                <p className="text-xs text-black/60 dark:text-white/60">
-                  Ticket ID
-                </p>
-                <p className="font-semibold">#{ticket.id}</p>
+          <div className="space-y-6 text-sm">
+            {/* Ticket Information Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                  Ticket Information
+                </h3>
               </div>
-              <div>
-                <p className="text-xs text-black/60 dark:text-white/60">
-                  Email
-                </p>
-                <p className="font-medium break-all">
-                  {ticket.email ?? "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-black/60 dark:text-white/60">
-                  Status
-                </p>
-                <p className="font-medium capitalize">
-                  {ticket.status?.replace("_", " ") ?? "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-black/60 dark:text-white/60">
-                  Created at
-                </p>
-                <p className="font-medium">
-                  {ticket.createdAt
-                    ? new Date(ticket.createdAt).toLocaleString()
-                    : "-"}
-                </p>
-              </div>
-              {ticket.companyId && (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-xs text-black/60 dark:text-white/60">
-                    Company ID
-                  </p>
-                  <p className="font-medium">{ticket.companyId}</p>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                    Ticket ID
+                  </label>
+                  <p className="font-semibold">#{ticket.id}</p>
                 </div>
-              )}
+                <div>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                    Email
+                  </label>
+                  <p className="font-medium break-all">
+                    {ticket.email ?? "-"}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                    Status
+                  </label>
+                  <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+                    ticket.status === 'resolved' 
+                      ? "bg-green-500/10 text-green-600 dark:text-green-400" 
+                      : ticket.status === 'closed'
+                      ? "bg-gray-500/10 text-gray-600 dark:text-gray-400"
+                      : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+                  }`}>
+                    {ticket.status?.replace("_", " ") ?? "-"}
+                  </span>
+                </div>
+                {ticket.companyId && (
+                  <div>
+                    <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                      Company ID
+                    </label>
+                    <p className="font-medium">{ticket.companyId}</p>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <p className="text-xs text-black/60 dark:text-white/60">
-                Issue
-              </p>
-              <div className="border border-black/10 dark:border-white/10 rounded-lg p-3 bg-black/5 dark:bg-white/5 text-xs whitespace-pre-wrap">
-                {ticket.issue ?? "-"}
+            {/* Issue Description Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                  Issue Description
+                </h3>
+              </div>
+              <div className="border border-black/10 dark:border-white/10 rounded-lg p-4 bg-black/5 dark:bg-white/5">
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                  {ticket.issue ?? "-"}
+                </p>
+              </div>
+            </div>
+
+            {/* Timeline Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                  Timeline
+                </h3>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                    Created At
+                  </label>
+                  <p className="text-xs font-medium">
+                    {ticket.createdAt
+                      ? new Date(ticket.createdAt).toLocaleString()
+                      : "-"}
+                  </p>
+                </div>
+                {ticket.updatedAt && (
+                  <div>
+                    <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                      Last Updated
+                    </label>
+                    <p className="text-xs font-medium">
+                      {new Date(ticket.updatedAt).toLocaleString()}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

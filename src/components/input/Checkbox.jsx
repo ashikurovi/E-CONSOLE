@@ -16,10 +16,10 @@ const Checkbox = ({
         type="checkbox"
         id={name}
         disabled={disabled}
-        className={`peer cursor-pointer h-[18px] w-[18px] rounded border checked:bg-primary checked:border-primary checked:text-white appearance-none inline-block relative ${
+        className={`peer cursor-pointer h-[18px] w-[18px] rounded-md border-2 checked:bg-primary checked:border-primary checked:text-white appearance-none inline-block relative transition-all duration-300 hover:shadow-md hover:shadow-primary/20 ${
           disabled
             ? "dark:border-white/20 border-black/40"
-            : "border-primary bg-bg50 "
+            : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800"
         }`}
         {...props}
       />

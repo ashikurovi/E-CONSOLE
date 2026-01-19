@@ -137,77 +137,127 @@ function PromocodeForm() {
         <DialogHeader>
           <DialogTitle>Create Promocode</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
-          <TextField
-            placeholder="Code"
-            register={register}
-            name="code"
-            error={errors.code}
-          />
-          <TextField
-            placeholder="Description "
-            register={register}
-            name="description"
-            error={errors.description}
-          />
-
-          <div className="flex flex-col gap-2">
-            <label className="text-black/50 dark:text-white/50 text-sm ml-1">Discount Type</label>
-            <Dropdown
-              name="Discount Type"
-              options={discountTypeOptions}
-              setSelectedOption={handleDiscountTypeChange}
-              className="py-2"
-            >
-              {discountType?.label || (
-                <span className="text-black/50 dark:text-white/50">Select Type</span>
-              )}
-            </Dropdown>
-            {errors.discountType && (
-              <span className="text-red-500 text-xs ml-1">{errors.discountType.message}</span>
-            )}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
+          {/* Code Details Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Code Details
+              </h3>
+            </div>
+            <TextField
+              label="Promocode *"
+              placeholder="SAVE20"
+              register={register}
+              name="code"
+              error={errors.code}
+            />
+            <TextField
+              label="Description"
+              placeholder="Description (optional)"
+              register={register}
+              name="description"
+              error={errors.description}
+            />
           </div>
 
-          <TextField
-            placeholder="Discount Value"
-            register={register}
-            name="discountValue"
-            type="number"
-            error={errors.discountValue}
-          />
-          <TextField
-            placeholder="Max Uses"
-            register={register}
-            name="maxUses"
-            type="number"
-            error={errors.maxUses}
-          />
-          <TextField
-            placeholder="Min Order Amount"
-            register={register}
-            name="minOrderAmount"
-            type="number"
-            error={errors.minOrderAmount}
-          />
-          <TextField
-            placeholder="Starts At"
-            register={register}
-            name="startsAt"
-            type="datetime-local"
-            error={errors.startsAt}
-          />
-          <TextField
-            placeholder="Expires At "
-            register={register}
-            name="expiresAt"
-            type="datetime-local"
-            error={errors.expiresAt}
-          />
+          {/* Discount Configuration Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Discount Configuration
+              </h3>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-black/50 dark:text-white/50 text-sm ml-1">Discount Type</label>
+              <Dropdown
+                name="Discount Type"
+                options={discountTypeOptions}
+                setSelectedOption={handleDiscountTypeChange}
+                className="py-2"
+              >
+                {discountType?.label || (
+                  <span className="text-black/50 dark:text-white/50">Select Type</span>
+                )}
+              </Dropdown>
+              {errors.discountType && (
+                <span className="text-red-500 text-xs ml-1">{errors.discountType.message}</span>
+              )}
+            </div>
+            <TextField
+              label="Discount Value *"
+              placeholder="10"
+              register={register}
+              name="discountValue"
+              type="number"
+              step="0.01"
+              error={errors.discountValue}
+            />
+          </div>
 
-          <div className="flex items-center gap-2">
-            <Checkbox className="bg-black text-white hover:bg-black/90" name="isActive" value={true} setValue={() => { }}>
-              Active by default
-            </Checkbox>
+          {/* Usage Limits Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Usage Limits
+              </h3>
+            </div>
+            <TextField
+              label="Max Uses"
+              placeholder="100 (optional)"
+              register={register}
+              name="maxUses"
+              type="number"
+              error={errors.maxUses}
+            />
+            <TextField
+              label="Min Order Amount"
+              placeholder="500 (optional)"
+              register={register}
+              name="minOrderAmount"
+              type="number"
+              step="0.01"
+              error={errors.minOrderAmount}
+            />
+          </div>
+
+          {/* Validity Period Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Validity Period
+              </h3>
+            </div>
+            <TextField
+              label="Starts At"
+              placeholder="Select start date"
+              register={register}
+              name="startsAt"
+              type="datetime-local"
+              error={errors.startsAt}
+            />
+            <TextField
+              label="Expires At"
+              placeholder="Select expiry date"
+              register={register}
+              name="expiresAt"
+              type="datetime-local"
+              error={errors.expiresAt}
+            />
+          </div>
+
+          {/* Status Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Status
+              </h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox className="bg-black text-white hover:bg-black/90" name="isActive" value={true} setValue={() => { }}>
+                Active by default
+              </Checkbox>
+            </div>
           </div>
 
           <DialogFooter>

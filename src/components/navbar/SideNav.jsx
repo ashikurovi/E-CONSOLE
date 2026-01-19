@@ -1,13 +1,14 @@
 // iconMap constant
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { userLoggedOut } from "@/features/auth/authSlice";
 import { apiSlice } from "@/features/api/apiSlice";
 import toast from "react-hot-toast";
 import { navLinks } from "./data";
-import { FileText, ShieldAlert, HelpCircle, Settings, User2, ClipboardList, Image, Shield, FileCheck, Receipt, Truck } from "lucide-react";
+import { FileText, ShieldAlert, HelpCircle, Settings, User2, ClipboardList, Image, Shield, FileCheck, Receipt, Truck, Crown } from "lucide-react";
 import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
+import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
 import { hasPermission } from "@/constants/feature-permission";
 
 // Icons (inline SVGs to avoid extra deps)
@@ -76,6 +77,7 @@ const iconMap = {
   OrderItems: ClipboardList,
   Banners: Image,
   "Fraud Checker": ShieldAlert,
+  "Upgrade Plan": Crown,
   Settings: Settings,
   Help: HelpCircle,
   "Manage Users": User2,
@@ -103,7 +105,7 @@ const generalSet = new Set([
 
 ]);
 
-const accountSet = new Set(["Settings", "Help", "Manage Users", "Privacy Policy", "Terms & Conditions", "Refund Policy"]);
+const accountSet = new Set(["Settings", "Help", "Manage Users", "Privacy Policy", "Terms & Conditions", "Refund Policy", "Upgrade Plan"]);
 
 const getFilteredNav = (user) => {
   return {
@@ -156,7 +158,8 @@ function Item({ to, label, Icon, badge }) {
 export default function SideNav() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
+  // Fetch user data from API instead of Redux
+  const { data: user, isLoading: isLoadingUser } = useGetCurrentUserQuery();
   const result = useGetCategoriesQuery();
   console.log(result);
 

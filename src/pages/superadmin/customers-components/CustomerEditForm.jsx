@@ -16,69 +16,28 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import { useUpdateSystemuserMutation } from "@/features/systemuser/systemuserApiSlice";
+import { useGetPackagesQuery } from "@/features/package/packageApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
 
-const PERMISSION_OPTIONS = [
-    { label: "Products", value: "PRODUCTS" },
-    { label: "Orders", value: "ORDERS" },
-    { label: "Category", value: "CATEGORY" },
-    { label: "Steadfast Courier", value: "STEADFAST" },
-    { label: "Pathao Courier", value: "PATHAO" },
-    { label: "Notifications", value: "NOTIFICATIONS" },
-    { label: "Email Notifications", value: "EMAIL_NOTIFICATIONS" },
-    { label: "Whatsapp Notifications", value: "WHATSAPP_NOTIFICATIONS" },
-    { label: "Order Items", value: "ORDER_ITEMS" },
-    { label: "Customers", value: "CUSTOMERS" },
-    { label: "Reports", value: "REPORTS" },
-    { label: "Inventory", value: "INVENTORY" },
-    { label: "Settings", value: "SETTINGS" },
-    { label: "Staff", value: "STAFF" },
-    { label: "SMS Configuration", value: "SMS_CONFIGURATION" },
-    { label: "Email Configuration", value: "EMAIL_CONFIGURATION" },
-    { label: "Payment Methods", value: "PAYMENT_METHODS" },
-    { label: "Payment Gateways", value: "PAYMENT_GATEWAYS" },
-    { label: "Payment Status", value: "PAYMENT_STATUS" },
-    { label: "Payment Transactions", value: "PAYMENT_TRANSACTIONS" },
-    { label: "Promocodes", value: "PROMOCODES" },
-    { label: "Help", value: "HELP" },
-    { label: "Banners", value: "BANNERS" },
-    { label: "Fraud Checker", value: "FRUAD_CHECKER" },
-    { label: "Manage Users", value: "MANAGE_USERS" },
-    { label: "Dashboard", value: "DASHBOARD" },
-    { label: "Revenue", value: "REVENUE" },
-    { label: "New Customers", value: "NEW_CUSTOMERS" },
-    { label: "Repeat Purchase Rate", value: "REPEAT_PURCHASE_RATE" },
-    { label: "Average Order Value", value: "AVERAGE_ORDER_VALUE" },
-    { label: "Stats", value: "STATS" },
-    { label: "Privacy Policy", value: "PRIVACY_POLICY" },
-    { label: "Terms & Conditions", value: "TERMS_CONDITIONS" },
-    { label: "Refund Policy", value: "REFUND_POLICY" },
-];
-
 const PAYMENT_STATUS_OPTIONS = [
-    { label: "Paid", value: "Paid" },
-    { label: "Pending", value: "Pending" },
-    { label: "Failed", value: "Failed" },
-    { label: "Refunded", value: "Refunded" },
-    { label: "Cancelled", value: "Cancelled" },
+    { label: "Paid", value: "PAID" },
+    { label: "Pending", value: "PENDING" },
+    { label: "Failed", value: "FAILED" },
+    { label: "Refunded", value: "REFUNDED" },
+    { label: "Cancelled", value: "CANCELLED" },
 ];
 
 const PAYMENT_METHOD_OPTIONS = [
-    { label: "Credit Card", value: "Credit Card" },
-    { label: "Debit Card", value: "Debit Card" },
-    { label: "PayPal", value: "PayPal" },
-    { label: "Bank Transfer", value: "Bank Transfer" },
-    { label: "Cash", value: "Cash" },
-    { label: "Stripe", value: "Stripe" },
-    { label: "Other", value: "Other" },
-];
-
-const PACKAGE_OPTIONS = [
-    { label: "Basic", value: "Basic" },
-    { label: "Standard", value: "Standard" },
-    { label: "Premium", value: "Premium" },
-    { label: "Enterprise", value: "Enterprise" },
-    { label: "Custom", value: "Custom" },
+    { label: "bKash", value: "BKASH" },
+    { label: "Nagad", value: "NAGAD" },
+    { label: "Rocket", value: "ROCKET" },
+    { label: "Credit Card", value: "CREDIT_CARD" },
+    { label: "Debit Card", value: "DEBIT_CARD" },
+    { label: "Bank Transfer", value: "BANK_TRANSFER" },
+    { label: "Cash on Delivery", value: "CASH_ON_DELIVERY" },
+    { label: "Stripe", value: "STRIPE" },
+    { label: "PayPal", value: "PAYPAL" },
+    { label: "Other", value: "OTHER" },
 ];
 
 const schema = yup.object().shape({
@@ -111,12 +70,21 @@ const schema = yup.object().shape({
     paymentstatus: yup.string(),
     paymentmethod: yup.string(),
     amount: yup.number().nullable(),
-    packagename: yup.string(),
+    packageId: yup.number().nullable(),
+    // Pathao Config
+    pathaoClientId: yup.string().nullable(),
+    pathaoClientSecret: yup.string().nullable(),
+    // Steadfast Config
+    steadfastApiKey: yup.string().nullable(),
+    steadfastSecretKey: yup.string().nullable(),
+    // Notification Config
+    notificationEmail: yup.string().email("Invalid email").nullable(),
+    notificationWhatsapp: yup.string().nullable(),
 });
 
 const CustomerEditForm = ({ user, onClose }) => {
     const [updateSystemuser, { isLoading }] = useUpdateSystemuserMutation();
-    const [permissions, setPermissions] = useState(user?.permissions ?? []);
+    const { data: packages, isLoading: isLoadingPackages } = useGetPackagesQuery();
     const [selectedPaymentStatus, setSelectedPaymentStatus] = useState(
         user?.paymentInfo?.paymentstatus
             ? PAYMENT_STATUS_OPTIONS.find((opt) => opt.value === user.paymentInfo.paymentstatus)
@@ -127,11 +95,8 @@ const CustomerEditForm = ({ user, onClose }) => {
             ? PAYMENT_METHOD_OPTIONS.find((opt) => opt.value === user.paymentInfo.paymentmethod)
             : null
     );
-    const [selectedPackage, setSelectedPackage] = useState(
-        user?.paymentInfo?.packagename
-            ? PACKAGE_OPTIONS.find((opt) => opt.value === user.paymentInfo.packagename)
-            : null
-    );
+    const [selectedPackage, setSelectedPackage] = useState(null);
+    const [isActive, setIsActive] = useState(user?.isActive ?? true);
     const [logoFile, setLogoFile] = useState(null);
     const { uploadImage, isUploading: isUploadingLogo } = useImageUpload();
 
@@ -155,24 +120,45 @@ const CustomerEditForm = ({ user, onClose }) => {
             paymentstatus: user?.paymentInfo?.paymentstatus || "",
             paymentmethod: user?.paymentInfo?.paymentmethod || "",
             amount: user?.paymentInfo?.amount || "",
-            packagename: user?.paymentInfo?.packagename || "",
+            packageId: user?.packageId || "",
+            pathaoClientId: user?.pathaoConfig?.clientId || "",
+            pathaoClientSecret: user?.pathaoConfig?.clientSecret || "",
+            steadfastApiKey: user?.steadfastConfig?.apiKey || "",
+            steadfastSecretKey: user?.steadfastConfig?.secretKey || "",
+            notificationEmail: user?.notificationConfig?.email || "",
+            notificationWhatsapp: user?.notificationConfig?.whatsapp || "",
         },
     });
 
+    // Convert packages to dropdown options
+    const packageOptions = packages?.map((pkg) => ({
+        label: pkg.name,
+        value: pkg.id,
+        features: pkg.features,
+    })) || [];
+
     useEffect(() => {
+        if (!user || !packages) return;
+
         const paymentStatus = user?.paymentInfo?.paymentstatus
             ? PAYMENT_STATUS_OPTIONS.find((opt) => opt.value === user.paymentInfo.paymentstatus)
             : null;
         const paymentMethod = user?.paymentInfo?.paymentmethod
             ? PAYMENT_METHOD_OPTIONS.find((opt) => opt.value === user.paymentInfo.paymentmethod)
             : null;
-        const packageName = user?.paymentInfo?.packagename
-            ? PACKAGE_OPTIONS.find((opt) => opt.value === user.paymentInfo.packagename)
+        
+        // Find package from API data
+        const packageData = user?.packageId
+            ? packages.find((pkg) => pkg.id === user.packageId)
+            : null;
+        const packageOption = packageData
+            ? { label: packageData.name, value: packageData.id, features: packageData.features }
             : null;
 
         setSelectedPaymentStatus(paymentStatus);
         setSelectedPaymentMethod(paymentMethod);
-        setSelectedPackage(packageName);
+        setSelectedPackage(packageOption);
+        setIsActive(user?.isActive ?? true);
 
         reset({
             id: user?.id,
@@ -186,26 +172,18 @@ const CustomerEditForm = ({ user, onClose }) => {
             paymentstatus: user?.paymentInfo?.paymentstatus || "",
             paymentmethod: user?.paymentInfo?.paymentmethod || "",
             amount: user?.paymentInfo?.amount || "",
-            packagename: user?.paymentInfo?.packagename || "",
+            packageId: user?.packageId || "",
+            pathaoClientId: user?.pathaoConfig?.clientId || "",
+            pathaoClientSecret: user?.pathaoConfig?.clientSecret || "",
+            steadfastApiKey: user?.steadfastConfig?.apiKey || "",
+            steadfastSecretKey: user?.steadfastConfig?.secretKey || "",
+            notificationEmail: user?.notificationConfig?.email || "",
+            notificationWhatsapp: user?.notificationConfig?.whatsapp || "",
         });
-        setPermissions(user?.permissions ?? []);
         setLogoFile(null);
-    }, [user, reset]);
-
-    const togglePermission = (value) => {
-        setPermissions((prev) =>
-            prev.includes(value)
-                ? prev.filter((p) => p !== value)
-                : [...prev, value]
-        );
-    };
+    }, [user, packages, reset]);
 
     const onSubmit = async (data) => {
-        if (!permissions.length) {
-            toast.error("Select at least one permission");
-            return;
-        }
-
         // Upload logo if new file is selected
         let logoUrl = data.companyLogo || user?.companyLogo || null;
         if (logoFile) {
@@ -220,19 +198,41 @@ const CustomerEditForm = ({ user, onClose }) => {
             ...(data.paymentstatus && { paymentstatus: data.paymentstatus }),
             ...(data.paymentmethod && { paymentmethod: data.paymentmethod }),
             ...(data.amount && { amount: parseFloat(data.amount) }),
-            ...(data.packagename && { packagename: data.packagename }),
+            ...(selectedPackage && { packagename: selectedPackage.label }),
         };
+
+        const pathaoConfig = {};
+        if (data.pathaoClientId || data.pathaoClientSecret) {
+            if (data.pathaoClientId) pathaoConfig.clientId = data.pathaoClientId;
+            if (data.pathaoClientSecret) pathaoConfig.clientSecret = data.pathaoClientSecret;
+        }
+
+        const steadfastConfig = {};
+        if (data.steadfastApiKey || data.steadfastSecretKey) {
+            if (data.steadfastApiKey) steadfastConfig.apiKey = data.steadfastApiKey;
+            if (data.steadfastSecretKey) steadfastConfig.secretKey = data.steadfastSecretKey;
+        }
+
+        const notificationConfig = {};
+        if (data.notificationEmail || data.notificationWhatsapp) {
+            if (data.notificationEmail) notificationConfig.email = data.notificationEmail;
+            if (data.notificationWhatsapp) notificationConfig.whatsapp = data.notificationWhatsapp;
+        }
 
         const payload = {
             id: data.id,
             name: data.name,
             companyName: data.companyName,
             email: data.email,
-            permissions,
+            isActive,
             ...(logoUrl && { companyLogo: logoUrl }),
             ...(data.phone !== undefined && { phone: data.phone }),
             ...(data.branchLocation !== undefined && { branchLocation: data.branchLocation }),
             ...(Object.keys(paymentInfo).length > 0 && { paymentInfo }),
+            ...(data.packageId && { packageId: parseInt(data.packageId) }),
+            ...(Object.keys(pathaoConfig).length > 0 && { pathaoConfig }),
+            ...(Object.keys(steadfastConfig).length > 0 && { steadfastConfig }),
+            ...(Object.keys(notificationConfig).length > 0 && { notificationConfig }),
         };
 
         if (data.password) {
@@ -241,10 +241,10 @@ const CustomerEditForm = ({ user, onClose }) => {
 
         const res = await updateSystemuser(payload);
         if (res?.data) {
-            toast.success("Customer system user updated");
+            toast.success("Customer updated successfully");
             onClose?.();
         } else {
-            toast.error(res?.error?.data?.message || "Failed to update user");
+            toast.error(res?.error?.data?.message || "Failed to update customer");
         }
     };
 
@@ -252,36 +252,60 @@ const CustomerEditForm = ({ user, onClose }) => {
         <Dialog open={!!user} onOpenChange={(v) => !v && onClose?.()}>
             <DialogContent className="max-h-[600px] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Edit Customer System User</DialogTitle>
+                    <DialogTitle>Edit Customer</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <TextField
-                        label="Name *"
-                        register={register}
-                        name="name"
-                        error={errors.name}
-                    />
-                    <TextField
-                        label="Company Name *"
-                        register={register}
-                        name="companyName"
-                        error={errors.companyName}
-                    />
-                    <TextField
-                        label="Email *"
-                        type="email"
-                        register={register}
-                        name="email"
-                        error={errors.email}
-                    />
-                    <TextField
-                        label="New Password (optional)"
-                        type="password"
-                        placeholder="Leave blank to keep current password"
-                        register={register}
-                        name="password"
-                        error={errors.password}
-                    />
+                    <div className="grid grid-cols-2 gap-4">
+                        <TextField
+                            label="Name *"
+                            placeholder="Customer name"
+                            register={register}
+                            name="name"
+                            error={errors.name}
+                        />
+                        <TextField
+                            label="Company Name *"
+                            placeholder="Company name"
+                            register={register}
+                            name="companyName"
+                            error={errors.companyName}
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <TextField
+                            label="Email *"
+                            type="email"
+                            placeholder="user@example.com"
+                            register={register}
+                            name="email"
+                            error={errors.email}
+                        />
+                        <TextField
+                            label="New Password (optional)"
+                            type="password"
+                            placeholder="Leave blank to keep current"
+                            register={register}
+                            name="password"
+                            error={errors.password}
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <TextField
+                            label="Phone"
+                            type="tel"
+                            placeholder="+880XXXXXXXXXX"
+                            register={register}
+                            name="phone"
+                            error={errors.phone}
+                        />
+                        <TextField
+                            label="Branch Location"
+                            placeholder="e.g., Dhaka"
+                            register={register}
+                            name="branchLocation"
+                            error={errors.branchLocation}
+                        />
+                    </div>
                     <FileUpload
                         label="Company Logo"
                         placeholder="Upload company logo"
@@ -300,122 +324,179 @@ const CustomerEditForm = ({ user, onClose }) => {
                         }}
                         value={logoFile ? URL.createObjectURL(logoFile) : (user?.companyLogo || null)}
                     />
-                    <TextField
-                        label="Phone"
-                        type="tel"
-                        placeholder="Company phone number"
-                        register={register}
-                        name="phone"
-                        error={errors.phone}
-                    />
-                    <TextField
-                        label="Branch Location"
-                        placeholder="Company branch location"
-                        register={register}
-                        name="branchLocation"
-                        error={errors.branchLocation}
-                    />
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            id="isActive"
+                            className="w-4 h-4 rounded border-black/20 dark:border-white/20"
+                            checked={isActive}
+                            onChange={(e) => setIsActive(e.target.checked)}
+                        />
+                        <label htmlFor="isActive" className="text-sm font-medium cursor-pointer">
+                            Active Account
+                        </label>
+                    </div>
 
                     <div className="border-t border-black/10 dark:border-white/10 pt-4 space-y-4">
                         <h3 className="text-sm font-semibold text-black/70 dark:text-white/70">
-                            Payment Information (Optional)
+                            Package & Payment Information
                         </h3>
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                                Payment Status
-                            </label>
-                            <Dropdown
-                                name="payment status"
-                                options={PAYMENT_STATUS_OPTIONS}
-                                setSelectedOption={(opt) => {
-                                    setSelectedPaymentStatus(opt);
-                                    setValue("paymentstatus", opt.value, { shouldValidate: true });
-                                }}
-                            >
-                                {selectedPaymentStatus?.label || (
-                                    <span className="text-black/50 dark:text-white/50">
-                                        Select Payment Status
-                                    </span>
-                                )}
-                            </Dropdown>
-                            {errors.paymentstatus && (
-                                <span className="text-red-500 text-xs ml-1">{errors.paymentstatus.message}</span>
-                            )}
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                                Payment Method
-                            </label>
-                            <Dropdown
-                                name="payment method"
-                                options={PAYMENT_METHOD_OPTIONS}
-                                setSelectedOption={(opt) => {
-                                    setSelectedPaymentMethod(opt);
-                                    setValue("paymentmethod", opt.value, { shouldValidate: true });
-                                }}
-                            >
-                                {selectedPaymentMethod?.label || (
-                                    <span className="text-black/50 dark:text-white/50">
-                                        Select Payment Method
-                                    </span>
-                                )}
-                            </Dropdown>
-                            {errors.paymentmethod && (
-                                <span className="text-red-500 text-xs ml-1">{errors.paymentmethod.message}</span>
-                            )}
-                        </div>
-                        <TextField
-                            label="Amount"
-                            type="number"
-                            step="0.01"
-                            placeholder="0.00"
-                            register={register}
-                            name="amount"
-                            error={errors.amount}
-                        />
-                        <div className="flex flex-col gap-2">
-                            <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                                Package Name
+                                Select Package
                             </label>
                             <Dropdown
                                 name="package"
-                                options={PACKAGE_OPTIONS}
+                                options={packageOptions}
                                 setSelectedOption={(opt) => {
                                     setSelectedPackage(opt);
-                                    setValue("packagename", opt.value, { shouldValidate: true });
+                                    setValue("packageId", opt.value, { shouldValidate: true });
                                 }}
                             >
                                 {selectedPackage?.label || (
                                     <span className="text-black/50 dark:text-white/50">
-                                        Select Package
+                                        {isLoadingPackages ? "Loading packages..." : "Select Package"}
                                     </span>
                                 )}
                             </Dropdown>
-                            {errors.packagename && (
-                                <span className="text-red-500 text-xs ml-1">{errors.packagename.message}</span>
+                            {errors.packageId && (
+                                <span className="text-red-500 text-xs ml-1">{errors.packageId.message}</span>
                             )}
+                        </div>
+
+                        {selectedPackage?.features && selectedPackage.features.length > 0 && (
+                            <div className="bg-black/5 dark:bg-white/5 p-3 rounded-lg">
+                                <p className="text-xs font-semibold text-black/60 dark:text-white/60 mb-2">
+                                    Package Features:
+                                </p>
+                                <div className="flex flex-wrap gap-1">
+                                    {selectedPackage.features.map((feature) => (
+                                        <span
+                                            key={feature}
+                                            className="text-xs px-2 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded"
+                                        >
+                                            {feature.replace(/_/g, " ")}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-black/70 dark:text-white/70">
+                                    Payment Status
+                                </label>
+                                <Dropdown
+                                    name="payment status"
+                                    options={PAYMENT_STATUS_OPTIONS}
+                                    setSelectedOption={(opt) => {
+                                        setSelectedPaymentStatus(opt);
+                                        setValue("paymentstatus", opt.value, { shouldValidate: true });
+                                    }}
+                                >
+                                    {selectedPaymentStatus?.label || (
+                                        <span className="text-black/50 dark:text-white/50">
+                                            Select Status
+                                        </span>
+                                    )}
+                                </Dropdown>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-black/70 dark:text-white/70">
+                                    Payment Method
+                                </label>
+                                <Dropdown
+                                    name="payment method"
+                                    options={PAYMENT_METHOD_OPTIONS}
+                                    setSelectedOption={(opt) => {
+                                        setSelectedPaymentMethod(opt);
+                                        setValue("paymentmethod", opt.value, { shouldValidate: true });
+                                    }}
+                                >
+                                    {selectedPaymentMethod?.label || (
+                                        <span className="text-black/50 dark:text-white/50">
+                                            Select Method
+                                        </span>
+                                    )}
+                                </Dropdown>
+                            </div>
+                        </div>
+                        <TextField
+                            label="Amount (BDT)"
+                            type="number"
+                            step="0.01"
+                            placeholder="1999.00"
+                            register={register}
+                            name="amount"
+                            error={errors.amount}
+                        />
+                    </div>
+
+                    <div className="border-t border-black/10 dark:border-white/10 pt-4 space-y-4">
+                        <h3 className="text-sm font-semibold text-black/70 dark:text-white/70">
+                            Courier Configuration (Optional)
+                        </h3>
+                        <div className="space-y-3">
+                            <p className="text-xs font-medium text-black/60 dark:text-white/60">Pathao Config</p>
+                            <div className="grid grid-cols-2 gap-4">
+                                <TextField
+                                    label="Client ID"
+                                    placeholder="PATHAO_CLIENT_ID"
+                                    register={register}
+                                    name="pathaoClientId"
+                                    error={errors.pathaoClientId}
+                                />
+                                <TextField
+                                    label="Client Secret"
+                                    placeholder="PATHAO_CLIENT_SECRET"
+                                    register={register}
+                                    name="pathaoClientSecret"
+                                    error={errors.pathaoClientSecret}
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            <p className="text-xs font-medium text-black/60 dark:text-white/60">Steadfast Config</p>
+                            <div className="grid grid-cols-2 gap-4">
+                                <TextField
+                                    label="API Key"
+                                    placeholder="STEADFAST_API_KEY"
+                                    register={register}
+                                    name="steadfastApiKey"
+                                    error={errors.steadfastApiKey}
+                                />
+                                <TextField
+                                    label="Secret Key"
+                                    placeholder="STEADFAST_SECRET_KEY"
+                                    register={register}
+                                    name="steadfastSecretKey"
+                                    error={errors.steadfastSecretKey}
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <p className="text-sm font-medium text-black/70 dark:text-white/70">
-                            Permissions *
-                        </p>
-                        <div className="grid grid-cols-2 gap-2">
-                            {PERMISSION_OPTIONS.map((perm) => (
-                                <label
-                                    key={perm.value}
-                                    className="flex items-center gap-2 text-sm cursor-pointer"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        className="w-4 h-4 rounded border-black/20 dark:border-white/20"
-                                        checked={permissions.includes(perm.value)}
-                                        onChange={() => togglePermission(perm.value)}
-                                    />
-                                    <span>{perm.label}</span>
-                                </label>
-                            ))}
+                    <div className="border-t border-black/10 dark:border-white/10 pt-4 space-y-4">
+                        <h3 className="text-sm font-semibold text-black/70 dark:text-white/70">
+                            Notification Configuration (Optional)
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            <TextField
+                                label="Notification Email"
+                                type="email"
+                                placeholder="notifications@example.com"
+                                register={register}
+                                name="notificationEmail"
+                                error={errors.notificationEmail}
+                            />
+                            <TextField
+                                label="WhatsApp Number"
+                                placeholder="+880XXXXXXXXXX"
+                                register={register}
+                                name="notificationWhatsapp"
+                                error={errors.notificationWhatsapp}
+                            />
                         </div>
                     </div>
 

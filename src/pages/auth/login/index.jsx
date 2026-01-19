@@ -15,7 +15,7 @@ import {
   useLoginSystemuserMutation,
   // other systemuser mutations if needed
 } from "@/features/systemuser/systemuserApiSlice";
-import { userLoggedIn, userDetailsFetched } from "@/features/auth/authSlice";
+import { userLoggedIn } from "@/features/auth/authSlice";
 
 // icons
 import { letter, password } from "@/assets/icons/svgIcons";
@@ -62,18 +62,13 @@ const LoginPage = () => {
         // Check if response has success wrapper or direct accessToken
         const accessToken = responseData?.accessToken || responseData?.data?.accessToken;
         const refreshToken = responseData?.refreshToken || responseData?.data?.refreshToken;
-        const user = responseData?.user || responseData?.data?.user;
 
         if (!accessToken) {
           toast.error("Login failed: Access token is missing.");
           return;
         }
 
-        // Dispatch user data if available
-        if (user) {
-          dispatch(userDetailsFetched(user));
-        }
-
+        // User data will be fetched from /auth/me API instead of storing here
         handleAuthSuccess(accessToken, refreshToken);
       } else if (loginRes?.error) {
         toast.error(loginRes?.error?.data?.message || loginRes?.error?.message || "Login Failed!");
@@ -92,42 +87,51 @@ const LoginPage = () => {
   return (
     <AuthPage>
       <>
-        <p className="text-sm text-center text-black/40 dark:text-white/50">
-          Login
-        </p>
+        {/* Enhanced Header */}
+        <div className="text-center mb-8">
+    
+          <p className="text-sm text-gray-500 dark:text-white/60">
+            Sign in to access your admin dashboard
+          </p>
+        </div>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5 mt-8"
+          className="flex flex-col gap-6"
         >
-          <TextField
-            placeholder="Your Email Address"
-            type="email"
-            register={register}
-            name="email"
-            icon={letter}
-            defaultValue={email || ""}
-            disabled={isLoading}
-          />
-          <TextField
-            placeholder="Type your Password"
-            register={register}
-            name="password"
-            type="password"
-            icon={password}
-            disabled={isLoading}
-          />
-          <div className="flbx">
+          <div className="space-y-4">
+            <TextField
+              placeholder="Your Email Address"
+              type="email"
+              register={register}
+              name="email"
+              icon={letter}
+              defaultValue={email || ""}
+              disabled={isLoading}
+            />
+            <TextField
+              placeholder="Type your Password"
+              register={register}
+              name="password"
+              type="password"
+              icon={password}
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
             <Checkbox
               name="rememberMe"
               value={rememberMe}
               setValue={setRememberMe}
             >
-              <span className="dark:text-white text-primary">Remember Me</span>
+              <span className="dark:text-white text-gray-700 text-sm font-medium">
+                Remember Me
+              </span>
             </Checkbox>
             <Link
               to="/forgot-password"
-              className="text-sm dark:text-white/75 text-black/70 hover:text-secondary tr"
+              className="text-sm text-primary dark:text-secondary hover:underline transition-all duration-200 font-medium"
             >
               Forgot Password?
             </Link>
@@ -136,12 +140,30 @@ const LoginPage = () => {
           <SubmitButton
             isLoading={isLoading}
             disabled={isLoading}
-            className="mt-4"
+            className="mt-2 relative overflow-hidden group"
           >
-            {isLoading ? "Logging In..." : "Login"}
+            <span className="relative z-10">
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Logging In...
+                </span>
+              ) : (
+                "Login to Dashboard"
+              )}
+            </span>
           </SubmitButton>
         </form>
 
+        {/* Additional Info */}
+        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <p className="text-center text-sm text-gray-500 dark:text-white/50">
+            Protected by enterprise-grade security
+          </p>
+        </div>
       </>
     </AuthPage>
   );

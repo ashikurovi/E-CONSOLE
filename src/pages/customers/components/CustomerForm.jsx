@@ -55,21 +55,47 @@ function CustomerForm() {
         <DialogHeader>
           <DialogTitle>Create Customer</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
-          <TextField placeholder="Name" register={register} name="name" />
-          <TextField placeholder="Email" register={register} name="email" type="email" />
-          <TextField placeholder="Phone (optional)" register={register} name="phone" />
-          <TextField placeholder="Address (optional)" register={register} name="address" />
-          <Dropdown
-            name="Role"
-            options={roleOptions}
-            setSelectedOption={setRoleOption}
-            className="py-2"
-          >
-            {roleOption?.label || (
-              <span className="text-black/50 dark:text-white/50">Select Role</span>
-            )}
-          </Dropdown>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
+          {/* Personal Information Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Personal Information
+              </h3>
+            </div>
+            <TextField label="Full Name *" placeholder="John Doe" register={register} name="name" />
+            <TextField label="Email Address *" placeholder="john@example.com" register={register} name="email" type="email" />
+            <TextField label="Phone Number" placeholder="+880XXXXXXXXXX (optional)" register={register} name="phone" />
+          </div>
+
+          {/* Address Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Address
+              </h3>
+            </div>
+            <TextField label="Complete Address" placeholder="Enter full address (optional)" register={register} name="address" />
+          </div>
+
+          {/* Role & Permissions Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                Role & Permissions
+              </h3>
+            </div>
+            <Dropdown
+              name="Role"
+              options={roleOptions}
+              setSelectedOption={setRoleOption}
+              className="py-2"
+            >
+              {roleOption?.label || (
+                <span className="text-black/50 dark:text-white/50">Select Role</span>
+              )}
+            </Dropdown>
+          </div>
 
           <DialogFooter>
             <Button variant="ghost" type="button" className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400" onClick={() => setIsOpen(false)}>
