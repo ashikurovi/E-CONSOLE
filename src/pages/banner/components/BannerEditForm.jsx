@@ -18,7 +18,7 @@ import {
 
 import { useUpdateBannerMutation } from "@/features/banners/bannersApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
-
+import { useSelector } from "react-redux";
 const bannerEditSchema = yup.object().shape({
   title: yup
     .string()
@@ -66,7 +66,7 @@ function BannerEditForm({ banner }) {
   });
 
   const [updateBanner, { isLoading: isUpdating }] = useUpdateBannerMutation();
-
+  const authUser = useSelector((state) => state.auth.user);
   const sanitizeUrl = (u) => (u || "").replace(/`/g, "").trim();
 
   const onSubmit = async (data) => {
@@ -100,7 +100,10 @@ function BannerEditForm({ banner }) {
     };
 
     try {
-      const res = await updateBanner(payload);
+      const params = {
+        companyId: authUser?.companyId,
+      };
+      const res = await updateBanner({ id: banner?.id, body: payload, params });
       if (res?.data) {
         toast.success("Banner updated");
         reset();

@@ -6,14 +6,16 @@ import toast from "react-hot-toast";
 import TextField from "@/components/input/TextField";
 import PrimaryButton from "@/components/buttons/primary-button";
 import Dropdown from "@/components/dropdown/dropdown";
+import { useSelector } from "react-redux";
 
 const CreateOrder = () => {
+  const authUser = useSelector((state) => state.auth.user);
   const [createOrder, { isLoading }] = useCreateOrderMutation();
   const [shipOrder, { isLoading: isShipping }] = useShipOrderMutation();
   const [selectedOrder, setSelectedOrder] = useState(null);
   
   // Fetch orders with status = "processing"
-  const { data: allOrders = [], isLoading: isLoadingOrders } = useGetOrdersQuery();
+  const { data: allOrders = [], isLoading: isLoadingOrders } = useGetOrdersQuery({ companyId: authUser?.companyId });
   
   // Filter processing orders
   const processingOrders = allOrders.filter(

@@ -6,9 +6,11 @@ import TextField from "@/components/input/TextField";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { exportToExcel } from "@/utils/excelExport";
+import { useSelector } from "react-redux";
 
 const OrdersItemsPage = () => {
-  const { data: items = [], isLoading } = useGetOrderItemsQuery();
+  const authUser = useSelector((state) => state.auth.user);
+  const { data: items = [], isLoading } = useGetOrderItemsQuery({ companyId: authUser?.companyId });
   // Default to today's date in YYYY-MM-DD format
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();

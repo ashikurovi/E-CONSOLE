@@ -26,14 +26,14 @@ const Layout = () => {
 
                 <div className="lg:px-0 px-2">
                     {/* Desktop layout with persistent sidebar and content area */}
-                    <div className="lg:grid lg:grid-cols-[260px_1fr] ">
+                    <div className="lg:flex">
                         <div className="lg:block hidden">
                             <SideNav />
 
                         </div>
 
 
-                        <div>
+                        <div className="flex-1 min-w-0">
                             <div className="lg:sticky top-0 z-10">
                                 <TopNavbar />
                             </div>

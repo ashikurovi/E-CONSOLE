@@ -4,7 +4,7 @@ export const earningsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Get earnings overview
     getEarningsOverview: builder.query({
-      query: () => ({ url: "/earnings", method: "GET" }),
+      query: (params) => ({ url: "/earnings", method: "GET", params }),
       transformResponse: (res) => res,
       providesTags: [{ type: "earnings", id: "OVERVIEW" }],
     }),

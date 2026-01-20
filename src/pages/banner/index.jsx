@@ -11,9 +11,11 @@ import {
 } from "@/features/banners/bannersApiSlice";
 import { Power, Trash2 } from "lucide-react";
 import DeleteModal from "@/components/modals/DeleteModal";
+import { useSelector } from "react-redux";
 
 const BannerPage = () => {
-  const { data: banners = [], isLoading: isBannersLoading } = useGetBannersQuery();
+  const authUser = useSelector((state) => state.auth.user);
+  const { data: banners = [], isLoading: isBannersLoading } = useGetBannersQuery({ companyId: authUser?.companyId });
   const [deleteBanner, { isLoading: isDeletingBanner }] = useDeleteBannerMutation();
   const [updateBanner, { isLoading: isUpdatingBanner }] = useUpdateBannerMutation();
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, banner: null });

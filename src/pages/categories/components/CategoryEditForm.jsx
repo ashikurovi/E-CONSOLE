@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/input/TextField";
@@ -14,6 +16,22 @@ import {
 import { useUpdateCategoryMutation } from "@/features/category/categoryApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
 import { useSelector } from "react-redux";
+
+// Yup validation schema
+const categoryEditSchema = yup.object().shape({
+  name: yup
+    .string()
+    .required("Category name is required")
+    .min(2, "Category name must be at least 2 characters")
+    .max(100, "Category name must be less than 100 characters")
+    .trim(),
+  slug: yup
+    .string()
+    .nullable()
+    .transform((value) => (value === "" ? null : value))
+    .max(100, "Slug must be less than 100 characters")
+    .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$|^$/, "Slug must be lowercase letters, numbers, and hyphens only"),
+});
 const CategoryEditForm = ({ category, parentOptions, onClose }) => {
     const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
     const [selectedParent, setSelectedParent] = useState(
@@ -21,9 +39,14 @@ const CategoryEditForm = ({ category, parentOptions, onClose }) => {
     );
     const [selectedFile, setSelectedFile] = useState(null);
     const { uploadImage, isUploading } = useImageUpload();
-    const { user } = useSelector((state) => state.auth);
-    console.log(user)
-    const { register, handleSubmit } = useForm({
+    const authUser = useSelector((state) => state.auth.user);
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm({
+        resolver: yupResolver(categoryEditSchema),
+        mode: "onChange",
         defaultValues: {
             name: category?.name ?? "",
             slug: category?.slug ?? "",
@@ -53,7 +76,7 @@ const CategoryEditForm = ({ category, parentOptions, onClose }) => {
         };
 
         const params = {
-            companyId: user?.companyId,
+            companyId: authUser?.companyId,
         };
         const res = await updateCategory({ id: category.id, body: payload, params });
         if (res?.data) {
@@ -77,8 +100,20 @@ const CategoryEditForm = ({ category, parentOptions, onClose }) => {
                             Basic Information
                         </h3>
                     </div>
-                    <TextField label="Category Name *" placeholder="Enter category name" register={register} name="name" />
-                    <TextField label="Slug" placeholder="category-slug (optional)" register={register} name="slug" />
+                    <TextField
+                        label="Category Name *"
+                        placeholder="Enter category name"
+                        register={register}
+                        name="name"
+                        error={errors.name?.message}
+                    />
+                    <TextField
+                        label="Slug"
+                        placeholder="category-slug (optional)"
+                        register={register}
+                        name="slug"
+                        error={errors.slug?.message}
+                    />
                 </div>
 
                 {/* Media Section */}

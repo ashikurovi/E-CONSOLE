@@ -4,17 +4,18 @@ export const refundPolicyApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         // Create refund policy
         createRefundPolicy: builder.mutation({
-            query: (body) => ({
+            query: ({ body, params }) => ({
                 url: "/refund-policy",
                 method: "POST",
                 body,
+                params,
             }),
             invalidatesTags: [{ type: "refundPolicy", id: "LIST" }],
         }),
 
         // Get all refund policies
         getRefundPolicies: builder.query({
-            query: () => ({ url: "/refund-policy", method: "GET" }),
+            query: (params) => ({ url: "/refund-policy", method: "GET", params }),
             transformResponse: (res) => res?.data ?? [],
             providesTags: [{ type: "refundPolicy", id: "LIST" }],
         }),
@@ -28,10 +29,11 @@ export const refundPolicyApiSlice = apiSlice.injectEndpoints({
 
         // Update refund policy by id
         updateRefundPolicy: builder.mutation({
-            query: ({ id, ...body }) => ({
+            query: ({ id, body, params }) => ({
                 url: `/refund-policy/${id}`,
                 method: "PATCH",
                 body,
+                params,
                 headers: { "Content-Type": "application/json;charset=UTF-8" },
             }),
             invalidatesTags: (result, error, { id }) => [

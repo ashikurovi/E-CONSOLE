@@ -8,8 +8,8 @@ import ReusableTable from "@/components/table/reusable-table";
 import { useGetDashboardQuery } from "@/features/dashboard/dashboardApiSlice";
 
 const DashboardPage = () => {
-  const { data: dashboardData, isLoading, isError } = useGetDashboardQuery();
   const authUser = useSelector((state) => state.auth.user);
+  const { data: dashboardData, isLoading, isError } = useGetDashboardQuery({ companyId: authUser?.companyId });
   const userName = authUser?.name || "User";
 
   // Default values while loading or on error

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/input/TextField";
@@ -13,6 +15,30 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useCreateUserMutation } from "@/features/user/userApiSlice";
+import { useSelector } from "react-redux";      
+// Yup validation schema
+const customerSchema = yup.object().shape({
+  name: yup
+    .string()
+    .required("Full name is required")
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name must be less than 100 characters")
+    .trim(),
+  email: yup
+    .string()
+    .required("Email address is required")
+    .email("Please enter a valid email address")
+    .trim(),
+  phone: yup
+    .string()
+    .max(20, "Phone number must be less than 20 characters")
+    .matches(/^[+\d\s()-]*$/, "Please enter a valid phone number")
+    .trim(),
+  address: yup
+    .string()
+    .max(500, "Address must be less than 500 characters")
+    .trim(),
+});
 
 const roleOptions = [
   { label: "Customer", value: "customer" },
@@ -22,9 +48,17 @@ const roleOptions = [
 function CustomerForm() {
   const [isOpen, setIsOpen] = useState(false);
   const [roleOption, setRoleOption] = useState(roleOptions[0]);
-  const { register, handleSubmit, reset } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(customerSchema),
+    mode: "onChange",
+  });
   const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
-
+  const authUser = useSelector((state) => state.auth.user);
   const onSubmit = async (data) => {
     const payload = {
       name: data.name,
@@ -35,7 +69,11 @@ function CustomerForm() {
       isActive: true,
     };
 
-    const res = await createUser(payload);
+    const params = {
+      companyId: authUser?.companyId,
+    };
+
+    const res = await createUser({ body: payload, params });
     if (res?.data) {
       toast.success("Customer created");
       reset();
@@ -63,9 +101,28 @@ function CustomerForm() {
                 Personal Information
               </h3>
             </div>
-            <TextField label="Full Name *" placeholder="John Doe" register={register} name="name" />
-            <TextField label="Email Address *" placeholder="john@example.com" register={register} name="email" type="email" />
-            <TextField label="Phone Number" placeholder="+880XXXXXXXXXX (optional)" register={register} name="phone" />
+            <TextField
+              label="Full Name *"
+              placeholder="John Doe"
+              register={register}
+              name="name"
+              error={errors.name?.message}
+            />
+            <TextField
+              label="Email Address *"
+              placeholder="john@example.com"
+              register={register}
+              name="email"
+              type="email"
+              error={errors.email?.message}
+            />
+            <TextField
+              label="Phone Number"
+              placeholder="+880XXXXXXXXXX (optional)"
+              register={register}
+              name="phone"
+              error={errors.phone?.message}
+            />
           </div>
 
           {/* Address Section */}
@@ -75,7 +132,13 @@ function CustomerForm() {
                 Address
               </h3>
             </div>
-            <TextField label="Complete Address" placeholder="Enter full address (optional)" register={register} name="address" />
+            <TextField
+              label="Complete Address"
+              placeholder="Enter full address (optional)"
+              register={register}
+              name="address"
+              error={errors.address?.message}
+            />
           </div>
 
           {/* Role & Permissions Section */}

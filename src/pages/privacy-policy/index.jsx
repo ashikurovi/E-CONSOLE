@@ -6,9 +6,11 @@ import {
 } from "@/features/privacy-policy/privacyPolicyApiSlice";
 import PrivacyPolicyForm from "./components/PrivacyPolicyForm";
 import PrivacyPolicyEditForm from "./components/PrivacyPolicyEditForm";
+import { useSelector } from "react-redux";
 
 const PrivacyPolicyPage = () => {
-    const { data: policies = [], isLoading } = useGetPrivacyPoliciesQuery();
+    const authUser = useSelector((state) => state.auth.user);
+    const { data: policies = [], isLoading } = useGetPrivacyPoliciesQuery({ companyId: authUser?.companyId });
     const [editingPolicy, setEditingPolicy] = useState(null);
     const [isCreating, setIsCreating] = useState(false);
 

@@ -3,7 +3,7 @@ import { apiSlice } from "../api/apiSlice";
 export const dashboardApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getDashboard: builder.query({
-      query: () => ({ url: "/dashboard", method: "GET" }),
+      query: (params) => ({ url: "/dashboard", method: "GET", params }),
       transformResponse: (res) => res?.data ?? {},
       providesTags: [{ type: "dashboard", id: "DATA" }],
     }),

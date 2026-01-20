@@ -74,7 +74,7 @@ function BannerForm({ productOptions = [] }) {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const { uploadImage, isUploading } = useImageUpload();
-  const { user } = useSelector((state) => state.auth);
+  const authUser = useSelector((state) => state.auth.user);
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(bannerSchema),
     defaultValues: {
@@ -122,10 +122,7 @@ function BannerForm({ productOptions = [] }) {
       productId: selectedProduct?.value || null,
     };
 
-    const params = {
-      companyId: user?.companyId,
-    };
-
+    const params = { params: { companyId: authUser?.companyId } };
     try {
       const res = await createBanner({ body: payload, params });
       if (res?.data) {

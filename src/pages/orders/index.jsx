@@ -24,9 +24,11 @@ import OrderEditForm from "./components/OrderEditForm";
 import OrderViewModal from "./components/OrderViewModal";
 import DeleteModal from "@/components/modals/DeleteModal";
 import { generateOrderInvoice } from "@/utils/orderInvoice";
+import { useSelector } from "react-redux";
 
 const OrdersPage = () => {
-  const { data: orders = [], isLoading } = useGetOrdersQuery();
+  const authUser = useSelector((state) => state.auth.user);
+  const { data: orders = [], isLoading } = useGetOrdersQuery({ companyId: authUser?.companyId });
   const [completeOrder, { isLoading: isCompleting }] = useCompleteOrderMutation();
   const [processOrder, { isLoading: isProcessing }] = useProcessOrderMutation();
   const [deliverOrder, { isLoading: isDelivering }] = useDeliverOrderMutation();

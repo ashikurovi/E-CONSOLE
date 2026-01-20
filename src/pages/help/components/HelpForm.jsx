@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/input/TextField";
@@ -13,9 +15,32 @@ import {
 } from "@/components/ui/dialog";
 import { useCreateHelpMutation } from "@/features/help/helpApiSlice";
 
+// Yup validation schema
+const helpSchema = yup.object().shape({
+  email: yup
+    .string()
+    .required("Email is required")
+    .email("Please enter a valid email address")
+    .trim(),
+  issue: yup
+    .string()
+    .required("Issue description is required")
+    .min(10, "Issue description must be at least 10 characters")
+    .max(500, "Issue description must not exceed 500 characters")
+    .trim(),
+});
+
 function HelpForm() {
   const [isOpen, setIsOpen] = useState(false);
-  const { register, handleSubmit, reset } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(helpSchema),
+    mode: "onChange",
+  });
   const [createHelp, { isLoading: isCreating }] = useCreateHelpMutation();
 
   const onSubmit = async (data) => {
@@ -39,7 +64,7 @@ function HelpForm() {
       <DialogTrigger asChild>
         <Button size="sm">Create Ticket</Button>
       </DialogTrigger>
-      <DialogContent className="h-[350px]">
+      <DialogContent className="h-[450px]">
         <DialogHeader>
           <DialogTitle>Create Help Ticket</DialogTitle>
         </DialogHeader>
@@ -51,7 +76,14 @@ function HelpForm() {
                 Contact Information
               </h3>
             </div>
-            <TextField label="Your Email Address *" placeholder="your.email@example.com" type="email" register={register} name="email" />
+            <TextField 
+              label="Your Email Address *" 
+              placeholder="your.email@example.com" 
+              type="email" 
+              register={register} 
+              name="email" 
+              error={errors.email?.message}
+            />
           </div>
 
           {/* Issue Description Section */}
@@ -61,14 +93,22 @@ function HelpForm() {
                 Issue Details
               </h3>
             </div>
-            <TextField label="Issue Description *" placeholder="Please describe your issue in detail..." multiline rows={4} register={register} name="issue" />
+            <TextField 
+              label="Issue Description *" 
+              placeholder="Please describe your issue in detail..." 
+              multiline 
+              rows={4} 
+              register={register} 
+              name="issue" 
+              error={errors.issue?.message}
+            />
           </div>
           <DialogFooter>
             <div className="flex items-center w-full justify-end gap-2">
-              <Button className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400" variant="ghost" type="button" onClick={() => setIsOpen(false)}>
+              <Button className="btn-cancel" variant="ghost" type="button" onClick={() => setIsOpen(false)}>
                 Cancel
               </Button>
-              <Button className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400" type="submit" disabled={isCreating}>
+              <Button className="btn-submit" type="submit" disabled={isCreating}>
                 {isCreating ? "Creating..." : "Create"}
               </Button>
             </div>

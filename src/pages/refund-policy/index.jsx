@@ -6,9 +6,11 @@ import {
 } from "@/features/refund-policy/refundPolicyApiSlice";
 import RefundPolicyForm from "./components/RefundPolicyForm";
 import RefundPolicyEditForm from "./components/RefundPolicyEditForm";
+import { useSelector } from "react-redux";
 
 const RefundPolicyPage = () => {
-  const { data: policies = [], isLoading } = useGetRefundPoliciesQuery();
+  const authUser = useSelector((state) => state.auth.user);
+  const { data: policies = [], isLoading } = useGetRefundPoliciesQuery({ companyId: authUser?.companyId });
   const [editingPolicy, setEditingPolicy] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
 

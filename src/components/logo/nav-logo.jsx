@@ -1,22 +1,30 @@
 import React from "react";
-// import logo from "../../assets/images/logo.svg";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export const NavLogo = () => {
+  const user = useSelector((state) => state.auth.user);
+  const logo = user?.companyLogo;
+  const companyName = user?.companyName || "SquadCart";
+
   return (
     <Link
       to={"/"}
       className={`lg:h-[60px] lg:w-[150px] lg:bg-bg50 lg:dark:bg-white/5 dark:hover:bg-white/10 hover:bg-gray-100 tr rounded-full center`}
     >
-      {/* <img src={logo} alt="restro-fx" className="h-6" /> */}
+      {logo && <img src={logo} alt={companyName} className="h-6" />}
     </Link>
   );
 };
 
 export const FooterLogo = () => {
+  const user = useSelector((state) => state.auth.user);
+  const logo = user?.companyLogo;
+  const companyName = user?.companyName || "SquadCart";
+
   return (
     <Link to={"/"} className={``}>
-      {/* <img src={logo} alt="restro-fx" className="h-6" /> */}
+      {logo && <img src={logo} alt={companyName} className="h-6" />}
     </Link>
   );
 };

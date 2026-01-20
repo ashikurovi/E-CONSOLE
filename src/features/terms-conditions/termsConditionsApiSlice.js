@@ -4,17 +4,18 @@ export const termsConditionsApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         // Create terms & conditions
         createTermsConditions: builder.mutation({
-            query: (body) => ({
+            query: ({ body, params }) => ({
                 url: "/trems-condetions",
                 method: "POST",
                 body,
+                params,
             }),
             invalidatesTags: [{ type: "termsConditions", id: "LIST" }],
         }),
 
         // Get all terms & conditions
         getTermsConditions: builder.query({
-            query: () => ({ url: "/trems-condetions", method: "GET" }),
+            query: (params) => ({ url: "/trems-condetions", method: "GET", params }),
             transformResponse: (res) => res?.data ?? [],
             providesTags: [{ type: "termsConditions", id: "LIST" }],
         }),
@@ -28,10 +29,11 @@ export const termsConditionsApiSlice = apiSlice.injectEndpoints({
 
         // Update terms & conditions by id
         updateTermsConditions: builder.mutation({
-            query: ({ id, ...body }) => ({
+            query: ({ id, body, params }) => ({
                 url: `/trems-condetions/${id}`,
                 method: "PATCH",
                 body,
+                params,
                 headers: { "Content-Type": "application/json;charset=UTF-8" },
             }),
             invalidatesTags: (result, error, { id }) => [

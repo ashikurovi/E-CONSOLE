@@ -50,7 +50,6 @@ function CategoryForm({ parentOptions = [] }) {
   });
   const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
   const { uploadImage, isUploading } = useImageUpload();
-  console.log(user)
 
   const onSubmit = async (data) => {
     let photoUrl = null;

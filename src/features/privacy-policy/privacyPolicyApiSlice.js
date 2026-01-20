@@ -4,17 +4,18 @@ export const privacyPolicyApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         // Create privacy policy
         createPrivacyPolicy: builder.mutation({
-            query: (body) => ({
+            query: ({ body, params }) => ({
                 url: "/privecy-policy",
                 method: "POST",
                 body,
+                params,
             }),
             invalidatesTags: [{ type: "privacyPolicy", id: "LIST" }],
         }),
 
         // Get all privacy policies
         getPrivacyPolicies: builder.query({
-            query: () => ({ url: "/privecy-policy", method: "GET" }),
+            query: (params) => ({ url: "/privecy-policy", method: "GET", params }),
             transformResponse: (res) => res?.data ?? [],
             providesTags: [{ type: "privacyPolicy", id: "LIST" }],
         }),
@@ -28,10 +29,11 @@ export const privacyPolicyApiSlice = apiSlice.injectEndpoints({
 
         // Update privacy policy by id
         updatePrivacyPolicy: builder.mutation({
-            query: ({ id, ...body }) => ({
+            query: ({ id, body, params }) => ({
                 url: `/privecy-policy/${id}`,
                 method: "PATCH",
                 body,
+                params,
                 headers: { "Content-Type": "application/json;charset=UTF-8" },
             }),
             invalidatesTags: (result, error, { id }) => [

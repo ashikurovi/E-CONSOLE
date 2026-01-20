@@ -17,10 +17,12 @@ import DeleteModal from "@/components/modals/DeleteModal";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import Dropdown from "@/components/dropdown/dropdown";
 import { exportProductsToExcel } from "@/utils/excelExport";
+import { useSelector } from "react-redux";
 
 const ProductsPage = () => {
-  const { data: products = [], isLoading } = useGetProductsQuery();
-  const { data: categories = [] } = useGetCategoriesQuery();
+  const authUser = useSelector((state) => state.auth.user);
+  const { data: products = [], isLoading } = useGetProductsQuery({ companyId: authUser?.companyId });
+  const { data: categories = [] } = useGetCategoriesQuery({ companyId: authUser?.companyId });
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
   const [toggleActive, { isLoading: isToggling }] = useToggleProductActiveMutation();
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, product: null });

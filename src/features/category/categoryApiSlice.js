@@ -5,18 +5,18 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
       
     // createCategory 
     createCategory: builder.mutation({
-   query: ({ body, params }) => ({
-    url: "/categories",
-    method: "POST",
-    body,
-    params,
-    headers: { "Content-Type": "application/json;charset=UTF-8" },
-   }),
-  invalidatesTags: [{ type: "categories", id: "LIST" }],
+      query: ({ body, params }) => ({
+        url: "/categories",
+        method: "POST",
+        body,
+        params,
+        headers: { "Content-Type": "application/json;charset=UTF-8" },
+      }),
+      invalidatesTags: [{ type: "categories", id: "LIST" }],
     }),
         
     getCategories: builder.query({
-      query: () => ({ url: "/categories", method: "GET" }),
+      query: (params) => ({ url: "/categories", method: "GET", params }),
       transformResponse: (res) => res?.data ?? [], // ✅ safe response
       providesTags: [{ type: "categories", id: "LIST" }],
     }),
@@ -28,7 +28,6 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
     }),
 
     updateCategory: builder.mutation({
-      // expect shape: { id, body, params }
       query: ({ id, body, params }) => ({
         url: `/categories/${id}`,
         method: "PATCH",

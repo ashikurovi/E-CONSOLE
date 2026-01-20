@@ -6,9 +6,11 @@ import {
 } from "@/features/terms-conditions/termsConditionsApiSlice";
 import TermsConditionsForm from "./components/TermsConditionsForm";
 import TermsConditionsEditForm from "./components/TermsConditionsEditForm";
+import { useSelector } from "react-redux";
 
 const TermsConditionsPage = () => {
-  const { data: terms = [], isLoading } = useGetTermsConditionsQuery();
+  const authUser = useSelector((state) => state.auth.user);
+  const { data: terms = [], isLoading } = useGetTermsConditionsQuery({ companyId: authUser?.companyId });
   const [editingTerms, setEditingTerms] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
 

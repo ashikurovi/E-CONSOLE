@@ -4,7 +4,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // List users
     getUsers: builder.query({
-      query: () => ({ url: "/users", method: "GET" }),
+      query: (params) => ({ url: "/users", method: "GET", params }),
       transformResponse: (res) => res?.data ?? [],
       providesTags: [{ type: "users", id: "LIST" }],
     }),
@@ -18,10 +18,11 @@ export const userApiSlice = apiSlice.injectEndpoints({
 
     // Create user
     createUser: builder.mutation({
-      query: (body) => ({
+      query: ({ body, params }) => ({
         url: "/users",
         method: "POST",
         body,
+        params,
         headers: { "Content-Type": "application/json;charset=UTF-8" },
       }),
       invalidatesTags: [{ type: "users", id: "LIST" }],
@@ -29,10 +30,11 @@ export const userApiSlice = apiSlice.injectEndpoints({
 
     // Update user
     updateUser: builder.mutation({
-      query: ({ id, ...body }) => ({
+      query: ({ id, body, params }) => ({
         url: `/users/${id}`,
         method: "PATCH",
         body,
+        params,
         headers: { "Content-Type": "application/json;charset=UTF-8" },
       }),
       invalidatesTags: (result, error, { id }) => [

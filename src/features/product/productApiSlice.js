@@ -15,7 +15,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
 
     // Get all products
     getProducts: builder.query({
-      query: () => ({ url: "/products", method: "GET" }),
+      query: (params) => ({ url: "/products", method: "GET", params }),
       transformResponse: (res) => res?.data ?? [],
       providesTags: [{ type: "products", id: "LIST" }],
     }),
@@ -29,7 +29,6 @@ export const productApiSlice = apiSlice.injectEndpoints({
 
     // Update product by id
     updateProduct: builder.mutation({
-      // expects { id, body, params }
       query: ({ id, body, params }) => ({
         url: `/products/${id}`,
         method: "PATCH",
@@ -86,7 +85,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
 
     // Get active flash sell products
     getActiveFlashSellProducts: builder.query({
-      query: () => ({ url: "/products/flash-sell/active", method: "GET" }),
+      query: (params) => ({ url: "/products/flash-sell/active", method: "GET", params }),
       transformResponse: (res) => res?.data ?? [],
       providesTags: [{ type: "products", id: "FLASH_SELL" }],
     }),

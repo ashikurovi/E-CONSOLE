@@ -13,10 +13,12 @@ import InventoryEditForm from "./components/InventoryEditForm";
 import DeleteModal from "@/components/modals/DeleteModal";
 import Dropdown from "@/components/dropdown/dropdown";
 import { exportToExcel } from "@/utils/excelExport";
+import { useSelector } from "react-redux";
 
 const InventoryPage = () => {
-  const { data: inventory = [], isLoading } = useGetInventoryQuery();
-  const { data: products = [] } = useGetProductsQuery();
+  const authUser = useSelector((state) => state.auth.user);
+  const { data: inventory = [], isLoading } = useGetInventoryQuery({ companyId: authUser?.companyId });
+  const { data: products = [] } = useGetProductsQuery({ companyId: authUser?.companyId });
   const [deleteInventory, { isLoading: isDeleting }] = useDeleteInventoryMutation();
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, item: null });
   const [selectedProduct, setSelectedProduct] = useState(null);

@@ -11,9 +11,11 @@ import {
 import PromocodeForm from "./components/PromocodeForm";
 import PromocodeEditForm from "./components/PromocodeEditForm";
 import DeleteModal from "@/components/modals/DeleteModal";
+import { useSelector } from "react-redux";
 
 const PromocodePage = () => {
-  const { data: promos = [], isLoading } = useGetPromocodesQuery();
+  const authUser = useSelector((state) => state.auth.user);
+  const { data: promos = [], isLoading } = useGetPromocodesQuery({ companyId: authUser?.companyId });
   const [deletePromocode, { isLoading: isDeleting }] = useDeletePromocodeMutation();
   const [toggleActive, { isLoading: isToggling }] = useTogglePromocodeActiveMutation();
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, promocode: null });

@@ -4,7 +4,7 @@ export const ordersItemApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Flatten all items from all orders
     getOrderItems: builder.query({
-      query: () => ({ url: "/orders", method: "GET" }),
+      query: (params) => ({ url: "/orders", method: "GET", params }),
       transformResponse: (res) => {
         const orders = res?.data ?? [];
         return orders.flatMap((o) =>

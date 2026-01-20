@@ -4,17 +4,18 @@ export const promocodeApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Create promocode
     createPromocode: builder.mutation({
-      query: (body) => ({
+      query: ({ body, params }) => ({
         url: "/promocode",
         method: "POST",
         body,
+        params,
       }),
       invalidatesTags: [{ type: "promocode", id: "LIST" }],
     }),
 
     // Get all promocodes
     getPromocodes: builder.query({
-      query: () => ({ url: "/promocode", method: "GET" }),
+      query: (params) => ({ url: "/promocode", method: "GET", params }),
       transformResponse: (res) => res?.data ?? [],
       providesTags: [{ type: "promocode", id: "LIST" }],
     }),
@@ -28,10 +29,11 @@ export const promocodeApiSlice = apiSlice.injectEndpoints({
 
     // Update promocode by id
     updatePromocode: builder.mutation({
-      query: ({ id, ...body }) => ({
+      query: ({ id, body, params }) => ({
         url: `/promocode/${id}`,
         method: "PATCH",
         body,
+        params,
         headers: { "Content-Type": "application/json;charset=UTF-8" },
       }),
       invalidatesTags: (result, error, { id }) => [

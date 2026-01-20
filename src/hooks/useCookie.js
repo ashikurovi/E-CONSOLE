@@ -1,83 +1,55 @@
-import { decodeJWT } from "@/utils/jwt-decoder";
 import { triggerStorageSync } from "./useStorageSync";
 
 export const setAuthCookie = (auth, name = "restro", path = "/") => {
   const { accessToken, refreshToken } = auth;
 
   if (!accessToken) {
-    throw new Error("Access token is required to set authentication cookies.");
+    throw new Error("Access token is required to set authentication.");
   }
 
   try {
-    const { exp } = decodeJWT(accessToken);
-    const millisecondsUntilExpiration = exp ? exp * 1000 - Date.now() : 0;
-
-    // Set secure defaults
-    let cookieFlags = "; SameSite=Strict";
-
-    // Add Secure flag in production
-    if (import.meta.env.PROD) {
-      cookieFlags += "; Secure";
-    }
-
-    // Set access token with appropriate expiration
-    const accessExpires = new Date(Date.now() + millisecondsUntilExpiration);
-    document.cookie = `${name}_access=${accessToken}; expires=${accessExpires.toUTCString()}; path=${path}${cookieFlags}`;
-
-    if (refreshToken) {
-      // Set refresh token with longer expiration (15 days)
-      const refreshExpires = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
-      document.cookie = `${name}_refresh=${refreshToken}; expires=${refreshExpires.toUTCString()}; path=${path}${cookieFlags}`;
-    }
-
-    // Store token expiration time in localStorage for quick validation
-    localStorage.setItem(`${name}_exp`, exp.toString());
+    // Calculate 24 days expiration
+    const expirationTime = Date.now() + (24 * 24 * 60 * 60 * 1000); // 24 days in milliseconds
     
-    // Trigger storage sync to notify other tabs about cookie update
+    // Store tokens in localStorage with 24-day expiration
+    localStorage.setItem(`${name}_access`, accessToken);
+    localStorage.setItem(`${name}_exp`, expirationTime.toString());
+    
+    if (refreshToken) {
+      localStorage.setItem(`${name}_refresh`, refreshToken);
+    }
+    
+    // Trigger storage sync to notify other tabs about token update
     triggerStorageSync(true);
   } catch (error) {
-    console.error("Failed to set authentication cookies:", error);
+    console.error("Failed to set authentication tokens:", error);
     throw error;
   }
 };
 
 export const getAuthCookie = (name = "restro") => {
-  const getCookie = (cookieName) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${cookieName}=`);
-    if (parts.length === 2) {
-      return parts.pop().split(";").shift();
-    }
-    return null;
-  };
-
-  const accessToken = getCookie(`${name}_access`);
-  const refreshToken = getCookie(`${name}_refresh`);
+  // Get tokens from localStorage
+  const accessToken = localStorage.getItem(`${name}_access`);
+  const refreshToken = localStorage.getItem(`${name}_refresh`);
   const tokenExp = localStorage.getItem(`${name}_exp`);
 
-  // Quick expiration check without decoding token
-  const isExpired = tokenExp && parseInt(tokenExp) * 1000 < Date.now();
+  // Check if token is expired (24 days expiration)
+  const isExpired = tokenExp && parseInt(tokenExp) < Date.now();
 
   return {
     accessToken: isExpired ? null : accessToken,
-    refreshToken,
+    refreshToken: isExpired ? null : refreshToken,
     isExpired,
   };
 };
 
 export const removeAuthCookie = (name = "restro", path = "/") => {
-  const cookieFlags = import.meta.env.PROD
-    ? "; Secure; SameSite=Strict"
-    : "; SameSite=Strict";
-
-  // Remove cookies by setting immediate expiration
-  document.cookie = `${name}_access=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}${cookieFlags}`;
-  document.cookie = `${name}_refresh=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}${cookieFlags}`;
-
-  // Clear localStorage
+  // Remove tokens from localStorage
+  localStorage.removeItem(`${name}_access`);
+  localStorage.removeItem(`${name}_refresh`);
   localStorage.removeItem(`${name}_exp`);
   
-  // Trigger storage sync to notify other tabs about cookie removal
+  // Trigger storage sync to notify other tabs about token removal
   triggerStorageSync(false);
 };
 

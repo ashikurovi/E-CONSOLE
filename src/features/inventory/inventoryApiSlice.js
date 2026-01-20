@@ -14,7 +14,7 @@ export const inventoryApiSlice = apiSlice.injectEndpoints({
 
     // Get all inventory
     getInventory: builder.query({
-      query: () => ({ url: "/inventory", method: "GET" }),
+      query: (params) => ({ url: "/inventory", method: "GET", params }),
       transformResponse: (res) => res?.data ?? [],
       providesTags: [{ type: "inventory", id: "LIST" }],
     }),

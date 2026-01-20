@@ -12,7 +12,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
     }),
 
     getSettings: builder.query({
-      query: () => ({ url: "/setting", method: "GET" }),
+      query: (params) => ({ url: "/setting", method: "GET", params }),
       transformResponse: (res) => res?.data ?? [],
       providesTags: [{ type: "settings", id: "LIST" }],
     }),

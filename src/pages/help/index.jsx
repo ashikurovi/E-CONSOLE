@@ -3,8 +3,8 @@ import ReusableTable from "@/components/table/reusable-table";
 import {
   useGetHelpQuery,
 } from "@/features/help/helpApiSlice";
-
 import HelpForm from "./components/HelpForm";
+import { useSelector } from "react-redux";
 
 const STATUS_OPTIONS = [
   { label: "Pending", value: "pending" },
@@ -13,7 +13,8 @@ const STATUS_OPTIONS = [
 ];
 
 function HelpPage() {
-  const { data: tickets = [], isLoading } = useGetHelpQuery();
+  const authUser = useSelector((state) => state.auth.user);
+  const { data: tickets = [], isLoading } = useGetHelpQuery({ companyId: authUser?.companyId });
 
   const headers = useMemo(
     () => [

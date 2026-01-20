@@ -6,6 +6,7 @@ import { routes } from "./routes";
 // hooks
 import useAuth from "./hooks/useAuth";
 import useStorageSync from "./hooks/useStorageSync";
+import useFavicon from "./hooks/useFavicon";
 import { DarkModeProvider } from "./hooks/dark-mode";
 
 // components
@@ -21,6 +22,9 @@ const App = () => {
   
   // Enable real-time storage sync across tabs
   useStorageSync();
+  
+  // Dynamically update favicon from API
+  useFavicon();
 
   if (!authChecked || isLoading) {
     return (

@@ -13,7 +13,7 @@ export const bannersApiSlice = apiSlice.injectEndpoints({
     }),
 
     getBanners: builder.query({
-      query: () => ({ url: "/banners", method: "GET" }),
+      query: (params) => ({ url: "/banners", method: "GET", params }),
       transformResponse: (res) => res?.data ?? [],
       providesTags: [{ type: "banners", id: "LIST" }],
     }),
@@ -25,10 +25,11 @@ export const bannersApiSlice = apiSlice.injectEndpoints({
     }),
 
     updateBanner: builder.mutation({
-      query: ({ id, ...body }) => ({
+      query: ({ id, body, params }) => ({
         url: `/banners/${id}`,
         method: "PATCH",
         body,
+        params,
         headers: { "Content-Type": "application/json;charset=UTF-8" },
       }),
       invalidatesTags: (result, error, { id }) => [

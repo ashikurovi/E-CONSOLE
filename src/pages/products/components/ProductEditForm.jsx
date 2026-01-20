@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Pencil, X, Plus } from "lucide-react";
@@ -19,6 +21,48 @@ import useImageUpload from "@/hooks/useImageUpload";
 import FileUpload from "@/components/input/FileUpload";
 import { useSelector } from "react-redux";
 
+// Yup validation schema
+const productEditSchema = yup.object().shape({
+  name: yup
+    .string()
+    .required("Product name is required")
+    .min(2, "Product name must be at least 2 characters")
+    .max(200, "Product name must be less than 200 characters")
+    .trim(),
+  sku: yup
+    .string()
+    .max(100, "SKU must be less than 100 characters")
+    .trim(),
+  description: yup
+    .string()
+    .max(2000, "Description must be less than 2000 characters")
+    .trim(),
+  price: yup
+    .number()
+    .typeError("Price must be a number")
+    .required("Price is required")
+    .positive("Price must be greater than 0")
+    .test('decimal-places', 'Price can have at most 2 decimal places', (value) => {
+      if (value === undefined || value === null) return true;
+      return /^\d+(\.\d{1,2})?$/.test(value.toString());
+    }),
+  discountPrice: yup
+    .number()
+    .nullable()
+    .transform((value, originalValue) => (originalValue === "" ? null : value))
+    .typeError("Discount price must be a number")
+    .positive("Discount price must be greater than 0")
+    .test('less-than-price', 'Discount price must be less than regular price', function(value) {
+      const { price } = this.parent;
+      if (!value || !price) return true;
+      return value < price;
+    })
+    .test('decimal-places', 'Discount price can have at most 2 decimal places', (value) => {
+      if (value === undefined || value === null) return true;
+      return /^\d+(\.\d{1,2})?$/.test(value.toString());
+    }),
+});
+
 export default function ProductEditForm({ product, categoryOptions = [] }) {
   const [isOpen, setIsOpen] = useState(false);
   const defaultCategory = useMemo(() => {
@@ -32,7 +76,13 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
   const [imageFiles, setImageFiles] = useState([]);
   const { uploadImage, isUploading } = useImageUpload();
   const { user } = useSelector((state) => state.auth);
-  const { register, handleSubmit } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(productEditSchema),
+    mode: "onChange",
     defaultValues: {
       name: product?.name ?? product?.title ?? "",
       sku: product?.sku ?? "",
@@ -178,8 +228,20 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
                 Basic Information
               </h3>
             </div>
-            <TextField label="Product Name *" placeholder="Enter product name" register={register} name="name" required />
-            <TextField label="SKU" placeholder="Enter SKU (optional)" register={register} name="sku" />
+            <TextField
+              label="Product Name *"
+              placeholder="Enter product name"
+              register={register}
+              name="name"
+              error={errors.name?.message}
+            />
+            <TextField
+              label="SKU"
+              placeholder="Enter SKU (optional)"
+              register={register}
+              name="sku"
+              error={errors.sku?.message}
+            />
             <TextField 
               label="Description"
               placeholder="Enter product description"
@@ -187,6 +249,7 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
               name="description"
               multiline
               rows={4}
+              error={errors.description?.message}
             />
           </div>
 
@@ -198,8 +261,24 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
               </h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <TextField label="Price *" placeholder="0.00" register={register} name="price" type="number" step="0.01" required />
-              <TextField label="Discount Price" placeholder="0.00 (optional)" register={register} name="discountPrice" type="number" step="0.01" />
+              <TextField
+                label="Price *"
+                placeholder="0.00"
+                register={register}
+                name="price"
+                type="number"
+                step="0.01"
+                error={errors.price?.message}
+              />
+              <TextField
+                label="Discount Price"
+                placeholder="0.00 (optional)"
+                register={register}
+                name="discountPrice"
+                type="number"
+                step="0.01"
+                error={errors.discountPrice?.message}
+              />
             </div>
           </div>
 

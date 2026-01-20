@@ -4,7 +4,7 @@ export const invoiceApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // List all invoices
     getInvoices: builder.query({
-      query: () => ({ url: "/invoice", method: "GET" }),
+      query: (params) => ({ url: "/invoice", method: "GET", params }),
       transformResponse: (res) => res?.data || res,
       providesTags: [{ type: "invoice", id: "LIST" }],
     }),

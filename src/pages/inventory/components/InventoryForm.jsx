@@ -67,7 +67,9 @@ function InventoryForm({ productOptions = [], existingInventory = [] }) {
     },
   });
 
-  const [createInventory, { isLoading: isCreating }] = useCreateInventoryMutation();
+  const [createInventory, { isLoading: isCreating }] = useCreateInventoryMutation({
+    params: { companyId: authUser?.companyId }
+  });
 
   // Validate product selection
   const handleProductSelect = (option) => {

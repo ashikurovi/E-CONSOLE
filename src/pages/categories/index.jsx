@@ -15,10 +15,12 @@ import {
 import CategoryForm from "./components/CategoryForm";
 import CategoryEditForm from "./components/CategoryEditForm";
 import DeleteModal from "@/components/modals/DeleteModal";
-import ConfirmModal from "@/components/modals/ConfirmModal";
+import ConfirmModal from "@/components/modals/ConfirmModal";  
+import { useSelector } from "react-redux";
 
 const CategoriesPage = () => {
-  const { data: categories = [], isLoading } = useGetCategoriesQuery();
+  const authUser = useSelector((state) => state.auth.user);
+  const { data: categories = [], isLoading } = useGetCategoriesQuery({ companyId: authUser?.companyId });
   const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
   const [toggleActive, { isLoading: isToggling }] = useToggleCategoryActiveMutation();
   const [editingCategory, setEditingCategory] = useState(null);

@@ -20,10 +20,11 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-
+import { useSelector } from "react-redux";
 
 const CustomersPage = () => {
-  const { data: users = [], isLoading } = useGetUsersQuery();
+  const authUser = useSelector((state) => state.auth.user);
+  const { data: users = [], isLoading } = useGetUsersQuery({ companyId: authUser?.companyId });
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
   const [banUser, { isLoading: isBanning }] = useBanUserMutation();
   const [unbanUser, { isLoading: isUnbanning }] = useUnbanUserMutation();

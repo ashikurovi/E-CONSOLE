@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/input/TextField";
@@ -16,13 +18,48 @@ import { useCreateOrderMutation } from "@/features/order/orderApiSlice";
 import { useGetProductsQuery } from "@/features/product/productApiSlice";
 import { useGetUsersQuery } from "@/features/user/userApiSlice";
 import { useSelector } from "react-redux";
+
+// Yup validation schema
+const orderSchema = yup.object().shape({
+  customerName: yup
+    .string()
+    .when('$hasCustomer', {
+      is: false,
+      then: (schema) => schema.required("Customer name is required").min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters").trim(),
+      otherwise: (schema) => schema.trim(),
+    }),
+  customerPhone: yup
+    .string()
+    .when('$hasCustomer', {
+      is: false,
+      then: (schema) => schema.max(20, "Phone number must be less than 20 characters").matches(/^[+\d\s()-]*$/, "Please enter a valid phone number").trim(),
+      otherwise: (schema) => schema.trim(),
+    }),
+  customerAddress: yup
+    .string()
+    .max(500, "Address must be less than 500 characters")
+    .trim(),
+  shippingAddress: yup
+    .string()
+    .max(500, "Shipping address must be less than 500 characters")
+    .trim(),
+});
 const OrderForm = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { register, handleSubmit, reset } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(orderSchema),
+    mode: "onChange",
+    context: { hasCustomer: false },
+  });
   const [createOrder, { isLoading }] = useCreateOrderMutation();
   const { user } = useSelector((state) => state.auth);
-  const { data: products = [] } = useGetProductsQuery();
-  const { data: users = [] } = useGetUsersQuery();
+  const { data: products = [] } = useGetProductsQuery({ companyId: user?.companyId });
+  const { data: users = [] } = useGetUsersQuery({ companyId: user?.companyId });
 
   const productOptions = useMemo(
     () => products.map((p) => ({ label: `${p.name ?? p.title} (${p.sku ?? "-"})`, value: p.id })),
@@ -123,14 +160,38 @@ const OrderForm = () => {
           {/* Manual customer info (used only if no selectedCustomer) */}
           {!selectedCustomer && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <TextField label="Customer Name" placeholder="John Doe" register={register} name="customerName" />
-              <TextField label="Customer Phone" placeholder="+8801..." register={register} name="customerPhone" />
-              <TextField label="Customer Address" placeholder="Street, City" register={register} name="customerAddress" />
+              <TextField
+                label="Customer Name"
+                placeholder="John Doe"
+                register={register}
+                name="customerName"
+                error={errors.customerName?.message}
+              />
+              <TextField
+                label="Customer Phone"
+                placeholder="+8801..."
+                register={register}
+                name="customerPhone"
+                error={errors.customerPhone?.message}
+              />
+              <TextField
+                label="Customer Address"
+                placeholder="Street, City"
+                register={register}
+                name="customerAddress"
+                error={errors.customerAddress?.message}
+              />
             </div>
           )}
 
           {/* Shipping address */}
-          <TextField label="Shipping Address" placeholder="Street, City (optional)" register={register} name="shippingAddress" />
+          <TextField
+            label="Shipping Address"
+            placeholder="Street, City (optional)"
+            register={register}
+            name="shippingAddress"
+            error={errors.shippingAddress?.message}
+          />
 
           {/* Items composer */}
           <div className="rounded-xl border border-black/10 dark:border-white/10 p-3">

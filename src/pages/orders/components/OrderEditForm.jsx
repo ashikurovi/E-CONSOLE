@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
@@ -17,10 +19,33 @@ import {
   useShipOrderMutation,
 } from "@/features/order/orderApiSlice";
 import { useSelector } from "react-redux";
+
+// Yup validation schema
+const orderEditSchema = yup.object().shape({
+  paymentRef: yup
+    .string()
+    .max(100, "Payment reference must be less than 100 characters")
+    .trim(),
+  trackingId: yup
+    .string()
+    .max(100, "Tracking ID must be less than 100 characters")
+    .trim(),
+  provider: yup
+    .string()
+    .max(100, "Provider name must be less than 100 characters")
+    .trim(),
+});
 const OrderEditForm = ({ order }) => {
   const { user } = useSelector((state) => state.auth);
   const [isOpen, setIsOpen] = useState(false);
-  const { register, handleSubmit, reset } = useForm({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(orderEditSchema),
+    mode: "onChange",
     defaultValues: {
       paymentRef: order?.paymentReference || "",
       trackingId: order?.shippingTrackingId || "",
@@ -77,7 +102,13 @@ const OrderEditForm = ({ order }) => {
           <section>
             <h4 className="text-sm font-medium mb-3">Complete (Payment)</h4>
             <form onSubmit={handleSubmit(onComplete)} className="space-y-3">
-              <TextField label="Payment Reference" placeholder="Txn Ref (optional)" register={register} name="paymentRef" />
+              <TextField
+                label="Payment Reference"
+                placeholder="Txn Ref (optional)"
+                register={register}
+                name="paymentRef"
+                error={errors.paymentRef?.message}
+              />
               <DialogFooter>
                 <Button type="submit" disabled={isCompleting}>
                   {isCompleting ? "Processing..." : "Mark Paid"}
@@ -89,8 +120,20 @@ const OrderEditForm = ({ order }) => {
           <section>
             <h4 className="text-sm font-medium mb-3">Shipping</h4>
             <form onSubmit={handleSubmit(onShip)} className="space-y-3">
-              <TextField label="Tracking ID" placeholder="Tracking ID" register={register} name="trackingId" />
-              <TextField label="Shipping Provider" placeholder="e.g., DHL" register={register} name="provider" />
+              <TextField
+                label="Tracking ID"
+                placeholder="Tracking ID"
+                register={register}
+                name="trackingId"
+                error={errors.trackingId?.message}
+              />
+              <TextField
+                label="Shipping Provider"
+                placeholder="e.g., DHL"
+                register={register}
+                name="provider"
+                error={errors.provider?.message}
+              />
               <DialogFooter>
                 <Button className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400" type="submit" variant="outline" disabled={isShipping}>
                   {isShipping ? "Updating..." : "Update Shipping"}

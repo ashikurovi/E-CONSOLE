@@ -15,8 +15,8 @@
 
 @layer base {
   :root {
-    --primary: 0, 100%, 37%;
-    --secondary: 240, 36%, 17%;
+    --primary: 0, 0%, 0%;
+    --secondary: 0, 84%, 60%;
     --bg50: 210, 17%, 98%;
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
@@ -43,8 +43,8 @@
     --radius: 0.5rem;
   }
   .dark {
-    --primary: 0, 100%, 37%;
-    --secondary: 251, 100%, 96%;
+    --primary: 0, 0%, 0%;
+    --secondary: 0, 84%, 60%;
     --bg50: 255, 255%, 100%, 0.05;
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
