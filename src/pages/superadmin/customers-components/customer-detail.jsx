@@ -197,6 +197,75 @@ const SuperAdminCustomerDetailPage = () => {
               </div>
             </div>
 
+            {/* Theme Information Section */}
+            {user.theme && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                  <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                    Theme Details
+                  </h3>
+                </div>
+                <div className="overflow-hidden border border-black/10 dark:border-white/10 rounded-lg">
+                  <table className="w-full text-sm">
+                    <tbody className="divide-y divide-black/10 dark:divide-white/10">
+                      <tr className="hover:bg-black/5 dark:hover:bg-white/5">
+                        <td className="px-4 py-2 font-medium text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5 w-1/3">
+                          Theme ID
+                        </td>
+                        <td className="px-4 py-2 font-semibold">
+                          {user.theme.id}
+                        </td>
+                      </tr>
+                      <tr className="hover:bg-black/5 dark:hover:bg-white/5">
+                        <td className="px-4 py-2 font-medium text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5">
+                          Domain URL
+                        </td>
+                        <td className="px-4 py-2 font-semibold">
+                          {user.theme.domainUrl || "-"}
+                        </td>
+                      </tr>
+                      <tr className="hover:bg-black/5 dark:hover:bg-white/5">
+                        <td className="px-4 py-2 font-medium text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5">
+                          Logo Color Code
+                        </td>
+                        <td className="px-4 py-2">
+                          <div className="flex items-center gap-2">
+                            {user.theme.logoColorCode ? (
+                              <>
+                                <div
+                                  className="w-6 h-6 rounded border border-black/20 dark:border-white/20"
+                                  style={{ backgroundColor: user.theme.logoColorCode }}
+                                ></div>
+                                <span className="font-semibold">{user.theme.logoColorCode}</span>
+                              </>
+                            ) : (
+                              <span className="text-black/40 dark:text-white/40">-</span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                      <tr className="hover:bg-black/5 dark:hover:bg-white/5">
+                        <td className="px-4 py-2 font-medium text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5">
+                          Created At
+                        </td>
+                        <td className="px-4 py-2 text-xs">
+                          {user.theme.createdAt ? new Date(user.theme.createdAt).toLocaleString() : "-"}
+                        </td>
+                      </tr>
+                      <tr className="hover:bg-black/5 dark:hover:bg-white/5">
+                        <td className="px-4 py-2 font-medium text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5">
+                          Last Updated
+                        </td>
+                        <td className="px-4 py-2 text-xs">
+                          {user.theme.updatedAt ? new Date(user.theme.updatedAt).toLocaleString() : "-"}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
             {/* Package Information Section */}
             {user.package && (
               <div className="space-y-4">

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { useCreateSystemuserMutation } from "@/features/systemuser/systemuserApiSlice";
 import { useGetPackagesQuery } from "@/features/package/packageApiSlice";
+import { useGetThemesQuery } from "@/features/theme/themeApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
 
 const schema = yup.object().shape({
@@ -41,6 +42,7 @@ const schema = yup.object().shape({
     phone: yup.string().nullable(),
     branchLocation: yup.string().nullable(),
     packageId: yup.number().nullable(),
+    themeId: yup.number().nullable(),
     // Pathao Config
     pathaoClientId: yup.string().nullable(),
     pathaoClientSecret: yup.string().nullable(),
@@ -56,7 +58,9 @@ const CustomerCreateForm = () => {
     const [open, setOpen] = useState(false);
     const [createSystemuser, { isLoading }] = useCreateSystemuserMutation();
     const { data: packages, isLoading: isLoadingPackages } = useGetPackagesQuery();
+    const { data: themes, isLoading: isLoadingThemes } = useGetThemesQuery();
     const [selectedPackage, setSelectedPackage] = useState(null);
+    const [selectedTheme, setSelectedTheme] = useState(null);
     const [isActive, setIsActive] = useState(true);
     const [logoFile, setLogoFile] = useState(null);
     const { uploadImage, isUploading: isUploadingLogo } = useImageUpload();
@@ -78,6 +82,7 @@ const CustomerCreateForm = () => {
             phone: "",
             branchLocation: "",
             packageId: "",
+            themeId: "",
             pathaoClientId: "",
             pathaoClientSecret: "",
             steadfastApiKey: "",
@@ -92,6 +97,12 @@ const CustomerCreateForm = () => {
         label: pkg.name,
         value: pkg.id,
         features: pkg.features,
+    })) || [];
+
+    // Convert themes to dropdown options
+    const themeOptions = themes?.map((theme) => ({
+        label: theme.domainUrl || `Theme #${theme.id}`,
+        value: theme.id,
     })) || [];
 
     const onSubmit = async (data) => {
@@ -138,6 +149,7 @@ const CustomerCreateForm = () => {
             ...(data.branchLocation && { branchLocation: data.branchLocation }),
             ...(Object.keys(paymentInfo).length > 0 && { paymentInfo }),
             ...(data.packageId && { packageId: parseInt(data.packageId) }),
+            ...(data.themeId && { themeId: parseInt(data.themeId) }),
             ...(Object.keys(pathaoConfig).length > 0 && { pathaoConfig }),
             ...(Object.keys(steadfastConfig).length > 0 && { steadfastConfig }),
             ...(Object.keys(notificationConfig).length > 0 && { notificationConfig }),
@@ -148,6 +160,7 @@ const CustomerCreateForm = () => {
             toast.success("Customer created successfully");
             reset();
             setSelectedPackage(null);
+            setSelectedTheme(null);
             setIsActive(true);
             setLogoFile(null);
             setOpen(false);
@@ -321,6 +334,29 @@ const CustomerCreateForm = () => {
                                 </div>
                             </div>
                         )}
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium text-black/70 dark:text-white/70">
+                                Select Theme (Optional)
+                            </label>
+                            <Dropdown
+                                name="theme"
+                                options={themeOptions}
+                                setSelectedOption={(opt) => {
+                                    setSelectedTheme(opt);
+                                    setValue("themeId", opt.value, { shouldValidate: true });
+                                }}
+                            >
+                                {selectedTheme?.label || (
+                                    <span className="text-black/50 dark:text-white/50">
+                                        {isLoadingThemes ? "Loading themes..." : "Select Theme"}
+                                    </span>
+                                )}
+                            </Dropdown>
+                            {errors.themeId && (
+                                <span className="text-red-500 text-xs ml-1">{errors.themeId.message}</span>
+                            )}
+                        </div>
                     </div>
 
                     {/* Courier Configuration Section */}

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { useUpdateSystemuserMutation } from "@/features/systemuser/systemuserApiSlice";
 import { useGetPackagesQuery } from "@/features/package/packageApiSlice";
+import { useGetThemesQuery } from "@/features/theme/themeApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
 
 const PAYMENT_STATUS_OPTIONS = [
@@ -71,6 +72,7 @@ const schema = yup.object().shape({
     paymentmethod: yup.string(),
     amount: yup.number().nullable(),
     packageId: yup.number().nullable(),
+    themeId: yup.number().nullable(),
     // Pathao Config
     pathaoClientId: yup.string().nullable(),
     pathaoClientSecret: yup.string().nullable(),
@@ -85,6 +87,7 @@ const schema = yup.object().shape({
 const CustomerEditForm = ({ user, onClose }) => {
     const [updateSystemuser, { isLoading }] = useUpdateSystemuserMutation();
     const { data: packages, isLoading: isLoadingPackages } = useGetPackagesQuery();
+    const { data: themes, isLoading: isLoadingThemes } = useGetThemesQuery();
     const [selectedPaymentStatus, setSelectedPaymentStatus] = useState(
         user?.paymentInfo?.paymentstatus
             ? PAYMENT_STATUS_OPTIONS.find((opt) => opt.value === user.paymentInfo.paymentstatus)
@@ -96,6 +99,7 @@ const CustomerEditForm = ({ user, onClose }) => {
             : null
     );
     const [selectedPackage, setSelectedPackage] = useState(null);
+    const [selectedTheme, setSelectedTheme] = useState(null);
     const [isActive, setIsActive] = useState(user?.isActive ?? true);
     const [logoFile, setLogoFile] = useState(null);
     const { uploadImage, isUploading: isUploadingLogo } = useImageUpload();
@@ -121,6 +125,7 @@ const CustomerEditForm = ({ user, onClose }) => {
             paymentmethod: user?.paymentInfo?.paymentmethod || "",
             amount: user?.paymentInfo?.amount || "",
             packageId: user?.packageId || "",
+            themeId: user?.themeId || "",
             pathaoClientId: user?.pathaoConfig?.clientId || "",
             pathaoClientSecret: user?.pathaoConfig?.clientSecret || "",
             steadfastApiKey: user?.steadfastConfig?.apiKey || "",
@@ -137,8 +142,14 @@ const CustomerEditForm = ({ user, onClose }) => {
         features: pkg.features,
     })) || [];
 
+    // Convert themes to dropdown options
+    const themeOptions = themes?.map((theme) => ({
+        label: theme.domainUrl || `Theme #${theme.id}`,
+        value: theme.id,
+    })) || [];
+
     useEffect(() => {
-        if (!user || !packages) return;
+        if (!user || !packages || !themes) return;
 
         const paymentStatus = user?.paymentInfo?.paymentstatus
             ? PAYMENT_STATUS_OPTIONS.find((opt) => opt.value === user.paymentInfo.paymentstatus)
@@ -155,9 +166,18 @@ const CustomerEditForm = ({ user, onClose }) => {
             ? { label: packageData.name, value: packageData.id, features: packageData.features }
             : null;
 
+        // Find theme from API data
+        const themeData = user?.themeId
+            ? themes.find((theme) => theme.id === user.themeId)
+            : null;
+        const themeOption = themeData
+            ? { label: themeData.domainUrl || `Theme #${themeData.id}`, value: themeData.id }
+            : null;
+
         setSelectedPaymentStatus(paymentStatus);
         setSelectedPaymentMethod(paymentMethod);
         setSelectedPackage(packageOption);
+        setSelectedTheme(themeOption);
         setIsActive(user?.isActive ?? true);
 
         reset({
@@ -173,6 +193,7 @@ const CustomerEditForm = ({ user, onClose }) => {
             paymentmethod: user?.paymentInfo?.paymentmethod || "",
             amount: user?.paymentInfo?.amount || "",
             packageId: user?.packageId || "",
+            themeId: user?.themeId || "",
             pathaoClientId: user?.pathaoConfig?.clientId || "",
             pathaoClientSecret: user?.pathaoConfig?.clientSecret || "",
             steadfastApiKey: user?.steadfastConfig?.apiKey || "",
@@ -181,7 +202,7 @@ const CustomerEditForm = ({ user, onClose }) => {
             notificationWhatsapp: user?.notificationConfig?.whatsapp || "",
         });
         setLogoFile(null);
-    }, [user, packages, reset]);
+    }, [user, packages, themes, reset]);
 
     const onSubmit = async (data) => {
         // Upload logo if new file is selected
@@ -230,6 +251,7 @@ const CustomerEditForm = ({ user, onClose }) => {
             ...(data.branchLocation !== undefined && { branchLocation: data.branchLocation }),
             ...(Object.keys(paymentInfo).length > 0 && { paymentInfo }),
             ...(data.packageId && { packageId: parseInt(data.packageId) }),
+            ...(data.themeId && { themeId: parseInt(data.themeId) }),
             ...(Object.keys(pathaoConfig).length > 0 && { pathaoConfig }),
             ...(Object.keys(steadfastConfig).length > 0 && { steadfastConfig }),
             ...(Object.keys(notificationConfig).length > 0 && { notificationConfig }),
@@ -381,6 +403,29 @@ const CustomerEditForm = ({ user, onClose }) => {
                                 </div>
                             </div>
                         )}
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium text-black/70 dark:text-white/70">
+                                Select Theme (Optional)
+                            </label>
+                            <Dropdown
+                                name="theme"
+                                options={themeOptions}
+                                setSelectedOption={(opt) => {
+                                    setSelectedTheme(opt);
+                                    setValue("themeId", opt.value, { shouldValidate: true });
+                                }}
+                            >
+                                {selectedTheme?.label || (
+                                    <span className="text-black/50 dark:text-white/50">
+                                        {isLoadingThemes ? "Loading themes..." : "Select Theme"}
+                                    </span>
+                                )}
+                            </Dropdown>
+                            {errors.themeId && (
+                                <span className="text-red-500 text-xs ml-1">{errors.themeId.message}</span>
+                            )}
+                        </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-2">

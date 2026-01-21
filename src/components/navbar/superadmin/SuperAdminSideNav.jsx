@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { DollarSign, Users, Headset, ClipboardList, LayoutDashboard, Package, FileText } from "lucide-react";
+import { DollarSign, Users, Headset, ClipboardList, LayoutDashboard, Package, FileText, Palette } from "lucide-react";
 
 const SuperAdminSideNav = () => {
   const items = [
@@ -8,6 +8,7 @@ const SuperAdminSideNav = () => {
     { label: "Earnings", to: "/superadmin/earnings", Icon: DollarSign },
     { label: "Our Customers", to: "/superadmin/customers", Icon: Users },
     { label: "Packages", to: "/superadmin/packages", Icon: Package },
+    { label: "Themes", to: "/superadmin/themes", Icon: Palette },
     { label: "Invoices", to: "/superadmin/invoices", Icon: FileText },
     { label: "Support", to: "/superadmin/support", Icon: Headset },
   ];

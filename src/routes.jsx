@@ -38,6 +38,7 @@ import SuperAdminCustomerDetailPage from "./pages/superadmin/customers-component
 import SuperAdminSupportPage from "./pages/superadmin/support";
 import SuperAdminSupportDetailPage from "./pages/superadmin/support-detail";
 import PackageManagementPage from "./pages/superadmin/packagemanagement";
+import ThemeManagementPage from "./pages/superadmin/thememanagement";
 import InvoiceManagementPage from "./pages/superadmin/invoice";
 import PrivacyPolicyPage from "./pages/privacy-policy";
 import TermsConditionsPage from "./pages/terms-conditions";
@@ -236,6 +237,10 @@ export const routes = createBrowserRouter([
       {
         path: "/superadmin/packages",
         element: <SuperAdminPrivateRoute><PackageManagementPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/themes",
+        element: <SuperAdminPrivateRoute><ThemeManagementPage /></SuperAdminPrivateRoute>,
       },
       {
         path: "/superadmin/invoices",

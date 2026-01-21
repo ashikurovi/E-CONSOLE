@@ -15,6 +15,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import { useCreatePackageMutation } from "@/features/package/packageApiSlice";
+import { useGetThemesQuery } from "@/features/theme/themeApiSlice";
 
 const AVAILABLE_FEATURES = [
     "PRODUCTS",
@@ -82,8 +83,10 @@ const schema = yup.object().shape({
 const PackageCreateForm = () => {
     const [open, setOpen] = useState(false);
     const [createPackage, { isLoading }] = useCreatePackageMutation();
+    const { data: themes = [], isLoading: isLoadingThemes } = useGetThemesQuery();
     const [features, setFeatures] = useState(["DASHBOARD", "ORDERS", "PRODUCTS"]);
     const [isFeatured, setIsFeatured] = useState(false);
+    const [themeId, setThemeId] = useState("");
 
     const {
         register,
@@ -121,6 +124,7 @@ const PackageCreateForm = () => {
             discountPrice: data.discountPrice ? parseFloat(data.discountPrice) : null,
             isFeatured,
             features,
+            ...(themeId && { themeId: parseInt(themeId) }),
         };
 
         const res = await createPackage(payload);
@@ -129,6 +133,7 @@ const PackageCreateForm = () => {
             reset();
             setFeatures(["DASHBOARD", "ORDERS", "PRODUCTS"]);
             setIsFeatured(false);
+            setThemeId("");
             setOpen(false);
         } else {
             toast.error(res?.error?.data?.message || "Failed to create package");
@@ -202,6 +207,25 @@ const PackageCreateForm = () => {
                         >
                             Mark as Featured Package
                         </label>
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="text-sm font-medium text-black/70 dark:text-white/70">
+                            Theme (Optional)
+                        </label>
+                        <select
+                            value={themeId}
+                            onChange={(e) => setThemeId(e.target.value)}
+                            className="w-full px-3 py-2 text-sm rounded-md border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                            disabled={isLoadingThemes}
+                        >
+                            <option value="">Select a theme</option>
+                            {themes.map((theme) => (
+                                <option key={theme.id} value={theme.id}>
+                                    {theme.domainUrl || `Theme #${theme.id}`}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     <div className="space-y-2">

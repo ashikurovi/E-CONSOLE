@@ -22,6 +22,7 @@ const PackageManagementPage = () => {
             { header: "Description", field: "description" },
             { header: "Price", field: "price" },
             { header: "Discount Price", field: "discountPrice" },
+            { header: "Theme", field: "theme" },
             { header: "Featured", field: "isFeatured" },
             { header: "Features", field: "featuresCount" },
             { header: "Actions", field: "actions" },
@@ -58,6 +59,13 @@ const PackageManagementPage = () => {
                 discountPrice: pkg.discountPrice ? (
                     <span className="font-semibold text-green-600 dark:text-green-400">
                         {formatPrice(pkg.discountPrice)}
+                    </span>
+                ) : (
+                    <span className="text-black/40 dark:text-white/40">-</span>
+                ),
+                theme: pkg.theme ? (
+                    <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+                        {pkg.theme.domainUrl || `Theme #${pkg.theme.id}`}
                     </span>
                 ) : (
                     <span className="text-black/40 dark:text-white/40">-</span>

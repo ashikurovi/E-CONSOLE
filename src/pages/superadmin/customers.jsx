@@ -23,9 +23,9 @@ const SuperAdminCustomersPage = () => {
             { header: "Company Name", field: "companyName" },
             { header: "Email", field: "email" },
             { header: "Company ID", field: "companyId" },
-            { header: "Payment Status", field: "paymentStatus" },
             { header: "Package", field: "packageName" },
-            { header: "Amount", field: "amount" },
+            { header: "Theme", field: "theme" },
+            { header: "Payment Status", field: "paymentStatus" },
             { header: "Active", field: "isActive" },
             { header: "Actions", field: "actions" },
         ],
@@ -39,9 +39,15 @@ const SuperAdminCustomersPage = () => {
                 companyName: u.companyName ?? "-",
                 email: u.email ?? "-",
                 companyId: u.companyId ?? "-",
+                packageName: u.package?.name || u.paymentInfo?.packagename || "-",
+                theme: u.theme ? (
+                    <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+                        {u.theme.domainUrl || `Theme #${u.theme.id}`}
+                    </span>
+                ) : (
+                    <span className="text-black/40 dark:text-white/40">-</span>
+                ),
                 paymentStatus: u.paymentInfo?.paymentstatus ?? "-",
-                packageName: u.paymentInfo?.packagename ?? "-",
-                amount: u.paymentInfo?.amount ? `$${u.paymentInfo.amount.toFixed(2)}` : "-",
                 isActive: u.isActive ? "Yes" : "No",
                 actions: (
                     <div className="flex items-center gap-2 justify-end">
