@@ -6,6 +6,8 @@ import * as yup from "yup";
 
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/input/TextField";
+import FileUpload from "@/components/input/FileUpload";
+import ColorPicker from "@/components/input/ColorPicker";
 import {
     Dialog,
     DialogContent,
@@ -14,6 +16,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import { useUpdateThemeMutation } from "@/features/theme/themeApiSlice";
+import useImageUpload from "@/hooks/useImageUpload";
 
 const schema = yup.object().shape({
     domainUrl: yup
@@ -24,11 +27,20 @@ const schema = yup.object().shape({
             originalValue === "" ? null : value
         ),
     logo: yup.string().nullable(),
-    logoColorCode: yup
+    primaryColorCode: yup
         .string()
         .nullable()
         .matches(/^#[0-9A-F]{6}$/i, {
-            message: "Logo color code must be a valid hex color (e.g., #FF5733)",
+            message: "Primary color code must be a valid hex color (e.g., #FF5733)",
+        })
+        .transform((value, originalValue) =>
+            originalValue === "" ? null : value
+        ),
+    secondaryColorCode: yup
+        .string()
+        .nullable()
+        .matches(/^#[0-9A-F]{6}$/i, {
+            message: "Secondary color code must be a valid hex color (e.g., #FF5733)",
         })
         .transform((value, originalValue) =>
             originalValue === "" ? null : value
@@ -37,40 +49,75 @@ const schema = yup.object().shape({
 
 const ThemeEditForm = ({ theme, onClose }) => {
     const [updateTheme, { isLoading }] = useUpdateThemeMutation();
+    const { uploadImage, isUploading } = useImageUpload();
+    const [logoFile, setLogoFile] = useState(null);
+    const [logoPreview, setLogoPreview] = useState(null);
 
     const {
         register,
         handleSubmit,
         reset,
         watch,
+        setValue,
         formState: { errors },
     } = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
             domainUrl: theme?.domainUrl || "",
             logo: theme?.logo || "",
-            logoColorCode: theme?.logoColorCode || "",
+            primaryColorCode: theme?.primaryColorCode || "",
+            secondaryColorCode: theme?.secondaryColorCode || "",
         },
     });
 
-    const logoColorCode = watch("logoColorCode");
+    const primaryColorCode = watch("primaryColorCode");
+    const secondaryColorCode = watch("secondaryColorCode");
 
     useEffect(() => {
         if (theme) {
             reset({
                 domainUrl: theme.domainUrl || "",
                 logo: theme.logo || "",
-                logoColorCode: theme.logoColorCode || "",
+                primaryColorCode: theme.primaryColorCode || "",
+                secondaryColorCode: theme.secondaryColorCode || "",
             });
+            setLogoPreview(theme.logo || null);
+            setLogoFile(null);
         }
     }, [theme, reset]);
 
+    const handleLogoChange = (file) => {
+        setLogoFile(file);
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setLogoPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setLogoPreview(theme?.logo || null);
+            setValue("logo", theme?.logo || "");
+        }
+    };
+
     const onSubmit = async (data) => {
+        let logoUrl = data.logo;
+
+        // Upload logo file if a new one is selected
+        if (logoFile) {
+            logoUrl = await uploadImage(logoFile);
+            if (!logoUrl) {
+                toast.error("Failed to upload logo");
+                return;
+            }
+        }
+
         const payload = {
             id: theme.id,
             ...(data.domainUrl && { domainUrl: data.domainUrl }),
-            ...(data.logo && { logo: data.logo }),
-            ...(data.logoColorCode && { logoColorCode: data.logoColorCode }),
+            ...(logoUrl && { logo: logoUrl }),
+            ...(data.primaryColorCode && { primaryColorCode: data.primaryColorCode }),
+            ...(data.secondaryColorCode && { secondaryColorCode: data.secondaryColorCode }),
         };
 
         const res = await updateTheme(payload);
@@ -99,12 +146,15 @@ const ThemeEditForm = ({ theme, onClose }) => {
                     
                     <div className="space-y-1">
                         <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                            Logo URL
+                            Logo
                         </label>
-                        <textarea
-                            {...register("logo")}
-                            placeholder="https://example.com/logo.png or base64 encoded image"
-                            className="w-full min-h-[80px] px-3 py-2 text-sm rounded-md border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                        <FileUpload
+                            label=""
+                            name="logo"
+                            accept="image/*"
+                            onChange={handleLogoChange}
+                            value={logoPreview}
+                            placeholder="Choose logo image"
                         />
                         {errors.logo && (
                             <span className="text-red-500 text-xs ml-1">
@@ -113,34 +163,21 @@ const ThemeEditForm = ({ theme, onClose }) => {
                         )}
                     </div>
 
-                    <div className="space-y-1">
-                        <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                            Logo Color Code
-                        </label>
-                        <div className="flex items-center gap-3">
-                            <input
-                                type="text"
-                                {...register("logoColorCode")}
-                                placeholder="#FF5733"
-                                className="flex-1 px-3 py-2 text-sm rounded-md border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
-                            />
-                            {logoColorCode && /^#[0-9A-F]{6}$/i.test(logoColorCode) && (
-                                <div
-                                    className="w-10 h-10 rounded border border-black/20 dark:border-white/20"
-                                    style={{ backgroundColor: logoColorCode }}
-                                    title={logoColorCode}
-                                />
-                            )}
-                        </div>
-                        {errors.logoColorCode && (
-                            <span className="text-red-500 text-xs ml-1">
-                                {errors.logoColorCode.message}
-                            </span>
-                        )}
-                        <p className="text-xs text-black/50 dark:text-white/50">
-                            Enter a hex color code (e.g., #FF5733)
-                        </p>
-                    </div>
+                    <ColorPicker
+                        label="Primary Color Code"
+                        value={primaryColorCode}
+                        onChange={(color) => setValue("primaryColorCode", color)}
+                        error={errors.primaryColorCode}
+                        placeholder="#FF5733"
+                    />
+
+                    <ColorPicker
+                        label="Secondary Color Code"
+                        value={secondaryColorCode}
+                        onChange={(color) => setValue("secondaryColorCode", color)}
+                        error={errors.secondaryColorCode}
+                        placeholder="#33FF57"
+                    />
 
                     <DialogFooter>
                         <Button
@@ -153,10 +190,10 @@ const ThemeEditForm = ({ theme, onClose }) => {
                         </Button>
                         <Button
                             type="submit"
-                            disabled={isLoading}
+                            disabled={isLoading || isUploading}
                             className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"
                         >
-                            {isLoading ? "Updating..." : "Save Changes"}
+                            {isLoading || isUploading ? "Updating..." : "Save Changes"}
                         </Button>
                     </DialogFooter>
                 </form>

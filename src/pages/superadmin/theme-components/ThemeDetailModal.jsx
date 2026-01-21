@@ -66,17 +66,37 @@ const ThemeDetailModal = ({ theme, onClose }) => {
                                         </tr>
                                         <tr className="hover:bg-black/5 dark:hover:bg-white/5">
                                             <td className="px-4 py-3 font-medium text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5">
-                                                Logo Color Code
+                                                Primary Color Code
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-2">
-                                                    {theme.logoColorCode ? (
+                                                    {theme.primaryColorCode ? (
                                                         <>
                                                             <div
                                                                 className="w-8 h-8 rounded border border-black/20 dark:border-white/20"
-                                                                style={{ backgroundColor: theme.logoColorCode }}
+                                                                style={{ backgroundColor: theme.primaryColorCode }}
                                                             ></div>
-                                                            <span className="font-semibold font-mono">{theme.logoColorCode}</span>
+                                                            <span className="font-semibold font-mono">{theme.primaryColorCode}</span>
+                                                        </>
+                                                    ) : (
+                                                        <span className="text-black/40 dark:text-white/40">-</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr className="hover:bg-black/5 dark:hover:bg-white/5">
+                                            <td className="px-4 py-3 font-medium text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5">
+                                                Secondary Color Code
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center gap-2">
+                                                    {theme.secondaryColorCode ? (
+                                                        <>
+                                                            <div
+                                                                className="w-8 h-8 rounded border border-black/20 dark:border-white/20"
+                                                                style={{ backgroundColor: theme.secondaryColorCode }}
+                                                            ></div>
+                                                            <span className="font-semibold font-mono">{theme.secondaryColorCode}</span>
                                                         </>
                                                     ) : (
                                                         <span className="text-black/40 dark:text-white/40">-</span>

@@ -21,7 +21,8 @@ const ThemeManagementPage = () => {
             { header: "ID", field: "id" },
             { header: "Domain URL", field: "domainUrl" },
             { header: "Logo", field: "logo" },
-            { header: "Color Code", field: "colorCode" },
+            { header: "Primary Color", field: "primaryColor" },
+            { header: "Secondary Color", field: "secondaryColor" },
             { header: "Created", field: "createdAt" },
             { header: "Actions", field: "actions" },
         ],
@@ -78,14 +79,27 @@ const ThemeManagementPage = () => {
                 ) : (
                     <span className="text-black/40 dark:text-white/40">-</span>
                 ),
-                colorCode: theme.logoColorCode ? (
+                primaryColor: theme.primaryColorCode ? (
                     <div className="flex items-center gap-2">
                         <div
                             className="w-6 h-6 rounded border border-black/20 dark:border-white/20"
-                            style={{ backgroundColor: theme.logoColorCode }}
+                            style={{ backgroundColor: theme.primaryColorCode }}
                         ></div>
                         <span className="text-xs font-mono font-semibold">
-                            {theme.logoColorCode}
+                            {theme.primaryColorCode}
+                        </span>
+                    </div>
+                ) : (
+                    <span className="text-black/40 dark:text-white/40">-</span>
+                ),
+                secondaryColor: theme.secondaryColorCode ? (
+                    <div className="flex items-center gap-2">
+                        <div
+                            className="w-6 h-6 rounded border border-black/20 dark:border-white/20"
+                            style={{ backgroundColor: theme.secondaryColorCode }}
+                        ></div>
+                        <span className="text-xs font-mono font-semibold">
+                            {theme.secondaryColorCode}
                         </span>
                     </div>
                 ) : (
@@ -152,7 +166,7 @@ const ThemeManagementPage = () => {
             </div>
 
             {/* Statistics cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
                     <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
                         Total Themes
@@ -177,10 +191,18 @@ const ThemeManagementPage = () => {
                 </div>
                 <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
                     <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
-                        With Color Code
+                        With Primary Color
                     </p>
                     <p className="mt-1 text-2xl font-semibold">
-                        {themes.filter((t) => t.logoColorCode).length}
+                        {themes.filter((t) => t.primaryColorCode).length}
+                    </p>
+                </div>
+                <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+                    <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
+                        With Secondary Color
+                    </p>
+                    <p className="mt-1 text-2xl font-semibold">
+                        {themes.filter((t) => t.secondaryColorCode).length}
                     </p>
                 </div>
             </div>
