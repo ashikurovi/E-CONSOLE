@@ -16,6 +16,7 @@ import { FeaturePermission } from "./constants/feature-permission";
 
 import ForgotPasswordRequestPage from "./pages/auth/forgot-password/password-request";
 import ResetPasswordPage from "./pages/auth/forgot-password/reset-password";
+import CheckResetPasswordEmailPage from "./pages/auth/forgot-password/check-email";
 import RegisterPage from "./pages/auth/register";
 import DashboardPage from "./pages/dashboard";
 import CategoriesPage from "./pages/categories";
@@ -247,6 +248,7 @@ export const routes = createBrowserRouter([
   { path: "/sign-in", element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/forgot-password", element: <ForgotPasswordRequestPage /> },
+  { path: "/forgot-password/check-email", element: <CheckResetPasswordEmailPage /> },
   { path: "/reset-password", element: <ResetPasswordPage /> },
   { path: "*", element: <ErrorPage /> },
 ]);

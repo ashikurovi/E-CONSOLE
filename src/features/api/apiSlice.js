@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { userLoggedIn, userLoggedOut } from "@/features/auth/authSlice";
 import { getTokens } from "@/hooks/useToken";
 
-const BASE_URL = import.meta.env.VITE_API_URL; // ✅ e.g. https://yourserver.com/api
+const BASE_URL = "https://squadcart-backend.up.railway.app/"; // ✅ e.g. https://yourserver.com/api
 const MAX_RETRY_COUNT = 3;
 
 // 🔹 Base query with Authorization header

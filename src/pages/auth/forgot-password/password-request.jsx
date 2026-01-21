@@ -23,10 +23,10 @@ const ForgotPasswordRequestPage = () => {
   const onSubmit = async (data) => {
     const res = await forgotPassword(data);
     if (res && res?.data?.success) {
-      toast.success(res?.error?.data?.message || "Reset Link sent success!");
+      toast.success(res?.data?.message || "Reset Link sent successfully!");
       navigate("/forgot-password/check-email");
     } else {
-      toast.error(res?.error?.data?.message || "Reset Link Sent Failed!");
+      toast.error(res?.error?.data?.message || "Failed to send reset link!");
     }
   };
 
