@@ -52,6 +52,8 @@ const AVAILABLE_FEATURES = [
     "PRIVACY_POLICY",
     "TERMS_CONDITIONS",
     "REFUND_POLICY",
+    "LOG_ACTIVITY",
+    "ACTIVITY_LOGS",
 ];
 
 const schema = yup.object().shape({
