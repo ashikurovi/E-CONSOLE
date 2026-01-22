@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 
 // components
@@ -8,7 +8,7 @@ import IconButton from "../buttons/icon-button";
 import SidebarMenu from "./SidebarMenu";
 // ... existing code ...
 import SearchBar from "@/components/input/search-bar";
-import { Bell, Settings, HelpCircle, User, Package, ShoppingCart, Truck, AlertCircle, CheckCircle } from "lucide-react";
+import { Bell, Settings, HelpCircle, User, Package, ShoppingCart, Truck, AlertCircle, CheckCircle, Search, Eye } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +23,8 @@ import {
   useGetLowStockNotificationsQuery,
 } from "@/features/notifications/notificationsApiSlice";
 import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
+import { useGlobalSearch } from "@/features/search/searchApiSlice";
+import { useSearch } from "@/contexts/SearchContext";
 import moment from "moment";
 // ... existing code ...
 
@@ -30,9 +32,23 @@ const TopNavbar = () => {
   // Fetch user data from API instead of Redux
   const { data: user, isLoading: isLoadingUser } = useGetCurrentUserQuery();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   const companyId = user?.companyId;
   const userId = user?._id;
+  
+  // Global search state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchInputRef = useRef(null);
+  const searchContainerRef = useRef(null);
+  const { setIsSearching } = useSearch();
+  
+  // Global search hook
+  const { results, isLoading: isSearchLoading, totalResults } = useGlobalSearch(
+    searchTerm,
+    companyId
+  );
   
   // Fetch all types of notifications
   const { data: allNotifications = [], isLoading: isLoadingAll, refetch: refetchAll } = useGetAllNotificationsQuery(
@@ -226,6 +242,35 @@ const TopNavbar = () => {
 
   const newNotificationCount = notifications.filter(n => !n.read).length;
 
+  // Handle search input change - show results in real-time
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    if (value && value.trim().length >= 2) {
+      setShowSearchResults(true);
+      setIsSearching(true);
+    } else {
+      setShowSearchResults(false);
+      setIsSearching(false);
+    }
+  };
+
+  // Close search results when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchInputRef.current && !searchInputRef.current.contains(event.target)) {
+        setShowSearchResults(false);
+      }
+    };
+
+    if (showSearchResults) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [showSearchResults, setIsSearching]);
+
+
   // ... existing code ...
 
   return (
@@ -236,8 +281,157 @@ const TopNavbar = () => {
           <NavLogo />
         </div> */}
 
-        <div className="flex-1 lg:flex hidden max-w-[720px]">
-          <SearchBar placeholder="Search" />
+        <div className="flex-1 w-[500px] lg:flex hidden relative" ref={searchContainerRef}>
+          <SearchBar 
+            placeholder="Search orders, products, customers..." 
+            searchValue={searchTerm}
+            setSearhValue={handleSearchChange}
+          />
+          
+          {/* Real-time Search Results Dropdown */}
+          {showSearchResults && searchTerm && searchTerm.trim().length >= 2 && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 rounded-lg shadow-lg z-50 max-h-[70vh] overflow-y-auto">
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-black dark:text-white">
+                    Search Results ({totalResults})
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setSearchTerm("");
+                      setShowSearchResults(false);
+                      setIsSearching(false);
+                    }}
+                    className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                  >
+                    Clear
+                  </button>
+                </div>
+                
+                {isSearchLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-3"></div>
+                    <p className="text-gray-500 dark:text-gray-400">Searching...</p>
+                  </div>
+                ) : totalResults === 0 ? (
+                  <div className="text-center py-8">
+                    <Search className="h-12 w-12 mx-auto text-gray-400 mb-3" />
+                    <p className="text-gray-500 dark:text-gray-400">
+                      No results found for "{searchTerm}"
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Orders Results */}
+                    {results.orders.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          Orders ({results.orders.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {results.orders.slice(0, 5).map((o) => (
+                            <div
+                              key={o.id}
+                              onClick={() => {
+                                navigate(`/orders/${o.id}`);
+                                setSearchTerm("");
+                                setShowSearchResults(false);
+                                setIsSearching(false);
+                              }}
+                              className="p-3 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="font-medium text-black dark:text-white">
+                                    Order #{o.id}
+                                  </p>
+                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    {o.customer?.name ?? o.customerName ?? "-"} • {o.status}
+                                  </p>
+                                </div>
+                                <p className="text-sm font-semibold text-black dark:text-white">
+                                  ${Number(o.totalAmount || 0).toFixed(2)}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Products Results */}
+                    {results.products.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          Products ({results.products.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {results.products.slice(0, 5).map((p) => (
+                            <div
+                              key={p.id}
+                              onClick={() => {
+                                navigate(`/products/${p.id}`);
+                                setSearchTerm("");
+                                setShowSearchResults(false);
+                                setIsSearching(false);
+                              }}
+                              className="p-3 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="font-medium text-black dark:text-white">
+                                    {p.name ?? p.title ?? "-"}
+                                  </p>
+                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    SKU: {p.sku || "-"} • Stock: {p.stock || 0}
+                                  </p>
+                                </div>
+                                <p className="text-sm font-semibold text-black dark:text-white">
+                                  ${Number(p.price || 0).toFixed(2)}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Customers Results */}
+                    {results.customers.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          Customers ({results.customers.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {results.customers.slice(0, 5).map((c) => (
+                            <div
+                              key={c.id}
+                              onClick={() => {
+                                navigate(`/customers`);
+                                setSearchTerm("");
+                                setShowSearchResults(false);
+                                setIsSearching(false);
+                              }}
+                              className="p-3 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                            >
+                              <div>
+                                <p className="font-medium text-black dark:text-white">
+                                  {c.name ?? "-"}
+                                </p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  {c.email || "-"} • {c.phone || "-"}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="fl lg:gap-3 gap-2 pr-2">
@@ -340,6 +534,7 @@ const TopNavbar = () => {
           )}
         </DialogContent>
       </Dialog>
+
     </nav>
   );
 };

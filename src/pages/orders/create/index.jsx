@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -41,16 +41,31 @@ const orderSchema = yup.object().shape({
 
 const CreateOrderPage = () => {
   const navigate = useNavigate();
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  
+  const form = useForm({
+    resolver: yupResolver(orderSchema),
+    mode: "onChange",
+    context: { hasCustomer: !!selectedCustomer },
+  });
+  
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(orderSchema),
-    mode: "onChange",
-    context: { hasCustomer: false },
-  });
+    clearErrors,
+    trigger,
+  } = form;
+  
+  // Clear validation errors and re-validate when customer selection changes
+  useEffect(() => {
+    if (selectedCustomer) {
+      clearErrors(['customerName', 'customerPhone']);
+    }
+    trigger();
+  }, [selectedCustomer, clearErrors, trigger]);
+  
   const [createOrder, { isLoading }] = useCreateOrderMutation();
   const { user } = useSelector((state) => state.auth);
   const { data: products = [] } = useGetProductsQuery({ companyId: user?.companyId });
@@ -68,8 +83,6 @@ const CreateOrderPage = () => {
     { label: "DIRECT (Online)", value: "DIRECT" },
     { label: "Cash on Delivery (COD)", value: "COD" },
   ];
-
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedPayment, setSelectedPayment] = useState(paymentOptions[0]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [itemQty, setItemQty] = useState(1);
@@ -97,7 +110,16 @@ const CreateOrderPage = () => {
   const removeItem = (pid) => setItems((prev) => prev.filter((it) => it.productId !== pid));
 
   const onSubmit = async (data) => {
-    if (items.length === 0) return toast.error("Add at least one item");
+    if (items.length === 0) {
+      toast.error("Add at least one item");
+      return;
+    }
+    
+    // Manual validation: if no customer selected, customerName is required
+    if (!selectedCustomer && (!data.customerName || data.customerName.trim().length < 2)) {
+      toast.error("Customer name is required (at least 2 characters)");
+      return;
+    }
 
     const payload = {
       customerId: selectedCustomer?.value || undefined,
@@ -142,7 +164,16 @@ const CreateOrderPage = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit, (errors) => {
+        // Log validation errors for debugging
+        if (Object.keys(errors).length > 0) {
+          console.log("Form validation errors:", errors);
+          const firstError = Object.values(errors)[0];
+          if (firstError?.message) {
+            toast.error(firstError.message);
+          }
+        }
+      })} className="space-y-6">
         {/* Customer selection */}
         <div className="fl gap-3">
           <Dropdown
@@ -211,7 +242,22 @@ const CreateOrderPage = () => {
               type="number"
               min={1}
               value={itemQty}
-              onChange={(e) => setItemQty(parseInt(e.target.value || "1", 10))}
+              onChange={(e) => {
+                const value = e.target.value;
+                const numValue = parseInt(value, 10);
+                if (!isNaN(numValue) && numValue > 0) {
+                  setItemQty(numValue);
+                } else if (value === "" || value === null || value === undefined) {
+                  setItemQty(1);
+                }
+              }}
+              onBlur={(e) => {
+                const value = e.target.value;
+                const numValue = parseInt(value, 10);
+                if (isNaN(numValue) || numValue < 1) {
+                  setItemQty(1);
+                }
+              }}
               className="border border-black/10 dark:border-white/20 bg-bg50 dark:bg-white/10 px-3 py-2 rounded-md w-28 outline-none"
               placeholder="Qty"
             />
@@ -240,7 +286,16 @@ const CreateOrderPage = () => {
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
-          <Button type="button" variant="ghost" className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400" onClick={() => navigate("/orders")}>
+          <Button 
+            type="button" 
+            variant="ghost" 
+            className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              navigate("/orders");
+            }}
+          >
             Cancel
           </Button>
           <Button type="submit" disabled={isLoading} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">

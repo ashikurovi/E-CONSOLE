@@ -24,35 +24,54 @@ const useStorageSync = () => {
         } else {
           // User logged in or token updated in another tab
           try {
-            const { payload } = decodeJWT(accessToken);
-            dispatch(
-              userLoggedIn({
-                accessToken,
-                refreshToken,
-                rememberMe: event.key !== "accessToken", // if not in sessionStorage, it's from cookie
-              })
-            );
+            // Validate token before decoding
+            if (accessToken && typeof accessToken === 'string' && accessToken.length > 0) {
+              const { payload } = decodeJWT(accessToken);
+              if (payload) {
+                dispatch(
+                  userLoggedIn({
+                    accessToken,
+                    refreshToken: refreshToken || null,
+                    rememberMe: event.key !== "accessToken", // if not in sessionStorage, it's from cookie
+                  })
+                );
+              } else {
+                dispatch(userLoggedOut());
+              }
+            } else {
+              dispatch(userLoggedOut());
+            }
           } catch (error) {
-            console.error("Failed to decode token during storage sync:", error);
-            dispatch(userLoggedOut());
+            // Only log if it's not a Redux error
+            const errorStr = error?.message || error?.toString() || '';
+            if (errorStr && !errorStr.includes('Redux') && !errorStr.includes('#3')) {
+              console.error("Failed to decode token during storage sync:", error);
+              dispatch(userLoggedOut());
+            }
+            // Don't dispatch on Redux errors to avoid infinite loops
           }
         }
       }
 
       // User data is now fetched from API, no localStorage sync needed
 
-      // Handle superadmin auth changes
-      if (event.key === "superadmin_auth") {
+      // Handle superadmin auth changes (from sessionStorage)
+      if (event.key === "superadmin_accessToken" || event.key === "superadmin_auth") {
         try {
-          const superadminAuth = event.newValue ? JSON.parse(event.newValue) : null;
+          const accessToken = sessionStorage.getItem("superadmin_accessToken");
           
-          if (superadminAuth?.isAuthenticated) {
-            dispatch(superadminLoggedIn());
+          if (accessToken && typeof accessToken === 'string' && accessToken.length > 0) {
+            const refreshToken = sessionStorage.getItem("superadmin_refreshToken");
+            dispatch(superadminLoggedIn({
+              accessToken,
+              refreshToken: refreshToken || null,
+              user: null, // Will be fetched from API
+            }));
           } else {
             dispatch(superadminLoggedOut());
           }
         } catch (error) {
-          console.error("Failed to parse superadmin auth during storage sync:", error);
+          console.error("Failed to handle superadmin auth during storage sync:", error);
           dispatch(superadminLoggedOut());
         }
       }
@@ -64,48 +83,83 @@ const useStorageSync = () => {
     // Listen for custom events (same-tab communication)
     const handleCustomStorageChange = (event) => {
       if (event.detail?.type === "auth_change") {
-        const { accessToken, refreshToken } = getTokens();
-
-        if (!accessToken || !refreshToken) {
-          dispatch(userLoggedOut());
-        } else {
+        // Use setTimeout to ensure Redux store is ready
+        setTimeout(() => {
           try {
-            const { payload } = decodeJWT(accessToken);
-            dispatch(
-              userLoggedIn({
-                accessToken,
-                refreshToken,
-                rememberMe: event.detail?.rememberMe || false,
-              })
-            );
+            const { accessToken, refreshToken } = getTokens();
+
+            if (!accessToken) {
+              // No token means user is logged out
+              dispatch(userLoggedOut());
+              return;
+            }
+
+            // Only decode and dispatch if we have a valid token
+            if (accessToken && typeof accessToken === 'string' && accessToken.length > 0) {
+              try {
+                const { payload } = decodeJWT(accessToken);
+                // Only dispatch if we successfully decoded the token
+                if (payload) {
+                  dispatch(
+                    userLoggedIn({
+                      accessToken,
+                      refreshToken: refreshToken || null,
+                      rememberMe: event.detail?.rememberMe || false,
+                    })
+                  );
+                }
+              } catch (decodeError) {
+                // Token is invalid or malformed - don't log to avoid noise
+                // Only dispatch logout if token is truly invalid
+                if (decodeError.message && !decodeError.message.includes('Redux')) {
+                  console.error("Failed to decode token during custom storage sync:", decodeError);
+                  dispatch(userLoggedOut());
+                }
+              }
+            } else {
+              // Invalid token format
+              dispatch(userLoggedOut());
+            }
           } catch (error) {
-            console.error("Failed to decode token during custom storage sync:", error);
-            dispatch(userLoggedOut());
+            // Catch any other errors (like Redux store not ready)
+            // Only log if it's not a Redux error
+            const errorStr = error?.message || error?.toString() || '';
+            if (errorStr && !errorStr.includes('Redux') && !errorStr.includes('#3')) {
+              console.error("Error in custom storage sync handler:", error);
+            }
+            // Don't dispatch on error to avoid Redux errors
           }
-        }
+        }, 0);
       }
 
       // User data is now fetched from API, no custom event sync needed
 
       // Handle superadmin auth custom events
       if (event.detail?.type === "superadmin_auth_change") {
-        const superadminAuth = localStorage.getItem("superadmin_auth");
-        
-        if (superadminAuth) {
+        // Use setTimeout to ensure Redux store is ready
+        setTimeout(() => {
           try {
-            const auth = JSON.parse(superadminAuth);
-            if (auth.isAuthenticated) {
-              dispatch(superadminLoggedIn());
+            const accessToken = sessionStorage.getItem("superadmin_accessToken");
+            
+            if (accessToken && typeof accessToken === 'string' && accessToken.length > 0) {
+              const refreshToken = sessionStorage.getItem("superadmin_refreshToken");
+              dispatch(superadminLoggedIn({
+                accessToken,
+                refreshToken: refreshToken || null,
+                user: null, // Will be fetched from API
+              }));
             } else {
               dispatch(superadminLoggedOut());
             }
           } catch (error) {
-            console.error("Failed to parse superadmin auth:", error);
-            dispatch(superadminLoggedOut());
+            // Only log if it's not a Redux error
+            const errorStr = error?.message || error?.toString() || '';
+            if (errorStr && !errorStr.includes('Redux') && !errorStr.includes('#3')) {
+              console.error("Failed to handle superadmin auth:", error);
+            }
+            // Don't dispatch on error to avoid Redux errors
           }
-        } else {
-          dispatch(superadminLoggedOut());
-        }
+        }, 0);
       }
     };
 

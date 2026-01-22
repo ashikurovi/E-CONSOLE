@@ -11,6 +11,7 @@ import AuthPage from "@/pages/auth";
 
 // hooks and function
 import { superadminLoggedIn } from "@/features/superadminAuth/superadminAuthSlice";
+import { useSuperadminLoginMutation } from "@/features/superadminAuth/superadminAuthApiSlice";
 
 // icons
 import { letter, password } from "@/assets/icons/svgIcons";
@@ -20,24 +21,44 @@ const SuperAdminLoginPage = () => {
     const dispatch = useDispatch();
     const { handleSubmit, register } = useForm();
     const [isLoading, setIsLoading] = useState(false);
-
-    // Superadmin credentials
-    const SUPERADMIN_EMAIL = "superadmin@gmail.com";
-    const SUPERADMIN_PASSWORD = "superadmin11";
+    const [superadminLogin] = useSuperadminLoginMutation();
 
     const onSubmit = async (data) => {
         setIsLoading(true);
         try {
-            // Validate credentials (frontend only, no backend)
-            if (data.email === SUPERADMIN_EMAIL && data.password === SUPERADMIN_PASSWORD) {
-                dispatch(superadminLoggedIn());
+            const result = await superadminLogin({
+                name: data.name,
+                password: data.password,
+            }).unwrap();
+            
+            // Verify response structure
+            if (result && result.accessToken) {
+                dispatch(superadminLoggedIn({
+                    accessToken: result.accessToken,
+                    refreshToken: result.refreshToken || null,
+                    user: result.user || null,
+                }));
                 toast.success("Super Admin Login Successful!");
                 navigate("/superadmin");
             } else {
-                toast.error("Invalid email or password!");
+                toast.error("Login failed: Invalid response from server.");
             }
         } catch (error) {
-            toast.error("An error occurred. Please try again.");
+            // Handle different error formats
+            let errorMessage = "Invalid name or password!";
+            
+            if (error?.data?.message) {
+                errorMessage = error.data.message;
+            } else if (error?.message) {
+                errorMessage = error.message;
+            } else if (error?.error?.data?.message) {
+                errorMessage = error.error.data.message;
+            } else if (error?.error?.message) {
+                errorMessage = error.error.message;
+            }
+            
+            toast.error(errorMessage);
+            console.error("Superadmin login error:", error);
         } finally {
             setIsLoading(false);
         }
@@ -51,10 +72,10 @@ const SuperAdminLoginPage = () => {
                     className="flex flex-col gap-5 mt-8"
                 >
                     <TextField
-                        placeholder="Your Email Address"
-                        type="email"
+                        placeholder="Your Name"
+                        type="text"
                         register={register}
-                        name="email"
+                        name="name"
                         icon={letter}
                         disabled={isLoading}
                         required

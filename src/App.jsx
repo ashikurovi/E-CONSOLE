@@ -8,6 +8,7 @@ import useAuth from "./hooks/useAuth";
 import useStorageSync from "./hooks/useStorageSync";
 import useFavicon from "./hooks/useFavicon";
 import { DarkModeProvider } from "./hooks/dark-mode";
+import { SearchProvider } from "./contexts/SearchContext";
 
 // components
 import AtomLoader from "./components/loader/AtomLoader";
@@ -35,21 +36,23 @@ const App = () => {
   }
   return (
     <DarkModeProvider>
-      <RouterProvider router={routes} />
-      <Toaster
-        position="bottom-center"
-        toastOptions={{
-          style: {
-            borderRadius: "8px",
-            background: "#222",
-            color: "#eee",
-            fontSize: "14px",
-            padding: "16px",
-            border: "1px solid #333",
-            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-          },
-        }}
-      />
+      <SearchProvider>
+        <RouterProvider router={routes} />
+        <Toaster
+          position="bottom-center"
+          toastOptions={{
+            style: {
+              borderRadius: "8px",
+              background: "#222",
+              color: "#eee",
+              fontSize: "14px",
+              padding: "16px",
+              border: "1px solid #333",
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+            },
+          }}
+        />
+      </SearchProvider>
     </DarkModeProvider>
   );
 };

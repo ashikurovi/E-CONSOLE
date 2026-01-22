@@ -42,8 +42,15 @@ export const FeaturePermission = Object.freeze({
 
 export const hasPermission = (user, permission) => {
   if (!permission) return true;
-  const permissions = Array.isArray(user?.package?.features) ? user.package.features   : [];
-  return permissions.includes(permission);
+  
+  // Check user.permissions first (for EMPLOYEE role and direct permissions)
+  // Then fall back to user.package.features (for SYSTEM_OWNER role)
+  const directPermissions = Array.isArray(user?.permissions) ? user.permissions : [];
+  const packageFeatures = Array.isArray(user?.package?.features) ? user.package.features : [];
+  
+  // Combine both sources and check if permission exists
+  const allPermissions = [...new Set([...directPermissions, ...packageFeatures])];
+  return allPermissions.includes(permission);
 };
 
 

@@ -6,9 +6,11 @@ import SideNav from "@/components/navbar/SideNav";
 import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
 import { useDispatch } from "react-redux";
 import { userDetailsFetched } from "@/features/auth/authSlice";
+import { useSearch } from "@/contexts/SearchContext";
 
 const Layout = () => {
     const dispatch = useDispatch();
+    const { isSearching } = useSearch();
     
     // Fetch user data at layout level so it's cached and available to all child components
     const { data: user, isLoading } = useGetCurrentUserQuery();
@@ -37,9 +39,11 @@ const Layout = () => {
                             <div className="lg:sticky top-0 z-10">
                                 <TopNavbar />
                             </div>
-                            <div className="px-3 md:max-w-[1100px] lg:w-full xl:max-w-[1400px] 2xl:max-w-[1800px] pb-5">
-                                <Outlet />
-                            </div>
+                            {!isSearching && (
+                              <div className="px-3 md:max-w-[1100px] lg:w-full xl:max-w-[1400px] 2xl:max-w-[1800px] pb-5">
+                                  <Outlet />
+                              </div>
+                            )}
 
                         </div>
                     </div>

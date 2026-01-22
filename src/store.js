@@ -4,6 +4,8 @@ import { setupListeners } from "@reduxjs/toolkit/query";
 import { apiSlice } from "./features/api/apiSlice";
 import { steadfastApiSlice } from "./features/steadfast/steadfastApiSlice";
 import { pathaoApiSlice } from "./features/pathao/pathaoApiSlice";
+import { superadminAuthApiSlice } from "./features/superadminAuth/superadminAuthApiSlice";
+import { superadminApiSlice } from "./features/superadmin/superadminApiSlice";
 import authReducer from "./features/auth/authSlice";
 import superadminAuthReducer from "./features/superadminAuth/superadminAuthSlice";
 
@@ -12,11 +14,19 @@ export const store = configureStore({
     [apiSlice.reducerPath]: apiSlice.reducer,
     [steadfastApiSlice.reducerPath]: steadfastApiSlice.reducer,
     [pathaoApiSlice.reducerPath]: pathaoApiSlice.reducer,
+    [superadminAuthApiSlice.reducerPath]: superadminAuthApiSlice.reducer,
+    [superadminApiSlice.reducerPath]: superadminApiSlice.reducer,
     auth: authReducer,
     superadminAuth: superadminAuthReducer,
   },
   devTools: import.meta.env.VITE_ENV !== "PRODUCTION",
-  middleware: (gDM) => gDM().concat([apiSlice.middleware, steadfastApiSlice.middleware, pathaoApiSlice.middleware]),
+  middleware: (gDM) => gDM().concat([
+    apiSlice.middleware, 
+    steadfastApiSlice.middleware, 
+    pathaoApiSlice.middleware,
+    superadminAuthApiSlice.middleware,
+    superadminApiSlice.middleware,
+  ]),
 });
 
 setupListeners(store.dispatch);

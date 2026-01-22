@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import useAuth from "@/hooks/useAuth";
 import AtomLoader from "@/components/loader/AtomLoader";
 
-const PrivateRoute = ({ children, redirectTo = "/sign-in" }) => {
+const PrivateRoute = ({ children, redirectTo = "/login" }) => {
   const location = useLocation();
   const { isLoading, authChecked } = useAuth();
   const { isAuthenticated } = useSelector((state) => state.auth);

@@ -24,7 +24,6 @@ export const navSections = [
     title: "ORDERS & FULFILLMENT",
     items: [
       { id: 6, title: "Order", link: "/orders", permission: FeaturePermission.ORDERS },
-      { id: 7, title: "OrderItems", link: "/order-items", permission: FeaturePermission.ORDERS },
       { id: 7.5, title: "Steadfast Courier", link: "/steadfast", permission: FeaturePermission.STEADFAST, icon: Truck },
       { id: 7.6, title: "Pathao Courier", link: "/pathao", permission: FeaturePermission.PATHAO, icon: Truck },
     ],

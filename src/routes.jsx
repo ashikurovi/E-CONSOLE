@@ -7,7 +7,9 @@ import SuperAdminLayout from "./layout/superadmin/layout";
 import ErrorPage from "./pages/common/errorPage";
 
 import LoginPage from "./pages/auth/login";
+import AdminLoginPage from "./pages/auth/admin-login";
 import SuperAdminLoginPage from "./pages/superadmin/login";
+import UnifiedLoginPage from "./pages/auth/unified-login";
 
 import PrivateRoute from "./hooks/usePrivateRoute";
 import SuperAdminPrivateRoute from "./hooks/useSuperAdminPrivateRoute";
@@ -34,7 +36,6 @@ import OrdersPage from "./pages/orders";
 import CreateOrderPage from "./pages/orders/create";
 import OrderViewPage from "./pages/orders/_id";
 import OrderEditPage from "./pages/orders/_id/edit";
-import OrdersItemsPage from "./pages/ordersitem";
 import FraudPage from "./pages/fraud";
 import BannerPage from "./pages/banner";
 import CreateBannerPage from "./pages/banner/create";
@@ -59,6 +60,9 @@ import SuperAdminSupportDetailPage from "./pages/superadmin/support-detail";
 import PackageManagementPage from "./pages/superadmin/packagemanagement";
 import ThemeManagementPage from "./pages/superadmin/thememanagement";
 import InvoiceManagementPage from "./pages/superadmin/invoice";
+import SuperAdminSuperadminsPage from "./pages/superadmin/superadmins";
+import SuperAdminSuperadminDetailPage from "./pages/superadmin/superadmin-components/superadmin-detail";
+import SuperAdminProfilePage from "./pages/superadmin/profile";
 import PrivacyPolicyPage from "./pages/privacy-policy";
 import CreatePrivacyPolicyPage from "./pages/privacy-policy/create";
 import EditPrivacyPolicyPage from "./pages/privacy-policy/edit";
@@ -202,14 +206,6 @@ export const routes = createBrowserRouter([
         element: (
           <PermissionRoute permission={FeaturePermission.ORDERS}>
             <OrderEditPage />
-          </PermissionRoute>
-        ),
-      },
-      {
-        path: "/order-items",
-        element: (
-          <PermissionRoute permission={FeaturePermission.ORDERS}>
-            <OrdersItemsPage />
           </PermissionRoute>
         ),
       },
@@ -471,11 +467,25 @@ export const routes = createBrowserRouter([
         path: "/superadmin/invoices",
         element: <SuperAdminPrivateRoute><InvoiceManagementPage /></SuperAdminPrivateRoute>,
       },
+      {
+        path: "/superadmin/superadmins",
+        element: <SuperAdminPrivateRoute><SuperAdminSuperadminsPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/superadmins/:id",
+        element: <SuperAdminPrivateRoute><SuperAdminSuperadminDetailPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/profile",
+        element: <SuperAdminPrivateRoute><SuperAdminProfilePage /></SuperAdminPrivateRoute>,
+      },
     ],
   },
 
-  { path: "/superadmin/login", element: <SuperAdminLoginPage /> },
-  { path: "/sign-in", element: <LoginPage /> },
+  // { path: "/superadmin/login", element: <SuperAdminLoginPage /> },
+  { path: "/login", element: <AdminLoginPage /> },
+  // { path: "/sign-in", element: <LoginPage /> },
+  // { path: "/login", element: <UnifiedLoginPage /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/forgot-password", element: <ForgotPasswordRequestPage /> },
   { path: "/forgot-password/check-email", element: <CheckResetPasswordEmailPage /> },
