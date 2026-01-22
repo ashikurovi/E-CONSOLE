@@ -22,7 +22,6 @@ export const ordersItemApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: [
         { type: "orders", id: "LIST" },
-        { type: "ordersitem", id: "LIST" },
       ],
     }),
 
@@ -45,7 +44,6 @@ export const ordersItemApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: (result, error, id) => [
         { type: "orders", id },
-        { type: "ordersitem", id: "LIST" },
       ],
     }),
   }),

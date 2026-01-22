@@ -57,20 +57,28 @@ const useImageUpload = () => {
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        // If response is not JSON, use status text
+        errorData = { message: response.statusText };
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        const errorMessage = errorData?.message || errorData?.error || `Upload failed: ${response.status} ${response.statusText}`;
+        throw new Error(errorMessage);
+      }
 
-      if (data.success && data.url) {
-        toast.success(data.message || "Image uploaded successfully");
-        return data.url;
+      if (errorData.success && errorData.url) {
+        toast.success(errorData.message || "Image uploaded successfully");
+        return errorData.url;
       } else {
-        throw new Error(data.message || "Upload failed");
+        throw new Error(errorData.message || errorData.error || "Upload failed");
       }
     } catch (err) {
       const errorMessage = err.message || "Failed to upload image";
+      console.error("Image upload error:", err);
       toast.error(errorMessage);
       setError(errorMessage);
       return null;

@@ -110,10 +110,16 @@ function CreateProductPage() {
   const onSubmit = async (data) => {
     let thumbnailUrl = null;
     if (thumbnailFile) {
-      thumbnailUrl = await uploadImage(thumbnailFile);
-      if (!thumbnailUrl) {
-        toast.error("Failed to upload thumbnail");
-        return;
+      try {
+        thumbnailUrl = await uploadImage(thumbnailFile);
+        if (!thumbnailUrl) {
+          toast.error("Failed to upload thumbnail. You can continue without it or try again.");
+          // Don't return - allow user to proceed without thumbnail since it's optional
+        }
+      } catch (error) {
+        console.error("Thumbnail upload error:", error);
+        toast.error("Failed to upload thumbnail. You can continue without it or try again.");
+        // Don't return - allow user to proceed without thumbnail since it's optional
       }
     }
 
