@@ -9,7 +9,7 @@ import { ArrowLeft, X, Plus } from "lucide-react";
 import TextField from "@/components/input/TextField";
 import Checkbox from "@/components/input/Checkbox";
 import Dropdown from "@/components/dropdown/dropdown";
-import { useUpdateProductMutation, useGetProductsQuery } from "@/features/product/productApiSlice";
+import { useUpdateProductMutation, useGetProductsQuery, useGetDraftProductsQuery } from "@/features/product/productApiSlice";
 import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
 import FileUpload from "@/components/input/FileUpload";
@@ -68,9 +68,13 @@ export default function ProductEditPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-  const { data: products = [] } = useGetProductsQuery({ companyId: user?.companyId });
+  // Fetch both published and draft products to support editing drafts
+  const { data: publishedProducts = [] } = useGetProductsQuery({ companyId: user?.companyId });
+  const { data: draftProducts = [] } = useGetDraftProductsQuery({ companyId: user?.companyId });
   const { data: categories = [] } = useGetCategoriesQuery({ companyId: user?.companyId });
-  const product = products.find((p) => p.id === parseInt(id));
+  // Combine both arrays to find the product
+  const allProducts = [...publishedProducts, ...draftProducts];
+  const product = allProducts.find((p) => p.id === parseInt(id));
 
   const categoryOptions = useMemo(
     () => categories.map((cat) => ({ label: cat.name, value: cat.id })),

@@ -11,6 +11,7 @@ import {
   useToggleProductActiveMutation,
   useRecoverProductMutation,
   usePublishDraftMutation,
+  usePermanentDeleteProductMutation,
 } from "@/features/product/productApiSlice";
 import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
 import { useNavigate } from "react-router-dom";
@@ -27,17 +28,16 @@ const ProductsPage = () => {
   const authUser = useSelector((state) => state.auth.user);
   const [activeTab, setActiveTab] = useState("published"); // published, drafts, trash
   
+  // Always fetch all queries so tab counts update in real-time
+  // RTK Query will cache the results, so this is efficient
   const { data: publishedProducts = [], isLoading: isLoadingPublished } = useGetProductsQuery(
-    { companyId: authUser?.companyId },
-    { skip: activeTab !== "published" }
+    { companyId: authUser?.companyId }
   );
   const { data: draftProducts = [], isLoading: isLoadingDrafts } = useGetDraftProductsQuery(
-    { companyId: authUser?.companyId },
-    { skip: activeTab !== "drafts" }
+    { companyId: authUser?.companyId }
   );
   const { data: trashedProducts = [], isLoading: isLoadingTrash } = useGetTrashedProductsQuery(
-    { companyId: authUser?.companyId },
-    { skip: activeTab !== "trash" }
+    { companyId: authUser?.companyId }
   );
   
   const { data: categories = [] } = useGetCategoriesQuery({ companyId: authUser?.companyId });
@@ -45,11 +45,13 @@ const ProductsPage = () => {
   const [toggleActive, { isLoading: isToggling }] = useToggleProductActiveMutation();
   const [recoverProduct, { isLoading: isRecovering }] = useRecoverProductMutation();
   const [publishDraft, { isLoading: isPublishing }] = usePublishDraftMutation();
+  const [permanentDeleteProduct, { isLoading: isPermanentlyDeleting }] = usePermanentDeleteProductMutation();
   
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, product: null });
   const [toggleModal, setToggleModal] = useState({ isOpen: false, product: null });
   const [recoverModal, setRecoverModal] = useState({ isOpen: false, product: null });
   const [publishModal, setPublishModal] = useState({ isOpen: false, product: null });
+  const [permanentDeleteModal, setPermanentDeleteModal] = useState({ isOpen: false, product: null });
   const [restockModal, setRestockModal] = useState({ isOpen: false, product: null });
   const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -157,6 +159,16 @@ const ProductsPage = () => {
                 >
                   <RotateCcw className="h-4 w-4" />
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPermanentDeleteModal({ isOpen: true, product: p })}
+                  disabled={isPermanentlyDeleting}
+                  className="bg-red-600/10 hover:bg-red-600/20 text-red-600 dark:text-red-400"
+                  title="Permanently Delete"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </>
             ) : activeTab === "drafts" ? (
               // Drafts tab actions
@@ -258,7 +270,7 @@ const ProductsPage = () => {
           </div>
         ),
       })),
-    [filteredProducts, activeTab, isDeleting, isToggling, isRecovering, isPublishing, navigate]
+    [filteredProducts, activeTab, isDeleting, isToggling, isRecovering, isPublishing, isPermanentlyDeleting, navigate]
   );
 
   const handleDelete = async () => {
@@ -302,6 +314,17 @@ const ProductsPage = () => {
       setToggleModal({ isOpen: false, product: null });
     } else {
       toast.error(res?.error?.data?.message || "Failed to update product");
+    }
+  };
+
+  const handlePermanentDelete = async () => {
+    if (!permanentDeleteModal.product) return;
+    const res = await permanentDeleteProduct(permanentDeleteModal.product.id);
+    if (res?.data) {
+      toast.success("Product permanently deleted");
+      setPermanentDeleteModal({ isOpen: false, product: null });
+    } else {
+      toast.error(res?.error?.data?.message || "Failed to permanently delete product");
     }
   };
 
@@ -478,6 +501,19 @@ const ProductsPage = () => {
         isLoading={isToggling}
         type={toggleModal.product?.isActive ? "warning" : "success"}
         confirmText={toggleModal.product?.isActive ? "Disable" : "Activate"}
+      />
+
+      {/* Permanent Delete Modal */}
+      <ConfirmModal
+        isOpen={permanentDeleteModal.isOpen}
+        onClose={() => setPermanentDeleteModal({ isOpen: false, product: null })}
+        onConfirm={handlePermanentDelete}
+        title="Permanently Delete Product"
+        description="This action cannot be undone. The product will be permanently deleted from the system. Products in trash are automatically deleted after 30 days."
+        itemName={permanentDeleteModal.product?.name || permanentDeleteModal.product?.title}
+        isLoading={isPermanentlyDeleting}
+        type="danger"
+        confirmText="Delete Permanently"
       />
     </div>
   );

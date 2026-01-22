@@ -10,7 +10,10 @@ export const productApiSlice = apiSlice.injectEndpoints({
         body,
         params,
       }),
-      invalidatesTags: [{ type: "products", id: "LIST" }],
+      invalidatesTags: [
+        { type: "products", id: "LIST" },
+        { type: "products", id: "DRAFTS" },
+      ],
     }),
 
     // Get all products
@@ -53,6 +56,8 @@ export const productApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { id }) => [
         { type: "products", id },
         { type: "products", id: "LIST" },
+        { type: "products", id: "DRAFTS" },
+        { type: "products", id: "TRASH" },
       ],
     }),
 
@@ -73,6 +78,18 @@ export const productApiSlice = apiSlice.injectEndpoints({
       query: (id) => ({
         url: `/products/${id}/recover`,
         method: "PATCH",
+      }),
+      invalidatesTags: [
+        { type: "products", id: "LIST" },
+        { type: "products", id: "TRASH" },
+      ],
+    }),
+
+    // Permanently delete product from trash
+    permanentDeleteProduct: builder.mutation({
+      query: (id) => ({
+        url: `/products/${id}/permanent`,
+        method: "DELETE",
       }),
       invalidatesTags: [
         { type: "products", id: "LIST" },
@@ -101,6 +118,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { id }) => [
         { type: "products", id },
         { type: "products", id: "LIST" },
+        { type: "products", id: "DRAFTS" },
       ],
     }),
 
@@ -169,4 +187,5 @@ export const {
   useGetTrashedProductsQuery,
   useRecoverProductMutation,
   usePublishDraftMutation,
+  usePermanentDeleteProductMutation,
 } = productApiSlice;
