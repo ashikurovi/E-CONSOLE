@@ -8,12 +8,13 @@ import {
   useDeletePromocodeMutation,
   useTogglePromocodeActiveMutation,
 } from "@/features/promocode/promocodeApiSlice";
-import PromocodeForm from "./components/PromocodeForm";
-import PromocodeEditForm from "./components/PromocodeEditForm";
+import { useNavigate } from "react-router-dom";
+import { Pencil } from "lucide-react";
 import DeleteModal from "@/components/modals/DeleteModal";
 import { useSelector } from "react-redux";
 
 const PromocodePage = () => {
+  const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const { data: promos = [], isLoading } = useGetPromocodesQuery({ companyId: authUser?.companyId });
   const [deletePromocode, { isLoading: isDeleting }] = useDeletePromocodeMutation();
@@ -92,7 +93,15 @@ const PromocodePage = () => {
                 <Power className="h-4 w-4" />
               </Button>
 
-              <PromocodeEditForm promocode={p} />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                onClick={() => navigate(`/promocodes/${p.id}/edit`)}
+                title="Edit"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
 
               <Button
                 variant="ghost"
@@ -115,7 +124,9 @@ const PromocodePage = () => {
     <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">Promocodes</h3>
-        <PromocodeForm />
+        <Button size="sm" onClick={() => navigate("/promocodes/create")}>
+          Add Promocode
+        </Button>
       </div>
 
       <ReusableTable

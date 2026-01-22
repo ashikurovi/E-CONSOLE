@@ -12,18 +12,17 @@ import {
   useDeleteCategoryMutation,
   useToggleCategoryActiveMutation,
 } from "@/features/category/categoryApiSlice";
-import CategoryForm from "./components/CategoryForm";
-import CategoryEditForm from "./components/CategoryEditForm";
+import { useNavigate } from "react-router-dom";
 import DeleteModal from "@/components/modals/DeleteModal";
 import ConfirmModal from "@/components/modals/ConfirmModal";  
 import { useSelector } from "react-redux";
 
 const CategoriesPage = () => {
+  const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const { data: categories = [], isLoading } = useGetCategoriesQuery({ companyId: authUser?.companyId });
   const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
   const [toggleActive, { isLoading: isToggling }] = useToggleCategoryActiveMutation();
-  const [editingCategory, setEditingCategory] = useState(null);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, category: null });
   const [toggleModal, setToggleModal] = useState({ isOpen: false, category: null });
 
@@ -68,7 +67,7 @@ const CategoriesPage = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setEditingCategory(cat)}
+              onClick={() => navigate(`/categories/${cat.id}/edit`)}
               className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
               title="Edit"
             >
@@ -108,8 +107,9 @@ const CategoriesPage = () => {
     <div className=" bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
       <div className="flex items-center py-2 justify-between">
         <h3 className="text-lg font-medium">Categories</h3>
-        {/* Moved form into its own component */}
-        <CategoryForm parentOptions={parentOptions} />
+        <Button size="sm" onClick={() => navigate("/categories/create")}>
+          Add Category
+        </Button>
       </div>
 
       {/* Removed inline Dialog+form here */}
@@ -121,15 +121,6 @@ const CategoriesPage = () => {
         py="py-2"
       />
 
-      {editingCategory && (
-        <Dialog open={!!editingCategory} onOpenChange={() => setEditingCategory(null)}>
-          <CategoryEditForm
-            category={editingCategory}
-            parentOptions={parentOptions}
-            onClose={() => setEditingCategory(null)}
-          />
-        </Dialog>
-      )}
 
       <DeleteModal
         isOpen={deleteModal.isOpen}

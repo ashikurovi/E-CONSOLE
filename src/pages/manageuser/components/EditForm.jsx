@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/input/TextField";
-import Dropdown from "@/components/dropdown/dropdown";
 import {
   Dialog,
   DialogContent,
@@ -14,13 +13,6 @@ import { useUpdateSystemuserMutation } from "@/features/systemuser/systemuserApi
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-
-const ROLE_OPTIONS = [
-  { label: "Order Management", value: "orderManagement" },
-  { label: "Products Management", value: "productsManagement" },
-  { label: "Inventory Management", value: "inventoryManagement" },
-  { label: "Moderator", value: "moderator" },
-];
 
 const editUserSchema = yup.object().shape({
   companyName: yup
@@ -48,13 +40,6 @@ const editUserSchema = yup.object().shape({
       if (!value || value === "") return true; // Optional field
       return value.length <= 50;
     }),
-  role: yup
-    .string()
-    .required("Role is required")
-    .oneOf(
-      ROLE_OPTIONS.map((r) => r.value),
-      "Please select a valid role"
-    ),
   isActive: yup
     .boolean()
     .required("Status is required"),
@@ -63,22 +48,17 @@ const editUserSchema = yup.object().shape({
 const EditForm = ({ user, onClose }) => {
   const [updateUser, { isLoading }] = useUpdateSystemuserMutation();
 
-  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(editUserSchema),
     defaultValues: {
       id: user?.id,
       companyName: user?.companyName || "",
       email: user?.email || "",
       phone: user?.phone || "",
-      role: user?.role || "orderManagement",
       password: "",
       isActive: user?.isActive ?? true,
     },
   });
-
-  const [selectedRole, setSelectedRole] = useState(
-    ROLE_OPTIONS.find((r) => r.value === (user?.role || "orderManagement")) || ROLE_OPTIONS[0]
-  );
 
   useEffect(() => {
     reset({
@@ -86,13 +66,9 @@ const EditForm = ({ user, onClose }) => {
       companyName: user?.companyName || "",
       email: user?.email || "",
       phone: user?.phone || "",
-      role: user?.role || "orderManagement",
       password: "",
       isActive: user?.isActive ?? true,
     });
-    const roleOpt =
-      ROLE_OPTIONS.find((r) => r.value === (user?.role || "orderManagement")) || ROLE_OPTIONS[0];
-    setSelectedRole(roleOpt);
   }, [user, reset]);
 
   const onSubmit = async (data) => {
@@ -101,7 +77,7 @@ const EditForm = ({ user, onClose }) => {
       companyName: data.companyName,
       email: data.email,
       phone: data.phone,
-      role: data.role,
+      role: "EMPLOYEE",
       isActive: Boolean(data.isActive),
     };
     if (data.password) {
@@ -143,22 +119,6 @@ const EditForm = ({ user, onClose }) => {
             name="phone"
             error={errors.phone}
           />
-          <div className="flex flex-col gap-2">
-            <label className="text-black/50 dark:text-white/50 text-sm ml-1">Role *</label>
-            <Dropdown
-              name="role"
-              options={ROLE_OPTIONS}
-              setSelectedOption={(opt) => {
-                setSelectedRole(opt);
-                setValue("role", opt.value, { shouldValidate: true });
-              }}
-            >
-              {selectedRole?.label}
-            </Dropdown>
-            {errors.role && (
-              <span className="text-red-500 text-xs ml-1">{errors.role.message}</span>
-            )}
-          </div>
           <TextField
             label="New Password (optional)"
             type="password"

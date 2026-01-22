@@ -165,6 +165,10 @@ const SuperAdminCustomerDetailPage = () => {
                   <p className="font-semibold">{user.name ?? "-"}</p>
                 </div>
                 <div>
+                  <p className="text-xs text-black/60 dark:text-white/60">Domain Name</p>
+                  <p className="font-medium">{user.domainName ?? "-"}</p>
+                </div>
+                <div>
                   <p className="text-xs text-black/60 dark:text-white/60">Email</p>
                   <p className="font-medium break-all">{user.email ?? "-"}</p>
                 </div>
@@ -183,6 +187,13 @@ const SuperAdminCustomerDetailPage = () => {
                 <div>
                   <p className="text-xs text-black/60 dark:text-white/60">Branch Location</p>
                   <p className="font-medium">{user.branchLocation ?? "-"}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-black/60 dark:text-white/60">Primary Color</p>
+                  <p className="font-medium">{user.primaryColor ?? "-"}</p>
+                  <div className="w-6 h-6 rounded border border-black/20 dark:border-white/20"
+                    style={{ backgroundColor: user.primaryColor }}
+                  ></div>
                 </div>
                 <div>
                   <p className="text-xs text-black/60 dark:text-white/60">Status</p>

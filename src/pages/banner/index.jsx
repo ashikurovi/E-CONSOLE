@@ -2,8 +2,8 @@ import React, { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
-import BannerForm from "./components/BannerForm";
-import BannerEditForm from "./components/BannerEditForm";
+import { useNavigate } from "react-router-dom";
+import { Pencil } from "lucide-react";
 import {
   useGetBannersQuery,
   useDeleteBannerMutation,
@@ -14,6 +14,7 @@ import DeleteModal from "@/components/modals/DeleteModal";
 import { useSelector } from "react-redux";
 
 const BannerPage = () => {
+  const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const { data: banners = [], isLoading: isBannersLoading } = useGetBannersQuery({ companyId: authUser?.companyId });
   const [deleteBanner, { isLoading: isDeletingBanner }] = useDeleteBannerMutation();
@@ -49,7 +50,15 @@ const BannerPage = () => {
         status: b.isActive ? "Active" : "Disabled",
         actions: (
           <div className="flex items-center gap-2 justify-end">
-            <BannerEditForm banner={b} />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
+              onClick={() => navigate(`/banners/${b.id}/edit`)}
+              title="Edit"
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -104,7 +113,9 @@ const BannerPage = () => {
     <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">Banner</h3>
-        <BannerForm />
+        <Button size="sm" onClick={() => navigate("/banners/create")}>
+          Add Banner
+        </Button>
       </div>
       <ReusableTable
         data={bannerTableData}

@@ -1,18 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Pencil, Plus } from "lucide-react";
 import {
   useGetTermsConditionsQuery,
 } from "@/features/terms-conditions/termsConditionsApiSlice";
-import TermsConditionsForm from "./components/TermsConditionsForm";
-import TermsConditionsEditForm from "./components/TermsConditionsEditForm";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const TermsConditionsPage = () => {
+  const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const { data: terms = [], isLoading } = useGetTermsConditionsQuery({ companyId: authUser?.companyId });
-  const [editingTerms, setEditingTerms] = useState(null);
-  const [isCreating, setIsCreating] = useState(false);
 
   // Get the latest terms (most recent)
   const latestTerms = terms.length > 0 ? terms[0] : null;
@@ -24,7 +22,7 @@ const TermsConditionsPage = () => {
         {latestTerms ? (
           <Button
             size="sm"
-            onClick={() => setEditingTerms(latestTerms)}
+            onClick={() => navigate("/terms-conditions/edit")}
             className="bg-blue-500 hover:bg-blue-600 text-white"
           >
             <Pencil className="h-4 w-4 mr-2" />
@@ -33,7 +31,7 @@ const TermsConditionsPage = () => {
         ) : (
           <Button
             size="sm"
-            onClick={() => setIsCreating(true)}
+            onClick={() => navigate("/terms-conditions/create")}
             className="bg-green-500 hover:bg-green-600 text-white"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -63,19 +61,6 @@ const TermsConditionsPage = () => {
         </div>
       )}
 
-      {isCreating && (
-        <TermsConditionsForm
-          onClose={() => setIsCreating(false)}
-          onSuccess={() => setIsCreating(false)}
-        />
-      )}
-
-      {editingTerms && (
-        <TermsConditionsEditForm
-          terms={editingTerms}
-          onClose={() => setEditingTerms(null)}
-        />
-      )}
     </div>
   );
 };

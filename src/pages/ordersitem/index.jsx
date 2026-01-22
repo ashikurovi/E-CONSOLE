@@ -5,7 +5,7 @@ import OrderItemViewModal from "./components/OrderItemViewModal";
 import TextField from "@/components/input/TextField";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
-import { exportToExcel } from "@/utils/excelExport";
+import { exportOrderItemsToPDF } from "@/utils/pdfExport";
 import { useSelector } from "react-redux";
 
 const OrdersItemsPage = () => {
@@ -73,45 +73,12 @@ const OrdersItemsPage = () => {
     }));
   }, [filteredItems]);
 
-  const handleExportToExcel = () => {
+  const handleExportToPDF = () => {
     if (!filteredItems || filteredItems.length === 0) {
       return;
     }
 
-    exportToExcel({
-      data: filteredItems,
-      fileName: `order-items-${selectedDate}`,
-      sheetName: "Order Items",
-      dataMapper: (item) => ({
-        "Order ID": item.orderId ?? "-",
-        Product: item.productName ?? "-",
-        SKU: item.sku ?? "-",
-        Quantity: item.quantity ?? 0,
-        "Unit Price":
-          typeof item.unitPrice === "number"
-            ? item.unitPrice
-            : item.unitPrice ?? "-",
-        "Total Price":
-          typeof item.totalPrice === "number"
-            ? item.totalPrice
-            : item.totalPrice ?? "-",
-        "Order Status": item.orderStatus ?? "-",
-        "Created At": item.createdAt
-          ? new Date(item.createdAt).toLocaleString()
-          : "-",
-      }),
-      columnWidths: [
-        { wch: 15 }, // Order ID
-        { wch: 30 }, // Product
-        { wch: 15 }, // SKU
-        { wch: 12 }, // Quantity
-        { wch: 15 }, // Unit Price
-        { wch: 15 }, // Total Price
-        { wch: 15 }, // Order Status
-        { wch: 20 }, // Created At
-      ],
-      successMessage: `Exported ${filteredItems.length} order item${filteredItems.length === 1 ? "" : "s"} to Excel`,
-    });
+    exportOrderItemsToPDF(filteredItems, `order-items-${selectedDate}`);
   };
   return (
     <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
@@ -129,12 +96,12 @@ const OrdersItemsPage = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={handleExportToExcel}
+            onClick={handleExportToPDF}
             className="flex items-center gap-2"
             disabled={filteredItems.length === 0}
           >
             <Download className="h-4 w-4" />
-            Export to Excel
+            Export to PDF
           </Button>
         </div>
       </div>

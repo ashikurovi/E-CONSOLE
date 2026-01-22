@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/input/TextField";
-import Dropdown from "@/components/dropdown/dropdown";
 import {
   Dialog,
   DialogTrigger,
@@ -12,23 +11,16 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useCreateSystemuserMutation } from "@/features/systemuser/systemuserApiSlice";
+import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
-const ROLE_OPTIONS = [
-  { label: "Order Management", value: "orderManagement" },
-  { label: "Products Management", value: "productsManagement" },
-  { label: "Inventory Management", value: "inventoryManagement" },
-  { label: "Moderator", value: "moderator" },
-];
-
 const createUserSchema = yup.object().shape({
-  companyName: yup
+  name: yup
     .string()
-    .required("Company name is required")
-    .min(2, "Company name must be at least 2 characters")
-    .max(100, "Company name must be less than 100 characters"),
+    .required("Name is required")
+    .min(2, "Name must be at least 2 characters"),
   email: yup
     .string()
     .required("Email is required")
@@ -42,41 +34,38 @@ const createUserSchema = yup.object().shape({
     .required("Password is required")
     .min(6, "Password must be at least 6 characters")
     .max(50, "Password must be less than 50 characters"),
-  role: yup
-    .string()
-    .required("Role is required")
-    .oneOf(
-      ROLE_OPTIONS.map((r) => r.value),
-      "Please select a valid role"
-    ),
 });
 
 const CreateForm = () => {
   const [open, setOpen] = useState(false);
   const [createUser, { isLoading }] = useCreateSystemuserMutation();
+  const { data: currentUser } = useGetCurrentUserQuery();
 
-  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(createUserSchema),
     defaultValues: {
-      companyName: "",
+      name: "",
       email: "",
       phone: "",
       password: "",
-      role: "orderManagement",
     },
   });
 
-  const [selectedRole, setSelectedRole] = useState(ROLE_OPTIONS[0]);
-
   const onSubmit = async (data) => {
-    const res = await createUser(data);
+    // Use System Owner's companyName for the user, default role to EMPLOYEE
+    const payload = {
+      ...data,
+      companyName: currentUser?.companyName || "Company",
+      role: "EMPLOYEE",
+    };
+    
+    const res = await createUser(payload);
     if (res?.data) {
-      toast.success("System user created");
+      toast.success("System user created successfully");
       setOpen(false);
       reset();
-      setSelectedRole(ROLE_OPTIONS[0]);
     } else {
-      toast.error(res?.error?.data?.message || "Failed to create");
+      toast.error(res?.error?.data?.message || "Failed to create system user");
     }
   };
 
@@ -87,20 +76,20 @@ const CreateForm = () => {
       </DialogTrigger>
       <DialogContent className="h-[600px]">
         <DialogHeader>
-          <DialogTitle>Create System User</DialogTitle>
+          <DialogTitle>Create Employee</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <TextField
-            label="Company Name *"
-            placeholder="Company Inc."
+            label="Name *"
+            placeholder="John Doe"
             register={register}
-            name="companyName"
-            error={errors.companyName}
+            name="name"
+            error={errors.name}
           />
           <TextField
             label="Email *"
             type="email"
-            placeholder="admin@company.com"
+            placeholder="employee@company.com"
             register={register}
             name="email"
             error={errors.email}
@@ -120,22 +109,9 @@ const CreateForm = () => {
             name="password"
             error={errors.password}
           />
-          <div className="flex flex-col gap-2">
-            <label className="text-black/50 dark:text-white/50 text-sm ml-1">Role</label>
-            <Dropdown
-              name="role *"
-              options={ROLE_OPTIONS}
-              setSelectedOption={(opt) => {
-                setSelectedRole(opt);
-                setValue("role", opt.value, { shouldValidate: true });
-              }}
-            >
-              {selectedRole?.label}
-            </Dropdown>
-            {errors.role && (
-              <span className="text-red-500 text-xs ml-1">{errors.role.message}</span>
-            )}
-          </div>
+          <p className="text-xs text-black/60 dark:text-white/60">
+            You can assign permissions after creation.
+          </p>
           <DialogFooter>
             <Button className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400" type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel

@@ -9,9 +9,9 @@ import {
   useBanUserMutation,
   useUnbanUserMutation,
 } from "@/features/user/userApiSlice";
-import CustomerForm from "./components/CustomerForm";
+import { useNavigate } from "react-router-dom";
 import CustomerNotifications from "./components/CustomerNotifications";
-import { exportToExcel } from "@/utils/excelExport";
+import { exportCustomersToPDF } from "@/utils/pdfExport";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +23,7 @@ import {
 import { useSelector } from "react-redux";
 
 const CustomersPage = () => {
+  const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const { data: users = [], isLoading } = useGetUsersQuery({ companyId: authUser?.companyId });
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
@@ -36,29 +37,7 @@ const CustomersPage = () => {
       return;
     }
 
-    exportToExcel({
-      data: users,
-      fileName: "customers",
-      sheetName: "Customers",
-      dataMapper: (customer) => ({
-        Name: customer.name ?? "-",
-        Email: customer.email ?? "-",
-        Phone: customer.phone ?? "-",
-        Role: customer.role ?? "customer",
-        Active: customer.isActive ? "Yes" : "No",
-        Banned: customer.isBanned ? "Yes" : "No",
-        "Successful Orders": customer.successfulOrdersCount ?? 0,
-        "Cancelled Orders": customer.cancelledOrdersCount ?? 0,
-        "Ban Reason": customer.banReason ?? "-",
-        "Banned At": customer.bannedAt
-          ? new Date(customer.bannedAt).toLocaleString()
-          : "-",
-        "Created At": customer.createdAt
-          ? new Date(customer.createdAt).toLocaleString()
-          : "-",
-      }),
-      successMessage: "Customer list exported",
-    });
+    exportCustomersToPDF(users, "Customers");
   };
 
   const headers = useMemo(
@@ -168,10 +147,12 @@ const CustomersPage = () => {
         <h2 className="text-xl font-semibold">Customers</h2>
         <div className="flex items-center gap-2 flex-wrap justify-end">
           <Button variant="outline" size="sm" onClick={handleExport}>
-            Export Excel
+            Export to PDF
           </Button>
           <CustomerNotifications />
-          <CustomerForm />
+          <Button size="sm" onClick={() => navigate("/customers/create")}>
+            Add Customer
+          </Button>
         </div>
       </div>
       <ReusableTable

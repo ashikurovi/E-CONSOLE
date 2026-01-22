@@ -3,7 +3,7 @@ import ReusableTable from "@/components/table/reusable-table";
 import {
   useGetHelpQuery,
 } from "@/features/help/helpApiSlice";
-import HelpForm from "./components/HelpForm";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const STATUS_OPTIONS = [
@@ -13,6 +13,7 @@ const STATUS_OPTIONS = [
 ];
 
 function HelpPage() {
+  const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const { data: tickets = [], isLoading } = useGetHelpQuery({ companyId: authUser?.companyId });
 
@@ -46,8 +47,9 @@ function HelpPage() {
     <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">Help & Support</h3>
-        {/* Create form trigger */}
-        <HelpForm />
+        <Button size="sm" onClick={() => navigate("/help/create")}>
+          Create Ticket
+        </Button>
       </div>
 
       <ReusableTable

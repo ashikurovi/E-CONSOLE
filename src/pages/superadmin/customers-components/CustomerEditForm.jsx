@@ -6,6 +6,7 @@ import * as yup from "yup";
 
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/input/TextField";
+import ColorPicker from "@/components/input/ColorPicker";
 import Dropdown from "@/components/dropdown/dropdown";
 import FileUpload from "@/components/input/FileUpload";
 import {
@@ -82,6 +83,21 @@ const schema = yup.object().shape({
     // Notification Config
     notificationEmail: yup.string().email("Invalid email").nullable(),
     notificationWhatsapp: yup.string().nullable(),
+    domainName: yup.string().nullable(),
+    primaryColor: yup
+        .string()
+        .nullable()
+        .matches(/^#[0-9A-F]{6}$/i, {
+            message: "Primary color must be a valid hex color (e.g., #FF5733)",
+        })
+        .transform((value, originalValue) => (originalValue === "" ? null : value)),
+    secondaryColor: yup
+        .string()
+        .nullable()
+        .matches(/^#[0-9A-F]{6}$/i, {
+            message: "Secondary color must be a valid hex color (e.g., #FF5733)",
+        })
+        .transform((value, originalValue) => (originalValue === "" ? null : value)),
 });
 
 const CustomerEditForm = ({ user, onClose }) => {
@@ -109,6 +125,7 @@ const CustomerEditForm = ({ user, onClose }) => {
         handleSubmit,
         reset,
         setValue,
+        watch,
         formState: { errors },
     } = useForm({
         resolver: yupResolver(schema),
@@ -125,15 +142,20 @@ const CustomerEditForm = ({ user, onClose }) => {
             paymentmethod: user?.paymentInfo?.paymentmethod || "",
             amount: user?.paymentInfo?.amount || "",
             packageId: user?.packageId || "",
-            themeId: user?.themeId || "",
             pathaoClientId: user?.pathaoConfig?.clientId || "",
             pathaoClientSecret: user?.pathaoConfig?.clientSecret || "",
             steadfastApiKey: user?.steadfastConfig?.apiKey || "",
             steadfastSecretKey: user?.steadfastConfig?.secretKey || "",
             notificationEmail: user?.notificationConfig?.email || "",
             notificationWhatsapp: user?.notificationConfig?.whatsapp || "",
+            domainName: user?.domainName || "",
+            primaryColor: user?.primaryColor || "",
+            secondaryColor: user?.secondaryColor || "",
         },
     });
+
+    const primaryColor = watch("primaryColor");
+    const secondaryColor = watch("secondaryColor");
 
     // Convert packages to dropdown options
     const packageOptions = packages?.map((pkg) => ({
@@ -193,13 +215,15 @@ const CustomerEditForm = ({ user, onClose }) => {
             paymentmethod: user?.paymentInfo?.paymentmethod || "",
             amount: user?.paymentInfo?.amount || "",
             packageId: user?.packageId || "",
-            themeId: user?.themeId || "",
             pathaoClientId: user?.pathaoConfig?.clientId || "",
             pathaoClientSecret: user?.pathaoConfig?.clientSecret || "",
             steadfastApiKey: user?.steadfastConfig?.apiKey || "",
             steadfastSecretKey: user?.steadfastConfig?.secretKey || "",
             notificationEmail: user?.notificationConfig?.email || "",
             notificationWhatsapp: user?.notificationConfig?.whatsapp || "",
+            domainName: user?.domainName || "",
+            primaryColor: user?.primaryColor || "",
+            secondaryColor: user?.secondaryColor || "",
         });
         setLogoFile(null);
     }, [user, packages, themes, reset]);
@@ -255,6 +279,9 @@ const CustomerEditForm = ({ user, onClose }) => {
             ...(Object.keys(pathaoConfig).length > 0 && { pathaoConfig }),
             ...(Object.keys(steadfastConfig).length > 0 && { steadfastConfig }),
             ...(Object.keys(notificationConfig).length > 0 && { notificationConfig }),
+            ...(data.domainName && { domainName: data.domainName }),
+            ...(data.primaryColor && { primaryColor: data.primaryColor }),
+            ...(data.secondaryColor && { secondaryColor: data.secondaryColor }),
         };
 
         if (data.password) {
@@ -326,6 +353,29 @@ const CustomerEditForm = ({ user, onClose }) => {
                             register={register}
                             name="branchLocation"
                             error={errors.branchLocation}
+                        />
+                        <TextField
+                            label="Domain Name *"
+                            placeholder="https://example.com"
+                            register={register}
+                            name="domainName"
+                            error={errors.domainName}
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <ColorPicker
+                            label="Primary Color"
+                            value={primaryColor}
+                            onChange={(color) => setValue("primaryColor", color)}
+                            error={errors.primaryColor}
+                            placeholder="#FF5733"
+                        />
+                        <ColorPicker
+                            label="Secondary Color"
+                            value={secondaryColor}
+                            onChange={(color) => setValue("secondaryColor", color)}
+                            error={errors.secondaryColor}
+                            placeholder="#33FF57"
                         />
                     </div>
                     <FileUpload
@@ -404,28 +454,6 @@ const CustomerEditForm = ({ user, onClose }) => {
                             </div>
                         )}
 
-                        <div className="flex flex-col gap-2">
-                            <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                                Select Theme (Optional)
-                            </label>
-                            <Dropdown
-                                name="theme"
-                                options={themeOptions}
-                                setSelectedOption={(opt) => {
-                                    setSelectedTheme(opt);
-                                    setValue("themeId", opt.value, { shouldValidate: true });
-                                }}
-                            >
-                                {selectedTheme?.label || (
-                                    <span className="text-black/50 dark:text-white/50">
-                                        {isLoadingThemes ? "Loading themes..." : "Select Theme"}
-                                    </span>
-                                )}
-                            </Dropdown>
-                            {errors.themeId && (
-                                <span className="text-red-500 text-xs ml-1">{errors.themeId.message}</span>
-                            )}
-                        </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-2">

@@ -20,6 +20,20 @@ export const productApiSlice = apiSlice.injectEndpoints({
       providesTags: [{ type: "products", id: "LIST" }],
     }),
 
+    // Get draft products
+    getDraftProducts: builder.query({
+      query: (params) => ({ url: "/products/drafts", method: "GET", params }),
+      transformResponse: (res) => res?.data ?? [],
+      providesTags: [{ type: "products", id: "DRAFTS" }],
+    }),
+
+    // Get trashed products
+    getTrashedProducts: builder.query({
+      query: (params) => ({ url: "/products/trash", method: "GET", params }),
+      transformResponse: (res) => res?.data ?? [],
+      providesTags: [{ type: "products", id: "TRASH" }],
+    }),
+
     // Get single product by id
     getProduct: builder.query({
       query: (id) => ({ url: `/products/${id}`, method: "GET" }),
@@ -42,13 +56,40 @@ export const productApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // Delete product by id
+    // Delete product by id (moves to trash)
     deleteProduct: builder.mutation({
       query: (id) => ({
         url: `/products/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: [{ type: "products", id: "LIST" }],
+      invalidatesTags: [
+        { type: "products", id: "LIST" },
+        { type: "products", id: "TRASH" },
+      ],
+    }),
+
+    // Recover product from trash
+    recoverProduct: builder.mutation({
+      query: (id) => ({
+        url: `/products/${id}/recover`,
+        method: "PATCH",
+      }),
+      invalidatesTags: [
+        { type: "products", id: "LIST" },
+        { type: "products", id: "TRASH" },
+      ],
+    }),
+
+    // Publish draft product
+    publishDraft: builder.mutation({
+      query: (id) => ({
+        url: `/products/${id}/publish`,
+        method: "PATCH",
+      }),
+      invalidatesTags: [
+        { type: "products", id: "LIST" },
+        { type: "products", id: "DRAFTS" },
+      ],
     }),
 
     // Toggle product active status (optional, if supported by backend)
@@ -70,7 +111,10 @@ export const productApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: [{ type: "products", id: "LIST" }],
+      invalidatesTags: [
+        { type: "products", id: "LIST" },
+        { type: "products", id: "FLASH_SELL" },
+      ],
     }),
 
     // Remove flash sell from products
@@ -80,7 +124,10 @@ export const productApiSlice = apiSlice.injectEndpoints({
         method: "DELETE",
         body,
       }),
-      invalidatesTags: [{ type: "products", id: "LIST" }],
+      invalidatesTags: [
+        { type: "products", id: "LIST" },
+        { type: "products", id: "FLASH_SELL" },
+      ],
     }),
 
     // Get active flash sell products
@@ -88,6 +135,21 @@ export const productApiSlice = apiSlice.injectEndpoints({
       query: (params) => ({ url: "/products/flash-sell/active", method: "GET", params }),
       transformResponse: (res) => res?.data ?? [],
       providesTags: [{ type: "products", id: "FLASH_SELL" }],
+    }),
+
+    // Bulk upload products
+    bulkUploadProducts: builder.mutation({
+      query: ({ file, params }) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        return {
+          url: "/products/bulk-upload",
+          method: "POST",
+          body: formData,
+          params,
+        };
+      },
+      invalidatesTags: [{ type: "products", id: "LIST" }],
     }),
   }),
 });
@@ -102,4 +164,9 @@ export const {
   useSetFlashSellMutation,
   useRemoveFlashSellMutation,
   useGetActiveFlashSellProductsQuery,
+  useBulkUploadProductsMutation,
+  useGetDraftProductsQuery,
+  useGetTrashedProductsQuery,
+  useRecoverProductMutation,
+  usePublishDraftMutation,
 } = productApiSlice;

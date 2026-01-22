@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { userLoggedOut } from "@/features/auth/authSlice";
 import { apiSlice } from "@/features/api/apiSlice";
 import toast from "react-hot-toast";
-import { navLinks } from "./data";
+import { navSections } from "./data";
 import { 
   FileText, 
   ShieldAlert, 
@@ -27,7 +27,8 @@ import {
   Tag,
   UserCog,
   ScrollText,
-  FileSliders
+  FileSliders,
+  Zap
 } from "lucide-react";
 import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
 import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
@@ -93,6 +94,7 @@ const iconMap = {
   Dashboard: LayoutGrid,
   Categories: StarIcon,
   Product: Package,
+  "Flash Sell": Zap,
   Inventory: Warehouse,
   Customers: Users,
   Order: ShoppingCart,
@@ -111,42 +113,19 @@ const iconMap = {
   "Pathao Courier": FileSliders,
 };
 
-const generalSet = new Set([
-  "Dashboard",
-  "Categories",
-  "Product",
-  "Inventory",
-  "Customers",
-  "Order",
-  "OrderItems",
-  "Banners",
-  "Fraud Checker",
-  "Promocodes",
-  "Steadfast Courier",
-  "Pathao Courier",
-
-]);
-
-const accountSet = new Set(["Settings", "Help", "Manage Users", "Privacy Policy", "Terms & Conditions", "Refund Policy", "Upgrade Plan"]);
-
 const getFilteredNav = (user) => {
-  return {
-    general: navLinks
-      .filter((item) => generalSet.has(item.title) && hasPermission(user, item.permission))
+  return navSections.map((section) => ({
+    id: section.id,
+    title: section.title,
+    items: section.items
+      .filter((item) => hasPermission(user, item.permission))
       .map((item) => ({
         label: item.title,
         to: item.link,
-        icon: iconMap[item.title],
+        icon: item.icon || iconMap[item.title],
         badge: item.title === "Review" ? "02" : undefined,
       })),
-    account: navLinks
-      .filter((item) => accountSet.has(item.title) && hasPermission(user, item.permission))
-      .map((item) => ({
-        label: item.title,
-        to: item.link,
-        icon: iconMap[item.title],
-      })),
-  };
+  })).filter((section) => section.items.length > 0);
 };
 
 function SectionTitle({ children, isCollapsed }) {
@@ -265,11 +244,11 @@ export default function SideNav() {
 
       {/* Body */}
       <nav className="flex-1 overflow-y-auto py-2">
-        {nav.general.length > 0 && (
-          <>
-            <SectionTitle isCollapsed={isCollapsed}>GENERAL</SectionTitle>
+        {nav.map((section) => (
+          <div key={section.id} className="mb-6">
+            <SectionTitle isCollapsed={isCollapsed}>{section.title}</SectionTitle>
             <div className="space-y-1">
-              {nav.general.map((item) => (
+              {section.items.map((item) => (
                 <Item
                   key={item.label}
                   to={item.to}
@@ -280,25 +259,8 @@ export default function SideNav() {
                 />
               ))}
             </div>
-          </>
-        )}
-
-        {nav.account.length > 0 && (
-          <>
-            <SectionTitle isCollapsed={isCollapsed}>ACCOUNT</SectionTitle>
-            <div className="space-y-1">
-              {nav.account.map((item) => (
-                <Item
-                  key={item.label}
-                  to={item.to}
-                  label={item.label}
-                  Icon={item.icon}
-                  isCollapsed={isCollapsed}
-                />
-              ))}
-            </div>
-          </>
-        )}
+          </div>
+        ))}
       </nav>
 
       {/* Footer */}

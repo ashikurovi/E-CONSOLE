@@ -2,32 +2,69 @@ import React, { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
-import { Power, Trash2, X, Download } from "lucide-react";
+import { Power, Trash2, X, Download, Eye, Pencil, Upload, RotateCcw, Send, Package } from "lucide-react";
 import {
   useGetProductsQuery,
+  useGetDraftProductsQuery,
+  useGetTrashedProductsQuery,
   useDeleteProductMutation,
   useToggleProductActiveMutation,
+  useRecoverProductMutation,
+  usePublishDraftMutation,
 } from "@/features/product/productApiSlice";
 import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
-import ProductForm from "./components/ProductForm";
-import ProductEditForm from "./components/ProductEditForm";
-import ProductViewModal from "./components/ProductViewModal";
+import { useNavigate } from "react-router-dom";
 import FlashSell from "./components/FlashSell";
 import DeleteModal from "@/components/modals/DeleteModal";
 import ConfirmModal from "@/components/modals/ConfirmModal";
+import RestockModal from "./components/RestockModal";
 import Dropdown from "@/components/dropdown/dropdown";
-import { exportProductsToExcel } from "@/utils/excelExport";
+import { exportProductsToPDF } from "@/utils/pdfExport";
 import { useSelector } from "react-redux";
 
 const ProductsPage = () => {
+  const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
-  const { data: products = [], isLoading } = useGetProductsQuery({ companyId: authUser?.companyId });
+  const [activeTab, setActiveTab] = useState("published"); // published, drafts, trash
+  
+  const { data: publishedProducts = [], isLoading: isLoadingPublished } = useGetProductsQuery(
+    { companyId: authUser?.companyId },
+    { skip: activeTab !== "published" }
+  );
+  const { data: draftProducts = [], isLoading: isLoadingDrafts } = useGetDraftProductsQuery(
+    { companyId: authUser?.companyId },
+    { skip: activeTab !== "drafts" }
+  );
+  const { data: trashedProducts = [], isLoading: isLoadingTrash } = useGetTrashedProductsQuery(
+    { companyId: authUser?.companyId },
+    { skip: activeTab !== "trash" }
+  );
+  
   const { data: categories = [] } = useGetCategoriesQuery({ companyId: authUser?.companyId });
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
   const [toggleActive, { isLoading: isToggling }] = useToggleProductActiveMutation();
+  const [recoverProduct, { isLoading: isRecovering }] = useRecoverProductMutation();
+  const [publishDraft, { isLoading: isPublishing }] = usePublishDraftMutation();
+  
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, product: null });
   const [toggleModal, setToggleModal] = useState({ isOpen: false, product: null });
+  const [recoverModal, setRecoverModal] = useState({ isOpen: false, product: null });
+  const [publishModal, setPublishModal] = useState({ isOpen: false, product: null });
+  const [restockModal, setRestockModal] = useState({ isOpen: false, product: null });
   const [selectedCategory, setSelectedCategory] = useState(null);
+
+  // Get products based on active tab
+  const products = useMemo(() => {
+    if (activeTab === "drafts") return draftProducts;
+    if (activeTab === "trash") return trashedProducts;
+    return publishedProducts;
+  }, [activeTab, publishedProducts, draftProducts, trashedProducts]);
+
+  const isLoading = useMemo(() => {
+    if (activeTab === "drafts") return isLoadingDrafts;
+    if (activeTab === "trash") return isLoadingTrash;
+    return isLoadingPublished;
+  }, [activeTab, isLoadingPublished, isLoadingDrafts, isLoadingTrash]);
 
   const headers = useMemo(
     () => [
@@ -35,6 +72,7 @@ const ProductsPage = () => {
       { header: "SKU", field: "sku" },
       { header: "Category", field: "categoryName" },
       { header: "Price", field: "price" },
+      { header: "Stock", field: "stock" },
       { header: "Status", field: "status" },
       { header: "Actions", field: "actions" },
     ],
@@ -78,51 +116,181 @@ const ProductsPage = () => {
           typeof p.price === "number"
             ? `$${p.price.toFixed(2)}`
             : p.price ?? "-",
-        status: p.isActive ? "Active" : "Disabled",
+        stock: (
+          <span className={`font-semibold ${
+            (p.stock ?? 0) <= 5 
+              ? "text-red-600 dark:text-red-400" 
+              : "text-black dark:text-white"
+          }`}>
+            {p.stock ?? 0}
+            {(p.stock ?? 0) <= 5 && (
+              <span className="ml-1 text-xs">⚠️</span>
+            )}
+          </span>
+        ),
+        status: activeTab === "trash" 
+          ? "Trashed" 
+          : activeTab === "drafts" 
+          ? "Draft" 
+          : (p.isActive ? "Active" : "Disabled"),
         actions: (
           <div className="flex items-center gap-2 justify-end">
-            <ProductViewModal product={p} />
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setToggleModal({ isOpen: true, product: p })}
-              disabled={isToggling}
-              className={`${p.isActive
-                ? "bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
-                : "bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"
-                }`}
-              title={p.isActive ? "Disable" : "Activate"}
-            >
-              <Power className="h-4 w-4" />
-            </Button>
-
-            <ProductEditForm product={p} categoryOptions={categoryOptions} />
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setDeleteModal({ isOpen: true, product: p })}
-              disabled={isDeleting}
-              className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
-              title="Delete"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            {activeTab === "trash" ? (
+              // Trash tab actions
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                  onClick={() => navigate(`/products/${p.id}`)}
+                  title="View"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setRecoverModal({ isOpen: true, product: p })}
+                  disabled={isRecovering}
+                  className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"
+                  title="Recover"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              </>
+            ) : activeTab === "drafts" ? (
+              // Drafts tab actions
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                  onClick={() => navigate(`/products/${p.id}`)}
+                  title="View"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
+                  onClick={() => navigate(`/products/${p.id}/edit`)}
+                  title="Edit"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPublishModal({ isOpen: true, product: p })}
+                  disabled={isPublishing}
+                  className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"
+                  title="Publish"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setDeleteModal({ isOpen: true, product: p })}
+                  disabled={isDeleting}
+                  className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
+                  title="Move to Trash"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              // Published tab actions
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                  onClick={() => navigate(`/products/${p.id}`)}
+                  title="View"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400"
+                  onClick={() => setRestockModal({ isOpen: true, product: p })}
+                  title="Restock"
+                >
+                  <Package className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setToggleModal({ isOpen: true, product: p })}
+                  disabled={isToggling}
+                  className={`${p.isActive
+                    ? "bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
+                    : "bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"
+                    }`}
+                  title={p.isActive ? "Disable" : "Activate"}
+                >
+                  <Power className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
+                  onClick={() => navigate(`/products/${p.id}/edit`)}
+                  title="Edit"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setDeleteModal({ isOpen: true, product: p })}
+                  disabled={isDeleting}
+                  className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
+                  title="Move to Trash"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            )}
           </div>
         ),
       })),
-    [filteredProducts, deleteProduct, toggleActive, isDeleting, isToggling, categoryOptions]
+    [filteredProducts, activeTab, isDeleting, isToggling, isRecovering, isPublishing, navigate]
   );
 
   const handleDelete = async () => {
     if (!deleteModal.product) return;
     const res = await deleteProduct(deleteModal.product.id);
     if (res?.data) {
-      toast.success("Product deleted");
+      toast.success("Product moved to trash");
       setDeleteModal({ isOpen: false, product: null });
     } else {
-      toast.error(res?.error?.data?.message || "Failed to delete product");
+      toast.error(res?.error?.data?.message || "Failed to move product to trash");
+    }
+  };
+
+  const handleRecover = async () => {
+    if (!recoverModal.product) return;
+    const res = await recoverProduct(recoverModal.product.id);
+    if (res?.data) {
+      toast.success("Product recovered from trash");
+      setRecoverModal({ isOpen: false, product: null });
+    } else {
+      toast.error(res?.error?.data?.message || "Failed to recover product");
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!publishModal.product) return;
+    const res = await publishDraft(publishModal.product.id);
+    if (res?.data) {
+      toast.success("Product published");
+      setPublishModal({ isOpen: false, product: null });
+    } else {
+      toast.error(res?.error?.data?.message || "Failed to publish product");
     }
   };
 
@@ -137,8 +305,8 @@ const ProductsPage = () => {
     }
   };
 
-  const handleExportToExcel = () => {
-    exportProductsToExcel(filteredProducts, "Products");
+  const handleExportToPDF = () => {
+    exportProductsToPDF(filteredProducts, "Products");
   };
 
   return (
@@ -149,16 +317,61 @@ const ProductsPage = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={handleExportToExcel}
+            onClick={handleExportToPDF}
             className="flex items-center gap-2"
             disabled={filteredProducts.length === 0}
           >
             <Download className="h-4 w-4" />
-            Export to Excel
+            Export to PDF
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/products/bulk-upload")}
+            className="flex items-center gap-2"
+          >
+            <Upload className="h-4 w-4" />
+            Bulk Upload
           </Button>
           <FlashSell products={filteredProducts} categoryOptions={categoryOptions} />
-          <ProductForm categoryOptions={categoryOptions} />
+          <Button size="sm" onClick={() => navigate("/products/create")}>
+            Add Product
+          </Button>
         </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="mb-4 flex gap-2 border-b border-black/10 dark:border-white/10">
+        <button
+          onClick={() => setActiveTab("published")}
+          className={`px-4 py-2 font-medium text-sm transition-colors ${
+            activeTab === "published"
+              ? "border-b-2 border-blue-500 text-blue-600 dark:text-blue-400"
+              : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+          }`}
+        >
+          Published ({publishedProducts.length})
+        </button>
+        <button
+          onClick={() => setActiveTab("drafts")}
+          className={`px-4 py-2 font-medium text-sm transition-colors ${
+            activeTab === "drafts"
+              ? "border-b-2 border-yellow-500 text-yellow-600 dark:text-yellow-400"
+              : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+          }`}
+        >
+          Drafts ({draftProducts.length})
+        </button>
+        <button
+          onClick={() => setActiveTab("trash")}
+          className={`px-4 py-2 font-medium text-sm transition-colors ${
+            activeTab === "trash"
+              ? "border-b-2 border-red-500 text-red-600 dark:text-red-400"
+              : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+          }`}
+        >
+          Trash ({trashedProducts.length})
+        </button>
       </div>
 
       {/* Filter Section */}
@@ -211,10 +424,43 @@ const ProductsPage = () => {
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, product: null })}
         onConfirm={handleDelete}
-        title="Delete Product"
-        description="This action cannot be undone. This will permanently delete the product."
+        title="Move to Trash"
+        description="This will move the product to trash. You can recover it later from the trash tab."
         itemName={deleteModal.product?.name || deleteModal.product?.title}
         isLoading={isDeleting}
+      />
+
+      {/* Recover Modal */}
+      <ConfirmModal
+        isOpen={recoverModal.isOpen}
+        onClose={() => setRecoverModal({ isOpen: false, product: null })}
+        onConfirm={handleRecover}
+        title="Recover Product"
+        description="This will restore the product from trash and make it available again."
+        itemName={recoverModal.product?.name || recoverModal.product?.title}
+        isLoading={isRecovering}
+        type="success"
+        confirmText="Recover"
+      />
+
+      {/* Publish Modal */}
+      <ConfirmModal
+        isOpen={publishModal.isOpen}
+        onClose={() => setPublishModal({ isOpen: false, product: null })}
+        onConfirm={handlePublish}
+        title="Publish Product"
+        description="This will publish the draft product and make it visible to customers."
+        itemName={publishModal.product?.name || publishModal.product?.title}
+        isLoading={isPublishing}
+        type="success"
+        confirmText="Publish"
+      />
+
+      {/* Restock Modal */}
+      <RestockModal
+        isOpen={restockModal.isOpen}
+        onClose={() => setRestockModal({ isOpen: false, product: null })}
+        product={restockModal.product}
       />
 
       {/* Toggle Active Modal */}

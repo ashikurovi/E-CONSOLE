@@ -143,41 +143,6 @@ const ThemeCreateForm = () => {
                         name="domainUrl"
                         error={errors.domainUrl}
                     />
-                    
-                    <div className="space-y-1">
-                        <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                            Logo
-                        </label>
-                        <FileUpload
-                            label=""
-                            name="logo"
-                            accept="image/*"
-                            onChange={handleLogoChange}
-                            value={logoPreview}
-                            placeholder="Choose logo image"
-                        />
-                        {errors.logo && (
-                            <span className="text-red-500 text-xs ml-1">
-                                {errors.logo.message}
-                            </span>
-                        )}
-                    </div>
-
-                    <ColorPicker
-                        label="Primary Color Code"
-                        value={primaryColorCode}
-                        onChange={(color) => setValue("primaryColorCode", color)}
-                        error={errors.primaryColorCode}
-                        placeholder="#FF5733"
-                    />
-
-                    <ColorPicker
-                        label="Secondary Color Code"
-                        value={secondaryColorCode}
-                        onChange={(color) => setValue("secondaryColorCode", color)}
-                        error={errors.secondaryColorCode}
-                        placeholder="#33FF57"
-                    />
 
                     <DialogFooter>
                         <Button

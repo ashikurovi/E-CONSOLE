@@ -1,18 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Pencil, Plus } from "lucide-react";
 import {
   useGetRefundPoliciesQuery,
 } from "@/features/refund-policy/refundPolicyApiSlice";
-import RefundPolicyForm from "./components/RefundPolicyForm";
-import RefundPolicyEditForm from "./components/RefundPolicyEditForm";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const RefundPolicyPage = () => {
+  const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const { data: policies = [], isLoading } = useGetRefundPoliciesQuery({ companyId: authUser?.companyId });
-  const [editingPolicy, setEditingPolicy] = useState(null);
-  const [isCreating, setIsCreating] = useState(false);
 
   // Get the latest policy (most recent)
   const latestPolicy = policies.length > 0 ? policies[0] : null;
@@ -24,7 +22,7 @@ const RefundPolicyPage = () => {
         {latestPolicy ? (
           <Button
             size="sm"
-            onClick={() => setEditingPolicy(latestPolicy)}
+            onClick={() => navigate("/refund-policy/edit")}
             className="bg-blue-500 hover:bg-blue-600 text-white"
           >
             <Pencil className="h-4 w-4 mr-2" />
@@ -33,7 +31,7 @@ const RefundPolicyPage = () => {
         ) : (
           <Button
             size="sm"
-            onClick={() => setIsCreating(true)}
+            onClick={() => navigate("/refund-policy/create")}
             className="bg-green-500 hover:bg-green-600 text-white"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -63,19 +61,6 @@ const RefundPolicyPage = () => {
         </div>
       )}
 
-      {isCreating && (
-        <RefundPolicyForm
-          onClose={() => setIsCreating(false)}
-          onSuccess={() => setIsCreating(false)}
-        />
-      )}
-
-      {editingPolicy && (
-        <RefundPolicyEditForm
-          policy={editingPolicy}
-          onClose={() => setEditingPolicy(null)}
-        />
-      )}
     </div>
   );
 };

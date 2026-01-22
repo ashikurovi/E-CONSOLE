@@ -111,7 +111,7 @@ const PackageEditForm = ({ pkg, onClose }) => {
             });
             setFeatures(pkg.features || []);
             setIsFeatured(pkg.isFeatured || false);
-            setThemeId(pkg.themeId || "");
+            setThemeId(pkg?.themeId || "");
         }
     }, [pkg, reset]);
 

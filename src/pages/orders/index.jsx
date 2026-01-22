@@ -8,7 +8,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { CheckCircle, Truck, Package, XCircle, RotateCcw, FileText, Trash2, ClipboardCheck } from "lucide-react";
+import { CheckCircle, Truck, Package, XCircle, RotateCcw, FileText, Trash2, ClipboardCheck, Eye, Pencil } from "lucide-react";
 import {
   useGetOrdersQuery,
   useCompleteOrderMutation,
@@ -19,14 +19,13 @@ import {
   useRefundOrderMutation,
   useDeleteOrderMutation,
 } from "@/features/order/orderApiSlice";
-import OrderForm from "./components/OrderForm";
-import OrderEditForm from "./components/OrderEditForm";
-import OrderViewModal from "./components/OrderViewModal";
+import { Link, useNavigate } from "react-router-dom";
 import DeleteModal from "@/components/modals/DeleteModal";
 import { generateOrderInvoice } from "@/utils/orderInvoice";
 import { useSelector } from "react-redux";
 
 const OrdersPage = () => {
+  const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const { data: orders = [], isLoading } = useGetOrdersQuery({ companyId: authUser?.companyId });
   const [completeOrder, { isLoading: isCompleting }] = useCompleteOrderMutation();
@@ -76,7 +75,22 @@ const OrdersPage = () => {
           return (
             <TooltipProvider>
               <div className="flex items-center gap-2 justify-end">
-                <OrderViewModal order={o} />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
+                      onClick={() => navigate(`/orders/${o.id}`)}
+                      title="View"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>View Order</p>
+                  </TooltipContent>
+                </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -100,7 +114,24 @@ const OrdersPage = () => {
                     <p>Generate Invoice</p>
                   </TooltipContent>
                 </Tooltip>
-                {!isFinalStatus && <OrderEditForm order={o} />}
+                {!isFinalStatus && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                        onClick={() => navigate(`/orders/${o.id}/edit`)}
+                        title="Edit"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Edit Order</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
 
                 {!isProcessing && !isCompleted && !isFinalStatus && (
                   <Tooltip>
@@ -286,7 +317,9 @@ const OrdersPage = () => {
     <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-xl font-semibold">Orders</h2>
-        <OrderForm />
+        <Button size="sm" onClick={() => navigate("/orders/create")}>
+          Create Order
+        </Button>
       </div>
       <ReusableTable
         data={tableData}
