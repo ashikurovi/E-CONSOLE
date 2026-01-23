@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { getSuperadminTokens } from "./superadminAuthSlice";
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = "https://squadcart-backend.up.railway.app";
 
 // Base query with superadmin Authorization header
 const superadminBaseQuery = fetchBaseQuery({

@@ -3,7 +3,7 @@ import { userLoggedIn, userLoggedOut } from "@/features/auth/authSlice";
 import { getTokens } from "@/hooks/useToken";
 import { getSuperadminTokens } from "@/features/superadminAuth/superadminAuthSlice";
 
-const BASE_URL = "http://localhost:8000/"; // ✅ e.g. https://yourserver.com/api
+const BASE_URL = "https://squadcart-backend.up.railway.app"; // ✅ e.g. https://yourserver.com/api
 const MAX_RETRY_COUNT = 3;
 
 // 🔹 Base query with Authorization header
