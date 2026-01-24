@@ -5,7 +5,9 @@ import { decodeJWT } from "@/utils/jwt-decoder";
 
 const SuperAdminPrivateRoute = ({ children, redirectTo = "/login" }) => {
   const location = useLocation();
-  const { isAuthenticated, user } = useSelector((state) => state.superadminAuth);
+  const { isAuthenticated, user } = useSelector(
+    (state) => state.superadminAuth,
+  );
 
   // Check if user is authenticated
   if (!isAuthenticated) {
@@ -21,7 +23,7 @@ const SuperAdminPrivateRoute = ({ children, redirectTo = "/login" }) => {
   // Decode token to check role
   try {
     const { payload } = decodeJWT(accessToken);
-    
+
     // Check if user has SUPER_ADMIN role
     if (payload.role !== "SUPER_ADMIN") {
       return <Navigate state={{ from: location }} to={redirectTo} replace />;
@@ -40,5 +42,3 @@ const SuperAdminPrivateRoute = ({ children, redirectTo = "/login" }) => {
 };
 
 export default SuperAdminPrivateRoute;
-
-

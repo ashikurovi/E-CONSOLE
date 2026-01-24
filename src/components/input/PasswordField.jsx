@@ -23,7 +23,7 @@ const PasswordField = ({
         <input
           type={isPassword && !showPassword ? "password" : "text"}
           placeholder={placeholder}
-          className={`border border-black/5 dark:border-white/10 py-2.5 pr-10 rounded-full bg-white/95 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 text-black/90 ${
+          className={` border-black/10 border-2 dark:border-white/10 py-2.5 pr-10 rounded-xl bg-white/95 w-full outline-none focus:border-black focus:border-2 dark:focus:border-green-300/50 text-black/90 ${
             icon ? "pl-11" : "pl-4"
           } password-input`}
           {...props}

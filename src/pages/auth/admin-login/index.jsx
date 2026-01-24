@@ -19,6 +19,7 @@ import { decodeJWT } from "@/utils/jwt-decoder";
 
 // icons
 import { letter, password } from "@/assets/icons/svgIcons";
+import PasswordField from "@/components/input/PasswordField";
 
 const AdminLoginPage = () => {
   const navigate = useNavigate();
@@ -215,7 +216,7 @@ const AdminLoginPage = () => {
               disabled={isLoading}
               required
             />
-            <TextField
+            <PasswordField
               placeholder="Type your Password"
               register={register}
               name="password"
