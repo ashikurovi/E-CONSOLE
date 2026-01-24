@@ -52,32 +52,30 @@ const LoginPage = () => {
 
   const onSubmit = async (data) => {
     try {
-      const loginRes = await loginSystemuser(data);
+      // Use unwrap() so failed requests throw and land in catch()
+      const responseData = await loginSystemuser(data).unwrap();
 
-      // Handle RTK Query response structure
-      // Response can be: { data: { accessToken, user } } or { error: {...} }
-      if (loginRes?.data) {
-        const responseData = loginRes.data;
+      // Backend returns { accessToken, refreshToken, user }
+      // Some endpoints may wrap as { data: {...} }, so support both.
+      const accessToken =
+        responseData?.accessToken || responseData?.data?.accessToken;
+      const refreshToken =
+        responseData?.refreshToken || responseData?.data?.refreshToken;
 
-        // Check if response has success wrapper or direct accessToken
-        const accessToken = responseData?.accessToken || responseData?.data?.accessToken;
-        const refreshToken = responseData?.refreshToken || responseData?.data?.refreshToken;
-
-        if (!accessToken) {
-          toast.error("Login failed: Access token is missing.");
-          return;
-        }
-
-        // User data will be fetched from /auth/me API instead of storing here
-        handleAuthSuccess(accessToken, refreshToken);
-      } else if (loginRes?.error) {
-        toast.error(loginRes?.error?.data?.message || loginRes?.error?.message || "Login Failed!");
-      } else {
-        toast.error("Login Failed!");
+      if (!accessToken) {
+        toast.error("Login failed: Access token is missing.");
+        return;
       }
+
+      // User data will be fetched from /auth/me API instead of storing here
+      handleAuthSuccess(accessToken, refreshToken);
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("An error occurred. Please try again.");
+      toast.error(
+        error?.data?.message ||
+          error?.message ||
+          "Login Failed! Please try again."
+      );
     }
   };
 
