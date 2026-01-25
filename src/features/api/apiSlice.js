@@ -2,9 +2,10 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { userLoggedIn, userLoggedOut } from "@/features/auth/authSlice";
 import { getTokens } from "@/hooks/useToken";
 import { getSuperadminTokens } from "@/features/superadminAuth/superadminAuthSlice";
+import { API_BASE_URL, API_CONFIG } from "@/config/api";
 
-const BASE_URL = "https://squadcart-backend.up.railway.app"; // ✅ e.g. https://yourserver.com/api
-const MAX_RETRY_COUNT = 3;
+const BASE_URL = API_BASE_URL;
+const MAX_RETRY_COUNT = API_CONFIG.retryCount;
 
 // 🔹 Base query with Authorization header
 // Priority: superadmin tokens > regular user tokens

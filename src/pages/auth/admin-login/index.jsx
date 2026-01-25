@@ -35,6 +35,16 @@ const AdminLoginPage = () => {
     try {
       const loginCredential = data.email || data.name;
       
+      // Debug: Log the form data to verify password is captured
+      console.log("Form data:", data);
+      console.log("Password value:", data.password);
+      
+      // Ensure password is included
+      if (!data.password) {
+        toast.error("Password is required!");
+        return;
+      }
+      
       // 1st: Try systemuser login (uses email)
       const loginRes = await loginSystemuser({
         email: loginCredential,
@@ -224,6 +234,13 @@ const AdminLoginPage = () => {
               icon={password}
               disabled={isLoading}
               required
+              registerOptions={{
+                required: "Password is required",
+                minLength: {
+                  value: 1,
+                  message: "Password cannot be empty"
+                }
+              }}
             />
           </div>
 

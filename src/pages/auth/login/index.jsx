@@ -25,13 +25,18 @@ const LoginPage = () => {
   const dispatch = useDispatch();
   const location = useLocation();
 
-  const { handleSubmit, register } = useForm();
-
-  const [rememberMe, setRememberMe] = useState(false);
-
   const searchParams = new URLSearchParams(location.search);
   const token = searchParams.get("token");
   const email = searchParams.get("email");
+
+  const { handleSubmit, register } = useForm({
+    defaultValues: {
+      email: email || "",
+      password: "",
+    },
+  });
+
+  const [rememberMe, setRememberMe] = useState(false);
 
   const [loginSystemuser, { isLoading: loginLoading }] =
     useLoginSystemuserMutation();
@@ -51,6 +56,7 @@ const LoginPage = () => {
   };
 
   const onSubmit = async (data) => {
+    console.log("Form data being submitted:", data);
     try {
       // Use unwrap() so failed requests throw and land in catch()
       const responseData = await loginSystemuser(data).unwrap();
@@ -104,7 +110,6 @@ const LoginPage = () => {
               register={register}
               name="email"
               icon={letter}
-              defaultValue={email || ""}
               disabled={isLoading}
             />
             <TextField
