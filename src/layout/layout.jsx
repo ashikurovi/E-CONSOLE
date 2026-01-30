@@ -9,49 +9,43 @@ import { userDetailsFetched } from "@/features/auth/authSlice";
 import { useSearch } from "@/contexts/SearchContext";
 
 const Layout = () => {
-    const dispatch = useDispatch();
-    const { isSearching } = useSearch();
-    
-    // Fetch user data at layout level so it's cached and available to all child components
-    const { data: user, isLoading } = useGetCurrentUserQuery();
+  const dispatch = useDispatch();
+  const { isSearching } = useSearch();
 
-    // Update Redux state when user data is fetched (for backward compatibility)
-    React.useEffect(() => {
-        if (user) {
-            dispatch(userDetailsFetched(user));
-        }
-    }, [user, dispatch]);
+  // Fetch user data at layout level so it's cached and available to all child components
+  const { data: user, isLoading } = useGetCurrentUserQuery();
 
-    return (
-        <main className="w-screen min-h-screen dark:bg-black/90 bg-gray-100 dark:text-white/75 text-black/75 ">
-            <div className="w-full ">
-            
+  // Update Redux state when user data is fetched (for backward compatibility)
+  React.useEffect(() => {
+    if (user) {
+      dispatch(userDetailsFetched(user));
+    }
+  }, [user, dispatch]);
 
-                <div className="lg:px-0 px-2">
-                    {/* Desktop qwdfQ WEDQw qWFQWFWEF QEWFQfwefwefqwefwefwe wwwwwwwwwwwwwwwwwwwwwwwwwwwqEF qfQWEFFFFFFFFFFFFFFFFF QEWRFw                QEQWWWWWWW layout with persistent sidebar and content area */}
-                    <div className="lg:flex">
-                        <div className="lg:block hidden">
-                            <SideNav />
-
-                        </div>
-
-
-                        <div className="flex-1 min-w-0">
-                            <div className="lg:sticky top-0 z-10">
-                                <TopNavbar />
-                            </div>
-                            {!isSearching && (
-                              <div className="px-3 md:max-w-[1100px] lg:w-full xl:max-w-[1400px] 2xl:max-w-[1800px] pb-5">
-                                  <Outlet />
-                              </div>
-                            )}
-
-                        </div>
-                    </div>
-                </div>
+  return (
+    <main className="w-screen min-h-screen dark:bg-black/90 bg-gray-100 dark:text-white/75 text-black/75 ">
+      <div className="w-full ">
+        <div className="lg:px-0 px-2">
+          <div className="lg:flex">
+            <div className="lg:block hidden">
+              <SideNav />
             </div>
-        </main>
-    );
+
+            <div className="flex-1 min-w-0">
+              <div className="lg:sticky top-0 z-10">
+                <TopNavbar />
+              </div>
+              {!isSearching && (
+                <div className="px-3 md:max-w-[1100px] lg:w-full xl:max-w-[1400px] 2xl:max-w-[1800px] pb-5">
+                  <Outlet />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
 };
 
 export default Layout;
