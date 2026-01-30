@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Package, Store, Search, MapPin, Calculator, PackagePlus } from "lucide-react";
 import CreateOrder from "./components/CreateOrder";
 import BulkCreateOrder from "./components/BulkCreateOrder";
@@ -8,15 +9,16 @@ import Locations from "./components/Locations";
 import PriceCalculator from "./components/PriceCalculator";
 
 const PathaoPage = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("create");
 
   const tabs = [
-    { id: "create", label: "Create Order", icon: Package },
-    { id: "bulk", label: "Bulk Orders", icon: PackagePlus },
-    { id: "orders", label: "View Orders", icon: Search },
-    { id: "stores", label: "Manage Stores", icon: Store },
-    { id: "locations", label: "Locations", icon: MapPin },
-    { id: "calculator", label: "Price Calculator", icon: Calculator },
+    { id: "create", label: t("pathao.createOrder"), icon: Package },
+    { id: "bulk", label: t("pathao.bulkOrders"), icon: PackagePlus },
+    { id: "orders", label: t("pathao.viewOrders"), icon: Search },
+    { id: "stores", label: t("pathao.manageStores"), icon: Store },
+    { id: "locations", label: t("pathao.locations"), icon: MapPin },
+    { id: "calculator", label: t("pathao.priceCalculator"), icon: Calculator },
   ];
 
   const renderContent = () => {
@@ -41,9 +43,9 @@ const PathaoPage = () => {
   return (
     <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
       <div className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">Pathao Courier</h2>
+        <h2 className="text-2xl font-semibold mb-2">{t("pathao.title")}</h2>
         <p className="text-sm text-black/60 dark:text-white/60">
-          Manage your Pathao courier orders, stores, and track deliveries
+          {t("pathao.description")}
         </p>
       </div>
 

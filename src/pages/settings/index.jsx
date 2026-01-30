@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import toast from "react-hot-toast";
@@ -17,6 +18,7 @@ import { hasPermission, FeaturePermission } from "@/constants/feature-permission
 import { generateInvoicePDF } from "@/pages/superadmin/invoice/InvoicePDFGenerator";
 
 const SettingsPage = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const authUser = useSelector((state) => state.auth.user);
   const userId = authUser?.userId || authUser?.sub || authUser?.id;
@@ -88,7 +90,7 @@ const SettingsPage = () => {
 
   const onSubmit = async (data) => {
     if (!userId) {
-      toast.error("User ID not found");
+      toast.error(t("settings.userIdNotFound"));
       return;
     }
 
@@ -99,7 +101,7 @@ const SettingsPage = () => {
       if (logoFile) {
         const uploadedUrl = await uploadImage(logoFile);
         if (!uploadedUrl) {
-          toast.error("Failed to upload logo");
+          toast.error(t("settings.failedUploadLogo"));
           return;
         }
         companyLogo = uploadedUrl;
@@ -112,22 +114,22 @@ const SettingsPage = () => {
 
       const res = await updateSystemuser({ id: userId, ...payload });
       if (res?.data) {
-        toast.success("Profile updated successfully");
+        toast.success(t("settings.profileUpdated"));
         setLogoFile(null);
         
         // Update Redux state and localStorage immediately
         dispatch(userDetailsFetched(payload));
       } else {
-        toast.error(res?.error?.data?.message || "Failed to update profile");
+        toast.error(res?.error?.data?.message || t("settings.profileUpdateFailed"));
       }
     } catch (e) {
-      toast.error("Something went wrong");
+      toast.error(t("settings.somethingWentWrong"));
     }
   };
 
   const onSubmitPathao = async (data) => {
     if (!userId) {
-      toast.error("User ID not found");
+      toast.error(t("settings.userIdNotFound"));
       return;
     }
 
@@ -148,18 +150,18 @@ const SettingsPage = () => {
         // Update Redux state and localStorage immediately
         dispatch(userDetailsFetched(payload));
         
-        toast.success("Pathao credentials saved successfully");
+        toast.success(t("pathao.credentialsSaved"));
       } else {
-        toast.error(res?.error?.data?.message || "Failed to save Pathao credentials");
+        toast.error(res?.error?.data?.message || t("pathao.credentialsFailed"));
       }
     } catch (e) {
-      toast.error("Failed to save Pathao credentials");
+      toast.error(t("pathao.credentialsFailed"));
     }
   };
 
   const onSubmitSteadfast = async (data) => {
     if (!userId) {
-      toast.error("User ID not found");
+      toast.error(t("settings.userIdNotFound"));
       return;
     }
 
@@ -180,22 +182,22 @@ const SettingsPage = () => {
         // Update Redux state and localStorage immediately
         dispatch(userDetailsFetched(payload));
         
-        toast.success("Steadfast credentials saved successfully");
+        toast.success(t("steadfast.credentialsSaved"));
       } else {
-        toast.error(res?.error?.data?.message || "Failed to save Steadfast credentials");
+        toast.error(res?.error?.data?.message || t("steadfast.credentialsFailed"));
       }
     } catch (e) {
-      toast.error("Failed to save Steadfast credentials");
+      toast.error(t("steadfast.credentialsFailed"));
     }
   };
 
   const permissions = user?.permissions || [];
-  const packageInfo = user?.paymentInfo?.packagename || "No Package";
-  const country = user?.branchLocation || "Not Set";
-  const displayCompanyId = user?.companyId || "Not Set";
+  const packageInfo = user?.paymentInfo?.packagename || t("settings.noPackage");
+  const country = user?.branchLocation || t("settings.notSet");
+  const displayCompanyId = user?.companyId || t("settings.notSet");
   const isActive = user?.isActive !== undefined ? user.isActive : true;
-  const createdAt = user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Not Available";
-  const updatedAt = user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : "Not Available";
+  const createdAt = user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : t("common.na");
+  const updatedAt = user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : t("common.na");
 
   const handleDownloadInvoicePDF = (invoice) => {
     try {
@@ -213,10 +215,10 @@ const SettingsPage = () => {
         },
       };
       generateInvoicePDF(invoiceWithCustomer);
-      toast.success("Invoice PDF downloaded successfully");
+      toast.success(t("settings.invoiceDownloaded"));
     } catch (error) {
       console.error("PDF generation error:", error);
-      toast.error("Failed to generate PDF");
+      toast.error(t("settings.invoiceDownloadFailed"));
     }
   };
 
@@ -224,18 +226,18 @@ const SettingsPage = () => {
     <div className="space-y-6">
       {/* User Information Cards */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Account Information</h2>
+        <h2 className="text-xl font-semibold mb-4">{t("settings.accountInformation")}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <Card className="border border-black/10 dark:border-white/10">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <User className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base font-semibold">Name</CardTitle>
+                <CardTitle className="text-base font-semibold">{t("settings.name")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <p className="text-lg font-medium text-black dark:text-white">
-                {user?.name || "Not Set"}
+                {user?.name || t("settings.notSet")}
               </p>
             </CardContent>
           </Card>
@@ -244,12 +246,12 @@ const SettingsPage = () => {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Mail className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base font-semibold">Email</CardTitle>
+                <CardTitle className="text-base font-semibold">{t("settings.email")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <p className="text-lg font-medium text-black dark:text-white break-all">
-                {user?.email || "Not Set"}
+                {user?.email || t("settings.notSet")}
               </p>
             </CardContent>
           </Card>
@@ -258,12 +260,12 @@ const SettingsPage = () => {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Phone className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base font-semibold">Phone</CardTitle>
+                <CardTitle className="text-base font-semibold">{t("settings.phone")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <p className="text-lg font-medium text-black dark:text-white">
-                {user?.phone || "Not Set"}
+                {user?.phone || t("settings.notSet")}
               </p>
             </CardContent>
           </Card>
@@ -272,12 +274,12 @@ const SettingsPage = () => {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-indigo-500" />
-                <CardTitle className="text-base font-semibold">Company Name</CardTitle>
+                <CardTitle className="text-base font-semibold">{t("settings.companyName")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <p className="text-lg font-medium text-black dark:text-white">
-                {user?.companyName || "Not Set"}
+                {user?.companyName || t("settings.notSet")}
               </p>
             </CardContent>
           </Card>
@@ -286,7 +288,7 @@ const SettingsPage = () => {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-indigo-500" />
-                <CardTitle className="text-base font-semibold">Company ID</CardTitle>
+                <CardTitle className="text-base font-semibold">{t("settings.companyId")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
@@ -300,7 +302,7 @@ const SettingsPage = () => {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base font-semibold">Branch Location</CardTitle>
+                <CardTitle className="text-base font-semibold">{t("settings.branchLocation")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
@@ -317,12 +319,12 @@ const SettingsPage = () => {
       {/* Package Information */}
       {user?.package && (
         <div>
-          <h2 className="text-xl font-semibold mb-4">Package Information</h2>
+          <h2 className="text-xl font-semibold mb-4">{t("settings.packageInformation")}</h2>
           <Card className="border border-black/10 dark:border-white/10">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Package className="h-5 w-5 text-purple-500" />
-                <CardTitle className="text-lg font-semibold">Package Details</CardTitle>
+                <CardTitle className="text-lg font-semibold">{t("settings.packageDetails")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -335,18 +337,18 @@ const SettingsPage = () => {
                 </div>
                 {user.package.isFeatured && (
                   <span className="px-3 py-1 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 text-sm font-medium rounded">
-                    Featured
+                    {t("settings.featured")}
                   </span>
                 )}
               </div>
               <div className="grid grid-cols-2 gap-4 pt-3 border-t border-black/10 dark:border-white/10">
                 <div>
-                  <p className="text-sm text-black/60 dark:text-white/60">Price</p>
+                  <p className="text-sm text-black/60 dark:text-white/60">{t("settings.price")}</p>
                   <p className="text-lg font-semibold">৳{parseFloat(user.package.price).toFixed(2)}</p>
                 </div>
                 {user.package.discountPrice && (
                   <div>
-                    <p className="text-sm text-black/60 dark:text-white/60">Discount Price</p>
+                    <p className="text-sm text-black/60 dark:text-white/60">{t("settings.discountPrice")}</p>
                     <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                       ৳{parseFloat(user.package.discountPrice).toFixed(2)}
                     </p>
@@ -355,7 +357,7 @@ const SettingsPage = () => {
               </div>
               {user.package.features && user.package.features.length > 0 && (
                 <div className="pt-3 border-t border-black/10 dark:border-white/10">
-                  <p className="text-sm text-black/60 dark:text-white/60 mb-2">Features:</p>
+                  <p className="text-sm text-black/60 dark:text-white/60 mb-2">{t("settings.features")}:</p>
                   <div className="flex flex-wrap gap-2">
                     {user.package.features.map((feature) => (
                       <span
@@ -377,13 +379,13 @@ const SettingsPage = () => {
 
       {/* Account Status & Dates */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Account Status</h2>
+        <h2 className="text-xl font-semibold mb-4">{t("settings.accountStatus")}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="border border-black/10 dark:border-white/10">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5 text-green-500" />
-                <CardTitle className="text-base font-semibold">Account Status</CardTitle>
+                <CardTitle className="text-base font-semibold">{t("settings.accountStatus")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
@@ -391,7 +393,7 @@ const SettingsPage = () => {
                 ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                 : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
                 }`}>
-                {isActive ? "Active" : "Inactive"}
+                {isActive ? t("settings.active") : t("settings.inactive")}
               </span>
             </CardContent>
           </Card>
@@ -400,7 +402,7 @@ const SettingsPage = () => {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base font-semibold">Created Date</CardTitle>
+                <CardTitle className="text-base font-semibold">{t("settings.createdDate")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
@@ -414,7 +416,7 @@ const SettingsPage = () => {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base font-semibold">Last Updated</CardTitle>
+                <CardTitle className="text-base font-semibold">{t("settings.lastUpdated")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
@@ -428,7 +430,7 @@ const SettingsPage = () => {
 
       {/* Courier Credentials Section */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Courier Integration Settings</h2>
+        <h2 className="text-xl font-semibold mb-4">{t("pathao.courierIntegrationSettings")}</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           
           {/* Pathao Credentials */}
@@ -437,41 +439,41 @@ const SettingsPage = () => {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Truck className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base font-semibold">Pathao Courier Credentials</CardTitle>
+                <CardTitle className="text-base font-semibold">{t("pathao.credentialsTitle")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmitPathao(onSubmitPathao)} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
-                    Client ID
+                    {t("pathao.clientId")}
                   </label>
                   <input
                     type="text"
                     {...registerPathao("clientId")}
                     className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter Pathao Client ID"
+                    placeholder={t("pathao.clientIdPlaceholder")}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
-                    Client Secret
+                    {t("pathao.clientSecret")}
                   </label>
                   <input
                     type="password"
                     {...registerPathao("clientSecret")}
                     className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter Pathao Client Secret"
+                    placeholder={t("pathao.clientSecretPlaceholder")}
                   />
                 </div>
                 <div className="pt-2">
                   <Button type="submit" className="w-full" disabled={isUpdating}>
                     <Key className="h-4 w-4 mr-2" />
-                    {isUpdating ? "Saving..." : "Save Pathao Credentials"}
+                    {isUpdating ? t("common.saving") : t("createEdit.savePathaoCredentials")}
                   </Button>
                 </div>
                 <div className="text-xs text-black/50 dark:text-white/50 mt-2">
-                  Get your credentials from <a href="https://merchant.pathao.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Pathao Merchant Portal</a>
+                  {t("pathao.getCredentialsFrom")} <a href="https://merchant.pathao.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{t("pathao.pathaoPortal")}</a>
                 </div>  
               </form>
             </CardContent>
@@ -483,41 +485,41 @@ const SettingsPage = () => {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Truck className="h-5 w-5 text-green-500" />
-                <CardTitle className="text-base font-semibold">Steadfast Courier Credentials</CardTitle>
+                <CardTitle className="text-base font-semibold">{t("steadfast.credentialsTitle")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmitSteadfast(onSubmitSteadfast)} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
-                    API Key
+                    {t("steadfast.apiKey")}
                   </label>
                   <input
                     type="text"
                     {...registerSteadfast("apiKey")}
                     className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="Enter Steadfast API Key"
+                    placeholder={t("steadfast.apiKeyPlaceholder")}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
-                    Secret Key
+                    {t("steadfast.secretKey")}
                   </label>
                   <input
                     type="password"
                     {...registerSteadfast("secretKey")}
                     className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="Enter Steadfast Secret Key"
+                    placeholder={t("steadfast.secretKeyPlaceholder")}
                   />
                 </div>
                 <div className="pt-2">
                   <Button type="submit" className="w-full" disabled={isUpdating}>
                     <Key className="h-4 w-4 mr-2" />
-                    {isUpdating ? "Saving..." : "Save Steadfast Credentials"}
+                    {isUpdating ? t("common.saving") : t("createEdit.saveSteadfastCredentials")}
                   </Button>
                 </div>
                 <div className="text-xs text-black/50 dark:text-white/50 mt-2">
-                  Get your credentials from <a href="https://portal.packzy.com" target="_blank" rel="noopener noreferrer" className="text-green-500 hover:underline">Steadfast Portal</a>
+                  {t("steadfast.getCredentialsFrom")} <a href="https://portal.packzy.com" target="_blank" rel="noopener noreferrer" className="text-green-500 hover:underline">{t("steadfast.steadfastPortal")}</a>
                 </div>
               </form>
             </CardContent>
@@ -534,24 +536,24 @@ const SettingsPage = () => {
       {/* Profile Update Form */}
       <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">Update Profile</h2>
+          <h2 className="text-xl font-semibold">{t("settings.updateProfile")}</h2>
         </div>
 
         {!user ? (
           <div className="text-center py-8">
-            <p className="text-black/60 dark:text-white/60">No user data available. Please log in again.</p>
+            <p className="text-black/60 dark:text-white/60">{t("settings.noUserData")}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <TextField placeholder="Full Name" register={register} name="name" />
-            <TextField placeholder="Email" type="email" register={register} name="email" />
-            <TextField placeholder="Company Name" register={register} name="companyName" />
-            <TextField placeholder="Phone" register={register} name="phone" />
-            <TextField placeholder="Branch Location / Country" register={register} name="branchLocation" />
+            <TextField placeholder={t("settings.fullName")} register={register} name="name" />
+            <TextField placeholder={t("settings.email")} type="email" register={register} name="email" />
+            <TextField placeholder={t("settings.companyNamePlaceholder")} register={register} name="companyName" />
+            <TextField placeholder={t("settings.phone")} register={register} name="phone" />
+            <TextField placeholder={t("settings.branchLocationPlaceholder")} register={register} name="branchLocation" />
             <div className="md:col-span-2">
               <FileUpload
-                placeholder="Choose logo file"
-                label="Company Logo"
+                placeholder={t("settings.chooseLogoFile")}
+                label={t("settings.companyLogo")}
                 name="companyLogo"
                 accept="image/*"
                 onChange={setLogoFile}
@@ -561,7 +563,7 @@ const SettingsPage = () => {
 
             <div className="md:col-span-2 flex justify-end gap-2 mt-2">
               <Button type="submit" disabled={isUpdating || isUploading}>
-                {isUpdating || isUploading ? "Updating..." : "Update Profile"}
+                {isUpdating || isUploading ? t("settings.updating") : t("settings.updateProfile")}
               </Button>
             </div>
           </form>
@@ -573,7 +575,7 @@ const SettingsPage = () => {
         <div>
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            My Invoices ({user.invoices.length})
+            {t("settings.myInvoices")} ({user.invoices.length})
           </h2>
           <div className="space-y-4">
             {user.invoices.map((invoice) => {
@@ -616,30 +618,30 @@ const SettingsPage = () => {
                             className="h-9 px-4 bg-purple-500 hover:bg-purple-600 text-white border-purple-500 flex items-center gap-2"
                           >
                             <Download className="h-4 w-4" />
-                            Download PDF
+                            {t("settings.downloadPdf")}
                           </Button>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-3 border-t border-black/10 dark:border-white/10">
                         <div>
-                          <p className="text-xs text-black/60 dark:text-white/60">Total Amount</p>
+                          <p className="text-xs text-black/60 dark:text-white/60">{t("settings.totalAmount")}</p>
                           <p className="text-base font-semibold">৳{parseFloat(invoice.totalAmount).toFixed(2)}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-black/60 dark:text-white/60">Paid Amount</p>
+                          <p className="text-xs text-black/60 dark:text-white/60">{t("settings.paidAmount")}</p>
                           <p className="text-base font-semibold text-green-600 dark:text-green-400">
                             ৳{parseFloat(invoice.paidAmount).toFixed(2)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-black/60 dark:text-white/60">Due Amount</p>
+                          <p className="text-xs text-black/60 dark:text-white/60">{t("settings.dueAmount")}</p>
                           <p className="text-base font-semibold text-red-600 dark:text-red-400">
                             ৳{parseFloat(invoice.dueAmount).toFixed(2)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-black/60 dark:text-white/60">Type</p>
+                          <p className="text-xs text-black/60 dark:text-white/60">{t("settings.type")}</p>
                           <p className="text-base font-medium capitalize">{invoice.amountType}</p>
                         </div>
                       </div>
@@ -648,23 +650,23 @@ const SettingsPage = () => {
                       {invoice.bankPayment && (
                         <div className="pt-3 border-t border-black/10 dark:border-white/10">
                           <p className="text-sm font-semibold text-black/70 dark:text-white/70 mb-3">
-                            Bank Payment Details
+                            {t("settings.bankPaymentDetails")}
                           </p>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div>
-                              <p className="text-xs text-black/60 dark:text-white/60">Bank Name</p>
+                              <p className="text-xs text-black/60 dark:text-white/60">{t("settings.bankName")}</p>
                               <p className="text-sm font-medium">{invoice.bankPayment.bankName}</p>
                             </div>
                             <div>
-                              <p className="text-xs text-black/60 dark:text-white/60">Amount</p>
+                              <p className="text-xs text-black/60 dark:text-white/60">{t("settings.amount")}</p>
                               <p className="text-sm font-medium">৳{parseFloat(invoice.bankPayment.amount).toFixed(2)}</p>
                             </div>
                             <div>
-                              <p className="text-xs text-black/60 dark:text-white/60">Account Last Digits</p>
+                              <p className="text-xs text-black/60 dark:text-white/60">{t("settings.accountLastDigits")}</p>
                               <p className="text-sm font-medium">{invoice.bankPayment.accLastDigit}</p>
                             </div>
                             <div>
-                              <p className="text-xs text-black/60 dark:text-white/60">Payment Status</p>
+                              <p className="text-xs text-black/60 dark:text-white/60">{t("settings.paymentStatus")}</p>
                               <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
                                 invoice.bankPayment.status === 'verified' 
                                   ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
@@ -683,18 +685,18 @@ const SettingsPage = () => {
                       {(invoice.bkashPaymentID || invoice.bkashTrxID) && (
                         <div className="pt-3 border-t border-black/10 dark:border-white/10">
                           <p className="text-sm font-semibold text-black/70 dark:text-white/70 mb-3">
-                            Bkash Payment Details
+                            {t("settings.bkashPaymentDetails")}
                           </p>
                           <div className="grid grid-cols-2 gap-4">
                             {invoice.bkashPaymentID && (
                               <div>
-                                <p className="text-xs text-black/60 dark:text-white/60">Payment ID</p>
+                                <p className="text-xs text-black/60 dark:text-white/60">{t("settings.paymentId")}</p>
                                 <p className="text-sm font-medium">{invoice.bkashPaymentID}</p>
                               </div>
                             )}
                             {invoice.bkashTrxID && (
                               <div>
-                                <p className="text-xs text-black/60 dark:text-white/60">Transaction ID</p>
+                                <p className="text-xs text-black/60 dark:text-white/60">{t("settings.transactionId")}</p>
                                 <p className="text-sm font-medium">{invoice.bkashTrxID}</p>
                               </div>
                             )}
@@ -708,7 +710,7 @@ const SettingsPage = () => {
                           <div>
                             <p className="text-xs text-black/60 dark:text-white/60 flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
-                              Created At
+                              {t("settings.createdAt")}
                             </p>
                             <p className="text-sm font-medium">
                               {new Date(invoice.createdAt).toLocaleString()}
@@ -717,7 +719,7 @@ const SettingsPage = () => {
                           <div>
                             <p className="text-xs text-black/60 dark:text-white/60 flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
-                              Updated At
+                              {t("settings.updatedAt")}
                             </p>
                             <p className="text-sm font-medium">
                               {new Date(invoice.updatedAt).toLocaleString()}

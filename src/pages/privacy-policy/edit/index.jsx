@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -10,16 +11,21 @@ import RichTextEditor from "@/components/input/RichTextEditor";
 import { useUpdatePrivacyPolicyMutation, useGetPrivacyPoliciesQuery } from "@/features/privacy-policy/privacyPolicyApiSlice";
 import { useSelector } from "react-redux";
 
-const privacyPolicySchema = yup.object().shape({
-    content: yup
-        .string()
-        .required("Content is required")
-        .min(10, "Content must be at least 10 characters"),
-});
-
 function EditPrivacyPolicyPage() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { user } = useSelector((state) => state.auth);
+
+    const privacyPolicySchema = useMemo(
+        () =>
+            yup.object().shape({
+                content: yup
+                    .string()
+                    .required(t("privacyPolicy.validation.contentRequired"))
+                    .min(10, t("privacyPolicy.validation.contentMin")),
+            }),
+        [t]
+    );
     const { data: policies = [] } = useGetPrivacyPoliciesQuery({ companyId: user?.companyId });
     const latestPolicy = policies.length > 0 ? policies[0] : null;
 
@@ -48,10 +54,10 @@ function EditPrivacyPolicyPage() {
 
         const res = await updatePrivacyPolicy({ id: latestPolicy.id, ...payload });
         if (res?.data) {
-            toast.success("Privacy Policy updated");
+            toast.success(t("privacyPolicy.updatedSuccess"));
             navigate("/privacy-policy");
         } else {
-            toast.error(res?.error?.data?.message || "Failed to update Privacy Policy");
+            toast.error(res?.error?.data?.message || t("privacyPolicy.updateFailed"));
         }
     };
 
@@ -68,9 +74,9 @@ function EditPrivacyPolicyPage() {
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-semibold">Privacy Policy Not Found</h1>
+                        <h1 className="text-2xl font-semibold">{t("privacyPolicy.notFound")}</h1>
                         <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-                            Please create a privacy policy first
+                            {t("privacyPolicy.notFoundDesc")}
                         </p>
                     </div>
                 </div>
@@ -90,9 +96,9 @@ function EditPrivacyPolicyPage() {
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-semibold">Edit Privacy Policy</h1>
+                    <h1 className="text-2xl font-semibold">{t("privacyPolicy.editTitle")}</h1>
                     <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-                        Update your privacy policy content
+                        {t("privacyPolicy.editDesc")}
                     </p>
                 </div>
             </div>
@@ -103,7 +109,7 @@ function EditPrivacyPolicyPage() {
                     control={control}
                     render={({ field }) => (
                         <RichTextEditor
-                            placeholder="Privacy Policy Content"
+                            placeholder={t("privacyPolicy.contentPlaceholder")}
                             value={field.value || ""}
                             onChange={field.onChange}
                             error={errors.content}
@@ -118,10 +124,10 @@ function EditPrivacyPolicyPage() {
                         onClick={() => navigate("/privacy-policy")}
                         className="bg-red-500 hover:bg-red-600 text-white"
                     >
-                        Cancel
+                        {t("common.cancel")}
                     </Button>
                     <Button type="submit" disabled={isUpdating} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-                        {isUpdating ? "Updating..." : "Update"}
+                        {isUpdating ? t("common.updating") : t("common.update")}
                     </Button>
                 </div>
             </form>

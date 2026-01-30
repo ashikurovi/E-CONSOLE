@@ -1,8 +1,11 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { io } from "socket.io-client";
 
 // components
+import LanguageSwitcher from "@/components/language/LanguageSwitcher";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 import NavLogo from "../logo/nav-logo";
 import IconButton from "../buttons/icon-button";
 import SidebarMenu from "./SidebarMenu";
@@ -29,6 +32,7 @@ import moment from "moment";
 // ... existing code ...
 
 const TopNavbar = () => {
+  const { t } = useTranslation();
   // Fetch user data from API instead of Redux
   const { data: user, isLoading: isLoadingUser } = useGetCurrentUserQuery();
   const { pathname } = useLocation();
@@ -99,7 +103,7 @@ const TopNavbar = () => {
     // Determine icon and color based on notification type (matching backend enum)
     let icon = Bell;
     let iconColor = "text-gray-500";
-    let title = notification.subject || notification.title || "Notification";
+    let title = notification.subject || notification.title || t("notifications.notification");
     
     switch(notification.type) {
       // Order notifications
@@ -107,43 +111,43 @@ const TopNavbar = () => {
       case "ORDER_CREATED":
         icon = ShoppingCart;
         iconColor = "text-blue-500";
-        title = notification.subject || notification.title || "New Order Created";
+        title = notification.subject || notification.title || t("notifications.newOrderCreated");
         break;
       case "order_confirmed":
       case "ORDER_CONFIRMED":
         icon = CheckCircle;
         iconColor = "text-blue-600";
-        title = notification.subject || notification.title || "Order Confirmed";
+        title = notification.subject || notification.title || t("notifications.orderConfirmed");
         break;
       case "order_processing":
       case "ORDER_PROCESSING":
         icon = Package;
         iconColor = "text-yellow-500";
-        title = notification.subject || notification.title || "Order Processing";
+        title = notification.subject || notification.title || t("notifications.orderProcessing");
         break;
       case "order_shipped":
       case "ORDER_SHIPPED":
         icon = Truck;
         iconColor = "text-purple-500";
-        title = notification.subject || notification.title || "Order Shipped";
+        title = notification.subject || notification.title || t("notifications.orderShipped");
         break;
       case "order_delivered":
       case "ORDER_DELIVERED":
         icon = CheckCircle;
         iconColor = "text-green-500";
-        title = notification.subject || notification.title || "Order Delivered";
+        title = notification.subject || notification.title || t("notifications.orderDelivered");
         break;
       case "order_cancelled":
       case "ORDER_CANCELLED":
         icon = AlertCircle;
         iconColor = "text-red-500";
-        title = notification.subject || notification.title || "Order Cancelled";
+        title = notification.subject || notification.title || t("notifications.orderCancelled");
         break;
       case "order_refunded":
       case "ORDER_REFUNDED":
         icon = AlertCircle;
         iconColor = "text-orange-600";
-        title = notification.subject || notification.title || "Order Refunded";
+        title = notification.subject || notification.title || t("notifications.orderRefunded");
         break;
       
       // Payment notifications
@@ -151,13 +155,13 @@ const TopNavbar = () => {
       case "PAYMENT_RECEIVED":
         icon = CheckCircle;
         iconColor = "text-green-600";
-        title = notification.subject || notification.title || "Payment Received";
+        title = notification.subject || notification.title || t("notifications.paymentReceived");
         break;
       case "payment_failed":
       case "PAYMENT_FAILED":
         icon = AlertCircle;
         iconColor = "text-red-600";
-        title = notification.subject || notification.title || "Payment Failed";
+        title = notification.subject || notification.title || t("notifications.paymentFailed");
         break;
       
       // Customer notifications
@@ -165,13 +169,13 @@ const TopNavbar = () => {
       case "NEW_CUSTOMER":
         icon = User;
         iconColor = "text-indigo-500";
-        title = notification.subject || notification.title || "New Customer";
+        title = notification.subject || notification.title || t("notifications.newCustomer");
         break;
       case "customer_updated":
       case "CUSTOMER_UPDATED":
         icon = User;
         iconColor = "text-blue-400";
-        title = notification.subject || notification.title || "Customer Updated";
+        title = notification.subject || notification.title || t("notifications.customerUpdated");
         break;
       
       // Stock notifications
@@ -179,13 +183,13 @@ const TopNavbar = () => {
       case "LOW_STOCK":
         icon = AlertCircle;
         iconColor = "text-orange-500";
-        title = notification.subject || notification.title || "Low Stock Alert";
+        title = notification.subject || notification.title || t("notifications.lowStockAlert");
         break;
       case "out_of_stock":
       case "OUT_OF_STOCK":
         icon = AlertCircle;
         iconColor = "text-red-500";
-        title = notification.subject || notification.title || "Out of Stock";
+        title = notification.subject || notification.title || t("notifications.outOfStock");
         break;
       
       // Product notifications
@@ -193,13 +197,13 @@ const TopNavbar = () => {
       case "PRODUCT_ADDED":
         icon = Package;
         iconColor = "text-green-500";
-        title = notification.subject || notification.title || "Product Added";
+        title = notification.subject || notification.title || t("notifications.productAdded");
         break;
       case "product_updated":
       case "PRODUCT_UPDATED":
         icon = Package;
         iconColor = "text-blue-500";
-        title = notification.subject || notification.title || "Product Updated";
+        title = notification.subject || notification.title || t("notifications.productUpdated");
         break;
       
       // Broadcast notifications
@@ -207,19 +211,19 @@ const TopNavbar = () => {
       case "BROADCAST_EMAIL":
         icon = Bell;
         iconColor = "text-indigo-500";
-        title = notification.subject || notification.title || "Email Broadcast";
+        title = notification.subject || notification.title || t("notifications.emailBroadcast");
         break;
       case "broadcast_sms":
       case "BROADCAST_SMS":
         icon = Bell;
         iconColor = "text-teal-500";
-        title = notification.subject || notification.title || "SMS Broadcast";
+        title = notification.subject || notification.title || t("notifications.smsBroadcast");
         break;
       
       default:
         icon = Bell;
         iconColor = "text-gray-500";
-        title = notification.subject || notification.title || "Notification";
+        title = notification.subject || notification.title || t("notifications.notification");
     }
     
     return {
@@ -283,7 +287,7 @@ const TopNavbar = () => {
 
         <div className="flex-1 w-[500px] lg:flex hidden relative" ref={searchContainerRef}>
           <SearchBar 
-            placeholder="Search orders, products, customers..." 
+            placeholder={t("search.placeholder")} 
             searchValue={searchTerm}
             setSearhValue={handleSearchChange}
           />
@@ -294,7 +298,7 @@ const TopNavbar = () => {
               <div className="p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-black dark:text-white">
-                    Search Results ({totalResults})
+                    {t("search.results")} ({totalResults})
                   </h3>
                   <button
                     onClick={() => {
@@ -304,20 +308,20 @@ const TopNavbar = () => {
                     }}
                     className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                   >
-                    Clear
+                    {t("common.clear")}
                   </button>
                 </div>
                 
                 {isSearchLoading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-3"></div>
-                    <p className="text-gray-500 dark:text-gray-400">Searching...</p>
+                    <p className="text-gray-500 dark:text-gray-400">{t("search.searching")}</p>
                   </div>
                 ) : totalResults === 0 ? (
                   <div className="text-center py-8">
                     <Search className="h-12 w-12 mx-auto text-gray-400 mb-3" />
                     <p className="text-gray-500 dark:text-gray-400">
-                      No results found for "{searchTerm}"
+                      {t("search.noResults", { term: searchTerm })}
                     </p>
                   </div>
                 ) : (
@@ -326,7 +330,7 @@ const TopNavbar = () => {
                     {results.orders.length > 0 && (
                       <div>
                         <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                          Orders ({results.orders.length})
+                          {t("search.orders")} ({results.orders.length})
                         </h4>
                         <div className="space-y-2">
                           {results.orders.slice(0, 5).map((o) => (
@@ -363,7 +367,7 @@ const TopNavbar = () => {
                     {results.products.length > 0 && (
                       <div>
                         <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                          Products ({results.products.length})
+                          {t("search.products")} ({results.products.length})
                         </h4>
                         <div className="space-y-2">
                           {results.products.slice(0, 5).map((p) => (
@@ -400,7 +404,7 @@ const TopNavbar = () => {
                     {results.customers.length > 0 && (
                       <div>
                         <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                          Customers ({results.customers.length})
+                          {t("search.customers")} ({results.customers.length})
                         </h4>
                         <div className="space-y-2">
                           {results.customers.slice(0, 5).map((c) => (
@@ -435,6 +439,8 @@ const TopNavbar = () => {
         </div>
 
         <div className="fl lg:gap-3 gap-2 pr-2">
+          <ThemeToggle variant="compact" />
+          <LanguageSwitcher variant="compact" />
           <Link to="/help">      <IconButton icon={HelpCircle} />  </Link>
       
           {/* <IconButton icon={Settings} /> */}
@@ -461,19 +467,19 @@ const TopNavbar = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 justify-center">
               <Bell className="h-5 w-5" />
-              Notifications
+              {t("notifications.title")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-3 mt-4">
             {isLoading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-3"></div>
-                <p className="text-gray-500 dark:text-gray-400">Loading notifications...</p>
+                <p className="text-gray-500 dark:text-gray-400">{t("notifications.loading")}</p>
               </div>
             ) : notifications.length === 0 ? (
               <div className="text-center py-8">
                 <Bell className="h-12 w-12 mx-auto text-gray-400 mb-3" />
-                <p className="text-gray-500 dark:text-gray-400">No notifications yet</p>
+                <p className="text-gray-500 dark:text-gray-400">{t("notifications.noNotifications")}</p>
               </div>
             ) : (
               notifications.map((notification) => {
@@ -528,7 +534,7 @@ const TopNavbar = () => {
                 }}
                 className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors font-medium"
               >
-                Refresh notifications
+                {t("notifications.refresh")}
               </button>
             </div>
           )}

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
@@ -10,27 +11,28 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const ManageUsersPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: users = [], isLoading } = useGetSystemusersQuery();
   const [deleteSystemuser, { isLoading: isDeleting }] = useDeleteSystemuserMutation();
   const headers = useMemo(
     () => [
-      { header: "Company", field: "companyName" },
-      { header: "Email", field: "email" },
-      { header: "Phone", field: "phone" },
-      { header: "Role", field: "role" },
-      { header: "Permissions", field: "permissions" },
-      { header: "Active", field: "isActive" },
-      { header: "Actions", field: "actions" },
+      { header: t("manageUsers.company"), field: "companyName" },
+      { header: t("manageUsers.email"), field: "email" },
+      { header: t("manageUsers.phone"), field: "phone" },
+      { header: t("manageUsers.role"), field: "role" },
+      { header: t("manageUsers.permissions"), field: "permissions" },
+      { header: t("manageUsers.active"), field: "isActive" },
+      { header: t("common.actions"), field: "actions" },
     ],
-    []
+    [t]
   );
 
   const getRoleBadge = (role) => {
     const roleLabels = {
-      SUPER_ADMIN: "Super Admin",
-      SYSTEM_OWNER: "System Owner",
-      EMPLOYEE: "Employee",
+      SUPER_ADMIN: t("manageUsers.superAdmin"),
+      SYSTEM_OWNER: t("manageUsers.systemOwner"),
+      EMPLOYEE: t("manageUsers.employee"),
     };
     const roleColors = {
       SUPER_ADMIN: "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400",
@@ -39,7 +41,7 @@ const ManageUsersPage = () => {
     };
     return (
       <span className={`px-2 py-1 rounded text-xs font-medium ${roleColors[role] || roleColors.EMPLOYEE}`}>
-        {roleLabels[role] || role || "Employee"}
+        {roleLabels[role] || role || t("manageUsers.employee")}
       </span>
     );
   };
@@ -59,17 +61,19 @@ const ManageUsersPage = () => {
         role: getRoleBadge(u.role),
         permissions: (
           <span className="text-xs text-black/60 dark:text-white/60">
-            {u.permissions?.length || 0} permission{(u.permissions?.length || 0) !== 1 ? "s" : ""}
+            {(u.permissions?.length || 0) !== 1
+              ? t("manageUsers.permissionCountPlural", { count: u.permissions?.length || 0 })
+              : t("manageUsers.permissionCount", { count: u.permissions?.length || 0 })}
           </span>
         ),
-        isActive: u.isActive ? "Yes" : "No",
+        isActive: u.isActive ? t("common.yes") : t("common.no"),
         actions: (
           <div className="flex items-center gap-2 justify-end">
             <Button
               variant="outline"
               size="icon"
               onClick={() => navigate(`/manage-users/permissions/${u.id}`)}
-              title="Manage Permissions"
+              title={t("manageUsers.managePermissions")}
               className="bg-purple-500 hover:bg-purple-600 text-white border-purple-500"
             >
               <Shield className="h-4 w-4" />
@@ -78,7 +82,7 @@ const ManageUsersPage = () => {
               variant="outline"
               size="icon"
               onClick={() => navigate(`/manage-users/edit/${u.id}`)}
-              title="Edit"
+              title={t("common.edit")}
               className="bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
             >
               <Pencil className="h-4 w-4" />
@@ -87,13 +91,13 @@ const ManageUsersPage = () => {
               variant="destructive"
               size="icon"
               onClick={async () => {
-                if (!window.confirm(`Delete "${u.email}"?`)) return;
+                if (!window.confirm(t("manageUsers.deleteConfirm", { email: u.email }))) return;
                 const res = await deleteSystemuser(u.id);
-                if (res?.data || !res?.error) toast.success("System user deleted");
-                else toast.error(res?.error?.data?.message || "Failed to delete");
+                if (res?.data || !res?.error) toast.success(t("manageUsers.userDeleted"));
+                else toast.error(res?.error?.data?.message || t("manageUsers.deleteFailed"));
               }}
               disabled={isDeleting}
-              title="Delete"
+              title={t("common.delete")}
               className="bg-red-500 hover:bg-red-600 text-white"
             >
               <Trash2 className="h-4 w-4" />
@@ -101,19 +105,19 @@ const ManageUsersPage = () => {
           </div>
         ),
       })),
-    [filteredUsers, deleteSystemuser, isDeleting]
+      [filteredUsers, deleteSystemuser, isDeleting, t]
   );
 
   return (
     <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-xl font-semibold">Manage System Users</h2>
+        <h2 className="text-xl font-semibold">{t("manageUsers.title")}</h2>
         <div className="flex gap-2">
           <Button size="sm" variant="outline" onClick={() => navigate("/manage-users/activity-logs")}>
-            Activity Logs
+            {t("manageUsers.activityLogs")}
           </Button>
           <Button size="sm" onClick={() => navigate("/manage-users/create")}>
-            New System User
+            {t("manageUsers.newSystemUser")}
           </Button>
         </div>
       </div>

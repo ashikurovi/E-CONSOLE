@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import {
   useCreateOrderMutation,
@@ -15,6 +16,7 @@ import Dropdown from "@/components/dropdown/dropdown";
 import { useSelector } from "react-redux";
 
 const CreateOrder = () => {
+  const { t } = useTranslation();
   const authUser = useSelector((state) => state.auth.user);
   const [createOrder, { isLoading }] = useCreateOrderMutation();
   const [shipOrder, { isLoading: isShipping }] = useShipOrderMutation();
@@ -137,7 +139,7 @@ const CreateOrder = () => {
     setValue("delivery_type", 48); // Normal delivery
     setValue("item_type", 2); // Parcel
     
-    toast.success("Order details auto-filled! Please select City, Zone & Area.");
+    toast.success(t("pathao.orderAutoFilled"));
   };
 
   const onSubmit = async (data) => {
@@ -163,7 +165,7 @@ const CreateOrder = () => {
       const result = await createOrder(orderData).unwrap();
       
       if (result.code === 200 || result.type === "success") {
-        toast.success("Order created successfully!");
+        toast.success(t("pathao.orderCreatedSuccess"));
         
         // Extract tracking information from Pathao response
         const consignmentId = result.data?.data?.consignment_id || result.data?.consignment_id;
@@ -187,10 +189,10 @@ const CreateOrder = () => {
               body: shipmentData,
             }).unwrap();
             
-            toast.success("Order status updated to shipped!");
+            toast.success(t("pathao.orderStatusUpdated"));
           } catch (shipError) {
             console.error("Failed to update order status:", shipError);
-            toast.error("Order created but failed to update status. Please update manually.");
+            toast.error(t("pathao.orderCreatedStatusFailed"));
           }
         }
         
@@ -200,7 +202,7 @@ const CreateOrder = () => {
         setSelectedZone("");
       }
     } catch (error) {
-      const errorMessage = error?.data?.message || "Failed to create order";
+      const errorMessage = error?.data?.message || t("pathao.createOrderFailed");
       toast.error(errorMessage);
       console.error("Create order error:", error);
     }
@@ -213,20 +215,20 @@ const CreateOrder = () => {
 
   return (
     <div className="max-w-4xl">
-      <h3 className="text-lg font-semibold mb-4">Create New Pathao Order</h3>
+      <h3 className="text-lg font-semibold mb-4">{t("pathao.createNewOrder")}</h3>
       
       {/* Order Selection Dropdown */}
       <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
         <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
-          Select Processing Order (Auto-fill)
+          {t("pathao.selectProcessingOrder")}
         </label>
         {isLoadingOrders ? (
           <p className="text-sm text-black/60 dark:text-white/60 py-2">
-            Loading processing orders...
+            {t("pathao.loadingProcessingOrders")}
           </p>
         ) : orderOptions.length === 0 ? (
           <p className="text-sm text-orange-600 dark:text-orange-400 py-2">
-            No processing orders found. Create order manually below.
+            {t("pathao.noProcessingOrders")}
           </p>
         ) : (
           <Dropdown
@@ -235,7 +237,7 @@ const CreateOrder = () => {
             setSelectedOption={handleOrderSelect}
             className="rounded-lg"
           >
-            {selectedOrder?.label || "-- Select a processing order to auto-fill --"}
+            {selectedOrder?.label || t("pathao.selectOrderPlaceholder")}
           </Dropdown>
         )}
       </div>
@@ -243,7 +245,7 @@ const CreateOrder = () => {
       {stores.length === 0 && (
         <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
           <p className="text-sm text-yellow-800 dark:text-yellow-200">
-            ⚠️ No stores found. Please create a store first in the "Manage Stores" tab.
+            ⚠️ {t("pathao.noStoresFound")}
           </p>
         </div>
       )}
@@ -253,13 +255,13 @@ const CreateOrder = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="text-black/50 dark:text-white/50 text-sm ml-1 mb-2 block">
-              Select Store *
+              {t("pathao.selectStore")}
             </label>
             <select
-              {...register("store_id", { required: "Store is required" })}
+              {...register("store_id", { required: t("pathao.storeRequired") })}
               className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
             >
-              <option value="">Select a store</option>
+              <option value="">{t("pathao.selectStorePlaceholder")}</option>
               {stores.map((store) => (
                 <option key={store.store_id} value={store.store_id}>
                   {store.store_name}
@@ -272,38 +274,38 @@ const CreateOrder = () => {
           </div>
 
           <TextField
-            label="Merchant Order ID *"
+            label={t("pathao.merchantOrderId")}
             name="merchant_order_id"
             register={register}
-            registerOptions={{ required: "Order ID is required" }}
-            placeholder="Your unique order ID"
+            registerOptions={{ required: t("pathao.orderIdRequired") }}
+            placeholder={t("pathao.merchantOrderPlaceholder")}
             error={errors.merchant_order_id}
           />
         </div>
 
         {/* Recipient Information */}
         <div className="border-t border-black/10 dark:border-white/10 pt-4 mt-4">
-          <h4 className="text-md font-semibold mb-3">Recipient Information</h4>
+          <h4 className="text-md font-semibold mb-3">{t("pathao.recipientInformation")}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <TextField
-              label="Recipient Name *"
+              label={t("pathao.recipientName")}
               name="recipient_name"
               register={register}
-              registerOptions={{ required: "Recipient name is required" }}
+              registerOptions={{ required: t("pathao.recipientNameRequired") }}
               placeholder="John Doe"
               error={errors.recipient_name}
             />
 
             <TextField
-              label="Recipient Phone *"
+              label={t("pathao.recipientPhone")}
               name="recipient_phone"
               type="tel"
               register={register}
               registerOptions={{
-                required: "Phone number is required",
+                required: t("pathao.phoneRequired"),
                 pattern: {
                   value: /^01[0-9]{9}$/,
-                  message: "Invalid phone number format (01XXXXXXXXX)",
+                  message: t("pathao.invalidPhoneFormat"),
                 },
               }}
               placeholder="01XXXXXXXXX"
@@ -314,17 +316,17 @@ const CreateOrder = () => {
 
         {/* Location */}
         <div className="border-t border-black/10 dark:border-white/10 pt-4 mt-4">
-          <h4 className="text-md font-semibold mb-3">Delivery Location</h4>
+          <h4 className="text-md font-semibold mb-3">{t("pathao.deliveryLocation")}</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="text-black/50 dark:text-white/50 text-sm ml-1 mb-2 block">
-                City *
+                {t("pathao.city")}
               </label>
               <select
-                {...register("recipient_city", { required: "City is required" })}
+                {...register("recipient_city", { required: t("pathao.cityRequired") })}
                 className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
               >
-                <option value="">Select City</option>
+                <option value="">{t("pathao.selectCity")}</option>
                 {cities.map((city) => (
                   <option key={city.city_id} value={city.city_id}>
                     {city.city_name}
@@ -338,14 +340,14 @@ const CreateOrder = () => {
 
             <div>
               <label className="text-black/50 dark:text-white/50 text-sm ml-1 mb-2 block">
-                Zone *
+                {t("pathao.zone")}
               </label>
               <select
-                {...register("recipient_zone", { required: "Zone is required" })}
+                {...register("recipient_zone", { required: t("pathao.zoneRequired") })}
                 className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
                 disabled={!selectedCity}
               >
-                <option value="">Select Zone</option>
+                <option value="">{t("pathao.selectZone")}</option>
                 {zones.map((zone) => (
                   <option key={zone.zone_id} value={zone.zone_id}>
                     {zone.zone_name}
@@ -359,14 +361,14 @@ const CreateOrder = () => {
 
             <div>
               <label className="text-black/50 dark:text-white/50 text-sm ml-1 mb-2 block">
-                Area *
+                {t("pathao.area")}
               </label>
               <select
-                {...register("recipient_area", { required: "Area is required" })}
+                {...register("recipient_area", { required: t("pathao.areaRequired") })}
                 className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
                 disabled={!selectedZone}
               >
-                <option value="">Select Area</option>
+                <option value="">{t("pathao.selectArea")}</option>
                 {areas.map((area) => (
                   <option key={area.area_id} value={area.area_id}>
                     {area.area_name}
@@ -380,11 +382,11 @@ const CreateOrder = () => {
           </div>
 
           <TextField
-            label="Recipient Address *"
+            label={t("pathao.recipientAddress")}
             name="recipient_address"
             register={register}
-            registerOptions={{ required: "Address is required" }}
-            placeholder="House# 123, Road# 4, Block# C"
+            registerOptions={{ required: t("pathao.addressRequired") }}
+            placeholder={t("pathao.addressPlaceholder")}
             multiline
             rows={3}
             error={errors.recipient_address}
@@ -393,69 +395,69 @@ const CreateOrder = () => {
 
         {/* Item Details */}
         <div className="border-t border-black/10 dark:border-white/10 pt-4 mt-4">
-          <h4 className="text-md font-semibold mb-3">Item Details</h4>
+          <h4 className="text-md font-semibold mb-3">{t("pathao.itemDetails")}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-black/50 dark:text-white/50 text-sm ml-1 mb-2 block">
-                Delivery Type *
+                {t("pathao.deliveryType")}
               </label>
               <select
-                {...register("delivery_type", { required: "Delivery type is required" })}
+                {...register("delivery_type", { required: t("pathao.deliveryTypeRequired") })}
                 className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
               >
-                <option value={48}>Normal Delivery</option>
-                <option value={12}>On Demand Delivery</option>
+                <option value={48}>{t("pathao.normalDelivery")}</option>
+                <option value={12}>{t("pathao.onDemandDelivery")}</option>
               </select>
             </div>
 
             <div>
               <label className="text-black/50 dark:text-white/50 text-sm ml-1 mb-2 block">
-                Item Type *
+                {t("pathao.itemType")}
               </label>
               <select
-                {...register("item_type", { required: "Item type is required" })}
+                {...register("item_type", { required: t("pathao.itemTypeRequired") })}
                 className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
               >
-                <option value={1}>Document</option>
-                <option value={2}>Parcel</option>
+                <option value={1}>{t("pathao.document")}</option>
+                <option value={2}>{t("pathao.parcel")}</option>
               </select>
             </div>
 
             <TextField
-              label="Item Quantity *"
+              label={t("pathao.itemQuantity")}
               name="item_quantity"
               type="number"
               register={register}
               registerOptions={{
-                required: "Quantity is required",
-                min: { value: 1, message: "Minimum quantity is 1" },
+                required: t("pathao.quantityRequired"),
+                min: { value: 1, message: t("pathao.minQuantity") },
               }}
               placeholder="1"
               error={errors.item_quantity}
             />
 
             <TextField
-              label="Item Weight (kg) *"
+              label={t("pathao.itemWeight")}
               name="item_weight"
               type="number"
               step="0.1"
               register={register}
               registerOptions={{
-                required: "Weight is required",
-                min: { value: 0.1, message: "Minimum weight is 0.1 kg" },
+                required: t("pathao.weightRequired"),
+                min: { value: 0.1, message: t("pathao.minWeight") },
               }}
               placeholder="0.5"
               error={errors.item_weight}
             />
 
             <TextField
-              label="Amount to Collect (BDT) *"
+              label={t("pathao.amountToCollect")}
               name="amount_to_collect"
               type="number"
               register={register}
               registerOptions={{
-                required: "Amount is required",
-                min: { value: 0, message: "Amount must be 0 or greater" },
+                required: t("pathao.amountRequired"),
+                min: { value: 0, message: t("pathao.amountMin") },
               }}
               placeholder="1000"
               error={errors.amount_to_collect}
@@ -463,20 +465,20 @@ const CreateOrder = () => {
           </div>
 
           <TextField
-            label="Item Description"
+            label={t("pathao.itemDescription")}
             name="item_description"
             register={register}
-            placeholder="Brief description of items"
+            placeholder={t("pathao.itemDescriptionPlaceholder")}
             multiline
             rows={2}
             error={errors.item_description}
           />
 
           <TextField
-            label="Special Instructions"
+            label={t("pathao.specialInstructions")}
             name="special_instruction"
             register={register}
-            placeholder="Any special delivery instructions"
+            placeholder={t("pathao.specialInstructionsPlaceholder")}
             multiline
             rows={2}
             error={errors.special_instruction}
@@ -484,7 +486,7 @@ const CreateOrder = () => {
         </div>
 
         <PrimaryButton type="submit" isLoading={isLoading || isShipping} className="w-full md:w-auto">
-          {isLoading ? "Creating Order..." : isShipping ? "Updating Status..." : "Create Pathao Order"}
+          {isLoading ? t("pathao.creatingOrder") : isShipping ? t("pathao.updatingStatus") : t("pathao.createPathaoOrder")}
         </PrimaryButton>
       </form>
     </div>

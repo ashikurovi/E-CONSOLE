@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -19,36 +20,32 @@ import {
 import { useUpdateBannerMutation } from "@/features/banners/bannersApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
 import { useSelector } from "react-redux";
-const bannerEditSchema = yup.object().shape({
-  title: yup
-    .string()
-    .required("Title is required")
-    .min(2, "Title must be at least 2 characters")
-    .max(200, "Title must be less than 200 characters"),
-  subtitle: yup
-    .string()
-    .max(500, "Subtitle must be less than 500 characters"),
-  imageUrl: yup
-    .string(),
-  buttonText: yup
-    .string()
-    .max(50, "Button text must be less than 50 characters"),
-  buttonLink: yup
-    .string()
-    .required("Button link is required"),
-  order: yup
-    .number()
-    .typeError("Order must be a number")
-    .integer("Order must be an integer")
-    .min(0, "Order must be 0 or greater")
-    .required("Order is required"),
-  isActive: yup
-    .boolean()
-    .required("Status is required"),
-});
-
 function BannerEditForm({ banner }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+
+  const bannerEditSchema = useMemo(
+    () =>
+      yup.object().shape({
+        title: yup
+          .string()
+          .required(t("banners.validation.titleRequired"))
+          .min(2, t("banners.validation.titleMin"))
+          .max(200, t("banners.validation.titleMax")),
+        subtitle: yup.string().max(500, t("banners.validation.subtitleMax")),
+        imageUrl: yup.string(),
+        buttonText: yup.string().max(50, t("banners.validation.buttonTextMax")),
+        buttonLink: yup.string().required(t("banners.validation.buttonLinkRequired")),
+        order: yup
+          .number()
+          .typeError(t("banners.validation.orderNumber"))
+          .integer(t("banners.validation.orderInteger"))
+          .min(0, t("banners.validation.orderMin"))
+          .required(t("banners.validation.orderRequired")),
+        isActive: yup.boolean().required(t("banners.validation.statusRequired")),
+      }),
+    [t]
+  );
   const [imageFile, setImageFile] = useState(null);
   const { uploadImage, isUploading } = useImageUpload();
 
@@ -76,7 +73,7 @@ function BannerEditForm({ banner }) {
     if (imageFile) {
       const uploadedUrl = await uploadImage(imageFile);
       if (!uploadedUrl) {
-        toast.error("Failed to upload image");
+        toast.error(t("banners.failedToUploadImage"));
         return;
       }
       imageUrl = uploadedUrl;
@@ -84,7 +81,7 @@ function BannerEditForm({ banner }) {
 
     // If neither file nor URL is provided, show error
     if (!imageUrl) {
-      toast.error("Please provide an image URL or upload an image file");
+      toast.error(t("banners.provideImageUrlOrUpload"));
       return;
     }
 
@@ -105,15 +102,15 @@ function BannerEditForm({ banner }) {
       };
       const res = await updateBanner({ id: banner?.id, body: payload, params });
       if (res?.data) {
-        toast.success("Banner updated");
+        toast.success(t("banners.bannerUpdated"));
         reset();
         setImageFile(null);
         setIsOpen(false);
       } else {
-        toast.error(res?.error?.data?.message || "Failed to update banner");
+        toast.error(res?.error?.data?.message || t("banners.bannerUpdateFailed"));
       }
     } catch {
-      toast.error("Something went wrong");
+      toast.error(t("common.failed"));
     }
   };
 
@@ -124,71 +121,77 @@ function BannerEditForm({ banner }) {
           variant="ghost"
           size="icon"
           className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-          title="Edit"
+          title={t("common.edit")}
         >
           <Pencil className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Banner</DialogTitle>
+          <DialogTitle>{t("banners.editBanner")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
           <TextField
-            placeholder="Title *"
+            label={t("banners.titleField")}
+            placeholder={t("banners.bannerTitlePlaceholder")}
             register={register}
             name="title"
             error={errors.title}
           />
           <TextField
-            placeholder="Subtitle *"
+            label={t("banners.subtitle")}
+            placeholder={t("banners.subtitlePlaceholder")}
             register={register}
             name="subtitle"
             error={errors.subtitle}
           />
 
           <FileUpload
-            placeholder="Choose image file"
-            label="Upload Image"
+            placeholder={t("banners.chooseImageFile")}
+            label={t("banners.uploadImage")}
             name="image"
             accept="image/*"
             onChange={setImageFile}
             value={banner?.imageUrl}
           />
 
-          <div className="text-center text-sm text-black/50 dark:text-white/50">OR</div>
+          <div className="text-center text-sm text-black/50 dark:text-white/50">{t("banners.orLabel")}</div>
 
           <TextField
-            placeholder="Image URL *"
+            label={t("banners.imageUrl")}
+            placeholder={t("banners.imageUrlPlaceholder")}
             register={register}
             name="imageUrl"
             error={errors.imageUrl}
           />
 
           <TextField
-            placeholder="Button Text *"
+            label={t("banners.buttonText")}
+            placeholder={t("banners.buttonTextPlaceholder")}
             register={register}
             name="buttonText"
             error={errors.buttonText}
           />
           <TextField
-            placeholder="Button Link *"
+            label={t("banners.buttonLink")}
+            placeholder={t("banners.buttonLinkPlaceholder")}
             register={register}
             name="buttonLink"
             error={errors.buttonLink}
           />
           <TextField
-            placeholder="Order *"
+            label={t("banners.displayOrder")}
+            placeholder={t("banners.orderPlaceholder")}
             register={register}
             name="order"
             type="number"
             error={errors.order}
           />
           <div className="flex flex-col gap-2">
-            <label className="text-black/50 dark:text-white/50 text-sm ml-1">Status</label>
+            <label className="text-black/50 dark:text-white/50 text-sm ml-1">{t("common.status")}</label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" {...register("isActive")} className="w-4 h-4 rounded border-black/20 dark:border-white/20" />
-              <span className="text-sm">Active</span>
+              <span className="text-sm">{t("common.active")}</span>
             </label>
             {errors.isActive && (
               <span className="text-red-500 text-xs ml-1">{errors.isActive.message}</span>
@@ -196,10 +199,10 @@ function BannerEditForm({ banner }) {
           </div>
           <DialogFooter>
             <Button variant="ghost" type="button" onClick={() => setIsOpen(false)} className="bg-red-500 hover:bg-red-600 text-white">
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isUpdating || isUploading} className="bg-black hover:bg-gray-600 text-white">
-              {isUpdating || isUploading ? "Processing..." : "Update"}
+              {isUpdating || isUploading ? t("common.processing") : t("common.update")}
             </Button>
           </DialogFooter>
         </form>

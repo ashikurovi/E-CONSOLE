@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -18,79 +19,82 @@ import {
 } from "@/components/ui/dialog";
 import { useUpdatePromocodeMutation } from "@/features/promocode/promocodeApiSlice";
 
-const discountTypeOptions = [
-  { label: "Percentage", value: "percentage" },
-  { label: "Fixed", value: "fixed" },
-];
-
-const promocodeEditSchema = yup.object().shape({
-  code: yup
-    .string()
-    .required("Code is required")
-    .min(2, "Code must be at least 2 characters")
-    .max(50, "Code must be less than 50 characters"),
-  description: yup
-    .string()
-    .nullable()
-    .transform((value) => (value === "" ? null : value))
-    .max(500, "Description must be less than 500 characters"),
-  discountType: yup
-    .string()
-    .required("Discount type is required")
-    .oneOf(
-      discountTypeOptions.map((o) => o.value),
-      "Please select a valid discount type"
-    ),
-  discountValue: yup
-    .number()
-    .typeError("Discount value must be a number")
-    .required("Discount value is required")
-    .positive("Discount value must be greater than 0")
-    .test("max-percentage", "Percentage discount cannot exceed 100", function (value) {
-      const discountType = this.parent.discountType;
-      if (discountType === "percentage" && value > 100) {
-        return false;
-      }
-      return true;
-    }),
-  maxUses: yup
-    .number()
-    .typeError("Max uses must be a number")
-    .nullable()
-    .transform((value, originalValue) => (originalValue === "" ? null : value))
-    .min(1, "Max uses must be at least 1")
-    .integer("Max uses must be a whole number"),
-  minOrderAmount: yup
-    .number()
-    .typeError("Min order amount must be a number")
-    .nullable()
-    .transform((value, originalValue) => (originalValue === "" ? null : value))
-    .min(0, "Min order amount must be 0 or greater"),
-  startsAt: yup
-    .string()
-    .nullable()
-    .transform((value) => (value === "" ? null : value)),
-  expiresAt: yup
-    .string()
-    .nullable()
-    .transform((value) => (value === "" ? null : value))
-    .test("after-starts", "Expires at must be after starts at", function (value) {
-      const startsAt = this.parent.startsAt;
-      if (!value || !startsAt) return true;
-      return new Date(value) > new Date(startsAt);
-    }),
-  isActive: yup
-    .boolean()
-    .required("Status is required"),
-});
-
 export default function PromocodeEditForm({ promocode }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+
+  const discountTypeOptions = useMemo(
+    () => [
+      { label: t("promocodes.percentage"), value: "percentage" },
+      { label: t("promocodes.fixed"), value: "fixed" },
+    ],
+    [t]
+  );
+
+  const promocodeEditSchema = useMemo(
+    () =>
+      yup.object().shape({
+        code: yup
+          .string()
+          .required(t("promocodes.validation.codeRequired"))
+          .min(2, t("promocodes.validation.codeMin"))
+          .max(50, t("promocodes.validation.codeMax")),
+        description: yup
+          .string()
+          .nullable()
+          .transform((value) => (value === "" ? null : value))
+          .max(500, t("promocodes.validation.descriptionMax")),
+        discountType: yup
+          .string()
+          .required(t("promocodes.validation.discountTypeRequired"))
+          .oneOf(["percentage", "fixed"], t("promocodes.validation.discountTypeInvalid")),
+        discountValue: yup
+          .number()
+          .typeError(t("promocodes.validation.discountValueNumber"))
+          .required(t("promocodes.validation.discountValueRequired"))
+          .positive(t("promocodes.validation.discountValuePositive"))
+          .test("max-percentage", t("promocodes.validation.percentageMax"), function (value) {
+            const discountType = this.parent.discountType;
+            if (discountType === "percentage" && value > 100) {
+              return false;
+            }
+            return true;
+          }),
+        maxUses: yup
+          .number()
+          .typeError(t("promocodes.validation.maxUsesNumber"))
+          .nullable()
+          .transform((value, originalValue) => (originalValue === "" ? null : value))
+          .min(1, t("promocodes.validation.maxUsesMin"))
+          .integer(t("promocodes.validation.maxUsesInteger")),
+        minOrderAmount: yup
+          .number()
+          .typeError(t("promocodes.validation.minOrderNumber"))
+          .nullable()
+          .transform((value, originalValue) => (originalValue === "" ? null : value))
+          .min(0, t("promocodes.validation.minOrderMin")),
+        startsAt: yup
+          .string()
+          .nullable()
+          .transform((value) => (value === "" ? null : value)),
+        expiresAt: yup
+          .string()
+          .nullable()
+          .transform((value) => (value === "" ? null : value))
+          .test("after-starts", t("promocodes.validation.expiresAfterStarts"), function (value) {
+            const startsAt = this.parent.startsAt;
+            if (!value || !startsAt) return true;
+            return new Date(value) > new Date(startsAt);
+          }),
+        isActive: yup.boolean().required(t("promocodes.validation.statusRequired")),
+      }),
+    [t]
+  );
 
   const defaultType = useMemo(() => {
     const val = String(promocode?.discountType).toLowerCase();
     return discountTypeOptions.find((o) => o.value === val) || null;
-  }, [promocode]);
+  }, [promocode, discountTypeOptions]);
 
   const [discountType, setDiscountType] = useState(defaultType);
 
@@ -150,10 +154,10 @@ export default function PromocodeEditForm({ promocode }) {
 
     const res = await updatePromocode(payload);
     if (res?.data) {
-      toast.success("Promocode updated");
+      toast.success(t("promocodes.promocodeUpdated"));
       setIsOpen(false);
     } else {
-      toast.error(res?.error?.data?.message || "Failed to update promocode");
+      toast.error(res?.error?.data?.message || t("promocodes.promocodeUpdateFailed"));
     }
   };
 
@@ -164,39 +168,41 @@ export default function PromocodeEditForm({ promocode }) {
           variant="ghost"
           size="icon"
           className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-          title="Edit"
+          title={t("common.edit")}
         >
           <Pencil className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Promocode</DialogTitle>
+          <DialogTitle>{t("promocodes.editPromocode")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
           <TextField
-            placeholder="Code"
+            label={t("promocodes.code")}
+            placeholder={t("promocodes.promocodePlaceholder")}
             register={register}
             name="code"
             error={errors.code}
           />
           <TextField
-            placeholder="Description "
+            label={t("promocodes.descriptionLabel")}
+            placeholder={t("promocodes.descriptionPlaceholder")}
             register={register}
             name="description"
             error={errors.description}
           />
 
           <div className="flex flex-col gap-2">
-            <label className="text-black/50 dark:text-white/50 text-sm ml-1">Discount Type</label>
+            <label className="text-black/50 dark:text-white/50 text-sm ml-1">{t("promocodes.discountType")}</label>
             <Dropdown
-              name="Discount Type"
+              name={t("promocodes.discountType")}
               options={discountTypeOptions}
               setSelectedOption={handleDiscountTypeChange}
               className="py-2"
             >
               {discountType?.label || (
-                <span className="text-black/50 dark:text-white/50">Select Type</span>
+                <span className="text-black/50 dark:text-white/50">{t("promocodes.selectType")}</span>
               )}
             </Dropdown>
             {errors.discountType && (
@@ -205,35 +211,40 @@ export default function PromocodeEditForm({ promocode }) {
           </div>
 
           <TextField
-            placeholder="Discount Value"
+            label={t("promocodes.discountValue")}
+            placeholder={t("promocodes.discountValuePlaceholder")}
             register={register}
             name="discountValue"
             type="number"
             error={errors.discountValue}
           />
           <TextField
-            placeholder="Max Uses "
+            label={t("promocodes.maxUses")}
+            placeholder={t("promocodes.maxUsesPlaceholder")}
             register={register}
             name="maxUses"
             type="number"
             error={errors.maxUses}
           />
           <TextField
-            placeholder="Min Order Amount "
+            label={t("promocodes.minOrderAmount")}
+            placeholder={t("promocodes.minOrderAmountPlaceholder")}
             register={register}
             name="minOrderAmount"
             type="number"
             error={errors.minOrderAmount}
           />
           <TextField
-            placeholder="Starts At"
+            label={t("promocodes.startsAt")}
+            placeholder={t("promocodes.startsAtPlaceholder")}
             register={register}
             name="startsAt"
             type="datetime-local"
             error={errors.startsAt}
           />
           <TextField
-            placeholder="Expires At "
+            label={t("promocodes.expiresAt")}
+            placeholder={t("promocodes.expiresAtPlaceholder")}
             register={register}
             name="expiresAt"
             type="datetime-local"
@@ -242,16 +253,16 @@ export default function PromocodeEditForm({ promocode }) {
 
           <div className="flex items-center gap-2">
             <Checkbox className="bg-black text-white hover:bg-black/90" name="isActive" value={true} setValue={() => { }}>
-              Active
+              {t("common.active")}
             </Checkbox>
           </div>
 
           <DialogFooter>
             <Button variant="ghost" type="button" onClick={() => setIsOpen(false)} className="bg-red-500 hover:bg-red-600 text-white">
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isUpdating} className="bg-green-500 hover:bg-green-600 text-white">
-              {isUpdating ? "Updating..." : "Update"}
+              {isUpdating ? t("common.updating") : t("common.update")}
             </Button>
           </DialogFooter>
         </form>

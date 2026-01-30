@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -9,15 +10,20 @@ import { ArrowLeft } from "lucide-react";
 import RichTextEditor from "@/components/input/RichTextEditor";
 import { useCreateRefundPolicyMutation } from "@/features/refund-policy/refundPolicyApiSlice";
 
-const refundPolicySchema = yup.object().shape({
-    content: yup
-        .string()
-        .required("Content is required")
-        .min(10, "Content must be at least 10 characters"),
-});
-
 function CreateRefundPolicyPage() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
+
+    const refundPolicySchema = useMemo(
+        () =>
+            yup.object().shape({
+                content: yup
+                    .string()
+                    .required(t("refundPolicy.validation.contentRequired"))
+                    .min(10, t("refundPolicy.validation.contentMin")),
+            }),
+        [t]
+    );
     const { control, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: yupResolver(refundPolicySchema),
     });
@@ -30,11 +36,11 @@ function CreateRefundPolicyPage() {
 
         const res = await createRefundPolicy(payload);
         if (res?.data) {
-            toast.success("Refund Policy created");
+            toast.success(t("refundPolicy.createdSuccess"));
             reset();
             navigate("/refund-policy");
         } else {
-            toast.error(res?.error?.data?.message || "Failed to create Refund Policy");
+            toast.error(res?.error?.data?.message || t("refundPolicy.createFailed"));
         }
     };
 
@@ -50,9 +56,9 @@ function CreateRefundPolicyPage() {
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-semibold">Create Refund Policy</h1>
+                    <h1 className="text-2xl font-semibold">{t("refundPolicy.createTitle")}</h1>
                     <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-                        Create a refund policy for your store
+                        {t("refundPolicy.createDesc")}
                     </p>
                 </div>
             </div>
@@ -63,7 +69,7 @@ function CreateRefundPolicyPage() {
                     control={control}
                     render={({ field }) => (
                         <RichTextEditor
-                            placeholder="Refund Policy Content"
+                            placeholder={t("refundPolicy.contentPlaceholder")}
                             value={field.value || ""}
                             onChange={field.onChange}
                             error={errors.content}
@@ -78,10 +84,10 @@ function CreateRefundPolicyPage() {
                         onClick={() => navigate("/refund-policy")}
                         className="bg-red-500 hover:bg-red-600 text-white"
                     >
-                        Cancel
+                        {t("common.cancel")}
                     </Button>
                     <Button type="submit" disabled={isCreating} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-                        {isCreating ? "Creating..." : "Create"}
+                        {isCreating ? t("common.creating") : t("common.create")}
                     </Button>
                 </div>
             </form>

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useCreateBulkOrdersMutation } from "@/features/steadfast/steadfastApiSlice";
 import toast from "react-hot-toast";
 import PrimaryButton from "@/components/buttons/primary-button";
 import { Upload, Download } from "lucide-react";
 
 const BulkOrder = () => {
+  const { t } = useTranslation();
   const [createBulkOrders, { isLoading }] = useCreateBulkOrdersMutation();
   const [ordersJson, setOrdersJson] = useState("");
   const [results, setResults] = useState(null);
@@ -19,9 +21,9 @@ const BulkOrder = () => {
         const content = event.target.result;
         const parsed = JSON.parse(content);
         setOrdersJson(JSON.stringify(parsed, null, 2));
-        toast.success("File loaded successfully");
+        toast.success(t("steadfast.fileLoadedSuccess"));
       } catch (error) {
-        toast.error("Invalid JSON file");
+        toast.error(t("steadfast.invalidJsonFile"));
         console.error("File read error:", error);
       }
     };
@@ -32,7 +34,7 @@ const BulkOrder = () => {
     e.preventDefault();
     
     if (!ordersJson.trim()) {
-      toast.error("Please provide orders data");
+      toast.error(t("steadfast.provideOrdersData"));
       return;
     }
 
@@ -40,12 +42,12 @@ const BulkOrder = () => {
       const orders = JSON.parse(ordersJson);
       
       if (!Array.isArray(orders)) {
-        toast.error("Orders must be an array");
+        toast.error(t("steadfast.ordersMustBeArray"));
         return;
       }
 
       if (orders.length > 500) {
-        toast.error("Maximum 500 orders allowed");
+        toast.error(t("steadfast.max500Orders"));
         return;
       }
 
@@ -60,7 +62,7 @@ const BulkOrder = () => {
       );
 
       if (invalidOrders.length > 0) {
-        toast.error(`${invalidOrders.length} order(s) missing required fields`);
+        toast.error(t("steadfast.ordersMissingFields", { count: invalidOrders.length }));
         return;
       }
 
@@ -71,10 +73,10 @@ const BulkOrder = () => {
       const errorCount = result.filter((r) => r.status === "error").length;
       
       toast.success(
-        `Bulk order created: ${successCount} successful, ${errorCount} failed`
+        t("steadfast.bulkOrderSuccess", { success: successCount, failed: errorCount })
       );
     } catch (error) {
-      const errorMessage = error?.data?.message || "Failed to create bulk orders";
+      const errorMessage = error?.data?.message || t("steadfast.bulkOrderFailed");
       const errorDetails = error?.data?.details;
       
       if (error?.status === 429) {
@@ -121,15 +123,15 @@ const BulkOrder = () => {
 
   return (
     <div className="max-w-4xl">
-      <h3 className="text-lg font-semibold mb-4">Bulk Order Create</h3>
+      <h3 className="text-lg font-semibold mb-4">{t("steadfast.bulkOrderCreate")}</h3>
       <p className="text-sm text-black/60 dark:text-white/60 mb-4">
-        Upload a JSON file with up to 500 orders. Each order must include: invoice, recipient_name, recipient_phone, recipient_address, and cod_amount.
+        {t("steadfast.bulkOrderDesc")}
       </p>
 
       <div className="flex gap-4 mb-4">
         <label className="flex items-center gap-2 px-4 py-2 bg-black/5 dark:bg-white/5 rounded-lg cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
           <Upload className="h-4 w-4" />
-          <span>Upload JSON File</span>
+          <span>{t("steadfast.uploadJsonFile")}</span>
           <input
             type="file"
             accept=".json"
@@ -142,14 +144,14 @@ const BulkOrder = () => {
           className="flex items-center gap-2 px-4 py-2 bg-black/5 dark:bg-white/5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
         >
           <Download className="h-4 w-4" />
-          <span>Download Template</span>
+          <span>{t("steadfast.downloadTemplate")}</span>
         </button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="text-black/50 dark:text-white/50 text-sm ml-1 mb-2 block">
-            Orders JSON (Array format)
+            {t("steadfast.ordersJsonLabel")}
           </label>
           <textarea
             value={ordersJson}
@@ -160,13 +162,13 @@ const BulkOrder = () => {
           />
         </div>
         <PrimaryButton type="submit" isLoading={isLoading}>
-          Create Bulk Orders
+          {t("steadfast.createBulkOrders")}
         </PrimaryButton>
       </form>
 
       {results && (
         <div className="mt-6">
-          <h4 className="text-md font-semibold mb-2">Results</h4>
+          <h4 className="text-md font-semibold mb-2">{t("steadfast.results")}</h4>
           <div className="max-h-96 overflow-y-auto border border-black/10 dark:border-white/10 rounded-lg p-4">
             <pre className="text-xs font-mono overflow-x-auto">
               {JSON.stringify(results, null, 2)}

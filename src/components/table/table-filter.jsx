@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 
 const TableFilterResult = ({
@@ -8,6 +9,7 @@ const TableFilterResult = ({
   filters,
   setFilters,
 }) => {
+  const { t } = useTranslation();
   const startItem = totalItems > 0 ? (page - 1) * pageSize + 1 : 0;
   const endItem = Math.min(page * pageSize, totalItems);
 
@@ -19,8 +21,8 @@ const TableFilterResult = ({
     <div className="mt-6 ml-4 fl gap-6 h-12">
       <p className="text-sm">
         {totalItems > 0
-          ? `${startItem} - ${endItem} items shown of ${totalItems}`
-          : "0 items found!"}
+          ? t("table.itemsShownOf", { start: startItem, end: endItem, total: totalItems })
+          : t("table.itemsFound")}
       </p>
       <div className="fl gap-2.5">
         {Object.entries(filters).map(([key, filter]) =>

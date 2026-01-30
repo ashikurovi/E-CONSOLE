@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   useGetReturnRequestsQuery,
   useCreateReturnRequestMutation,
@@ -12,6 +13,7 @@ import { Plus, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const ReturnRequests = () => {
+  const { t } = useTranslation();
   const { data: returnRequests = [], isLoading, refetch } = useGetReturnRequestsQuery();
   const [createReturnRequest, { isLoading: isCreating }] = useCreateReturnRequestMutation();
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -32,7 +34,7 @@ const ReturnRequests = () => {
     
     const identifier = formData.consignment_id || formData.invoice || formData.tracking_code;
     if (!identifier) {
-      toast.error("Please provide consignment_id, invoice, or tracking_code");
+      toast.error(t("steadfast.provideIdentifier"));
       return;
     }
 
@@ -45,7 +47,7 @@ const ReturnRequests = () => {
       };
 
       await createReturnRequest(body).unwrap();
-      toast.success("Return request created successfully");
+      toast.success(t("steadfast.returnRequestCreated"));
       setShowCreateForm(false);
       setFormData({
         consignment_id: "",
@@ -55,7 +57,7 @@ const ReturnRequests = () => {
       });
       refetch();
     } catch (error) {
-      const errorMessage = error?.data?.message || "Failed to create return request";
+      const errorMessage = error?.data?.message || t("steadfast.returnRequestFailed");
       const errorDetails = error?.data?.details;
       
       if (error?.status === 429) {
@@ -84,12 +86,12 @@ const ReturnRequests = () => {
   };
 
   const headers = [
-    { header: "ID", field: "id" },
-    { header: "Consignment ID", field: "consignment_id" },
-    { header: "Reason", field: "reason" },
-    { header: "Status", field: "status" },
-    { header: "Created At", field: "created_at" },
-    { header: "Actions", field: "actions" },
+    { header: t("steadfast.id"), field: "id" },
+    { header: t("steadfast.consignmentIdLabel"), field: "consignment_id" },
+    { header: t("steadfast.reason"), field: "reason" },
+    { header: t("steadfast.status"), field: "status" },
+    { header: t("steadfast.createdAt"), field: "created_at" },
+    { header: t("common.actions"), field: "actions" },
   ];
 
   const tableData = returnRequests.map((request) => ({
@@ -123,23 +125,23 @@ const ReturnRequests = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Return Requests</h3>
+        <h3 className="text-lg font-semibold">{t("steadfast.returnRequestsTitle")}</h3>
         <PrimaryButton
           onClick={() => setShowCreateForm(!showCreateForm)}
           className="px-4"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Create Return Request
+          {t("steadfast.createReturnRequest")}
         </PrimaryButton>
       </div>
 
       {showCreateForm && (
         <div className="mb-6 p-4 border border-black/10 dark:border-white/10 rounded-lg">
-          <h4 className="text-md font-semibold mb-4">Create Return Request</h4>
+          <h4 className="text-md font-semibold mb-4">{t("steadfast.createReturnRequest")}</h4>
           <form onSubmit={handleCreate} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <TextField
-                label="Consignment ID"
+                label={t("steadfast.consignmentIdLabel")}
                 name="consignment_id"
                 value={formData.consignment_id}
                 onChange={(e) =>
@@ -148,7 +150,7 @@ const ReturnRequests = () => {
                 placeholder="1424107"
               />
               <TextField
-                label="Invoice ID"
+                label={t("steadfast.invoiceIdLabel")}
                 name="invoice"
                 value={formData.invoice}
                 onChange={(e) =>
@@ -157,7 +159,7 @@ const ReturnRequests = () => {
                 placeholder="INV-001"
               />
               <TextField
-                label="Tracking Code"
+                label={t("steadfast.trackingCodeLabel")}
                 name="tracking_code"
                 value={formData.tracking_code}
                 onChange={(e) =>
@@ -167,19 +169,19 @@ const ReturnRequests = () => {
               />
             </div>
             <TextField
-              label="Reason (Optional)"
+              label={t("steadfast.reasonOptional")}
               name="reason"
               value={formData.reason}
               onChange={(e) =>
                 setFormData({ ...formData, reason: e.target.value })
               }
-              placeholder="Return reason"
+              placeholder={t("steadfast.returnReasonPlaceholder")}
               multiline
               rows={2}
             />
             <div className="flex gap-2">
               <PrimaryButton type="submit" isLoading={isCreating}>
-                Create Request
+                {t("steadfast.createRequest")}
               </PrimaryButton>
               <PrimaryButton
                 type="button"
@@ -194,7 +196,7 @@ const ReturnRequests = () => {
                   });
                 }}
               >
-                Cancel
+                {t("common.cancel")}
               </PrimaryButton>
             </div>
           </form>
@@ -211,7 +213,7 @@ const ReturnRequests = () => {
 
       {selectedRequest && (
         <div className="mt-6 p-4 border border-black/10 dark:border-white/10 rounded-lg">
-          <h4 className="text-md font-semibold mb-4">Return Request Details</h4>
+          <h4 className="text-md font-semibold mb-4">{t("steadfast.returnRequestDetails")}</h4>
           <pre className="text-xs font-mono overflow-x-auto">
             {JSON.stringify(selectedRequest, null, 2)}
           </pre>

@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import toast from "react-hot-toast";
@@ -11,6 +12,7 @@ import {
 import { userDetailsFetched } from "@/features/auth/authSlice";
 
 const OrderNotificationSettings = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const authUser = useSelector((state) => state.auth.user);
   const userId = authUser?.userId || authUser?.sub || authUser?.id;
@@ -38,7 +40,7 @@ const OrderNotificationSettings = () => {
 
   const onSubmit = async (data) => {
     if (!userId) {
-      toast.error("User ID not found");
+      toast.error(t("settings.userIdNotFound"));
       return;
     }
 
@@ -59,57 +61,57 @@ const OrderNotificationSettings = () => {
         // Update Redux state and localStorage immediately
         dispatch(userDetailsFetched(payload));
         
-        toast.success("Notification settings saved successfully");
+        toast.success(t("settings.notificationSaved"));
       } else {
-        toast.error(res?.error?.data?.message || "Failed to save notification settings");
+        toast.error(res?.error?.data?.message || t("settings.notificationSaveFailed"));
       }
     } catch (e) {
-      toast.error("Failed to save notification settings");
+      toast.error(t("settings.notificationSaveFailedShort"));
     }
   };
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">Order Notification Settings</h2>
+      <h2 className="text-xl font-semibold mb-4">{t("settings.orderNotificationSettings")}</h2>
       <Card className="border border-black/10 dark:border-white/10">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
             <Bell className="h-5 w-5 text-yellow-500" />
-            <CardTitle className="text-base font-semibold">Notification Preferences</CardTitle>
+            <CardTitle className="text-base font-semibold">{t("settings.notificationPreferences")}</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
-                Email for Order Notifications
+                {t("settings.emailForNotifications")}
               </label>
               <input
                 type="email"
                 {...register("email")}
                 className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                placeholder="Enter email address for notifications"
+                placeholder={t("settings.emailPlaceholder")}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
-                WhatsApp Number for Order Notifications
+                {t("settings.whatsappForNotifications")}
               </label>
               <input
                 type="tel"
                 {...register("whatsapp")}
                 className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                placeholder="Enter WhatsApp number (e.g., +8801234567890)"
+                placeholder={t("settings.whatsappPlaceholder")}
               />
             </div>
             <div className="pt-2">
               <Button type="submit" className="w-full" disabled={isUpdating}>
                 <Bell className="h-4 w-4 mr-2" />
-                {isUpdating ? "Saving..." : "Save Notification Settings"}
+                {isUpdating ? t("common.saving") : t("createEdit.saveNotificationSettings")}
               </Button>
             </div>
             <div className="text-xs text-black/50 dark:text-white/50 mt-2">
-              You will receive order notifications on the provided email and WhatsApp number
+              {t("settings.notificationNote")}
             </div>
           </form>
         </CardContent>

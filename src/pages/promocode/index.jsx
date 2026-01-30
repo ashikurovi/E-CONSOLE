@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import DeleteModal from "@/components/modals/DeleteModal";
 import { useSelector } from "react-redux";
 
 const PromocodePage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const { data: promos = [], isLoading } = useGetPromocodesQuery({ companyId: authUser?.companyId });
@@ -23,16 +25,16 @@ const PromocodePage = () => {
 
   const headers = useMemo(
     () => [
-      { header: "Code", field: "code" },
-      { header: "Type", field: "type" },
-      { header: "Value", field: "value" },
-      { header: "Uses", field: "uses" },
-      { header: "Min Order", field: "minOrder" },
-      { header: "Period", field: "period" },
-      { header: "Status", field: "status" },
-      { header: "Actions", field: "actions" },
+      { header: t("promocodes.code"), field: "code" },
+      { header: t("promocodes.type"), field: "type" },
+      { header: t("promocodes.value"), field: "value" },
+      { header: t("promocodes.uses"), field: "uses" },
+      { header: t("promocodes.minOrder"), field: "minOrder" },
+      { header: t("promocodes.period"), field: "period" },
+      { header: t("common.status"), field: "status" },
+      { header: t("common.actions"), field: "actions" },
     ],
-    []
+    [t]
   );
 
   const tableData = useMemo(
@@ -62,7 +64,7 @@ const PromocodePage = () => {
 
         return {
           code: p?.code ?? "-",
-          type: isPercentage ? "Percentage" : "Fixed",
+          type: isPercentage ? t("promocodes.percentage") : t("promocodes.fixed"),
           value: valueLabel,
           uses:
             p?.maxUses != null
@@ -70,7 +72,7 @@ const PromocodePage = () => {
               : `${p?.currentUses ?? 0}`,
           minOrder: minOrderLabel,
           period: periodLabel,
-          status: p?.isActive ? "Active" : "Disabled",
+          status: p?.isActive ? t("common.active") : t("common.disabled"),
           actions: (
             <div className="flex items-center gap-2 justify-end">
               <Button
@@ -79,16 +81,16 @@ const PromocodePage = () => {
                 onClick={async () => {
                   const res = await toggleActive({ id: p.id, active: !p.isActive });
                   if (res?.data) {
-                    toast.success("Promocode state updated");
+                    toast.success(t("promocodes.promocodeStateUpdated"));
                   } else {
-                    toast.error(res?.error?.data?.message || "Failed to update promocode");
+                    toast.error(res?.error?.data?.message || t("promocodes.promocodeUpdateFailed"));
                   }
                 }}
                 disabled={isToggling}
                 className={`${p?.isActive
                   ? "bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
                   : "bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"}`}
-                title={p?.isActive ? "Disable" : "Activate"}
+                title={p?.isActive ? t("common.disable") : t("common.activate")}
               >
                 <Power className="h-4 w-4" />
               </Button>
@@ -98,7 +100,7 @@ const PromocodePage = () => {
                 size="icon"
                 className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                 onClick={() => navigate(`/promocodes/${p.id}/edit`)}
-                title="Edit"
+                title={t("common.edit")}
               >
                 <Pencil className="h-4 w-4" />
               </Button>
@@ -109,7 +111,7 @@ const PromocodePage = () => {
                 onClick={() => setDeleteModal({ isOpen: true, promocode: p })}
                 disabled={isDeleting}
                 className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
-                title="Delete"
+                title={t("common.delete")}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -117,15 +119,15 @@ const PromocodePage = () => {
           ),
         };
       }),
-    [promos, deletePromocode, toggleActive, isDeleting, isToggling]
+    [promos, deletePromocode, toggleActive, isDeleting, isToggling, t]
   );
 
   return (
     <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Promocodes</h3>
+        <h3 className="text-lg font-medium">{t("promocodes.title")}</h3>
         <Button size="sm" onClick={() => navigate("/promocodes/create")}>
-          Add Promocode
+          {t("promocodes.addPromocode")}
         </Button>
       </div>
 
@@ -145,14 +147,14 @@ const PromocodePage = () => {
           if (!deleteModal.promocode) return;
           const res = await deletePromocode(deleteModal.promocode.id);
           if (res?.data) {
-            toast.success("Promocode deleted");
+            toast.success(t("promocodes.promocodeDeleted"));
             setDeleteModal({ isOpen: false, promocode: null });
           } else {
-            toast.error(res?.error?.data?.message || "Failed to delete promocode");
+            toast.error(res?.error?.data?.message || t("common.failed"));
           }
         }}
-        title="Delete Promocode"
-        description="This action cannot be undone. This will permanently delete the promocode."
+        title={t("promocodes.deletePromocode")}
+        description={t("promocodes.deletePromocodeDesc")}
         itemName={deleteModal.promocode?.code}
         isLoading={isDeleting}
       />

@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -14,14 +15,18 @@ import {
 } from "@/components/ui/dialog";
 import { useUpdateRefundPolicyMutation } from "@/features/refund-policy/refundPolicyApiSlice";
 
-const refundPolicySchema = yup.object().shape({
-    content: yup
-        .string()
-        .required("Content is required")
-        .min(10, "Content must be at least 10 characters"),
-});
-
 function RefundPolicyEditForm({ policy, onClose }) {
+    const { t } = useTranslation();
+    const refundPolicySchema = useMemo(
+        () =>
+            yup.object().shape({
+                content: yup
+                    .string()
+                    .required(t("refundPolicy.validation.contentRequired"))
+                    .min(10, t("refundPolicy.validation.contentMin")),
+            }),
+        [t]
+    );
     const { control, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: yupResolver(refundPolicySchema),
         defaultValues: {
@@ -45,10 +50,10 @@ function RefundPolicyEditForm({ policy, onClose }) {
 
         const res = await updateRefundPolicy({ id: policy.id, ...payload });
         if (res?.data) {
-            toast.success("Refund Policy updated");
+            toast.success(t("refundPolicy.updatedSuccess"));
             onClose();
         } else {
-            toast.error(res?.error?.data?.message || "Failed to update Refund Policy");
+            toast.error(res?.error?.data?.message || t("refundPolicy.updateFailed"));
         }
     };
 
@@ -56,7 +61,7 @@ function RefundPolicyEditForm({ policy, onClose }) {
         <Dialog open={true} onOpenChange={onClose}>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Edit Refund Policy</DialogTitle>
+                    <DialogTitle>{t("refundPolicy.editTitle")}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
                     <Controller
@@ -64,7 +69,7 @@ function RefundPolicyEditForm({ policy, onClose }) {
                         control={control}
                         render={({ field }) => (
                             <RichTextEditor
-                                placeholder="Refund Policy Content"
+                                placeholder={t("refundPolicy.contentPlaceholder")}
                                 value={field.value || ""}
                                 onChange={field.onChange}
                                 error={errors.content}
@@ -79,10 +84,10 @@ function RefundPolicyEditForm({ policy, onClose }) {
                             onClick={onClose}
                             className="bg-red-500 hover:bg-red-600 text-white"
                         >
-                            Cancel
+                            {t("common.cancel")}
                         </Button>
                         <Button type="submit" disabled={isUpdating} className="bg-green-500 hover:bg-green-600 text-white">
-                            {isUpdating ? "Updating..." : "Update"}
+                            {isUpdating ? t("common.updating") : t("common.update")}
                         </Button>
                     </DialogFooter>
                 </form>

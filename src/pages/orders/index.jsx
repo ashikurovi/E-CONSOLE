@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import { generateOrderInvoice } from "@/utils/orderInvoice";
 import { useSelector } from "react-redux";
 
 const OrdersPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const { data: orders = [], isLoading } = useGetOrdersQuery({ companyId: authUser?.companyId });
@@ -39,15 +41,15 @@ const OrdersPage = () => {
 
   const headers = useMemo(
     () => [
-      { header: "ID", field: "id" },
-      { header: "Customer", field: "customer" },
-      { header: "Status", field: "status" },
-      { header: "Paid", field: "paid" },
-      { header: "Total", field: "total" },
-      { header: "Created", field: "createdAt" },
-      { header: "Actions", field: "actions" },
+      { header: t("orders.id"), field: "id" },
+      { header: t("orders.customer"), field: "customer" },
+      { header: t("common.status"), field: "status" },
+      { header: t("orders.paid"), field: "paid" },
+      { header: t("orders.total"), field: "total" },
+      { header: t("orders.created"), field: "createdAt" },
+      { header: t("common.actions"), field: "actions" },
     ],
-    []
+    [t]
   );
 
   const tableData = useMemo(
@@ -56,7 +58,7 @@ const OrdersPage = () => {
         id: o.id,
         customer: o.customer?.name ?? o.customerName ?? "-",
         status: o.status ?? "-",
-        paid: o.isPaid ? "Yes" : "No",
+        paid: o.isPaid ? t("orders.yes") : t("orders.no"),
         total:
           typeof o.totalAmount === "number"
             ? `$${Number(o.totalAmount).toFixed(2)}`
@@ -82,13 +84,13 @@ const OrdersPage = () => {
                       size="icon"
                       className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
                       onClick={() => navigate(`/orders/${o.id}`)}
-                      title="View"
+                      title={t("common.view")}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>
-                    <p>View Order</p>
+                    <TooltipContent>
+                    <p>{t("orders.viewOrder")}</p>
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>
@@ -100,9 +102,9 @@ const OrdersPage = () => {
                       onClick={() => {
                         try {
                           generateOrderInvoice(o);
-                          toast.success("Invoice generated successfully");
+                          toast.success(t("orders.invoiceGenerated"));
                         } catch (error) {
-                          toast.error("Failed to generate invoice");
+                          toast.error(t("orders.invoiceFailed"));
                           console.error("Invoice generation error:", error);
                         }
                       }}
@@ -111,7 +113,7 @@ const OrdersPage = () => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Generate Invoice</p>
+                    <p>{t("orders.generateInvoice")}</p>
                   </TooltipContent>
                 </Tooltip>
                 {!isFinalStatus && (
@@ -122,13 +124,13 @@ const OrdersPage = () => {
                         size="icon"
                         className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                         onClick={() => navigate(`/orders/${o.id}/edit`)}
-                        title="Edit"
+                        title={t("common.edit")}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Edit Order</p>
+                      <p>{t("orders.editOrder")}</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -142,8 +144,8 @@ const OrdersPage = () => {
                         className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
                         onClick={async () => {
                           const res = await processOrder({ id: o.id });
-                          if (res?.data) toast.success("Order marked as processing");
-                          else toast.error(res?.error?.data?.message || "Failed to process");
+                          if (res?.data) toast.success(t("orders.orderProcessing"));
+                          else toast.error(res?.error?.data?.message || t("common.failed"));
                         }}
                         disabled={isProcessing}
                       >
@@ -151,7 +153,7 @@ const OrdersPage = () => {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Mark as Processing</p>
+                      <p>{t("orders.markProcessing")}</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -166,8 +168,8 @@ const OrdersPage = () => {
                         onClick={async () => {
                           const paymentRef = window.prompt("Payment reference (optional):") || undefined;
                           const res = await completeOrder({ id: o.id, paymentRef });
-                          if (res?.data) toast.success("Order marked as paid");
-                          else toast.error(res?.error?.data?.message || "Failed to complete");
+                          if (res?.data) toast.success(t("orders.orderPaid"));
+                          else toast.error(res?.error?.data?.message || t("common.failed"));
                         }}
                         disabled={isCompleting}
                       >
@@ -175,7 +177,7 @@ const OrdersPage = () => {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Mark as Completed/Paid</p>
+                      <p>{t("orders.markCompleted")}</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -189,8 +191,8 @@ const OrdersPage = () => {
                         className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                         onClick={async () => {
                           const res = await deliverOrder(o.id);
-                          if (res?.data) toast.success("Order delivered");
-                          else toast.error(res?.error?.data?.message || "Failed to deliver");
+                          if (res?.data) toast.success(t("orders.orderDelivered"));
+                          else toast.error(res?.error?.data?.message || t("common.failed"));
                         }}
                         disabled={isDelivering}
                       >
@@ -198,7 +200,7 @@ const OrdersPage = () => {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Mark as Delivered</p>
+                      <p>{t("orders.markDelivered")}</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -214,8 +216,8 @@ const OrdersPage = () => {
                           const trackingId = window.prompt("Tracking ID:") || undefined;
                           const provider = window.prompt("Shipping Provider:") || undefined;
                           const res = await shipOrder({ id: o.id, trackingId, provider });
-                          if (res?.data) toast.success("Order shipped");
-                          else toast.error(res?.error?.data?.message || "Failed to ship");
+                          if (res?.data) toast.success(t("orders.orderShipped"));
+                          else toast.error(res?.error?.data?.message || t("common.failed"));
                         }}
                         disabled={isShipping}
                       >
@@ -223,7 +225,7 @@ const OrdersPage = () => {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Mark as Shipped</p>
+                      <p>{t("orders.markShipped")}</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -238,8 +240,8 @@ const OrdersPage = () => {
                         onClick={async () => {
                           if (!confirm("Cancel this order?")) return;
                           const res = await cancelOrder(o.id);
-                          if (res?.data) toast.success("Order cancelled");
-                          else toast.error(res?.error?.data?.message || "Failed to cancel");
+                          if (res?.data) toast.success(t("orders.orderCancelled"));
+                          else toast.error(res?.error?.data?.message || t("common.failed"));
                         }}
                         disabled={isCancelling}
                       >
@@ -247,7 +249,7 @@ const OrdersPage = () => {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Cancel Order</p>
+                      <p>{t("orders.cancelOrder")}</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -262,8 +264,8 @@ const OrdersPage = () => {
                         onClick={async () => {
                           if (!confirm("Refund this order?")) return;
                           const res = await refundOrder(o.id);
-                          if (res?.data) toast.success("Order refunded");
-                          else toast.error(res?.error?.data?.message || "Failed to refund");
+                          if (res?.data) toast.success(t("orders.orderRefunded"));
+                          else toast.error(res?.error?.data?.message || t("common.failed"));
                         }}
                         disabled={isRefunding}
                       >
@@ -271,7 +273,7 @@ const OrdersPage = () => {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Refund Order</p>
+                      <p>{t("orders.refundOrder")}</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -290,7 +292,7 @@ const OrdersPage = () => {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Delete Order</p>
+                      <p>{t("orders.deleteOrder")}</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -299,26 +301,26 @@ const OrdersPage = () => {
           );
         })(),
       })),
-    [orders, completeOrder, processOrder, deliverOrder, shipOrder, cancelOrder, refundOrder, deleteOrder, isCompleting, isProcessing, isDelivering, isShipping, isCancelling, isRefunding, isDeleting]
+    [orders, completeOrder, processOrder, deliverOrder, shipOrder, cancelOrder, refundOrder, deleteOrder, isCompleting, isProcessing, isDelivering, isShipping, isCancelling, isRefunding, isDeleting, t]
   );
 
   const handleDelete = async () => {
     if (!deleteModal.order) return;
     const res = await deleteOrder(deleteModal.order.id);
     if (res?.data || !res?.error) {
-      toast.success("Order deleted");
+      toast.success(t("orders.orderDeleted"));
       setDeleteModal({ isOpen: false, order: null });
     } else {
-      toast.error(res?.error?.data?.message || "Failed to delete order");
+      toast.error(res?.error?.data?.message || t("common.failed"));
     }
   };
 
   return (
     <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-xl font-semibold">Orders</h2>
+        <h2 className="text-xl font-semibold">{t("orders.title")}</h2>
         <Button size="sm" onClick={() => navigate("/orders/create")}>
-          Create Order
+          {t("orders.createOrder")}
         </Button>
       </div>
       <ReusableTable
@@ -334,8 +336,8 @@ const OrdersPage = () => {
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, order: null })}
         onConfirm={handleDelete}
-        title="Delete Order"
-        description="This action cannot be undone. This will permanently delete the order."
+        title={t("orders.deleteOrder")}
+        description={t("orders.deleteOrderDesc")}
         itemName={deleteModal.order ? `Order #${deleteModal.order.id}` : ""}
         isLoading={isDeleting}
       />

@@ -1,5 +1,6 @@
 // CategoriesPage component
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import ConfirmModal from "@/components/modals/ConfirmModal";
 import { useSelector } from "react-redux";
 
 const CategoriesPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const { data: categories = [], isLoading } = useGetCategoriesQuery({ companyId: authUser?.companyId });
@@ -28,22 +30,22 @@ const CategoriesPage = () => {
 
   const headers = useMemo(
     () => [
-      { header: "Name", field: "name" },
-      { header: "Slug", field: "slug" },
-      { header: "Parent", field: "parentName" },
-      { header: "Status", field: "status" },
+      { header: t("common.name"), field: "name" },
+      { header: t("common.slug"), field: "slug" },
+      { header: t("common.parent"), field: "parentName" },
+      { header: t("common.status"), field: "status" },
       {
         header: (
           <span className="inline-flex items-center gap-1.5">
             <MoreVertical className="h-4 w-4" />
-            Actions
+            {t("common.actions")}
           </span>
         ),
         field: "actions",
         sortable: false
       },
     ],
-    []
+    [t]
   );
 
   const parentOptions = useMemo(
@@ -61,7 +63,7 @@ const CategoriesPage = () => {
         name: cat.name,
         slug: cat.slug,
         parentName: cat.parent?.name || "-",
-        status: cat.isActive ? "Active" : "Disabled",
+        status: cat.isActive ? t("common.active") : t("common.disabled"),
         actions: (
           <div className="flex items-center gap-2 justify-end">
             <Button
@@ -69,7 +71,7 @@ const CategoriesPage = () => {
               size="icon"
               onClick={() => navigate(`/categories/${cat.id}/edit`)}
               className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-              title="Edit"
+              title={t("common.edit")}
             >
               <Pencil className="h-4 w-4" />
             </Button>
@@ -81,7 +83,7 @@ const CategoriesPage = () => {
               className={`${cat.isActive
                 ? "bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
                 : "bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"}`}
-              title={cat.isActive ? "Disable" : "Activate"}
+              title={cat.isActive ? t("common.disable") : t("common.activate")}
             >
               <Power className="h-4 w-4" />
             </Button>
@@ -91,14 +93,14 @@ const CategoriesPage = () => {
               onClick={() => setDeleteModal({ isOpen: true, category: cat })}
               disabled={isDeleting}
               className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
-              title="Delete"
+              title={t("common.delete")}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         ),
       })),
-    [categories, deleteCategory, toggleActive, isDeleting, isToggling]
+    [categories, deleteCategory, toggleActive, isDeleting, isToggling, t]
   );
 
 
@@ -106,9 +108,9 @@ const CategoriesPage = () => {
   return (
     <div className=" bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
       <div className="flex items-center py-2 justify-between">
-        <h3 className="text-lg font-medium">Categories</h3>
+        <h3 className="text-lg font-medium">{t("nav.categories")}</h3>
         <Button size="sm" onClick={() => navigate("/categories/create")}>
-          Add Category
+          {t("common.add")} {t("nav.categories")}
         </Button>
       </div>
 
@@ -129,14 +131,14 @@ const CategoriesPage = () => {
           if (!deleteModal.category) return;
           const res = await deleteCategory(deleteModal.category.id);
           if (res?.data) {
-            toast.success("Category deleted");
+            toast.success(t("modal.categoryDeleted"));
             setDeleteModal({ isOpen: false, category: null });
           } else {
-            toast.error("Failed to delete category");
+            toast.error(t("modal.categoryDeleteFailed"));
           }
         }}
-        title="Delete Category"
-        description="This will permanently delete the category and cannot be undone."
+        title={t("modal.deleteCategory")}
+        description={t("modal.deleteCategoryDesc")}
         itemName={deleteModal.category?.name}
         isLoading={isDeleting}
       />
@@ -148,20 +150,18 @@ const CategoriesPage = () => {
           if (!toggleModal.category) return;
           const res = await toggleActive({ id: toggleModal.category.id });
           if (res?.data) {
-            toast.success(`Category ${toggleModal.category.isActive ? "disabled" : "enabled"}`);
+            toast.success(t("modal.categoryUpdated", { status: toggleModal.category?.isActive ? t("common.disable") : t("common.enable") }));
             setToggleModal({ isOpen: false, category: null });
           } else {
-            toast.error("Failed to update category");
+            toast.error(t("modal.categoryUpdateFailed"));
           }
         }}
-        title={toggleModal.category?.isActive ? "Disable Category" : "Enable Category"}
-        description={toggleModal.category?.isActive
-          ? "This will disable the category and it will not be visible to users."
-          : "This will enable the category and make it visible to users."}
-        itemName={`Are you sure you want to ${toggleModal.category?.isActive ? "disable" : "enable"} "${toggleModal.category?.name}"?`}
+        title={toggleModal.category?.isActive ? t("modal.disableCategory") : t("modal.enableCategory")}
+        description={toggleModal.category?.isActive ? t("modal.disableCategoryDesc") : t("modal.enableCategoryDesc")}
+        itemName={`${toggleModal.category?.isActive ? t("common.disable") : t("common.enable")} "${toggleModal.category?.name}"?`}
         isLoading={isToggling}
         type={toggleModal.category?.isActive ? "warning" : "success"}
-        confirmText={toggleModal.category?.isActive ? "Disable" : "Enable"}
+        confirmText={toggleModal.category?.isActive ? t("common.disable") : t("common.enable")}
       />
     </div>
   );

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
     Dialog,
     DialogTrigger,
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
 
 export default function ProductViewModal({ product }) {
+    const { t } = useTranslation();
     if (!product) return null;
 
     const primaryImage = product.images?.find((img) => img.isPrimary) || product.images?.[0];
@@ -22,40 +24,40 @@ export default function ProductViewModal({ product }) {
                     variant="ghost"
                     size="icon"
                     className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-                    title="View"
+                    title={t("common.view")}
                 >
                     <Eye className="h-4 w-4" />
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Product Details</DialogTitle>
+                    <DialogTitle>{t("products.productDetails")}</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-6 mt-4">
                     {/* Basic Information Section */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
                             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-                                Basic Information
+                                {t("products.basicInformation")}
                             </h3>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="text-sm font-medium text-black/70 dark:text-white/70">Name</label>
+                                <label className="text-sm font-medium text-black/70 dark:text-white/70">{t("common.name")}</label>
                                 <p className="text-base text-black dark:text-white mt-1">{product.name || product.title || "-"}</p>
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-black/70 dark:text-white/70">SKU</label>
+                                <label className="text-sm font-medium text-black/70 dark:text-white/70">{t("products.sku")}</label>
                                 <p className="text-base text-black dark:text-white mt-1">{product.sku || "-"}</p>
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-black/70 dark:text-white/70">Category</label>
+                                <label className="text-sm font-medium text-black/70 dark:text-white/70">{t("products.category")}</label>
                                 <p className="text-base text-black dark:text-white mt-1">
                                     {product.category?.name || "-"}
                                 </p>
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-black/70 dark:text-white/70">Status</label>
+                                <label className="text-sm font-medium text-black/70 dark:text-white/70">{t("common.status")}</label>
                                 <p className="text-base text-black dark:text-white mt-1">
                                     <span
                                         className={`px-2 py-1 rounded text-sm ${product.isActive
@@ -63,7 +65,7 @@ export default function ProductViewModal({ product }) {
                                                 : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
                                             }`}
                                     >
-                                        {product.isActive ? "Active" : "Disabled"}
+                                        {product.isActive ? t("common.active") : t("common.disabled")}
                                     </span>
                                 </p>
                             </div>
@@ -73,7 +75,7 @@ export default function ProductViewModal({ product }) {
                         {product.description && (
                             <div>
                                 <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                                    Description
+                                    {t("products.description")}
                                 </label>
                                 <p className="text-base text-black dark:text-white mt-1 whitespace-pre-wrap">
                                     {product.description}
@@ -86,12 +88,12 @@ export default function ProductViewModal({ product }) {
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
                             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-                                Pricing
+                                {t("products.pricing")}
                             </h3>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="text-sm font-medium text-black/70 dark:text-white/70">Price</label>
+                                <label className="text-sm font-medium text-black/70 dark:text-white/70">{t("products.price")}</label>
                                 <p className="text-base text-black dark:text-white mt-1">
                                     {typeof product.price === "number"
                                         ? `$${product.price.toFixed(2)}`
@@ -101,7 +103,7 @@ export default function ProductViewModal({ product }) {
                             {product.discountPrice && (
                                 <div>
                                     <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                                        Discount Price
+                                        {t("products.discountPrice")}
                                     </label>
                                     <p className="text-base text-green-600 dark:text-green-400 mt-1 font-semibold">
                                         ${typeof product.discountPrice === "number"
@@ -117,7 +119,7 @@ export default function ProductViewModal({ product }) {
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
                             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-                                Images & Media
+                                {t("products.imagesAndMedia")}
                             </h3>
                         </div>
 
@@ -125,12 +127,12 @@ export default function ProductViewModal({ product }) {
                         {product.thumbnail && (
                             <div>
                                 <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
-                                    Thumbnail
+                                    {t("products.thumbnail")}
                                 </label>
                                 <div className="border border-black/5 dark:border-white/10 rounded-md overflow-hidden">
                                     <img
                                         src={product.thumbnail}
-                                        alt="Product thumbnail"
+                                        alt={t("products.productThumbnailAlt")}
                                         className="w-full h-64 object-cover"
                                         onError={(e) => {
                                             e.target.style.display = "none";
@@ -144,12 +146,12 @@ export default function ProductViewModal({ product }) {
                         {primaryImage && (
                             <div>
                                 <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
-                                    Primary Image
+                                    {t("products.primaryImage")}
                                 </label>
                                 <div className="border border-black/5 dark:border-white/10 rounded-md overflow-hidden">
                                     <img
                                         src={primaryImage.url}
-                                        alt={primaryImage.alt || "Primary product image"}
+                                        alt={primaryImage.alt || t("products.primaryProductImageAlt")}
                                         className="w-full h-64 object-cover"
                                         onError={(e) => {
                                             e.target.style.display = "none";
@@ -168,7 +170,7 @@ export default function ProductViewModal({ product }) {
                         {otherImages.length > 0 && (
                             <div>
                                 <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
-                                    Additional Images ({otherImages.length})
+                                    {t("products.additionalImages")} ({otherImages.length})
                                 </label>
                                 <div className="grid grid-cols-2 gap-4">
                                     {otherImages.map((img, index) => (
@@ -178,7 +180,7 @@ export default function ProductViewModal({ product }) {
                                         >
                                             <img
                                                 src={img.url}
-                                                alt={img.alt || `Product image ${index + 1}`}
+                                                alt={img.alt || `${t("products.productImageAlt")} ${index + 1}`}
                                                 className="w-full h-48 object-cover"
                                                 onError={(e) => {
                                                     e.target.style.display = "none";
@@ -199,7 +201,7 @@ export default function ProductViewModal({ product }) {
                         {product.images && product.images.length > 0 && !primaryImage && (
                             <div>
                                 <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
-                                    Product Images ({product.images.length})
+                                    {t("products.productImages")} ({product.images.length})
                                 </label>
                                 <div className="grid grid-cols-2 gap-4">
                                     {product.images.map((img, index) => (
@@ -209,7 +211,7 @@ export default function ProductViewModal({ product }) {
                                         >
                                             <img
                                                 src={img.url}
-                                                alt={img.alt || `Product image ${index + 1}`}
+                                                alt={img.alt || `${t("products.productImageAlt")} ${index + 1}`}
                                                 className="w-full h-48 object-cover"
                                                 onError={(e) => {
                                                     e.target.style.display = "none";
@@ -222,7 +224,7 @@ export default function ProductViewModal({ product }) {
                                             )}
                                             {img.isPrimary && (
                                                 <p className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
-                                                    Primary
+                                                    {t("products.primary")}
                                                 </p>
                                             )}
                                         </div>

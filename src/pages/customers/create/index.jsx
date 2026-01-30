@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -11,21 +12,47 @@ import Dropdown from "@/components/dropdown/dropdown";
 import { useCreateUserMutation } from "@/features/user/userApiSlice";
 import { useSelector } from "react-redux";
 
-const customerSchema = yup.object().shape({
-  name: yup.string().required("Full name is required").min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters").trim(),
-  email: yup.string().required("Email address is required").email("Please enter a valid email address").trim(),
-  phone: yup.string().max(20, "Phone number must be less than 20 characters").matches(/^[+\d\s()-]*$/, "Please enter a valid phone number").trim(),
-  address: yup.string().max(500, "Address must be less than 500 characters").trim(),
-});
-
-const roleOptions = [
-  { label: "Customer", value: "customer" },
-  { label: "Admin", value: "admin" },
-];
-
 function CreateCustomerPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [roleOption, setRoleOption] = useState(roleOptions[0]);
+
+  const roleOptions = useMemo(
+    () => [
+      { label: t("customers.customerRole"), value: "customer" },
+      { label: t("customers.adminRole"), value: "admin" },
+    ],
+    [t]
+  );
+
+  const [roleOption, setRoleOption] = useState(() => roleOptions[0]);
+
+  useEffect(() => {
+    setRoleOption((prev) => roleOptions.find((o) => o.value === prev?.value) || roleOptions[0]);
+  }, [roleOptions]);
+
+  const customerSchema = useMemo(
+    () =>
+      yup.object().shape({
+        name: yup
+          .string()
+          .required(t("customers.validation.fullNameRequired"))
+          .min(2, t("customers.validation.nameMin"))
+          .max(100, t("customers.validation.nameMax"))
+          .trim(),
+        email: yup
+          .string()
+          .required(t("customers.validation.emailRequired"))
+          .email(t("customers.validation.emailInvalid"))
+          .trim(),
+        phone: yup
+          .string()
+          .max(20, t("customers.validation.phoneMax"))
+          .matches(/^[+\d\s()-]*$/, t("customers.validation.phoneInvalid"))
+          .trim(),
+        address: yup.string().max(500, t("customers.validation.addressMax")).trim(),
+      }),
+    [t]
+  );
   const {
     register,
     handleSubmit,
@@ -54,12 +81,12 @@ function CreateCustomerPage() {
 
     const res = await createUser({ body: payload, params });
     if (res?.data) {
-      toast.success("Customer created");
+      toast.success(t("customers.customerCreated"));
       reset();
       setRoleOption(roleOptions[0]);
       navigate("/customers");
     } else {
-      toast.error(res?.error?.data?.message || "Failed to create customer");
+      toast.error(res?.error?.data?.message || t("customers.customerCreateFailed"));
     }
   };
 
@@ -75,9 +102,9 @@ function CreateCustomerPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold">Create Customer</h1>
+          <h1 className="text-2xl font-semibold">{t("createEdit.createCustomer")}</h1>
           <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            Add a new customer to your system
+            {t("createEdit.createCustomerDesc")}
           </p>
         </div>
       </div>
@@ -86,27 +113,27 @@ function CreateCustomerPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Personal Information
+              {t("customers.personalInformation")}
             </h3>
           </div>
           <TextField
-            label="Full Name *"
-            placeholder="John Doe"
+            label={t("customers.fullName")}
+            placeholder={t("customers.fullNamePlaceholder")}
             register={register}
             name="name"
             error={errors.name?.message}
           />
           <TextField
-            label="Email Address *"
-            placeholder="john@example.com"
+            label={t("customers.emailAddress")}
+            placeholder={t("customers.emailPlaceholder")}
             register={register}
             name="email"
             type="email"
             error={errors.email?.message}
           />
           <TextField
-            label="Phone Number"
-            placeholder="+880XXXXXXXXXX (optional)"
+            label={t("customers.phoneNumber")}
+            placeholder={t("customers.phonePlaceholder")}
             register={register}
             name="phone"
             error={errors.phone?.message}
@@ -116,12 +143,12 @@ function CreateCustomerPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Address
+              {t("customers.address")}
             </h3>
           </div>
           <TextField
-            label="Complete Address"
-            placeholder="Enter full address (optional)"
+            label={t("customers.completeAddress")}
+            placeholder={t("customers.addressPlaceholder")}
             register={register}
             name="address"
             error={errors.address?.message}
@@ -131,27 +158,27 @@ function CreateCustomerPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Role & Permissions
+              {t("customers.roleAndPermissions")}
             </h3>
           </div>
           <Dropdown
-            name="Role"
+            name={t("customers.role")}
             options={roleOptions}
             setSelectedOption={setRoleOption}
             className="py-2"
           >
             {roleOption?.label || (
-              <span className="text-black/50 dark:text-white/50">Select Role</span>
+              <span className="text-black/50 dark:text-white/50">{t("customers.selectRole")}</span>
             )}
           </Dropdown>
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
           <Button variant="ghost" type="button" className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400" onClick={() => navigate("/customers")}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button type="submit" disabled={isCreating} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-            {isCreating ? "Creating..." : "Create"}
+            {isCreating ? t("common.creating") : t("common.create")}
           </Button>
         </div>
       </form>

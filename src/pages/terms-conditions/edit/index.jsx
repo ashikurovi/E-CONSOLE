@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -10,16 +11,21 @@ import RichTextEditor from "@/components/input/RichTextEditor";
 import { useUpdateTermsConditionsMutation, useGetTermsConditionsQuery } from "@/features/terms-conditions/termsConditionsApiSlice";
 import { useSelector } from "react-redux";
 
-const termsConditionsSchema = yup.object().shape({
-  content: yup
-    .string()
-    .required("Content is required")
-    .min(10, "Content must be at least 10 characters"),
-});
-
 function EditTermsConditionsPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+
+  const termsConditionsSchema = useMemo(
+    () =>
+      yup.object().shape({
+        content: yup
+          .string()
+          .required(t("termsConditions.validation.contentRequired"))
+          .min(10, t("termsConditions.validation.contentMin")),
+      }),
+    [t]
+  );
   const { data: terms = [] } = useGetTermsConditionsQuery({ companyId: user?.companyId });
   const latestTerms = terms.length > 0 ? terms[0] : null;
 
@@ -68,9 +74,9 @@ function EditTermsConditionsPage() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold">Terms & Conditions Not Found</h1>
+            <h1 className="text-2xl font-semibold">{t("termsConditions.notFound")}</h1>
             <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-              Please create terms & conditions first
+              {t("termsConditions.notFoundDesc")}
             </p>
           </div>
         </div>
@@ -90,9 +96,9 @@ function EditTermsConditionsPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold">Edit Terms & Conditions</h1>
+          <h1 className="text-2xl font-semibold">{t("termsConditions.editTitle")}</h1>
           <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            Update your terms and conditions content
+            {t("termsConditions.editDesc")}
           </p>
         </div>
       </div>
@@ -103,7 +109,7 @@ function EditTermsConditionsPage() {
           control={control}
           render={({ field }) => (
             <RichTextEditor
-              placeholder="Terms & Conditions Content"
+              placeholder={t("termsConditions.contentPlaceholder")}
               value={field.value || ""}
               onChange={field.onChange}
               error={errors.content}
@@ -118,10 +124,10 @@ function EditTermsConditionsPage() {
             onClick={() => navigate("/terms-conditions")}
             className="bg-red-500 hover:bg-red-600 text-white"
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button type="submit" disabled={isUpdating} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-            {isUpdating ? "Updating..." : "Update"}
+            {isUpdating ? t("common.updating") : t("common.update")}
           </Button>
         </div>
       </form>

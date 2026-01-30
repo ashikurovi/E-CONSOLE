@@ -16,7 +16,7 @@ export const DarkModeProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    document.body.classList.toggle("dark", isDark);
+    document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
 
   return (

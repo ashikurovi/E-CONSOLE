@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -9,15 +10,20 @@ import { ArrowLeft } from "lucide-react";
 import RichTextEditor from "@/components/input/RichTextEditor";
 import { useCreatePrivacyPolicyMutation } from "@/features/privacy-policy/privacyPolicyApiSlice";
 
-const privacyPolicySchema = yup.object().shape({
-    content: yup
-        .string()
-        .required("Content is required")
-        .min(10, "Content must be at least 10 characters"),
-});
-
 function CreatePrivacyPolicyPage() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
+
+    const privacyPolicySchema = useMemo(
+        () =>
+            yup.object().shape({
+                content: yup
+                    .string()
+                    .required(t("privacyPolicy.validation.contentRequired"))
+                    .min(10, t("privacyPolicy.validation.contentMin")),
+            }),
+        [t]
+    );
     const { control, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: yupResolver(privacyPolicySchema),
     });
@@ -31,12 +37,12 @@ function CreatePrivacyPolicyPage() {
 
             const res = await createPrivacyPolicy(payload).unwrap();
             if (res) {
-                toast.success("Privacy Policy created");
+                toast.success(t("privacyPolicy.createdSuccess"));
                 reset();
                 navigate("/privacy-policy");
             }
         } catch (error) {
-            toast.error(error?.data?.message || error?.message || "Failed to create Privacy Policy");
+            toast.error(error?.data?.message || error?.message || t("privacyPolicy.createFailed"));
         }
     };
 
@@ -52,9 +58,9 @@ function CreatePrivacyPolicyPage() {
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-semibold">Create Privacy Policy</h1>
+                    <h1 className="text-2xl font-semibold">{t("privacyPolicy.createTitle")}</h1>
                     <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-                        Create a new privacy policy for your store
+                        {t("privacyPolicy.createDesc")}
                     </p>
                 </div>
             </div>
@@ -65,7 +71,7 @@ function CreatePrivacyPolicyPage() {
                     control={control}
                     render={({ field }) => (
                         <RichTextEditor
-                            placeholder="Privacy Policy Content"
+                            placeholder={t("privacyPolicy.contentPlaceholder")}
                             value={field.value || ""}
                             onChange={field.onChange}
                             error={errors.content}
@@ -80,10 +86,10 @@ function CreatePrivacyPolicyPage() {
                         onClick={() => navigate("/privacy-policy")}
                         className="bg-red-500 hover:bg-red-600 text-white"
                     >
-                        Cancel
+                        {t("common.cancel")}
                     </Button>
                     <Button type="submit" disabled={isCreating} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-                        {isCreating ? "Creating..." : "Create"}
+                        {isCreating ? t("common.creating") : t("common.create")}
                     </Button>
                 </div>
             </form>

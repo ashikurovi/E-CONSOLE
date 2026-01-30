@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -15,23 +16,27 @@ import {
 } from "@/components/ui/dialog";
 import { useCreateHelpMutation } from "@/features/help/helpApiSlice";
 
-// Yup validation schema
-const helpSchema = yup.object().shape({
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Please enter a valid email address")
-    .trim(),
-  issue: yup
-    .string()
-    .required("Issue description is required")
-    .min(10, "Issue description must be at least 10 characters")
-    .max(500, "Issue description must not exceed 500 characters")
-    .trim(),
-});
-
 function HelpForm() {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+
+  const helpSchema = useMemo(
+    () =>
+      yup.object().shape({
+        email: yup
+          .string()
+          .required(t("help.validation.emailRequired"))
+          .email(t("help.validation.emailInvalid"))
+          .trim(),
+        issue: yup
+          .string()
+          .required(t("help.validation.issueRequired"))
+          .min(10, t("help.validation.issueMin"))
+          .max(500, t("help.validation.issueMax"))
+          .trim(),
+      }),
+    [t]
+  );
   const {
     register,
     handleSubmit,
@@ -51,34 +56,34 @@ function HelpForm() {
 
     const res = await createHelp(payload);
     if (res?.data) {
-      toast.success("Help ticket created");
+      toast.success(t("help.ticketCreated"));
       reset();
       setIsOpen(false);
     } else {
-      toast.error(res?.error?.data?.message || "Failed to create ticket");
+      toast.error(res?.error?.data?.message || t("help.ticketFailed"));
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">Create Ticket</Button>
+        <Button size="sm">{t("help.createTicket")}</Button>
       </DialogTrigger>
       <DialogContent className="h-[450px]">
         <DialogHeader>
-          <DialogTitle>Create Help Ticket</DialogTitle>
+          <DialogTitle>{t("help.createHelpTicket")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
           {/* Contact Information Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-                Contact Information
+                {t("help.contactInformation")}
               </h3>
             </div>
             <TextField 
-              label="Your Email Address *" 
-              placeholder="your.email@example.com" 
+              label={t("help.yourEmail")} 
+              placeholder={t("help.emailPlaceholder")} 
               type="email" 
               register={register} 
               name="email" 
@@ -90,12 +95,12 @@ function HelpForm() {
           <div className="space-y-4">
             <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-                Issue Details
+                {t("help.issueDetails")}
               </h3>
             </div>
             <TextField 
-              label="Issue Description *" 
-              placeholder="Please describe your issue in detail..." 
+              label={t("help.issueDescription")} 
+              placeholder={t("help.issuePlaceholder")} 
               multiline 
               rows={4} 
               register={register} 
@@ -106,10 +111,10 @@ function HelpForm() {
           <DialogFooter>
             <div className="flex items-center w-full justify-end gap-2">
               <Button className="btn-cancel" variant="ghost" type="button" onClick={() => setIsOpen(false)}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button className="btn-submit" type="submit" disabled={isCreating}>
-                {isCreating ? "Creating..." : "Create"}
+                {isCreating ? t("common.creating") : t("common.create")}
               </Button>
             </div>
           </DialogFooter>

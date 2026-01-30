@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -65,6 +66,7 @@ const productEditSchema = yup.object().shape({
 });
 
 export default function ProductEditPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
@@ -164,7 +166,7 @@ export default function ProductEditPage() {
     if (thumbnailFile && typeof thumbnailFile === "object") {
       thumbnailUrl = await uploadImage(thumbnailFile);
       if (!thumbnailUrl) {
-        toast.error("Failed to upload thumbnail");
+        toast.error(t("productForm.failedUploadThumbnailShort"));
         return;
       }
     }
@@ -197,11 +199,11 @@ export default function ProductEditPage() {
     }
 
     if (!selectedCategory?.value) {
-      toast.error("Category is required");
+      toast.error(t("productForm.categoryRequired"));
       return;
     }
     if (!user?.companyId) {
-      toast.error("Missing company context");
+      toast.error(t("productForm.missingCompanyContext"));
       return;
     }
 
@@ -220,10 +222,10 @@ export default function ProductEditPage() {
     const params = { companyId: user.companyId };
     const res = await updateProduct({ id: product.id, body: payload, params });
     if (res?.data) {
-      toast.success("Product updated");
+      toast.success(t("productForm.productUpdated"));
       navigate(`/products/${id}`);
     } else {
-      toast.error(res?.error?.data?.message || "Failed to update product");
+      toast.error(res?.error?.data?.message || t("productForm.productUpdateFailed"));
     }
   };
 
@@ -262,9 +264,9 @@ export default function ProductEditPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold">Edit Product</h1>
+          <h1 className="text-2xl font-semibold">{t("productForm.editProduct")}</h1>
           <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            Update product information
+            {t("createEdit.updateProduct")}
           </p>
         </div>
       </div>
@@ -274,26 +276,26 @@ export default function ProductEditPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Basic Information
+              {t("forms.basicInfo")}
             </h3>
           </div>
           <TextField
-            label="Product Name *"
-            placeholder="Enter product name"
+            label={`${t("productForm.productName")} *`}
+            placeholder={t("productForm.productNamePlaceholder")}
             register={register}
             name="name"
             error={errors.name?.message}
           />
           <TextField
-            label="SKU"
-            placeholder="Enter SKU (optional)"
+            label={t("products.sku")}
+            placeholder={t("productForm.skuPlaceholder")}
             register={register}
             name="sku"
             error={errors.sku?.message}
           />
           <TextField 
-            label="Description"
-            placeholder="Enter product description"
+            label={t("productForm.description")}
+            placeholder={t("productForm.descriptionPlaceholder")}
             register={register}
             name="description"
             multiline
@@ -306,13 +308,13 @@ export default function ProductEditPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Pricing
+              {t("productForm.pricing")}
             </h3>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <TextField
-              label="Price *"
-              placeholder="0.00"
+              label={`${t("productForm.price")} *`}
+              placeholder={t("productForm.pricePlaceholder")}
               register={register}
               name="price"
               type="number"
@@ -320,8 +322,8 @@ export default function ProductEditPage() {
               error={errors.price?.message}
             />
             <TextField
-              label="Discount Price"
-              placeholder="0.00 (optional)"
+              label={t("productForm.discountPrice")}
+              placeholder={t("productForm.priceOptionalPlaceholder")}
               register={register}
               name="discountPrice"
               type="number"
@@ -335,13 +337,13 @@ export default function ProductEditPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Inventory
+              {t("productForm.inventory")}
             </h3>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <TextField
-              label="Stock"
-              placeholder="0"
+              label={t("productForm.stock")}
+              placeholder={t("productForm.stockPlaceholder")}
               register={register}
               name="stock"
               type="number"
@@ -355,12 +357,12 @@ export default function ProductEditPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Product Images
+              {t("productForm.productImages")}
             </h3>
           </div>
           <FileUpload
-            placeholder="Choose thumbnail (optional)"
-            label="Thumbnail"
+            placeholder={t("productForm.chooseThumbnail")}
+            label={t("productForm.thumbnail")}
             register={register}
             name="thumbnail"
             accept="image/*"
@@ -370,7 +372,7 @@ export default function ProductEditPage() {
 
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <label className="text-black/50 dark:text-white/50 text-sm ml-1">Gallery Images</label>
+              <label className="text-black/50 dark:text-white/50 text-sm ml-1">{t("productForm.galleryImages")}</label>
               <Button
                 type="button"
                 variant="outline"
@@ -379,7 +381,7 @@ export default function ProductEditPage() {
                 className="flex items-center gap-1"
               >
                 <Plus className="h-4 w-4" />
-                Add Image
+                {t("common.addImage")}
               </Button>
             </div>
             <div className="space-y-3">
@@ -387,7 +389,7 @@ export default function ProductEditPage() {
                 <div key={index} className="border border-black/5 dark:border-white/10 p-3 rounded-md space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-black/70 dark:text-white/70">
-                      Image {index + 1}
+                      {t("productForm.imageNumber", { num: index + 1 })}
                     </span>
                     <div className="flex items-center gap-2">
                       <Checkbox
@@ -395,7 +397,7 @@ export default function ProductEditPage() {
                         value={img.isPrimary}
                         setValue={() => setPrimaryImage(index)}
                       >
-                        Primary
+                        {t("productForm.primary")}
                       </Checkbox>
                       <Button
                         type="button"
@@ -422,7 +424,7 @@ export default function ProductEditPage() {
                     />
                     <input
                       type="text"
-                      placeholder="Or enter image URL"
+                      placeholder={t("productForm.orEnterImageUrl")}
                       value={img.url || ""}
                       onChange={(e) => updateImage(index, "url", e.target.value)}
                       className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
@@ -430,7 +432,7 @@ export default function ProductEditPage() {
                   </div>
                   <input
                     type="text"
-                    placeholder="Alt text (optional)"
+                    placeholder={t("productForm.altTextPlaceholder")}
                     value={img.alt || ""}
                     onChange={(e) => updateImage(index, "alt", e.target.value)}
                     className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
@@ -460,7 +462,7 @@ export default function ProductEditPage() {
               ))}
               {imageFiles.length === 0 && (
                 <p className="text-sm text-black/50 dark:text-white/50 text-center py-4">
-                  No images added. Click "Add Image" to add product images.
+                  {t("common.noImagesAdded")}
                 </p>
               )}
             </div>
@@ -471,27 +473,27 @@ export default function ProductEditPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Category & Classification
+              {t("productForm.categoryClassification")}
             </h3>
           </div>
           <Dropdown
-            name="Category"
+            name={t("products.category")}
             options={categoryOptions}
             setSelectedOption={setSelectedCategory}
             className="py-2"
           >
             {selectedCategory?.label || (
-              <span className="text-black/50 dark:text-white/50">Select Category</span>
+              <span className="text-black/50 dark:text-white/50">{t("productForm.selectCategory")}</span>
             )}
           </Dropdown>
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
           <Button variant="ghost" type="button" className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700" onClick={() => navigate(`/products/${id}`)}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button type="submit" disabled={isUpdating || isUploading} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-            {isUpdating || isUploading ? "Updating..." : "Update"}
+            {isUpdating || isUploading ? t("common.updating") : t("common.update")}
           </Button>
         </div>
       </form>

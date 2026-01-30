@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -11,34 +12,73 @@ import Checkbox from "@/components/input/Checkbox";
 import Dropdown from "@/components/dropdown/dropdown";
 import { useCreatePromocodeMutation } from "@/features/promocode/promocodeApiSlice";
 
-const discountTypeOptions = [
-  { label: "Percentage", value: "percentage" },
-  { label: "Fixed", value: "fixed" },
-];
-
-const promocodeSchema = yup.object().shape({
-  code: yup.string().required("Code is required").min(2, "Code must be at least 2 characters").max(50, "Code must be less than 50 characters"),
-  description: yup.string().nullable().transform((value) => (value === "" ? null : value)).max(500, "Description must be less than 500 characters"),
-  discountType: yup.string().required("Discount type is required").oneOf(discountTypeOptions.map((o) => o.value), "Please select a valid discount type"),
-  discountValue: yup.number().typeError("Discount value must be a number").required("Discount value is required").positive("Discount value must be greater than 0").test("max-percentage", "Percentage discount cannot exceed 100", function (value) {
-    const discountType = this.parent.discountType;
-    if (discountType === "percentage" && value > 100) {
-      return false;
-    }
-    return true;
-  }),
-  maxUses: yup.number().typeError("Max uses must be a number").nullable().transform((value, originalValue) => (originalValue === "" ? null : value)).min(1, "Max uses must be at least 1").integer("Max uses must be a whole number"),
-  minOrderAmount: yup.number().typeError("Min order amount must be a number").nullable().transform((value, originalValue) => (originalValue === "" ? null : value)).min(0, "Min order amount must be 0 or greater"),
-  startsAt: yup.string().nullable().transform((value) => (value === "" ? null : value)),
-  expiresAt: yup.string().nullable().transform((value) => (value === "" ? null : value)).test("after-starts", "Expires at must be after starts at", function (value) {
-    const startsAt = this.parent.startsAt;
-    if (!value || !startsAt) return true;
-    return new Date(value) > new Date(startsAt);
-  }),
-});
-
 function CreatePromocodePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const discountTypeOptions = useMemo(
+    () => [
+      { label: t("promocodes.percentage"), value: "percentage" },
+      { label: t("promocodes.fixed"), value: "fixed" },
+    ],
+    [t]
+  );
+
+  const promocodeSchema = useMemo(
+    () =>
+      yup.object().shape({
+        code: yup
+          .string()
+          .required(t("promocodes.validation.codeRequired"))
+          .min(2, t("promocodes.validation.codeMin"))
+          .max(50, t("promocodes.validation.codeMax")),
+        description: yup
+          .string()
+          .nullable()
+          .transform((value) => (value === "" ? null : value))
+          .max(500, t("promocodes.validation.descriptionMax")),
+        discountType: yup
+          .string()
+          .required(t("promocodes.validation.discountTypeRequired"))
+          .oneOf(["percentage", "fixed"], t("promocodes.validation.discountTypeInvalid")),
+        discountValue: yup
+          .number()
+          .typeError(t("promocodes.validation.discountValueNumber"))
+          .required(t("promocodes.validation.discountValueRequired"))
+          .positive(t("promocodes.validation.discountValuePositive"))
+          .test("max-percentage", t("promocodes.validation.percentageMax"), function (value) {
+            const discountType = this.parent.discountType;
+            if (discountType === "percentage" && value > 100) {
+              return false;
+            }
+            return true;
+          }),
+        maxUses: yup
+          .number()
+          .typeError(t("promocodes.validation.maxUsesNumber"))
+          .nullable()
+          .transform((value, originalValue) => (originalValue === "" ? null : value))
+          .min(1, t("promocodes.validation.maxUsesMin"))
+          .integer(t("promocodes.validation.maxUsesInteger")),
+        minOrderAmount: yup
+          .number()
+          .typeError(t("promocodes.validation.minOrderNumber"))
+          .nullable()
+          .transform((value, originalValue) => (originalValue === "" ? null : value))
+          .min(0, t("promocodes.validation.minOrderMin")),
+        startsAt: yup.string().nullable().transform((value) => (value === "" ? null : value)),
+        expiresAt: yup
+          .string()
+          .nullable()
+          .transform((value) => (value === "" ? null : value))
+          .test("after-starts", t("promocodes.validation.expiresAfterStarts"), function (value) {
+            const startsAt = this.parent.startsAt;
+            if (!value || !startsAt) return true;
+            return new Date(value) > new Date(startsAt);
+          }),
+      }),
+    [t]
+  );
   const [discountType, setDiscountType] = useState(null);
   const { register, handleSubmit, reset, setValue, formState: { errors }, trigger } = useForm({
     resolver: yupResolver(promocodeSchema),
@@ -71,12 +111,12 @@ function CreatePromocodePage() {
 
     const res = await createPromocode(payload);
     if (res?.data) {
-      toast.success("Promocode created");
+      toast.success(t("promocodes.promocodeCreated"));
       reset();
       setDiscountType(null);
       navigate("/promocodes");
     } else {
-      toast.error(res?.error?.data?.message || "Failed to create promocode");
+      toast.error(res?.error?.data?.message || t("promocodes.promocodeCreateFailed"));
     }
   };
 
@@ -92,9 +132,9 @@ function CreatePromocodePage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold">Create Promocode</h1>
+          <h1 className="text-2xl font-semibold">{t("createEdit.createPromocode")}</h1>
           <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            Add a new promotional code
+            {t("createEdit.createPromocodeDesc")}
           </p>
         </div>
       </div>
@@ -103,19 +143,19 @@ function CreatePromocodePage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Code Details
+              {t("promocodes.codeDetails")}
             </h3>
           </div>
           <TextField
-            label="Promocode *"
-            placeholder="SAVE20"
+            label={t("promocodes.promocodeLabel")}
+            placeholder={t("promocodes.promocodePlaceholder")}
             register={register}
             name="code"
             error={errors.code}
           />
           <TextField
-            label="Description"
-            placeholder="Description (optional)"
+            label={t("promocodes.descriptionLabel")}
+            placeholder={t("promocodes.descriptionPlaceholder")}
             register={register}
             name="description"
             error={errors.description}
@@ -125,13 +165,13 @@ function CreatePromocodePage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Discount Configuration
+              {t("promocodes.discountConfiguration")}
             </h3>
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-black/50 dark:text-white/50 text-sm ml-1">Discount Type</label>
+            <label className="text-black/50 dark:text-white/50 text-sm ml-1">{t("promocodes.discountType")}</label>
             <Dropdown
-              name="Discount Type"
+              name={t("promocodes.discountType")}
               options={discountTypeOptions}
               setSelectedOption={handleDiscountTypeChange}
               className="py-2"
@@ -144,9 +184,9 @@ function CreatePromocodePage() {
               <span className="text-red-500 text-xs ml-1">{errors.discountType.message}</span>
             )}
           </div>
-          <TextField
-            label="Discount Value *"
-            placeholder="10"
+            <TextField
+              label={t("promocodes.discountValue")}
+              placeholder={t("promocodes.discountValuePlaceholder")}
             register={register}
             name="discountValue"
             type="number"
@@ -170,8 +210,8 @@ function CreatePromocodePage() {
             error={errors.maxUses}
           />
           <TextField
-            label="Min Order Amount"
-            placeholder="500 (optional)"
+            label={t("promocodes.minOrderAmount")}
+            placeholder={t("promocodes.minOrderAmountPlaceholder")}
             register={register}
             name="minOrderAmount"
             type="number"
@@ -183,20 +223,20 @@ function CreatePromocodePage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Validity Period
+              {t("promocodes.validityPeriod")}
             </h3>
           </div>
           <TextField
-            label="Starts At"
-            placeholder="Select start date"
+            label={t("promocodes.startsAt")}
+            placeholder={t("promocodes.startsAtPlaceholder")}
             register={register}
             name="startsAt"
             type="datetime-local"
             error={errors.startsAt}
           />
           <TextField
-            label="Expires At"
-            placeholder="Select expiry date"
+            label={t("promocodes.expiresAt")}
+            placeholder={t("promocodes.expiresAtPlaceholder")}
             register={register}
             name="expiresAt"
             type="datetime-local"
@@ -207,22 +247,22 @@ function CreatePromocodePage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Status
+              {t("common.status")}
             </h3>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox className="bg-black text-white hover:bg-black/90" name="isActive" value={true} setValue={() => { }}>
-              Active by default
+              {t("promocodes.activeByDefault")}
             </Checkbox>
           </div>
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
           <Button variant="ghost" type="button" onClick={() => navigate("/promocodes")} className="bg-red-500 hover:bg-red-600 text-white">
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button type="submit" disabled={isCreating} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-            {isCreating ? "Creating..." : "Create"}
+            {isCreating ? t("common.creating") : t("common.create")}
           </Button>
         </div>
       </form>

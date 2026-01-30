@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import {
   useGetPriceCalculationMutation,
@@ -11,6 +12,7 @@ import PrimaryButton from "@/components/buttons/primary-button";
 import { Calculator, DollarSign } from "lucide-react";
 
 const PriceCalculator = () => {
+  const { t } = useTranslation();
   const [calculatePrice, { isLoading }] = useGetPriceCalculationMutation();
   const { data: citiesData } = useGetCitiesQuery();
   const [selectedCity, setSelectedCity] = useState("");
@@ -56,10 +58,10 @@ const PriceCalculator = () => {
       
       if (result.code === 200 || result.type === "success") {
         setPriceData(result.data?.data);
-        toast.success("Price calculated successfully!");
+        toast.success(t("pathao.priceCalculatedSuccess"));
       }
     } catch (error) {
-      const errorMessage = error?.data?.message || "Failed to calculate price";
+      const errorMessage = error?.data?.message || t("pathao.priceCalculateFailed");
       toast.error(errorMessage);
       console.error("Price calculation error:", error);
     }
@@ -72,23 +74,23 @@ const PriceCalculator = () => {
     <div className="max-w-3xl">
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
         <Calculator className="h-5 w-5" />
-        Delivery Price Calculator
+        {t("pathao.deliveryPriceCalculator")}
       </h3>
       <p className="text-sm text-black/60 dark:text-white/60 mb-6">
-        Calculate delivery charges based on location and item details
+        {t("pathao.priceCalculatorDesc")}
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="text-black/50 dark:text-white/50 text-sm ml-1 mb-2 block">
-              City *
+              {t("pathao.city")}
             </label>
             <select
-              {...register("recipient_city", { required: "City is required" })}
+              {...register("recipient_city", { required: t("pathao.cityRequired") })}
               className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
             >
-              <option value="">Select City</option>
+              <option value="">{t("pathao.selectCity")}</option>
               {cities.map((city) => (
                 <option key={city.city_id} value={city.city_id}>
                   {city.city_name}
@@ -102,14 +104,14 @@ const PriceCalculator = () => {
 
           <div>
             <label className="text-black/50 dark:text-white/50 text-sm ml-1 mb-2 block">
-              Zone *
+              {t("pathao.zone")}
             </label>
             <select
-              {...register("recipient_zone", { required: "Zone is required" })}
+              {...register("recipient_zone", { required: t("pathao.zoneRequired") })}
               className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
               disabled={!selectedCity}
             >
-              <option value="">Select Zone</option>
+              <option value="">{t("pathao.selectZone")}</option>
               {zones.map((zone) => (
                 <option key={zone.zone_id} value={zone.zone_id}>
                   {zone.zone_name}
@@ -164,7 +166,7 @@ const PriceCalculator = () => {
 
         <PrimaryButton type="submit" isLoading={isLoading} className="w-full md:w-auto">
           <Calculator className="h-4 w-4 mr-2" />
-          Calculate Price
+          {t("pathao.calculatePrice")}
         </PrimaryButton>
       </form>
 
@@ -176,19 +178,19 @@ const PriceCalculator = () => {
               <DollarSign className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <h4 className="font-semibold">Estimated Delivery Charge</h4>
-              <p className="text-xs text-black/60 dark:text-white/60">Based on your inputs</p>
+              <h4 className="font-semibold">{t("pathao.estimatedDeliveryCharge")}</h4>
+              <p className="text-xs text-black/60 dark:text-white/60">{t("pathao.basedOnInputs")}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-white dark:bg-[#242424] rounded-lg">
-              <p className="text-sm text-black/50 dark:text-white/50 mb-1">Base Price</p>
+              <p className="text-sm text-black/50 dark:text-white/50 mb-1">{t("pathao.basePrice")}</p>
               <p className="text-2xl font-bold">৳{priceData.price || "0"}</p>
             </div>
             {priceData.additional_charge > 0 && (
               <div className="p-4 bg-white dark:bg-[#242424] rounded-lg">
-                <p className="text-sm text-black/50 dark:text-white/50 mb-1">Additional Charge</p>
+                <p className="text-sm text-black/50 dark:text-white/50 mb-1">{t("pathao.additionalCharge")}</p>
                 <p className="text-2xl font-bold">৳{priceData.additional_charge}</p>
               </div>
             )}
@@ -196,7 +198,7 @@ const PriceCalculator = () => {
 
           {priceData.service_type && (
             <div className="mt-4 p-3 bg-white/50 dark:bg-black/20 rounded text-sm">
-              <span className="text-black/60 dark:text-white/60">Service Type: </span>
+              <span className="text-black/60 dark:text-white/60">{t("pathao.serviceType")}: </span>
               <span className="font-medium">{priceData.service_type}</span>
             </div>
           )}

@@ -1,5 +1,6 @@
 import React from "react";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 const TablePaginate = ({
@@ -10,6 +11,7 @@ const TablePaginate = ({
   currentPage,
   setCurrentPage,
 }) => {
+  const { t } = useTranslation();
   // Calculate total pages
   const totalPages = Math.ceil(total / pageSize);
 
@@ -34,7 +36,7 @@ const TablePaginate = ({
     <div className={`flex items-center justify-between ${className || ""}`}>
       {/* Left side: Items per page selector */}
       <div className="flex items-center gap-3">
-        <span className="text-sm text-black/70 dark:text-white/70">Items per page</span>
+        <span className="text-sm text-black/70 dark:text-white/70">{t("table.itemsPerPage")}</span>
         <select
           value={pageSize}
           onChange={handlePageSizeChange}
@@ -46,7 +48,7 @@ const TablePaginate = ({
           <option value={100}>100</option>
         </select>
         <span className="text-sm text-black/70 dark:text-white/70">
-          {startItem}-{endItem} of {total} items
+          {startItem}-{endItem} {t("table.of")} {total} {t("table.items")}
         </span>
       </div>
 
@@ -59,7 +61,7 @@ const TablePaginate = ({
           onClick={() => handlePageChange(1)}
           disabled={isFirstPage}
           className={`h-9 w-9 bg-black text-white ${isFirstPage ? "opacity-50 cursor-not-allowed" : "hover:bg-black/90"}`}
-          title="First page"
+          title={t("table.firstPage")}
         >
           <ChevronsLeft className="h-4 w-4" />
         </Button>
@@ -73,7 +75,7 @@ const TablePaginate = ({
           className={`h-9 px-3 gap-1 bg-black text-white ${isFirstPage ? "opacity-50 cursor-not-allowed" : "hover:bg-black/90"}`}
         >
           <ChevronLeft className="h-4 w-4" />
-          <span>Previous</span>
+          <span>{t("table.previous")}</span>
         </Button>
 
         {/* Current page indicator */}
@@ -81,7 +83,7 @@ const TablePaginate = ({
           <div className="h-9 px-3 flex items-center justify-center border border-black/20 dark:border-white/20 rounded-md bg-white dark:bg-[#242424] text-black dark:text-white text-sm font-medium min-w-[40px]">
             {currentPage}
           </div>
-          <span className="text-sm text-black/70 dark:text-white/70">of {totalPages}</span>
+          <span className="text-sm text-black/70 dark:text-white/70">{t("table.of")} {totalPages}</span>
         </div>
 
         {/* Next button */}
@@ -92,7 +94,7 @@ const TablePaginate = ({
           disabled={isLastPage}
           className={`h-9 px-3 gap-1 bg-black text-white ${isLastPage ? "opacity-50 cursor-not-allowed" : "hover:bg-black/90"}`}
         >
-          <span>Next</span>
+          <span>{t("table.next")}</span>
           <ChevronRight className="h-4 w-4" />
         </Button>
 
@@ -103,7 +105,7 @@ const TablePaginate = ({
           onClick={() => handlePageChange(totalPages)}
           disabled={isLastPage}
           className={`h-9 w-9 bg-black text-white ${isLastPage ? "opacity-50 cursor-not-allowed" : "hover:bg-black/90"}`}
-          title="Last page"
+          title={t("table.lastPage")}
         >
           <ChevronsRight className="h-4 w-4" />
         </Button>

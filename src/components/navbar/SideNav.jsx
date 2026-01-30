@@ -2,10 +2,12 @@
 import React, { useState, useRef } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { userLoggedOut } from "@/features/auth/authSlice";
 import { apiSlice } from "@/features/api/apiSlice";
 import toast from "react-hot-toast";
 import { navSections } from "./data";
+import LanguageSwitcher from "@/components/language/LanguageSwitcher";
 import { 
   FileText, 
   ShieldAlert, 
@@ -117,10 +119,12 @@ const getFilteredNav = (user) => {
   return navSections.map((section) => ({
     id: section.id,
     title: section.title,
+    tKey: section.tKey,
     items: section.items
       .filter((item) => hasPermission(user, item.permission))
       .map((item) => ({
         label: item.title,
+        tKey: item.tKey,
         to: item.link,
         icon: item.icon || iconMap[item.title],
         badge: item.title === "Review" ? "02" : undefined,
@@ -128,29 +132,29 @@ const getFilteredNav = (user) => {
   })).filter((section) => section.items.length > 0);
 };
 
-function SectionTitle({ children, isCollapsed }) {
+function SectionTitle({ children, isCollapsed, tKey, t }) {
   if (isCollapsed) return null;
   return (
-    <div className="px-4 pt-6 pb-2 text-xs tracking-wider text-gray-400">
-      {children}
+    <div className="px-4 pt-6 pb-2 text-xs tracking-wider text-gray-500 dark:text-gray-400">
+      {tKey ? t(tKey) : children}
     </div>
   );
 }
 
-function Item({ to, label, Icon, badge, isCollapsed }) {
+function Item({ to, label, tKey, Icon, badge, isCollapsed, t }) {
   return (
     <NavLink
       to={to}
       title={isCollapsed ? label : ""}
       className={({ isActive }) =>
         `group relative flex items-center gap-3 ${isCollapsed ? 'px-4 justify-center' : 'px-4'} py-2 rounded-xl transition-colors
-         ${isActive ? "bg-gray-800 text-white" : "text-gray-300 hover:bg-gray-800/60 hover:text-white"}`
+         ${isActive ? "bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white"}`
       }
     >
-      <Icon className="text-gray-400 group-hover:text-white flex-shrink-0" />
+      <Icon className="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0" />
       {!isCollapsed && (
         <>
-          <span className="flex-1">{label}</span>
+          <span className="flex-1">{tKey ? t(tKey) : label}</span>
           {badge && (
             <span className="ml-auto text-xs px-2 py-0.5 rounded-md bg-green-700 text-white">
               {badge}
@@ -166,6 +170,7 @@ function Item({ to, label, Icon, badge, isCollapsed }) {
 }
 
 export default function SideNav() {
+  const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -197,6 +202,7 @@ export default function SideNav() {
           results.push({
             ...item,
             sectionTitle: section.title,
+            sectionTKey: section.tKey,
           });
         }
       });
@@ -208,7 +214,7 @@ export default function SideNav() {
   const handleLogout = () => {
     dispatch(userLoggedOut());
     dispatch(apiSlice.util.resetApiState());
-    toast.success("Logged out successfully");
+    toast.success(t("auth.loggedOut"));
     navigate("/sign-in");
   };
 
@@ -243,15 +249,15 @@ export default function SideNav() {
   }, [showSearchResults]);
 
   return (
-    <aside className={`sticky left-0 top-0 h-screen ${isCollapsed ? 'w-20' : 'w-64'} bg-[#0b0f14] text-gray-200 border-r border-gray-800 flex flex-col transition-all duration-300`}>
+    <aside className={`sticky left-0 top-0 h-screen ${isCollapsed ? 'w-20' : 'w-64'} bg-white dark:bg-[#0b0f14] text-gray-800 dark:text-gray-200 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-all duration-300`}>
       {/* Header */}
-      <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 h-14 border-b border-gray-800`}>
+      <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 h-14 border-b border-gray-200 dark:border-gray-800`}>
         {isCollapsed ? (
           <Link to="/" className="flex items-center justify-center">
             {user?.companyLogo ? (
               <img
                 src={user.companyLogo}
-                alt={user?.companyName || "Company Logo"}
+                alt={user?.companyName || t("common.companyLogo")}
                 className="w-8 h-8 rounded-md object-cover flex-shrink-0"
                 onError={(e) => {
                   e.target.style.display = 'none';
@@ -270,7 +276,7 @@ export default function SideNav() {
                 {user?.companyLogo ? (
                   <img
                     src={user.companyLogo}
-                    alt={user?.companyName || "Company Logo"}
+                    alt={user?.companyName || t("common.companyLogo")}
                     className="w-8 h-8 rounded-md object-cover flex-shrink-0"
                     onError={(e) => {
                       e.target.style.display = 'none';
@@ -282,14 +288,14 @@ export default function SideNav() {
                   </div>
                 )}
                 <span className="font-semibold truncate">
-                  {user?.companyName || "Company"}
+                  {user?.companyName || t("common.company")}
                 </span>
               </div>
             </Link>
             <button 
               onClick={toggleSidebar}
-              title="Collapse sidebar"
-              className="bg-black text-white hover:bg-black/90 flex-shrink-0 p-1 rounded transition-transform hover:scale-110"
+              title={t("common.collapseSidebar")}
+              className="bg-gray-800 dark:bg-black text-white hover:bg-gray-700 dark:hover:bg-black/90 flex-shrink-0 p-1 rounded transition-transform hover:scale-110"
             >
               <MenuIcon />
             </button>
@@ -299,37 +305,37 @@ export default function SideNav() {
 
       {/* Search Bar */}
       {!isCollapsed && (
-        <div className="px-4 py-3 border-b border-gray-800 relative" ref={searchContainerRef}>
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 relative" ref={searchContainerRef}>
           <SearchBar 
-            placeholder="Search menu items..." 
+            placeholder={t("nav.searchMenuItems")} 
             searchValue={searchTerm}
             setSearhValue={handleSearchChange}
           />
           
           {/* Real-time Search Results Dropdown */}
           {showSearchResults && searchTerm && searchTerm.trim().length >= 1 && (
-            <div className="absolute top-full left-4 right-4 mt-2 bg-[#0b0f14] border border-gray-700 rounded-lg shadow-xl z-50 max-h-[60vh] overflow-y-auto">
+            <div className="absolute top-full left-4 right-4 mt-2 bg-white dark:bg-[#0b0f14] border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 max-h-[60vh] overflow-y-auto">
               <div className="p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-gray-200">
-                    Menu Items ({filteredNavItems.length})
+                  <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                    {t("nav.menuItems")} ({filteredNavItems.length})
                   </h3>
                   <button
                     onClick={() => {
                       setSearchTerm("");
                       setShowSearchResults(false);
                     }}
-                    className="text-xs text-gray-400 hover:text-gray-200"
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                   >
-                    Clear
+                    {t("common.clear")}
                   </button>
                 </div>
                 
                 {filteredNavItems.length === 0 ? (
                   <div className="text-center py-8">
                     <Search className="h-10 w-10 mx-auto text-gray-500 mb-3" />
-                    <p className="text-gray-400 text-sm">
-                      No menu items found for "{searchTerm}"
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      {t("nav.noMenuItemsFound", { term: searchTerm })}
                     </p>
                   </div>
                 ) : (
@@ -344,15 +350,15 @@ export default function SideNav() {
                             setSearchTerm("");
                             setShowSearchResults(false);
                           }}
-                          className="p-3 rounded-lg border border-gray-700 hover:bg-gray-800/60 cursor-pointer transition-colors flex items-center gap-3"
+                          className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800/60 cursor-pointer transition-colors flex items-center gap-3"
                         >
                           <IconComponent className="text-gray-400 flex-shrink-0" size={18} />
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-200 text-sm">
-                              {item.label}
+                            <p className="font-medium text-gray-800 dark:text-gray-200 text-sm">
+                              {item.tKey ? t(item.tKey) : item.label}
                             </p>
-                            <p className="text-xs text-gray-400 mt-1">
-                              {item.sectionTitle}
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              {item.sectionTKey ? t(item.sectionTKey) : item.sectionTitle}
                             </p>
                           </div>
                           {item.badge && (
@@ -375,16 +381,18 @@ export default function SideNav() {
       <nav className="flex-1 overflow-y-auto py-2">
         {nav.map((section) => (
           <div key={section.id} className="mb-6">
-            <SectionTitle isCollapsed={isCollapsed}>{section.title}</SectionTitle>
+            <SectionTitle isCollapsed={isCollapsed} tKey={section.tKey} t={t}>{section.title}</SectionTitle>
             <div className="space-y-1">
               {section.items.map((item) => (
                 <Item
                   key={item.label}
                   to={item.to}
                   label={item.label}
+                  tKey={item.tKey}
                   Icon={item.icon}
                   badge={item.badge}
                   isCollapsed={isCollapsed}
+                  t={t}
                 />
               ))}
             </div>
@@ -393,14 +401,17 @@ export default function SideNav() {
       </nav>
 
       {/* Footer */}
-      <div className="mt-auto px-4 py-3 border-t border-gray-800">
+      <div className="mt-auto px-4 py-3 border-t border-gray-200 dark:border-gray-800 space-y-2">
+        <div className="px-2">
+          <LanguageSwitcher variant="compact" />
+        </div>
         <button
           onClick={handleLogout}
-          title={isCollapsed ? "Logout" : ""}
-          className={`w-full flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''} px-4 py-2 rounded-xl transition-colors text-gray-300 hover:bg-gray-800/60 hover:text-white`}
+          title={isCollapsed ? t("common.logout") : ""}
+          className={`w-full flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''} px-4 py-2 rounded-xl transition-colors text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white`}
         >
           <LogoutIcon />
-          {!isCollapsed && <span>Logout</span>}
+          {!isCollapsed && <span>{t("common.logout")}</span>}
         </button>
       </div>
 
@@ -408,10 +419,10 @@ export default function SideNav() {
       {isCollapsed && (
         <button
           onClick={toggleSidebar}
-          title="Expand sidebar"
-          className="absolute -right-3 top-20 w-6 h-12 bg-gray-800 hover:bg-gray-700 rounded-r-md flex items-center justify-center transition-colors border border-l-0 border-gray-700 shadow-lg"
+          title={t("common.expandSidebar")}
+          className="absolute -right-3 top-20 w-6 h-12 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-r-md flex items-center justify-center transition-colors border border-l-0 border-gray-300 dark:border-gray-700 shadow-lg"
         >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="text-gray-400 hover:text-white">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
             <path d="M9 18l6-6-6-6" />
           </svg>
         </button>

@@ -1,17 +1,19 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useGetPoliceStationsQuery } from "@/features/steadfast/steadfastApiSlice";
 import ReusableTable from "@/components/table/reusable-table";
 
 const PoliceStations = () => {
+  const { t } = useTranslation();
   const { data: policeStations = [], isLoading } = useGetPoliceStationsQuery();
 
   // Determine headers based on data structure
   const getHeaders = () => {
     if (!policeStations || policeStations.length === 0) {
       return [
-        { header: "Name", field: "name" },
-        { header: "Address", field: "address" },
-        { header: "Phone", field: "phone" },
+        { header: t("steadfast.name"), field: "name" },
+        { header: t("steadfast.address"), field: "address" },
+        { header: t("steadfast.phone"), field: "phone" },
       ];
     }
 
@@ -36,9 +38,9 @@ const PoliceStations = () => {
 
   return (
     <div>
-      <h3 className="text-lg font-semibold mb-4">Police Stations</h3>
+      <h3 className="text-lg font-semibold mb-4">{t("steadfast.policeStationsTitle")}</h3>
       <p className="text-sm text-black/60 dark:text-white/60 mb-4">
-        List of available police stations
+        {t("steadfast.policeStationsDesc")}
       </p>
 
       <ReusableTable

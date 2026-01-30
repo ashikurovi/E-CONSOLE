@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -29,6 +30,7 @@ const categoryEditSchema = yup.object().shape({
 });
 
 const CategoryEditPage = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
@@ -132,9 +134,9 @@ const CategoryEditPage = () => {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold">Edit Category</h1>
+          <h1 className="text-2xl font-semibold">{t("createEdit.editCategory")}</h1>
           <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            Update category information
+            {t("createEdit.updateCategory")}
           </p>
         </div>
       </div>
@@ -143,18 +145,18 @@ const CategoryEditPage = () => {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Basic Information
+              {t("forms.basicInfo")}
             </h3>
           </div>
           <TextField
-            label="Category Name *"
-            placeholder="Enter category name"
+            label={`${t("forms.categoryName")} *`}
+            placeholder={t("forms.categoryName")}
             register={register}
             name="name"
             error={errors.name?.message}
           />
           <TextField
-            label="Slug"
+            label={t("common.slug")}
             placeholder="category-slug (optional)"
             register={register}
             name="slug"
@@ -165,12 +167,12 @@ const CategoryEditPage = () => {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Category Image
+              {t("forms.categoryImage")}
             </h3>
           </div>
           <FileUpload
-            placeholder="Choose photo (optional)"
-            label="Category Photo"
+            placeholder={t("forms.choosePhoto")}
+            label={t("forms.categoryPhoto")}
             register={register}
             name="photo"
             accept="image/*"
@@ -182,17 +184,17 @@ const CategoryEditPage = () => {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Category Hierarchy
+              {t("forms.categoryHierarchy")}
             </h3>
           </div>
           <Dropdown
-            name="Parent Category"
+            name={t("forms.parentCategory")}
             options={parentOptions}
             setSelectedOption={setSelectedParent}
             className="py-2"
           >
             {selectedParent?.label || (
-              <span className="text-black/50 dark:text-white/50">Select Parent (optional)</span>
+              <span className="text-black/50 dark:text-white/50">{t("forms.selectParent")}</span>
             )}
           </Dropdown>
         </div>
@@ -200,12 +202,12 @@ const CategoryEditPage = () => {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Status
+              {t("common.status")}
             </h3>
           </div>
           <label className="flex items-center gap-2">
             <input type="checkbox" {...register("isActive")} />
-            <span>Active</span>
+            <span>{t("common.active")}</span>
           </label>
         </div>
 
@@ -216,10 +218,10 @@ const CategoryEditPage = () => {
             onClick={() => navigate("/categories")}
             className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700"
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button type="submit" disabled={isUpdating || isUploading} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-            {isUpdating || isUploading ? "Processing..." : "Update"}
+            {isUpdating || isUploading ? t("common.processing") : t("common.update")}
           </Button>
         </div>
       </form>

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import {
 import { useSelector } from "react-redux";
 
 const CustomersPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const { data: users = [], isLoading } = useGetUsersQuery({ companyId: authUser?.companyId });
@@ -33,26 +35,26 @@ const CustomersPage = () => {
 
   const handleExport = () => {
     if (!users?.length) {
-      toast.error("No customers available to export");
+      toast.error(t("customers.noCustomersExport"));
       return;
     }
 
-    exportCustomersToPDF(users, "Customers");
+    exportCustomersToPDF(users, t("customers.title"));
   };
 
   const headers = useMemo(
     () => [
-      { header: "Name", field: "name" },
-      { header: "Email", field: "email" },
-      { header: "Phone", field: "phone" },
-      { header: "Role", field: "role" },
-      { header: "Successful Orders", field: "successfulOrdersCount" },
-      { header: "Cancelled Orders", field: "cancelledOrdersCount" },
-      { header: "Active", field: "isActive" },
-      { header: "Banned", field: "isBanned" },
-      { header: "Actions", field: "actions" },
+      { header: t("common.name"), field: "name" },
+      { header: t("customers.email"), field: "email" },
+      { header: t("customers.phone"), field: "phone" },
+      { header: t("customers.role"), field: "role" },
+      { header: t("customers.successfulOrders"), field: "successfulOrdersCount" },
+      { header: t("customers.cancelledOrders"), field: "cancelledOrdersCount" },
+      { header: t("common.active"), field: "isActive" },
+      { header: t("customers.banned"), field: "isBanned" },
+      { header: t("common.actions"), field: "actions" },
     ],
-    []
+    [t]
   );
 
   const tableData = useMemo(
@@ -64,8 +66,8 @@ const CustomersPage = () => {
         role: u.role ?? "customer",
         successfulOrdersCount: u.successfulOrdersCount ?? 0,
         cancelledOrdersCount: u.cancelledOrdersCount ?? 0,
-        isActive: u.isActive ? "Yes" : "No",
-        isBanned: u.isBanned ? "Yes" : "No",
+        isActive: u.isActive ? t("orders.yes") : t("orders.no"),
+        isBanned: u.isBanned ? t("orders.yes") : t("orders.no"),
         actions: (
           <div className="flex items-center  gap-2 justify-end">
             {u.isBanned ? (
@@ -77,13 +79,13 @@ const CustomersPage = () => {
                   setSelectedBanDetails({
                     name: u.name ?? "-",
                     email: u.email ?? "-",
-                    reason: u.banReason || "No reason provided",
+                    reason: u.banReason || t("customers.noReasonProvided"),
                     bannedAt: u.bannedAt
                       ? new Date(u.bannedAt).toLocaleString()
-                      : "Not available",
+                      : t("customers.notAvailable"),
                   });
                 }}
-                title="View ban details"
+                title={t("customers.viewBanDetails")}
               >
                 <Info className="h-4 w-4" />
               </Button>
@@ -95,11 +97,11 @@ const CustomersPage = () => {
                 className="bg-emerald-500 text-white hover:bg-emerald-600 dark:bg-emerald-400 dark:text-black dark:hover:bg-emerald-300 disabled:bg-emerald-400/70 disabled:text-white/80"
                 onClick={async () => {
                   const res = await unbanUser(u.id);
-                  if (res?.data) toast.success("User unbanned");
-                  else toast.error(res?.error?.data?.message || "Failed to unban");
+                  if (res?.data) toast.success(t("customers.userUnbanned"));
+                  else toast.error(res?.error?.data?.message || t("common.failed"));
                 }}
                 disabled={isUnbanning}
-                title="Unban"
+                title={t("customers.unban")}
               >
                 <ShieldCheck className="h-4 w-4" />
               </Button>
@@ -111,11 +113,11 @@ const CustomersPage = () => {
                 onClick={async () => {
                   const reason = window.prompt("Ban reason (optional):") || undefined;
                   const res = await banUser({ id: u.id, reason });
-                  if (res?.data) toast.success("User banned");
-                  else toast.error(res?.error?.data?.message || "Failed to ban");
+                  if (res?.data) toast.success(t("customers.userBanned"));
+                  else toast.error(res?.error?.data?.message || t("common.failed"));
                 }}
                 disabled={isBanning}
-                title="Ban"
+                title={t("customers.ban")}
               >
                 <ShieldX className="h-4 w-4" />
               </Button>
@@ -127,31 +129,31 @@ const CustomersPage = () => {
               onClick={async () => {
                 if (!window.confirm("Delete this user?")) return;
                 const res = await deleteUser(u.id);
-                if (res?.data || !res?.error) toast.success("User deleted");
-                else toast.error(res?.error?.data?.message || "Failed to delete");
+                if (res?.data || !res?.error) toast.success(t("customers.userDeleted"));
+                else toast.error(res?.error?.data?.message || t("common.failed"));
               }}
               disabled={isDeleting}
-              title="Delete"
+              title={t("common.delete")}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         ),
       })),
-    [users, deleteUser, banUser, unbanUser, isDeleting, isBanning, isUnbanning]
+    [users, deleteUser, banUser, unbanUser, isDeleting, isBanning, isUnbanning, t]
   );
 
   return (
     <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
       <div className="flex items-center justify-between mb-3 gap-4 flex-wrap">
-        <h2 className="text-xl font-semibold">Customers</h2>
+        <h2 className="text-xl font-semibold">{t("customers.title")}</h2>
         <div className="flex items-center gap-2 flex-wrap justify-end">
           <Button variant="outline" size="sm" onClick={handleExport}>
-            Export to PDF
+            {t("customers.exportToPdf")}
           </Button>
           <CustomerNotifications />
           <Button size="sm" onClick={() => navigate("/customers/create")}>
-            Add Customer
+            {t("customers.addCustomer")}
           </Button>
         </div>
       </div>
@@ -170,15 +172,15 @@ const CustomersPage = () => {
       >
         <DialogContent className="max-w-md h-[400px] ">
           <DialogHeader>
-            <DialogTitle>Ban Details</DialogTitle>
+            <DialogTitle>{t("customers.banDetails")}</DialogTitle>
             <DialogDescription className='text-center'>
-              View the ban context for this customer.
+              {t("customers.banDetailsDesc")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-2 ">
             <div>
               <p className="text-xs uppercase text-black/50 dark:text-white/50">
-                Customer
+                {t("orders.customer")}
               </p>
               <p className="font-medium">
                 {selectedBanDetails?.name} ({selectedBanDetails?.email})
@@ -186,7 +188,7 @@ const CustomersPage = () => {
             </div>
             <div>
               <p className="text-xs uppercase text-black/50 dark:text-white/50">
-                Reason
+                {t("customers.reason")}
               </p>
               <p className="font-medium whitespace-pre-wrap">
                 {selectedBanDetails?.reason}
@@ -194,7 +196,7 @@ const CustomersPage = () => {
             </div>
             <div>
               <p className="text-xs uppercase text-black/50 dark:text-white/50">
-                Banned At
+                {t("customers.bannedAt")}
               </p>
               <p className="font-medium">{selectedBanDetails?.bannedAt}</p>
             </div>
@@ -205,7 +207,7 @@ const CustomersPage = () => {
               className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:text-black dark:hover:bg-red-600"
               onClick={() => setSelectedBanDetails(null)}
             >
-              Close
+              {t("customers.close")}
             </Button>
           </DialogFooter>
         </DialogContent>

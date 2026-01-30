@@ -1,9 +1,14 @@
 import React from "react";
 import { FooterLogo } from "@/components/logo/nav-logo";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 
 const AuthPage = ({ children, title = "Welcome Back!", subtitle = "" }) => {
   return (
     <div className="min-h-screen w-screen flex items-center justify-center relative overflow-hidden dark:bg-gradient-to-br dark:from-gray-900 dark:via-black dark:to-gray-900 bg-gradient-to-br from-gray-50 via-white to-gray-100 p-4 sm:p-10">
+      {/* Theme Toggle - top right */}
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle variant="compact" />
+      </div>
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>

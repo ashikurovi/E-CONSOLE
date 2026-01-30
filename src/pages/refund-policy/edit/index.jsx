@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -10,16 +11,21 @@ import RichTextEditor from "@/components/input/RichTextEditor";
 import { useUpdateRefundPolicyMutation, useGetRefundPoliciesQuery } from "@/features/refund-policy/refundPolicyApiSlice";
 import { useSelector } from "react-redux";
 
-const refundPolicySchema = yup.object().shape({
-    content: yup
-        .string()
-        .required("Content is required")
-        .min(10, "Content must be at least 10 characters"),
-});
-
 function EditRefundPolicyPage() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { user } = useSelector((state) => state.auth);
+
+    const refundPolicySchema = useMemo(
+        () =>
+            yup.object().shape({
+                content: yup
+                    .string()
+                    .required(t("refundPolicy.validation.contentRequired"))
+                    .min(10, t("refundPolicy.validation.contentMin")),
+            }),
+        [t]
+    );
     const { data: policies = [] } = useGetRefundPoliciesQuery({ companyId: user?.companyId });
     const latestPolicy = policies.length > 0 ? policies[0] : null;
 
@@ -48,10 +54,10 @@ function EditRefundPolicyPage() {
 
         const res = await updateRefundPolicy({ id: latestPolicy.id, ...payload });
         if (res?.data) {
-            toast.success("Refund Policy updated");
+            toast.success(t("refundPolicy.updatedSuccess"));
             navigate("/refund-policy");
         } else {
-            toast.error(res?.error?.data?.message || "Failed to update Refund Policy");
+            toast.error(res?.error?.data?.message || t("refundPolicy.updateFailed"));
         }
     };
 
@@ -68,9 +74,9 @@ function EditRefundPolicyPage() {
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-semibold">Refund Policy Not Found</h1>
+                        <h1 className="text-2xl font-semibold">{t("refundPolicy.notFound")}</h1>
                         <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-                            Please create a refund policy first
+                            {t("refundPolicy.notFoundDesc")}
                         </p>
                     </div>
                 </div>
@@ -103,7 +109,7 @@ function EditRefundPolicyPage() {
                     control={control}
                     render={({ field }) => (
                         <RichTextEditor
-                            placeholder="Refund Policy Content"
+                            placeholder={t("refundPolicy.contentPlaceholder")}
                             value={field.value || ""}
                             onChange={field.onChange}
                             error={errors.content}
@@ -118,10 +124,10 @@ function EditRefundPolicyPage() {
                         onClick={() => navigate("/refund-policy")}
                         className="bg-red-500 hover:bg-red-600 text-white"
                     >
-                        Cancel
+                        {t("common.cancel")}
                     </Button>
                     <Button type="submit" disabled={isUpdating} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-                        {isUpdating ? "Updating..." : "Update"}
+                        {isUpdating ? t("common.updating") : t("common.update")}
                     </Button>
                 </div>
             </form>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useGetOrdersQuery, useViewOrderQuery } from "@/features/pathao/pathaoApiSlice";
 import { Package, Search, Eye, RefreshCw } from "lucide-react";
 import PrimaryButton from "@/components/buttons/primary-button";
@@ -6,6 +7,7 @@ import TextField from "@/components/input/TextField";
 import { useForm } from "react-hook-form";
 
 const ViewOrders = () => {
+  const { t } = useTranslation();
   const { data: ordersData, isLoading, refetch } = useGetOrdersQuery();
   const [searchConsignmentId, setSearchConsignmentId] = useState("");
   const [shouldFetch, setShouldFetch] = useState(false);
@@ -27,19 +29,19 @@ const ViewOrders = () => {
 
   return (
     <div className="max-w-6xl">
-      <h3 className="text-lg font-semibold mb-4">View Orders</h3>
+      <h3 className="text-lg font-semibold mb-4">{t("pathao.viewOrdersTitle")}</h3>
 
       {/* Search by Consignment ID */}
       <div className="mb-6 p-4 border border-black/10 dark:border-white/10 rounded-lg bg-black/5 dark:bg-white/5">
         <h4 className="text-md font-semibold mb-3 flex items-center gap-2">
           <Search className="h-4 w-4" />
-          Search Order by Consignment ID
+          {t("pathao.searchByConsignmentId")}
         </h4>
         <form onSubmit={handleSubmit(onSearch)} className="flex gap-2">
           <div className="flex-1">
             <input
-              {...register("consignment_id", { required: "Consignment ID is required" })}
-              placeholder="Enter Consignment ID"
+              {...register("consignment_id", { required: t("pathao.consignmentIdRequired") })}
+              placeholder={t("pathao.enterConsignmentId")}
               className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
             />
             {errors.consignment_id && (
@@ -48,7 +50,7 @@ const ViewOrders = () => {
           </div>
           <PrimaryButton type="submit" isLoading={isLoadingOrder}>
             <Eye className="h-4 w-4 mr-2" />
-            View
+            {t("pathao.view")}
           </PrimaryButton>
         </form>
 
@@ -59,26 +61,26 @@ const ViewOrders = () => {
             <div className="space-y-3">
               <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-                  Order Information
+                  {t("pathao.orderInformation")}
                 </h3>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">Consignment ID</label>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">{t("pathao.consignmentId")}</label>
                   <p className="font-medium">{singleOrder.consignment_id}</p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">Merchant Order ID</label>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">{t("pathao.merchantOrderId")}</label>
                   <p className="font-medium">{singleOrder.merchant_order_id}</p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">Status</label>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">{t("common.status")}</label>
                   <span className="inline-flex px-2 py-1 rounded-full text-xs bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">
                     {singleOrder.order_status}
                   </span>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">Amount to Collect</label>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">{t("pathao.amountToCollect")}</label>
                   <p className="font-semibold text-lg">৳{singleOrder.amount_to_collect}</p>
                 </div>
               </div>
@@ -88,20 +90,20 @@ const ViewOrders = () => {
             <div className="space-y-3">
               <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-                  Recipient Information
+                  {t("pathao.recipientInformation")}
                 </h3>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">Name</label>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">{t("common.name")}</label>
                   <p className="font-medium">{singleOrder.recipient_name}</p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">Phone</label>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">{t("customers.phone")}</label>
                   <p className="font-medium">{singleOrder.recipient_phone}</p>
                 </div>
                 <div className="col-span-2">
-                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">Address</label>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">{t("pathao.recipientAddress")}</label>
                   <p className="font-medium">{singleOrder.recipient_address}</p>
                 </div>
               </div>
@@ -112,31 +114,31 @@ const ViewOrders = () => {
 
       {/* All Orders */}
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-md font-semibold">All Orders</h4>
+        <h4 className="text-md font-semibold">{t("pathao.allOrders")}</h4>
         <PrimaryButton onClick={() => refetch()} isLoading={isLoading} variant="outline">
           <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
+          {t("steadfast.refresh")}
         </PrimaryButton>
       </div>
 
       {isLoading ? (
-        <p className="text-black/60 dark:text-white/60">Loading orders...</p>
+        <p className="text-black/60 dark:text-white/60">{t("pathao.loadingOrders")}</p>
       ) : orders.length === 0 ? (
         <div className="p-8 text-center border border-black/10 dark:border-white/10 rounded-lg bg-black/5 dark:bg-white/5">
           <Package className="h-12 w-12 mx-auto mb-3 text-black/30 dark:text-white/30" />
-          <p className="text-black/60 dark:text-white/60">No orders found.</p>
+          <p className="text-black/60 dark:text-white/60">{t("pathao.noOrdersFound")}</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-black/10 dark:border-white/10">
               <tr>
-                <th className="text-left py-3 px-2 font-semibold">Consignment ID</th>
-                <th className="text-left py-3 px-2 font-semibold">Order ID</th>
-                <th className="text-left py-3 px-2 font-semibold">Recipient</th>
-                <th className="text-left py-3 px-2 font-semibold">Phone</th>
-                <th className="text-left py-3 px-2 font-semibold">Amount</th>
-                <th className="text-left py-3 px-2 font-semibold">Status</th>
+                <th className="text-left py-3 px-2 font-semibold">{t("pathao.consignmentId")}</th>
+                <th className="text-left py-3 px-2 font-semibold">{t("pathao.orderId")}</th>
+                <th className="text-left py-3 px-2 font-semibold">{t("pathao.recipient")}</th>
+                <th className="text-left py-3 px-2 font-semibold">{t("customers.phone")}</th>
+                <th className="text-left py-3 px-2 font-semibold">{t("pathao.amountToCollect")}</th>
+                <th className="text-left py-3 px-2 font-semibold">{t("common.status")}</th>
               </tr>
             </thead>
             <tbody>

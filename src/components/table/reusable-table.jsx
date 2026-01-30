@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/table";
 import { FolderOpen, ArrowUp, ArrowDown, ArrowUpDown, Search, X } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import TablePaginate from "./pagination";
 
 export default function ReusableTable({ 
@@ -17,9 +18,11 @@ export default function ReusableTable({
   total, 
   isLoading,
   searchable = true,
-  searchPlaceholder = "Search...",
+  searchPlaceholder,
   searchFields = null, // If null, search all string fields
 }) {
+  const { t } = useTranslation();
+  const placeholder = searchPlaceholder ?? t("table.searchPlaceholder");
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
@@ -107,7 +110,7 @@ export default function ReusableTable({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-black/50 dark:text-white/50" />
             <input
               type="text"
-              placeholder={searchPlaceholder}
+              placeholder={placeholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 rounded-md outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 focus:border-transparent text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50"
@@ -116,7 +119,7 @@ export default function ReusableTable({
               <button
                 onClick={() => setSearchTerm("")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors"
-                aria-label="Clear search"
+                aria-label={t("table.clearSearch")}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -215,7 +218,7 @@ export default function ReusableTable({
       {!isLoading && sortedData.length === 0 && (
         <div className="center my-12 text-black/60 dark:text-white/60">
           <FolderOpen strokeWidth={1} />
-          <p className="text-center mt-3">No Data Entry found!</p>
+          <p className="text-center mt-3">{t("table.noDataEntry")}</p>
         </div>
       )}
     </>

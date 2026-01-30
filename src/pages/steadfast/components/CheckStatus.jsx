@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   useGetStatusByConsignmentIdQuery,
   useGetStatusByInvoiceQuery,
@@ -10,6 +11,7 @@ import TextField from "@/components/input/TextField";
 import { Search } from "lucide-react";
 
 const CheckStatus = () => {
+  const { t } = useTranslation();
   const [searchType, setSearchType] = useState("consignment");
   const [searchValue, setSearchValue] = useState("");
   const [shouldFetch, setShouldFetch] = useState(false);
@@ -42,7 +44,7 @@ const CheckStatus = () => {
 
   const handleSearch = () => {
     if (!searchValue.trim()) {
-      toast.error("Please enter a search value");
+      toast.error(t("steadfast.enterSearchValue"));
       return;
     }
     setShouldFetch(true);
@@ -80,12 +82,12 @@ const CheckStatus = () => {
 
   return (
     <div className="max-w-2xl">
-      <h3 className="text-lg font-semibold mb-4">Check Delivery Status</h3>
+      <h3 className="text-lg font-semibold mb-4">{t("steadfast.checkDeliveryStatus")}</h3>
 
       <div className="space-y-4">
         <div>
           <label className="text-black/50 dark:text-white/50 text-sm ml-1 mb-2 block">
-            Search By
+            {t("steadfast.searchBy")}
           </label>
           <select
             value={searchType}
@@ -96,9 +98,9 @@ const CheckStatus = () => {
             }}
             className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
           >
-            <option value="consignment">Consignment ID</option>
-            <option value="invoice">Invoice ID</option>
-            <option value="tracking">Tracking Code</option>
+            <option value="consignment">{t("steadfast.consignmentId")}</option>
+            <option value="invoice">{t("steadfast.invoiceIdOption")}</option>
+            <option value="tracking">{t("steadfast.trackingCode")}</option>
           </select>
         </div>
 
@@ -106,10 +108,10 @@ const CheckStatus = () => {
           <TextField
             placeholder={
               searchType === "consignment"
-                ? "Enter Consignment ID"
+                ? t("steadfast.enterConsignmentId")
                 : searchType === "invoice"
-                ? "Enter Invoice ID"
-                : "Enter Tracking Code"
+                ? t("steadfast.enterInvoiceId")
+                : t("steadfast.enterTrackingCode")
             }
             value={searchValue}
             onChange={(e) => {
@@ -124,16 +126,16 @@ const CheckStatus = () => {
             className="px-6"
           >
             <Search className="h-4 w-4 mr-2" />
-            Search
+            {t("steadfast.search")}
           </PrimaryButton>
         </div>
 
         {statusData && (
           <div className="mt-6 p-4 border border-black/10 dark:border-white/10 rounded-lg">
-            <h4 className="text-md font-semibold mb-2">Status Result</h4>
+            <h4 className="text-md font-semibold mb-2">{t("steadfast.statusResult")}</h4>
             <div className="space-y-2">
               <div>
-                <span className="text-sm text-black/60 dark:text-white/60">Status: </span>
+                <span className="text-sm text-black/60 dark:text-white/60">{t("steadfast.status")}: </span>
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-medium ${
                     statusColors[statusData.delivery_status] || statusColors.unknown
@@ -144,7 +146,7 @@ const CheckStatus = () => {
               </div>
               {statusData.status && (
                 <div>
-                  <span className="text-sm text-black/60 dark:text-white/60">HTTP Status: </span>
+                  <span className="text-sm text-black/60 dark:text-white/60">{t("steadfast.httpStatus")}: </span>
                   <span className="text-sm font-medium">{statusData.status}</span>
                 </div>
               )}

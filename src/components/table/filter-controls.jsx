@@ -1,8 +1,10 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import Dropdown from "../dropdown/dropdown";
 import SearchBar from "../input/search-bar";
 
 const FilterControls = ({ filtersConfig, filters, setFilters }) => {
+  const { t } = useTranslation();
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
@@ -16,7 +18,7 @@ const FilterControls = ({ filtersConfig, filters, setFilters }) => {
           onClick={resetFilters}
           className="fl gap-2 px-4 text-sm py-2 bg-primary opacity-80 hover:opacity-100 tr text-white rounded-full border border-primary"
         >
-          Reset Filter
+          {t("table.resetFilter")}
         </button>
       )}
       {filtersConfig.map((filter) =>

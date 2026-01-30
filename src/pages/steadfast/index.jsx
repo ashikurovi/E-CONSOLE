@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Package, PackageCheck, Search, DollarSign, RotateCcw, CreditCard, Building2, AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Package, PackageCheck, Search, DollarSign, RotateCcw, CreditCard, Building2 } from "lucide-react";
 import CreateOrder from "./components/CreateOrder";
 import BulkOrder from "./components/BulkOrder";
 import CheckStatus from "./components/CheckStatus";
@@ -9,16 +10,17 @@ import Payments from "./components/Payments";
 import PoliceStations from "./components/PoliceStations";
 
 const SteadfastPage = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("create");
 
   const tabs = [
-    { id: "create", label: "Create Order", icon: Package },
-    { id: "bulk", label: "Bulk Order", icon: PackageCheck },
-    { id: "status", label: "Check Status", icon: Search },
-    { id: "balance", label: "Balance", icon: DollarSign },
-    { id: "returns", label: "Return Requests", icon: RotateCcw },
-    { id: "payments", label: "Payments", icon: CreditCard },
-    { id: "police", label: "Police Stations", icon: Building2 },
+    { id: "create", label: t("steadfast.createOrder"), icon: Package },
+    { id: "bulk", label: t("steadfast.bulkOrder"), icon: PackageCheck },
+    { id: "status", label: t("steadfast.checkStatus"), icon: Search },
+    { id: "balance", label: t("steadfast.balance"), icon: DollarSign },
+    { id: "returns", label: t("steadfast.returnRequests"), icon: RotateCcw },
+    { id: "payments", label: t("steadfast.payments"), icon: CreditCard },
+    { id: "police", label: t("steadfast.policeStations"), icon: Building2 },
   ];
 
   const renderContent = () => {
@@ -50,9 +52,9 @@ const SteadfastPage = () => {
     <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
      
       <div className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">Steadfast Courier</h2>
+        <h2 className="text-2xl font-semibold mb-2">{t("steadfast.title")}</h2>
         <p className="text-sm text-black/60 dark:text-white/60">
-          Manage your courier orders, track deliveries, and handle returns
+          {t("steadfast.description")}
         </p>
       </div>
 

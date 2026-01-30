@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import { exportProductsToPDF } from "@/utils/pdfExport";
 import { useSelector } from "react-redux";
 
 const ProductsPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const [activeTab, setActiveTab] = useState("published"); // published, drafts, trash
@@ -70,15 +72,15 @@ const ProductsPage = () => {
 
   const headers = useMemo(
     () => [
-      { header: "Name", field: "name" },
-      { header: "SKU", field: "sku" },
-      { header: "Category", field: "categoryName" },
-      { header: "Price", field: "price" },
-      { header: "Stock", field: "stock" },
-      { header: "Status", field: "status" },
-      { header: "Actions", field: "actions" },
+      { header: t("common.name"), field: "name" },
+      { header: t("products.sku"), field: "sku" },
+      { header: t("products.category"), field: "categoryName" },
+      { header: t("products.price"), field: "price" },
+      { header: t("products.stock"), field: "stock" },
+      { header: t("common.status"), field: "status" },
+      { header: t("common.actions"), field: "actions" },
     ],
-    []
+    [t]
   );
 
   const categoryOptions = useMemo(
@@ -93,10 +95,10 @@ const ProductsPage = () => {
   // Add "All Categories" option to filter dropdown
   const filterCategoryOptions = useMemo(
     () => [
-      { label: "All Categories", value: null },
+      { label: t("products.allCategories"), value: null },
       ...categoryOptions,
     ],
-    [categoryOptions]
+    [categoryOptions, t]
   );
 
   // Filter products by selected category
@@ -131,10 +133,10 @@ const ProductsPage = () => {
           </span>
         ),
         status: activeTab === "trash" 
-          ? "Trashed" 
+          ? t("products.trashed") 
           : activeTab === "drafts" 
-          ? "Draft" 
-          : (p.isActive ? "Active" : "Disabled"),
+          ? t("products.draft") 
+          : (p.isActive ? t("common.active") : t("common.disabled")),
         actions: (
           <div className="flex items-center gap-2 justify-end">
             {activeTab === "trash" ? (
@@ -145,7 +147,7 @@ const ProductsPage = () => {
                   size="icon"
                   className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                   onClick={() => navigate(`/products/${p.id}`)}
-                  title="View"
+                  title={t("common.view")}
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
@@ -155,7 +157,7 @@ const ProductsPage = () => {
                   onClick={() => setRecoverModal({ isOpen: true, product: p })}
                   disabled={isRecovering}
                   className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"
-                  title="Recover"
+                  title={t("products.recover")}
                 >
                   <RotateCcw className="h-4 w-4" />
                 </Button>
@@ -165,7 +167,7 @@ const ProductsPage = () => {
                   onClick={() => setPermanentDeleteModal({ isOpen: true, product: p })}
                   disabled={isPermanentlyDeleting}
                   className="bg-red-600/10 hover:bg-red-600/20 text-red-600 dark:text-red-400"
-                  title="Permanently Delete"
+                  title={t("products.deletePermanently")}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -178,7 +180,7 @@ const ProductsPage = () => {
                   size="icon"
                   className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                   onClick={() => navigate(`/products/${p.id}`)}
-                  title="View"
+                  title={t("common.view")}
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
@@ -187,7 +189,7 @@ const ProductsPage = () => {
                   size="icon"
                   className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
                   onClick={() => navigate(`/products/${p.id}/edit`)}
-                  title="Edit"
+                  title={t("common.edit")}
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
@@ -197,7 +199,7 @@ const ProductsPage = () => {
                   onClick={() => setPublishModal({ isOpen: true, product: p })}
                   disabled={isPublishing}
                   className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"
-                  title="Publish"
+                  title={t("products.publish")}
                 >
                   <Send className="h-4 w-4" />
                 </Button>
@@ -207,7 +209,7 @@ const ProductsPage = () => {
                   onClick={() => setDeleteModal({ isOpen: true, product: p })}
                   disabled={isDeleting}
                   className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
-                  title="Move to Trash"
+                  title={t("products.moveToTrash")}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -220,7 +222,7 @@ const ProductsPage = () => {
                   size="icon"
                   className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                   onClick={() => navigate(`/products/${p.id}`)}
-                  title="View"
+                  title={t("common.view")}
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
@@ -229,7 +231,7 @@ const ProductsPage = () => {
                   size="icon"
                   className="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400"
                   onClick={() => setRestockModal({ isOpen: true, product: p })}
-                  title="Restock"
+                  title={t("products.restock")}
                 >
                   <Package className="h-4 w-4" />
                 </Button>
@@ -242,7 +244,7 @@ const ProductsPage = () => {
                     ? "bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
                     : "bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"
                     }`}
-                  title={p.isActive ? "Disable" : "Activate"}
+                  title={p.isActive ? t("common.disable") : t("common.activate")}
                 >
                   <Power className="h-4 w-4" />
                 </Button>
@@ -251,7 +253,7 @@ const ProductsPage = () => {
                   size="icon"
                   className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
                   onClick={() => navigate(`/products/${p.id}/edit`)}
-                  title="Edit"
+                  title={t("common.edit")}
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
@@ -261,7 +263,7 @@ const ProductsPage = () => {
                   onClick={() => setDeleteModal({ isOpen: true, product: p })}
                   disabled={isDeleting}
                   className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
-                  title="Move to Trash"
+                  title={t("products.moveToTrash")}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -270,17 +272,17 @@ const ProductsPage = () => {
           </div>
         ),
       })),
-    [filteredProducts, activeTab, isDeleting, isToggling, isRecovering, isPublishing, isPermanentlyDeleting, navigate]
+    [filteredProducts, activeTab, isDeleting, isToggling, isRecovering, isPublishing, isPermanentlyDeleting, navigate, t]
   );
 
   const handleDelete = async () => {
     if (!deleteModal.product) return;
     const res = await deleteProduct(deleteModal.product.id);
     if (res?.data) {
-      toast.success("Product moved to trash");
+      toast.success(t("products.productMovedToTrash"));
       setDeleteModal({ isOpen: false, product: null });
     } else {
-      toast.error(res?.error?.data?.message || "Failed to move product to trash");
+      toast.error(res?.error?.data?.message || t("common.failed"));
     }
   };
 
@@ -288,10 +290,10 @@ const ProductsPage = () => {
     if (!recoverModal.product) return;
     const res = await recoverProduct(recoverModal.product.id);
     if (res?.data) {
-      toast.success("Product recovered from trash");
+      toast.success(t("products.productRecovered"));
       setRecoverModal({ isOpen: false, product: null });
     } else {
-      toast.error(res?.error?.data?.message || "Failed to recover product");
+      toast.error(res?.error?.data?.message || t("products.recoverProduct"));
     }
   };
 
@@ -299,10 +301,10 @@ const ProductsPage = () => {
     if (!publishModal.product) return;
     const res = await publishDraft(publishModal.product.id);
     if (res?.data) {
-      toast.success("Product published");
+      toast.success(t("products.productPublished"));
       setPublishModal({ isOpen: false, product: null });
     } else {
-      toast.error(res?.error?.data?.message || "Failed to publish product");
+      toast.error(res?.error?.data?.message || t("products.publishProduct"));
     }
   };
 
@@ -310,10 +312,10 @@ const ProductsPage = () => {
     if (!toggleModal.product) return;
     const res = await toggleActive({ id: toggleModal.product.id });
     if (res?.data) {
-      toast.success("Product state updated");
+      toast.success(t("products.productStateUpdated"));
       setToggleModal({ isOpen: false, product: null });
     } else {
-      toast.error(res?.error?.data?.message || "Failed to update product");
+      toast.error(res?.error?.data?.message || t("products.productStateUpdated"));
     }
   };
 
@@ -321,10 +323,10 @@ const ProductsPage = () => {
     if (!permanentDeleteModal.product) return;
     const res = await permanentDeleteProduct(permanentDeleteModal.product.id);
     if (res?.data) {
-      toast.success("Product permanently deleted");
+      toast.success(t("products.productPermanentlyDeleted"));
       setPermanentDeleteModal({ isOpen: false, product: null });
     } else {
-      toast.error(res?.error?.data?.message || "Failed to permanently delete product");
+      toast.error(res?.error?.data?.message || t("products.deletePermanently"));
     }
   };
 
@@ -335,7 +337,7 @@ const ProductsPage = () => {
   return (
     <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-medium">Products</h3>
+        <h3 className="text-lg font-medium">{t("products.title")}</h3>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -345,7 +347,7 @@ const ProductsPage = () => {
             disabled={filteredProducts.length === 0}
           >
             <Download className="h-4 w-4" />
-            Export to PDF
+            {t("products.exportToPdf")}
           </Button>
           <Button
             variant="outline"
@@ -354,11 +356,11 @@ const ProductsPage = () => {
             className="flex items-center gap-2"
           >
             <Upload className="h-4 w-4" />
-            Bulk Upload
+            {t("products.bulkUpload")}
           </Button>
           <FlashSell products={filteredProducts} categoryOptions={categoryOptions} />
           <Button size="sm" onClick={() => navigate("/products/create")}>
-            Add Product
+            {t("products.addProduct")}
           </Button>
         </div>
       </div>
@@ -373,7 +375,7 @@ const ProductsPage = () => {
               : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
           }`}
         >
-          Published ({publishedProducts.length})
+          {t("products.published")} ({publishedProducts.length})
         </button>
         <button
           onClick={() => setActiveTab("drafts")}
@@ -383,7 +385,7 @@ const ProductsPage = () => {
               : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
           }`}
         >
-          Drafts ({draftProducts.length})
+          {t("products.drafts")} ({draftProducts.length})
         </button>
         <button
           onClick={() => setActiveTab("trash")}
@@ -393,7 +395,7 @@ const ProductsPage = () => {
               : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
           }`}
         >
-          Trash ({trashedProducts.length})
+          {t("products.trash")} ({trashedProducts.length})
         </button>
       </div>
 
@@ -401,17 +403,17 @@ const ProductsPage = () => {
       <div className="mb-4 flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium text-black/70 dark:text-white/70">
-            Filter by Category:
+            {t("products.filterByCategory")}:
           </label>
           <div className="min-w-[200px]">
             <Dropdown
-              name="Category"
+              name={t("products.category")}
               options={filterCategoryOptions}
               setSelectedOption={setSelectedCategory}
               className="py-2"
             >
               {selectedCategory?.label || (
-                <span className="text-black/50 dark:text-white/50">All Categories</span>
+                <span className="text-black/50 dark:text-white/50">{t("products.allCategories")}</span>
               )}
             </Dropdown>
           </div>
@@ -424,12 +426,12 @@ const ProductsPage = () => {
             className="flex items-center gap-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
           >
             <X className="h-4 w-4" />
-            Clear Filter
+            {t("products.clearFilter")}
           </Button>
         )}
         {selectedCategory && (
           <span className="text-sm text-black/60 dark:text-white/60">
-            Showing {filteredProducts.length} of {products.length} products
+            {t("products.showingOf", { count: filteredProducts.length, total: products.length })}
           </span>
         )}
       </div>
@@ -447,8 +449,8 @@ const ProductsPage = () => {
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, product: null })}
         onConfirm={handleDelete}
-        title="Move to Trash"
-        description="This will move the product to trash. You can recover it later from the trash tab."
+        title={t("products.moveToTrash")}
+        description={t("products.moveToTrashDesc")}
         itemName={deleteModal.product?.name || deleteModal.product?.title}
         isLoading={isDeleting}
       />
@@ -458,12 +460,12 @@ const ProductsPage = () => {
         isOpen={recoverModal.isOpen}
         onClose={() => setRecoverModal({ isOpen: false, product: null })}
         onConfirm={handleRecover}
-        title="Recover Product"
-        description="This will restore the product from trash and make it available again."
+        title={t("products.recoverProduct")}
+        description={t("products.recoverProductDesc")}
         itemName={recoverModal.product?.name || recoverModal.product?.title}
         isLoading={isRecovering}
         type="success"
-        confirmText="Recover"
+        confirmText={t("products.recover")}
       />
 
       {/* Publish Modal */}
@@ -471,12 +473,12 @@ const ProductsPage = () => {
         isOpen={publishModal.isOpen}
         onClose={() => setPublishModal({ isOpen: false, product: null })}
         onConfirm={handlePublish}
-        title="Publish Product"
-        description="This will publish the draft product and make it visible to customers."
+        title={t("products.publishProduct")}
+        description={t("products.publishProductDesc")}
         itemName={publishModal.product?.name || publishModal.product?.title}
         isLoading={isPublishing}
         type="success"
-        confirmText="Publish"
+        confirmText={t("products.publish")}
       />
 
       {/* Restock Modal */}
@@ -491,16 +493,14 @@ const ProductsPage = () => {
         isOpen={toggleModal.isOpen}
         onClose={() => setToggleModal({ isOpen: false, product: null })}
         onConfirm={handleToggle}
-        title={toggleModal.product?.isActive ? "Disable Product" : "Activate Product"}
+        title={toggleModal.product?.isActive ? t("products.disableProduct") : t("products.activateProduct")}
         description={
-          toggleModal.product?.isActive
-            ? "This will disable the product and it will not be visible to customers."
-            : "This will activate the product and make it visible to customers."
+          toggleModal.product?.isActive ? t("products.disableProductDesc") : t("products.activateProductDesc")
         }
         itemName={toggleModal.product?.name || toggleModal.product?.title}
         isLoading={isToggling}
         type={toggleModal.product?.isActive ? "warning" : "success"}
-        confirmText={toggleModal.product?.isActive ? "Disable" : "Activate"}
+        confirmText={toggleModal.product?.isActive ? t("common.disable") : t("common.activate")}
       />
 
       {/* Permanent Delete Modal */}
@@ -508,12 +508,12 @@ const ProductsPage = () => {
         isOpen={permanentDeleteModal.isOpen}
         onClose={() => setPermanentDeleteModal({ isOpen: false, product: null })}
         onConfirm={handlePermanentDelete}
-        title="Permanently Delete Product"
-        description="This action cannot be undone. The product will be permanently deleted from the system. Products in trash are automatically deleted after 30 days."
+        title={t("products.permanentDeleteProduct")}
+        description={t("products.permanentDeleteProductDesc")}
         itemName={permanentDeleteModal.product?.name || permanentDeleteModal.product?.title}
         isLoading={isPermanentlyDeleting}
         type="danger"
-        confirmText="Delete Permanently"
+        confirmText={t("products.deletePermanently")}
       />
     </div>
   );

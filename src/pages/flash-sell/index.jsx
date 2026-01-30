@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -18,33 +19,38 @@ import { useSelector } from "react-redux";
 import DeleteModal from "@/components/modals/DeleteModal";
 import { exportFlashSellToPDF } from "@/utils/pdfExport";
 
-const flashSellSchema = yup.object().shape({
-  productIds: yup
-    .array()
-    .of(yup.number())
-    .min(1, "At least one product must be selected")
-    .required("Products are required"),
-  flashSellStartTime: yup
-    .string()
-    .required("Start time is required"),
-  flashSellEndTime: yup
-    .string()
-    .required("End time is required")
-    .test("is-after-start", "End time must be after start time", function (value) {
-      const { flashSellStartTime } = this.parent;
-      if (!value || !flashSellStartTime) return true;
-      return new Date(value) > new Date(flashSellStartTime);
-    }),
-  flashSellPrice: yup
-    .number()
-    .positive("Price must be positive")
-    .nullable(),
-});
-
 const FlashSellPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const [activeTab, setActiveTab] = useState("list"); // "list" or "add"
+
+  const flashSellSchema = useMemo(
+    () =>
+      yup.object().shape({
+        productIds: yup
+          .array()
+          .of(yup.number())
+          .min(1, t("flashSell.validation.atLeastOneProduct"))
+          .required(t("flashSell.validation.productsRequired")),
+        flashSellStartTime: yup
+          .string()
+          .required(t("flashSell.validation.startTimeRequired")),
+        flashSellEndTime: yup
+          .string()
+          .required(t("flashSell.validation.endTimeRequired"))
+          .test("is-after-start", t("flashSell.validation.endTimeAfterStart"), function (value) {
+            const { flashSellStartTime } = this.parent;
+            if (!value || !flashSellStartTime) return true;
+            return new Date(value) > new Date(flashSellStartTime);
+          }),
+        flashSellPrice: yup
+          .number()
+          .positive(t("flashSell.validation.pricePositive"))
+          .nullable(),
+      }),
+    [t]
+  );
   
   const { data: flashSellProducts = [], isLoading } = useGetActiveFlashSellProductsQuery(
     { companyId: authUser?.companyId },
@@ -91,17 +97,17 @@ const FlashSellPage = () => {
 
   const headers = useMemo(
     () => [
-      { header: "Product Name", field: "name" },
-      { header: "SKU", field: "sku" },
-      { header: "Regular Price", field: "regularPrice" },
-      { header: "Flash Price", field: "flashPrice" },
-      { header: "Discount", field: "discount" },
-      { header: "Start Time", field: "startTime" },
-      { header: "End Time", field: "endTime" },
-      { header: "Status", field: "status" },
-      { header: "Actions", field: "actions" },
+      { header: t("flashSell.productName"), field: "name" },
+      { header: t("products.sku"), field: "sku" },
+      { header: t("flashSell.regularPrice"), field: "regularPrice" },
+      { header: t("flashSell.flashPrice"), field: "flashPrice" },
+      { header: t("flashSell.discount"), field: "discount" },
+      { header: t("flashSell.startTime"), field: "startTime" },
+      { header: t("flashSell.endTime"), field: "endTime" },
+      { header: t("common.status"), field: "status" },
+      { header: t("common.actions"), field: "actions" },
     ],
-    []
+    [t]
   );
 
   const tableData = useMemo(
@@ -117,14 +123,14 @@ const FlashSellPage = () => {
         const startTime = product.flashSellStartTime ? new Date(product.flashSellStartTime) : null;
         const endTime = product.flashSellEndTime ? new Date(product.flashSellEndTime) : null;
         
-        let status = "Scheduled";
+        let status = t("flashSell.scheduled");
         if (startTime && endTime) {
           if (now < startTime) {
-            status = "Scheduled";
+            status = t("flashSell.scheduled");
           } else if (now >= startTime && now <= endTime) {
-            status = "Active";
+            status = t("common.active");
           } else {
-            status = "Expired";
+            status = t("flashSell.expired");
           }
         }
 
@@ -139,9 +145,9 @@ const FlashSellPage = () => {
           status: (
             <span
               className={`px-2 py-1 rounded text-xs font-medium ${
-                status === "Active"
+                status === t("common.active")
                   ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-                  : status === "Scheduled"
+                  : status === t("flashSell.scheduled")
                   ? "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
                   : "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400"
               }`}
@@ -156,7 +162,7 @@ const FlashSellPage = () => {
                 size="icon"
                 className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                 onClick={() => navigate(`/products/${product.id}`)}
-                title="View Product"
+                title={t("flashSell.viewProduct")}
               >
                 <Eye className="h-4 w-4" />
               </Button>
@@ -166,7 +172,7 @@ const FlashSellPage = () => {
                 onClick={() => setDeleteModal({ isOpen: true, product })}
                 disabled={isRemoving}
                 className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
-                title="Remove from Flash Sell"
+                title={t("flashSell.removeFromFlashSell")}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -174,7 +180,7 @@ const FlashSellPage = () => {
           ),
         };
       }),
-    [flashSellProducts, navigate, isRemoving]
+    [flashSellProducts, navigate, isRemoving, t]
   );
 
   const handleProductToggle = (productId) => {
@@ -210,13 +216,13 @@ const FlashSellPage = () => {
 
       const res = await setFlashSell(payload).unwrap();
       if (res) {
-        toast.success("Flash sell set for selected products");
+        toast.success(t("flashSell.flashSellSetSuccess"));
         reset();
         setSelectedProducts([]);
         setActiveTab("list");
       }
     } catch (error) {
-      toast.error(error?.data?.message || error?.message || "Failed to set flash sell");
+      toast.error(error?.data?.message || error?.message || t("flashSell.flashSellSetFailed"));
     }
   };
 
@@ -226,11 +232,11 @@ const FlashSellPage = () => {
     try {
       const res = await removeFlashSell({ productIds: [deleteModal.product.id] }).unwrap();
       if (res) {
-        toast.success("Product removed from flash sell");
+        toast.success(t("flashSell.productRemovedFromFlashSell"));
         setDeleteModal({ isOpen: false, product: null });
       }
     } catch (error) {
-      toast.error(error?.data?.message || error?.message || "Failed to remove flash sell");
+      toast.error(error?.data?.message || error?.message || t("flashSell.flashSellRemoveFailed"));
     }
   };
 
@@ -265,9 +271,9 @@ const FlashSellPage = () => {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h3 className="text-lg font-medium">Flash Sell Management</h3>
+          <h3 className="text-lg font-medium">{t("flashSell.title")}</h3>
           <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            Manage flash sell promotions for your products
+            {t("flashSell.description")}
           </p>
         </div>
       </div>
@@ -283,7 +289,7 @@ const FlashSellPage = () => {
                 : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
             }`}
           >
-            Flash Sell List ({flashSellProducts.length})
+            {t("flashSell.flashSellList")} ({flashSellProducts.length})
           </button>
           <button
             onClick={() => setActiveTab("add")}
@@ -293,7 +299,7 @@ const FlashSellPage = () => {
                 : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
             }`}
           >
-            Add Flash Sell
+            {t("flashSell.addFlashSell")}
           </button>
         </div>
         {activeTab === "list" && flashSellProducts.length > 0 && (
@@ -304,7 +310,7 @@ const FlashSellPage = () => {
             className="flex items-center gap-2"
           >
             <Download className="h-4 w-4" />
-            Export to PDF
+            {t("flashSell.exportToPdf")}
           </Button>
         )}
       </div>
@@ -323,7 +329,7 @@ const FlashSellPage = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                Select Products *
+                {t("flashSell.selectProducts")}
               </label>
               <Button
                 type="button"
@@ -332,13 +338,13 @@ const FlashSellPage = () => {
                 onClick={handleSelectAll}
                 className="text-xs"
               >
-                {selectedProducts.length === availableProducts.length ? "Deselect All" : "Select All"}
+                {selectedProducts.length === availableProducts.length ? t("flashSell.deselectAll") : t("flashSell.selectAll")}
               </Button>
             </div>
             <div className="max-h-[300px] overflow-y-auto border border-black/10 dark:border-white/10 rounded-lg p-4">
               {availableProducts.length === 0 ? (
                 <p className="text-sm text-black/50 dark:text-white/50 p-4 text-center">
-                  No available products. All active products may already be on flash sell.
+                  {t("flashSell.noAvailableProducts")}
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -365,9 +371,9 @@ const FlashSellPage = () => {
                             {product.name || product.title}
                           </span>
                           <div className="text-xs text-black/50 dark:text-white/50 mt-1">
-                            Price: ${typeof product.price === "number" ? product.price.toFixed(2) : product.price} | 
-                            Stock: {product.stock ?? 0} | 
-                            SKU: {product.sku || "N/A"}
+                            {t("products.price")}: ${typeof product.price === "number" ? product.price.toFixed(2) : product.price} | 
+                            {t("products.stock")}: {product.stock ?? 0} | 
+                            {t("products.sku")}: {product.sku || t("common.na")}
                           </div>
                         </div>
                       </div>
@@ -388,7 +394,7 @@ const FlashSellPage = () => {
               control={control}
               render={({ field }) => (
                 <TextField
-                  label="Start Time *"
+                  label={t("flashSell.startTimeRequired")}
                   type="datetime-local"
                   value={field.value}
                   onChange={field.onChange}
@@ -403,7 +409,7 @@ const FlashSellPage = () => {
               control={control}
               render={({ field }) => (
                 <TextField
-                  label="End Time *"
+                  label={t("flashSell.endTimeRequired")}
                   type="datetime-local"
                   value={field.value}
                   onChange={field.onChange}
@@ -419,8 +425,8 @@ const FlashSellPage = () => {
             control={control}
             render={({ field }) => (
               <TextField
-                label="Flash Price (optional)"
-                placeholder="Leave empty to use product price"
+                label={t("flashSell.flashPriceOptional")}
+                placeholder={t("flashSell.flashPricePlaceholder")}
                 type="number"
                 step="0.01"
                 value={field.value}
@@ -441,14 +447,14 @@ const FlashSellPage = () => {
               }}
               disabled={isSetting}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               type="submit"
               disabled={isSetting || selectedProducts.length === 0}
               className="bg-yellow-500 hover:bg-yellow-600 text-white"
             >
-              {isSetting ? "Setting..." : "Set Flash Sell"}
+              {isSetting ? t("flashSell.setting") : t("flashSell.setFlashSell")}
             </Button>
           </div>
         </form>
@@ -459,8 +465,8 @@ const FlashSellPage = () => {
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, product: null })}
         onConfirm={handleRemoveFlashSell}
-        title="Remove from Flash Sell"
-        description="This will remove the product from flash sell. The product will remain active but won't be on flash sell anymore."
+        title={t("flashSell.removeFromFlashSellTitle")}
+        description={t("flashSell.removeFromFlashSellDesc")}
         itemName={deleteModal.product?.name || deleteModal.product?.title}
         isLoading={isRemoving}
       />

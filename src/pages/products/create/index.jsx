@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -65,6 +66,7 @@ const productSchema = yup.object().shape({
 });
 
 function CreateProductPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const { data: categories = [] } = useGetCategoriesQuery({ companyId: user?.companyId });
@@ -113,12 +115,12 @@ function CreateProductPage() {
       try {
         thumbnailUrl = await uploadImage(thumbnailFile);
         if (!thumbnailUrl) {
-          toast.error("Failed to upload thumbnail. You can continue without it or try again.");
+          toast.error(t("productForm.failedUploadThumbnail"));
           // Don't return - allow user to proceed without thumbnail since it's optional
         }
       } catch (error) {
         console.error("Thumbnail upload error:", error);
-        toast.error("Failed to upload thumbnail. You can continue without it or try again.");
+        toast.error(t("productForm.failedUploadThumbnail"));
         // Don't return - allow user to proceed without thumbnail since it's optional
       }
     }
@@ -166,7 +168,7 @@ function CreateProductPage() {
     const params = { companyId: user.companyId };
     const res = await createProduct({ body: payload, params });
     if (res?.data) {
-      toast.success(saveAsDraft ? "Product saved as draft" : "Product created");
+      toast.success(saveAsDraft ? t("productForm.productSavedAsDraft") : t("productForm.productCreated"));
       reset();
       setCategoryOption(null);
       setThumbnailFile(null);
@@ -174,7 +176,7 @@ function CreateProductPage() {
       setSaveAsDraft(false);
       navigate("/products");
     } else {
-      toast.error(res?.error?.data?.message || "Failed to create product");
+      toast.error(res?.error?.data?.message || t("productForm.productCreateFailed"));
     }
   };
 
@@ -190,9 +192,9 @@ function CreateProductPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold">Create Product</h1>
+          <h1 className="text-2xl font-semibold">{t("createEdit.createProduct")}</h1>
           <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            Add a new product to your catalog
+            {t("createEdit.createProductDesc")}
           </p>
         </div>
       </div>
@@ -202,26 +204,26 @@ function CreateProductPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Basic Information
+              {t("forms.basicInfo")}
             </h3>
           </div>
           <TextField
-            label="Product Name *"
-            placeholder="Enter product name"
+            label={`${t("productForm.productName")} *`}
+            placeholder={t("productForm.productNamePlaceholder")}
             register={register}
             name="name"
             error={errors.name?.message}
           />
           <TextField
-            label="SKU"
-            placeholder="Enter SKU (optional)"
+            label={t("products.sku")}
+            placeholder={t("productForm.skuPlaceholder")}
             register={register}
             name="sku"
             error={errors.sku?.message}
           />
           <TextField 
-            label="Description"
-            placeholder="Enter product description"
+            label={t("productForm.description")}
+            placeholder={t("productForm.descriptionPlaceholder")}
             register={register}
             name="description"
             multiline
@@ -234,13 +236,13 @@ function CreateProductPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Pricing
+              {t("productForm.pricing")}
             </h3>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <TextField
-              label="Price *"
-              placeholder="0.00"
+              label={`${t("productForm.price")} *`}
+              placeholder={t("productForm.pricePlaceholder")}
               register={register}
               name="price"
               type="number"
@@ -248,8 +250,8 @@ function CreateProductPage() {
               error={errors.price?.message}
             />
             <TextField
-              label="Discount Price"
-              placeholder="0.00 (optional)"
+              label={t("productForm.discountPrice")}
+              placeholder={t("productForm.priceOptionalPlaceholder")}
               register={register}
               name="discountPrice"
               type="number"
@@ -263,13 +265,13 @@ function CreateProductPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Inventory
+              {t("productForm.inventory")}
             </h3>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <TextField
-              label="Initial Stock"
-              placeholder="0 (optional)"
+              label={t("productForm.initialStock")}
+              placeholder={t("productForm.stockOptionalPlaceholder")}
               register={register}
               name="stock"
               type="number"
@@ -283,12 +285,12 @@ function CreateProductPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Product Images
+              {t("productForm.productImages")}
             </h3>
           </div>
           <FileUpload
-            placeholder="Choose thumbnail (optional)"
-            label="Thumbnail"
+            placeholder={t("productForm.chooseThumbnail")}
+            label={t("productForm.thumbnail")}
             register={register}
             name="thumbnail"
             accept="image/*"
@@ -298,7 +300,7 @@ function CreateProductPage() {
 
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <label className="text-black/50 dark:text-white/50 text-sm ml-1">Gallery Images</label>
+              <label className="text-black/50 dark:text-white/50 text-sm ml-1">{t("productForm.galleryImages")}</label>
               <Button
                 type="button"
                 variant="outline"
@@ -307,7 +309,7 @@ function CreateProductPage() {
                 className="flex items-center gap-1"
               >
                 <Plus className="h-4 w-4" />
-                Add Image
+                {t("common.addImage")}
               </Button>
             </div>
             <div className="space-y-3">
@@ -315,7 +317,7 @@ function CreateProductPage() {
                 <div key={index} className="border border-black/5 dark:border-white/10 p-3 rounded-md space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-black/70 dark:text-white/70">
-                      Image {index + 1}
+                      {t("productForm.imageNumber", { num: index + 1 })}
                     </span>
                     <div className="flex items-center gap-2">
                       <Checkbox
@@ -323,7 +325,7 @@ function CreateProductPage() {
                         value={img.isPrimary}
                         setValue={() => setPrimaryImage(index)}
                       >
-                        Primary
+                        {t("productForm.primary")}
                       </Checkbox>
                       <Button
                         type="button"
@@ -350,7 +352,7 @@ function CreateProductPage() {
                     />
                     <input
                       type="text"
-                      placeholder="Or enter image URL"
+                      placeholder={t("productForm.orEnterImageUrl")}
                       value={img.url || ""}
                       onChange={(e) => updateImage(index, "url", e.target.value)}
                       className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
@@ -358,7 +360,7 @@ function CreateProductPage() {
                   </div>
                   <input
                     type="text"
-                    placeholder="Alt text (optional)"
+                    placeholder={t("productForm.altTextPlaceholder")}
                     value={img.alt || ""}
                     onChange={(e) => updateImage(index, "alt", e.target.value)}
                     className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
@@ -388,7 +390,7 @@ function CreateProductPage() {
               ))}
               {imageFiles.length === 0 && (
                 <p className="text-sm text-black/50 dark:text-white/50 text-center py-4">
-                  No images added. Click "Add Image" to add product images.
+                  {t("common.noImagesAdded")}
                 </p>
               )}
             </div>
@@ -399,17 +401,17 @@ function CreateProductPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Category & Classification
+              {t("productForm.categoryClassification")}
             </h3>
           </div>
           <Dropdown
-            name="Category"
+            name={t("products.category")}
             options={categoryOptions}
             setSelectedOption={setCategoryOption}
             className="py-2"
           >
             {categoryOption?.label || (
-              <span className="text-black/50 dark:text-white/50">Select Category</span>
+              <span className="text-black/50 dark:text-white/50">{t("productForm.selectCategory")}</span>
             )}
           </Dropdown>
         </div>
@@ -420,14 +422,14 @@ function CreateProductPage() {
             value={saveAsDraft}
             setValue={setSaveAsDraft}
           >
-            Save as draft
+            {t("common.saveDraft")}
           </Checkbox>
           <div className="flex gap-3">
             <Button variant="ghost" type="button" className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700" onClick={() => navigate("/products")}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isCreating || isUploading} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-              {isCreating || isUploading ? (saveAsDraft ? "Saving..." : "Creating...") : (saveAsDraft ? "Save Draft" : "Create")}
+              {isCreating || isUploading ? (saveAsDraft ? t("common.saving") : t("common.creating")) : (saveAsDraft ? t("common.saveDraft") : t("common.create"))}
             </Button>
           </div>
         </div>

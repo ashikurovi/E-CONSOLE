@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -14,14 +15,18 @@ import {
 } from "@/components/ui/dialog";
 import { useUpdatePrivacyPolicyMutation } from "@/features/privacy-policy/privacyPolicyApiSlice";
 
-const privacyPolicySchema = yup.object().shape({
-    content: yup
-        .string()
-        .required("Content is required")
-        .min(10, "Content must be at least 10 characters"),
-});
-
 function PrivacyPolicyEditForm({ policy, onClose }) {
+    const { t } = useTranslation();
+    const privacyPolicySchema = useMemo(
+        () =>
+            yup.object().shape({
+                content: yup
+                    .string()
+                    .required(t("privacyPolicy.validation.contentRequired"))
+                    .min(10, t("privacyPolicy.validation.contentMin")),
+            }),
+        [t]
+    );
     const { control, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: yupResolver(privacyPolicySchema),
         defaultValues: {
@@ -45,10 +50,10 @@ function PrivacyPolicyEditForm({ policy, onClose }) {
 
         const res = await updatePrivacyPolicy({ id: policy.id, ...payload });
         if (res?.data) {
-            toast.success("Privacy Policy updated");
+            toast.success(t("privacyPolicy.updatedSuccess"));
             onClose();
         } else {
-            toast.error(res?.error?.data?.message || "Failed to update Privacy Policy");
+            toast.error(res?.error?.data?.message || t("privacyPolicy.updateFailed"));
         }
     };
 
@@ -56,7 +61,7 @@ function PrivacyPolicyEditForm({ policy, onClose }) {
         <Dialog open={true} onOpenChange={onClose}>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Edit Privacy Policy</DialogTitle>
+                    <DialogTitle>{t("privacyPolicy.editTitle")}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
                     <Controller
@@ -64,7 +69,7 @@ function PrivacyPolicyEditForm({ policy, onClose }) {
                         control={control}
                         render={({ field }) => (
                             <RichTextEditor
-                                placeholder="Privacy Policy Content"
+                                placeholder={t("privacyPolicy.contentPlaceholder")}
                                 value={field.value || ""}
                                 onChange={field.onChange}
                                 error={errors.content}
@@ -79,10 +84,10 @@ function PrivacyPolicyEditForm({ policy, onClose }) {
                             onClick={onClose}
                             className="bg-red-500 hover:bg-red-600 text-white"
                         >
-                            Cancel
+                            {t("common.cancel")}
                         </Button>
                         <Button type="submit" disabled={isUpdating} className="bg-green-500 hover:bg-green-600 text-white">
-                            {isUpdating ? "Updating..." : "Update"}
+                            {isUpdating ? t("common.updating") : t("common.update")}
                         </Button>
                     </DialogFooter>
                 </form>

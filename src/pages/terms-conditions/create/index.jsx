@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -9,15 +10,20 @@ import { ArrowLeft } from "lucide-react";
 import RichTextEditor from "@/components/input/RichTextEditor";
 import { useCreateTermsConditionsMutation } from "@/features/terms-conditions/termsConditionsApiSlice";
 
-const termsConditionsSchema = yup.object().shape({
-  content: yup
-    .string()
-    .required("Content is required")
-    .min(10, "Content must be at least 10 characters"),
-});
-
 function CreateTermsConditionsPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const termsConditionsSchema = useMemo(
+    () =>
+      yup.object().shape({
+        content: yup
+          .string()
+          .required(t("termsConditions.validation.contentRequired"))
+          .min(10, t("termsConditions.validation.contentMin")),
+      }),
+    [t]
+  );
   const { control, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(termsConditionsSchema),
   });
@@ -30,11 +36,11 @@ function CreateTermsConditionsPage() {
 
     const res = await createTermsConditions(payload);
     if (res?.data) {
-      toast.success("Terms & Conditions created");
+      toast.success(t("termsConditions.createdSuccess"));
       reset();
       navigate("/terms-conditions");
     } else {
-      toast.error(res?.error?.data?.message || "Failed to create Terms & Conditions");
+      toast.error(res?.error?.data?.message || t("termsConditions.createFailed"));
     }
   };
 
@@ -50,9 +56,9 @@ function CreateTermsConditionsPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold">Create Terms & Conditions</h1>
+          <h1 className="text-2xl font-semibold">{t("termsConditions.createTitle")}</h1>
           <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            Create terms and conditions for your store
+            {t("termsConditions.createDesc")}
           </p>
         </div>
       </div>
@@ -63,7 +69,7 @@ function CreateTermsConditionsPage() {
           control={control}
           render={({ field }) => (
             <RichTextEditor
-              placeholder="Terms & Conditions Content"
+              placeholder={t("termsConditions.contentPlaceholder")}
               value={field.value || ""}
               onChange={field.onChange}
               error={errors.content}
@@ -78,10 +84,10 @@ function CreateTermsConditionsPage() {
             onClick={() => navigate("/terms-conditions")}
             className="bg-red-500 hover:bg-red-600 text-white"
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button type="submit" disabled={isCreating} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-            {isCreating ? "Creating..." : "Create"}
+            {isCreating ? t("common.creating") : t("common.create")}
           </Button>
         </div>
       </form>

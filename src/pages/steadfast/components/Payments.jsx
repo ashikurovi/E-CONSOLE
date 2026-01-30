@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useGetPaymentsQuery, useGetPaymentQuery } from "@/features/steadfast/steadfastApiSlice";
 import ReusableTable from "@/components/table/reusable-table";
 import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Payments = () => {
+  const { t } = useTranslation();
   const { data: payments = [], isLoading } = useGetPaymentsQuery();
   const [selectedPaymentId, setSelectedPaymentId] = useState(null);
   
@@ -13,10 +15,10 @@ const Payments = () => {
   });
 
   const headers = [
-    { header: "Payment ID", field: "id" },
-    { header: "Amount", field: "amount" },
-    { header: "Date", field: "date" },
-    { header: "Actions", field: "actions" },
+    { header: t("steadfast.paymentId"), field: "id" },
+    { header: t("steadfast.amount"), field: "amount" },
+    { header: t("steadfast.date"), field: "date" },
+    { header: t("common.actions"), field: "actions" },
   ];
 
   const tableData = Array.isArray(payments)
@@ -45,7 +47,7 @@ const Payments = () => {
 
   return (
     <div>
-      <h3 className="text-lg font-semibold mb-4">Payments</h3>
+      <h3 className="text-lg font-semibold mb-4">{t("steadfast.paymentsTitle")}</h3>
 
       <ReusableTable
         data={tableData}
@@ -57,7 +59,7 @@ const Payments = () => {
 
       {paymentDetails && (
         <div className="mt-6 p-4 border border-black/10 dark:border-white/10 rounded-lg">
-          <h4 className="text-md font-semibold mb-4">Payment Details</h4>
+          <h4 className="text-md font-semibold mb-4">{t("steadfast.paymentDetails")}</h4>
           <pre className="text-xs font-mono overflow-x-auto">
             {JSON.stringify(paymentDetails, null, 2)}
           </pre>

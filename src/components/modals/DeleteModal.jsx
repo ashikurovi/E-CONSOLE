@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -14,11 +15,13 @@ const DeleteModal = ({
   isOpen,
   onClose,
   onConfirm,
-  title = "Delete Item",
+  title,
   description,
   itemName,
   isLoading = false,
 }) => {
+  const { t } = useTranslation();
+  const modalTitle = title ?? t("modal.deleteItem");
   const handleConfirm = async () => {
     try {
       await onConfirm();
@@ -37,7 +40,7 @@ const DeleteModal = ({
               <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
             </div>
             <div>
-              <DialogTitle className="text-lg pb-2 font-semibold">{title}</DialogTitle>
+              <DialogTitle className="text-lg pb-2 font-semibold">{modalTitle}</DialogTitle>
               {description && (
                 <DialogDescription className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                   {description}
@@ -49,18 +52,18 @@ const DeleteModal = ({
         <div className="py-4">
           {itemName && (
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              Are you sure you want to delete <span className="font-semibold">"{itemName}"</span>? This action cannot be undone.
+              {t("modal.areYouSureDelete")} <span className="font-semibold">"{itemName}"</span>? {t("modal.cannotBeUndone")}
             </p>
           )}
           {!itemName && (
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              Are you sure you want to delete this item? This action cannot be undone.
+              {t("modal.areYouSureDeleteItem")} {t("modal.cannotBeUndone")}
             </p>
           )}
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={onClose} disabled={isLoading}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -68,7 +71,7 @@ const DeleteModal = ({
             disabled={isLoading}
             className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
           >
-            {isLoading ? "Deleting..." : "Delete"}
+            {isLoading ? t("common.deleting") : t("common.delete")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -6,28 +7,35 @@ import { useGetActivityLogsQuery } from "@/features/systemuser/systemuserApiSlic
 import ReusableTable from "@/components/table/reusable-table";
 import Dropdown from "@/components/dropdown/dropdown";
 
-const ACTION_OPTIONS = [
-  { label: "All Actions", value: "" },
-  { label: "Create", value: "CREATE" },
-  { label: "Update", value: "UPDATE" },
-  { label: "Delete", value: "DELETE" },
-  { label: "Permission Assign", value: "PERMISSION_ASSIGN" },
-  { label: "Permission Revoke", value: "PERMISSION_REVOKE" },
-  { label: "Status Change", value: "STATUS_CHANGE" },
-  { label: "Password Change", value: "PASSWORD_CHANGE" },
-];
-
-const ENTITY_OPTIONS = [
-  { label: "All Entities", value: "" },
-  { label: "System User", value: "SYSTEM_USER" },
-  { label: "Product", value: "PRODUCT" },
-  { label: "Order", value: "ORDER" },
-  { label: "Category", value: "CATEGORY" },
-  { label: "Customer", value: "CUSTOMER" },
-];
-
 const ActivityLogsPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const ACTION_OPTIONS = useMemo(
+    () => [
+      { label: t("activityLogs.allActions"), value: "" },
+      { label: t("activityLogs.create"), value: "CREATE" },
+      { label: t("activityLogs.update"), value: "UPDATE" },
+      { label: t("activityLogs.delete"), value: "DELETE" },
+      { label: t("activityLogs.permissionAssign"), value: "PERMISSION_ASSIGN" },
+      { label: t("activityLogs.permissionRevoke"), value: "PERMISSION_REVOKE" },
+      { label: t("activityLogs.statusChange"), value: "STATUS_CHANGE" },
+      { label: t("activityLogs.passwordChange"), value: "PASSWORD_CHANGE" },
+    ],
+    [t]
+  );
+
+  const ENTITY_OPTIONS = useMemo(
+    () => [
+      { label: t("activityLogs.allEntities"), value: "" },
+      { label: t("activityLogs.systemUser"), value: "SYSTEM_USER" },
+      { label: t("activityLogs.product"), value: "PRODUCT" },
+      { label: t("activityLogs.order"), value: "ORDER" },
+      { label: t("activityLogs.category"), value: "CATEGORY" },
+      { label: t("activityLogs.customer"), value: "CUSTOMER" },
+    ],
+    [t]
+  );
   const [selectedAction, setSelectedAction] = useState(ACTION_OPTIONS[0]);
   const [selectedEntity, setSelectedEntity] = useState(ENTITY_OPTIONS[0]);
   const [limit] = useState(50);
@@ -69,14 +77,17 @@ const ActivityLogsPage = () => {
     });
   };
 
-  const headers = [
-    { header: "Date", field: "date" },
-    { header: "Action", field: "action" },
-    { header: "Entity", field: "entity" },
-    { header: "Description", field: "description" },
-    { header: "Performed By", field: "performedBy" },
-    { header: "Target User", field: "targetUser" },
-  ];
+  const headers = useMemo(
+    () => [
+      { header: t("activityLogs.date"), field: "date" },
+      { header: t("activityLogs.action"), field: "action" },
+      { header: t("activityLogs.entity"), field: "entity" },
+      { header: t("activityLogs.description"), field: "description" },
+      { header: t("activityLogs.performedBy"), field: "performedBy" },
+      { header: t("activityLogs.targetUser"), field: "targetUser" },
+    ],
+    [t]
+  );
 
   const tableData = (data?.logs || []).map((log) => ({
     date: formatDate(log.createdAt),
@@ -99,9 +110,9 @@ const ActivityLogsPage = () => {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h3 className="text-lg font-medium">Activity Logs</h3>
+          <h3 className="text-lg font-medium">{t("activityLogs.title")}</h3>
           <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            Track all employee actions and activities
+            {t("activityLogs.description")}
           </p>
         </div>
       </div>
@@ -109,7 +120,7 @@ const ActivityLogsPage = () => {
       <div className="flex gap-4 mb-4">
         <div className="flex-1">
           <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
-            Filter by Action
+            {t("activityLogs.filterByAction")}
           </label>
           <Dropdown
             name="action"
@@ -124,7 +135,7 @@ const ActivityLogsPage = () => {
         </div>
         <div className="flex-1">
           <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
-            Filter by Entity
+            {t("activityLogs.filterByEntity")}
           </label>
           <Dropdown
             name="entity"
@@ -150,7 +161,7 @@ const ActivityLogsPage = () => {
       {data && data.total > limit && (
         <div className="flex justify-between items-center mt-4">
           <span className="text-sm text-black/60 dark:text-white/60">
-            Showing {offset + 1} - {Math.min(offset + limit, data.total)} of {data.total}
+            {t("activityLogs.showing", { from: offset + 1, to: Math.min(offset + limit, data.total), total: data.total })}
           </span>
           <div className="flex gap-2">
             <Button
@@ -159,7 +170,7 @@ const ActivityLogsPage = () => {
               onClick={() => setOffset(Math.max(0, offset - limit))}
               disabled={offset === 0}
             >
-              Previous
+              {t("activityLogs.previous")}
             </Button>
             <Button
               size="sm"
@@ -167,7 +178,7 @@ const ActivityLogsPage = () => {
               onClick={() => setOffset(offset + limit)}
               disabled={offset + limit >= data.total}
             >
-              Next
+              {t("activityLogs.next")}
             </Button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -13,35 +14,39 @@ import { useGetUsersQuery } from "@/features/user/userApiSlice";
 import { useSelector } from "react-redux";
 import { ArrowLeft } from "lucide-react";
 
-// Yup validation schema
-const orderSchema = yup.object().shape({
-  customerName: yup
-    .string()
-    .when('$hasCustomer', {
-      is: false,
-      then: (schema) => schema.required("Customer name is required").min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters").trim(),
-      otherwise: (schema) => schema.trim(),
-    }),
-  customerPhone: yup
-    .string()
-    .when('$hasCustomer', {
-      is: false,
-      then: (schema) => schema.max(20, "Phone number must be less than 20 characters").matches(/^[+\d\s()-]*$/, "Please enter a valid phone number").trim(),
-      otherwise: (schema) => schema.trim(),
-    }),
-  customerAddress: yup
-    .string()
-    .max(500, "Address must be less than 500 characters")
-    .trim(),
-  shippingAddress: yup
-    .string()
-    .max(500, "Shipping address must be less than 500 characters")
-    .trim(),
-});
-
 const CreateOrderPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+
+  const orderSchema = useMemo(
+    () =>
+      yup.object().shape({
+        customerName: yup
+          .string()
+          .when('$hasCustomer', {
+            is: false,
+            then: (schema) => schema.required(t("orders.validation.customerNameRequired")).min(2, t("orders.validation.nameMin")).max(100, t("orders.validation.nameMax")).trim(),
+            otherwise: (schema) => schema.trim(),
+          }),
+        customerPhone: yup
+          .string()
+          .when('$hasCustomer', {
+            is: false,
+            then: (schema) => schema.max(20, t("orders.validation.phoneMax")).matches(/^[+\d\s()-]*$/, t("orders.validation.phoneValid")).trim(),
+            otherwise: (schema) => schema.trim(),
+          }),
+        customerAddress: yup
+          .string()
+          .max(500, t("orders.validation.addressMax"))
+          .trim(),
+        shippingAddress: yup
+          .string()
+          .max(500, t("orders.validation.shippingAddressMax"))
+          .trim(),
+      }),
+    [t]
+  );
   
   const form = useForm({
     resolver: yupResolver(orderSchema),
@@ -79,17 +84,20 @@ const CreateOrderPage = () => {
     () => users.map((u) => ({ label: `${u.name ?? "-"} (${u.email ?? "-"})`, value: u.id })),
     [users]
   );
-  const paymentOptions = [
-    { label: "DIRECT (Online)", value: "DIRECT" },
-    { label: "Cash on Delivery (COD)", value: "COD" },
-  ];
+  const paymentOptions = useMemo(
+    () => [
+      { label: t("orders.paymentDirect"), value: "DIRECT" },
+      { label: t("orders.paymentCod"), value: "COD" },
+    ],
+    [t]
+  );
   const [selectedPayment, setSelectedPayment] = useState(paymentOptions[0]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [itemQty, setItemQty] = useState(1);
   const [items, setItems] = useState([]);
 
   const addItem = () => {
-    if (!selectedProduct || !itemQty || itemQty <= 0) return toast.error("Select product and quantity");
+    if (!selectedProduct || !itemQty || itemQty <= 0) return toast.error(t("orders.selectProductAndQty"));
     const exists = items.find((it) => it.productId === selectedProduct.value);
     if (exists) {
       setItems((prev) =>
@@ -111,13 +119,13 @@ const CreateOrderPage = () => {
 
   const onSubmit = async (data) => {
     if (items.length === 0) {
-      toast.error("Add at least one item");
+      toast.error(t("orders.addAtLeastOneItem"));
       return;
     }
     
     // Manual validation: if no customer selected, customerName is required
     if (!selectedCustomer && (!data.customerName || data.customerName.trim().length < 2)) {
-      toast.error("Customer name is required (at least 2 characters)");
+      toast.error(t("orders.customerNameRequiredMin"));
       return;
     }
 
@@ -134,14 +142,14 @@ const CreateOrderPage = () => {
     const params = { companyId: user?.companyId };
     const res = await createOrder({ body: payload, params });
     if (res?.data) {
-      toast.success("Order created");
+      toast.success(t("orders.orderCreated"));
       reset();
       setItems([]);
       setSelectedCustomer(null);
       setSelectedPayment(paymentOptions[0]);
       navigate("/orders");
     } else {
-      toast.error(res?.error?.data?.message || "Failed to create order");
+      toast.error(res?.error?.data?.message || t("orders.orderCreateFailed"));
     }
   };
 
@@ -157,9 +165,9 @@ const CreateOrderPage = () => {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold">Create Order</h1>
+          <h1 className="text-2xl font-semibold">{t("orders.createOrder")}</h1>
           <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            Add a new order to the system
+            {t("createEdit.createOrderDesc")}
           </p>
         </div>
       </div>
@@ -177,18 +185,18 @@ const CreateOrderPage = () => {
         {/* Customer selection */}
         <div className="fl gap-3">
           <Dropdown
-            name="Customer"
+            name={t("orders.customer")}
             options={customerOptions}
             setSelectedOption={setSelectedCustomer}
           >
-            {selectedCustomer ? selectedCustomer.label : "Select Customer"}
+            {selectedCustomer ? selectedCustomer.label : t("orders.selectCustomer")}
           </Dropdown>
           <Dropdown
-            name="Payment Method"
+            name={t("orders.paymentMethod")}
             options={paymentOptions}
             setSelectedOption={setSelectedPayment}
           >
-            {selectedPayment ? selectedPayment.label : "Payment Method"}
+            {selectedPayment ? selectedPayment.label : t("orders.paymentMethod")}
           </Dropdown>
         </div>
 
@@ -196,22 +204,22 @@ const CreateOrderPage = () => {
         {!selectedCustomer && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <TextField
-              label="Customer Name"
-              placeholder="John Doe"
+              label={t("orders.customerName")}
+              placeholder={t("orders.customerPlaceholder")}
               register={register}
               name="customerName"
               error={errors.customerName?.message}
             />
             <TextField
-              label="Customer Phone"
-              placeholder="+8801..."
+              label={t("orders.customerPhone")}
+              placeholder={t("orders.phonePlaceholder")}
               register={register}
               name="customerPhone"
               error={errors.customerPhone?.message}
             />
             <TextField
-              label="Customer Address"
-              placeholder="Street, City"
+              label={t("orders.customerAddress")}
+              placeholder={t("orders.addressPlaceholder")}
               register={register}
               name="customerAddress"
               error={errors.customerAddress?.message}
@@ -221,8 +229,8 @@ const CreateOrderPage = () => {
 
         {/* Shipping address */}
         <TextField
-          label="Shipping Address"
-          placeholder="Street, City (optional)"
+          label={t("orders.shippingAddress")}
+          placeholder={t("orders.shippingPlaceholder")}
           register={register}
           name="shippingAddress"
           error={errors.shippingAddress?.message}
@@ -232,11 +240,11 @@ const CreateOrderPage = () => {
         <div className="rounded-xl border border-black/10 dark:border-white/10 p-3">
           <div className="fl gap-3">
             <Dropdown
-              name="Product"
+              name={t("orders.product")}
               options={productOptions}
               setSelectedOption={setSelectedProduct}
             >
-              {selectedProduct ? selectedProduct.label : "Select Product"}
+              {selectedProduct ? selectedProduct.label : t("orders.selectProduct")}
             </Dropdown>
             <input
               type="number"
@@ -259,24 +267,24 @@ const CreateOrderPage = () => {
                 }
               }}
               className="border border-black/10 dark:border-white/20 bg-bg50 dark:bg-white/10 px-3 py-2 rounded-md w-28 outline-none"
-              placeholder="Qty"
+              placeholder={t("orders.qty")}
             />
             <Button type="button" variant="outline" onClick={addItem}>
-              Add Item
+              {t("orders.addItem")}
             </Button>
           </div>
 
           <div className="mt-3 space-y-2">
             {items.length === 0 ? (
-              <p className="text-sm opacity-60">No items added yet.</p>
+              <p className="text-sm opacity-60">{t("orders.noItemsAdded")}</p>
             ) : (
               items.map((it) => (
                 <div key={it.productId} className="fl justify-between border border-black/5 dark:border-white/10 rounded-md px-3 py-2">
                   <span className="text-sm">{it.name}</span>
                   <div className="fl gap-3">
-                    <span className="text-sm">Qty: {it.quantity}</span>
+                    <span className="text-sm">{t("orders.qty")}: {it.quantity}</span>
                     <Button variant="ghost" size="sm" onClick={() => removeItem(it.productId)}>
-                      Remove
+                      {t("orders.remove")}
                     </Button>
                   </div>
                 </div>
@@ -296,10 +304,10 @@ const CreateOrderPage = () => {
               navigate("/orders");
             }}
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button type="submit" disabled={isLoading} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-            {isLoading ? "Creating..." : "Create Order"}
+            {isLoading ? t("orders.creating") : t("orders.createOrder")}
           </Button>
         </div>
       </form>

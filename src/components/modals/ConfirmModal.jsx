@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
     Dialog,
     DialogContent,
@@ -14,14 +15,18 @@ const ConfirmModal = ({
     isOpen,
     onClose,
     onConfirm,
-    title = "Confirm Action",
+    title,
     description,
     itemName,
     isLoading = false,
     type = "default", // "default", "warning", "danger", "success"
-    confirmText = "Confirm",
-    cancelText = "Cancel",
+    confirmText,
+    cancelText,
 }) => {
+    const { t } = useTranslation();
+    const modalTitle = title ?? t("modal.confirmAction");
+    const confirmLabel = confirmText ?? t("common.confirm");
+    const cancelLabel = cancelText ?? t("common.cancel");
     const handleConfirm = async () => {
         try {
             await onConfirm();
@@ -92,7 +97,7 @@ const ConfirmModal = ({
                             {getIcon()}
                         </div>
                         <div>
-                            <DialogTitle className="text-lg pb-2 font-semibold">{title}</DialogTitle>
+                            <DialogTitle className="text-lg pb-2 font-semibold">{modalTitle}</DialogTitle>
                             {description && (
                                 <DialogDescription className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                     {description}
@@ -110,7 +115,7 @@ const ConfirmModal = ({
                 </div>
                 <DialogFooter>
                     <Button variant="ghost" onClick={onClose} disabled={isLoading}>
-                        {cancelText}
+                        {cancelLabel}
                     </Button>
                     <Button
                         variant={getButtonVariant()}
@@ -118,7 +123,7 @@ const ConfirmModal = ({
                         disabled={isLoading}
                         className={getButtonClassName()}
                     >
-                        {isLoading ? "Processing..." : confirmText}
+                        {isLoading ? t("common.processing") : confirmLabel}
                     </Button>
                 </DialogFooter>
             </DialogContent>

@@ -1,10 +1,12 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Package, User, CreditCard, Truck, Calendar, Edit } from "lucide-react";
 import { useGetOrderQuery } from "@/features/order/orderApiSlice";
 
 const OrderViewPage = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: order, isLoading, error } = useGetOrderQuery(parseInt(id));
@@ -15,7 +17,7 @@ const OrderViewPage = () => {
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black dark:border-white mx-auto mb-4"></div>
-            <p className="text-black/60 dark:text-white/60">Loading order details...</p>
+            <p className="text-black/60 dark:text-white/60">{t("orders.loadingOrderDetails")}</p>
           </div>
         </div>
       </div>
@@ -35,9 +37,9 @@ const OrderViewPage = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold">Order Not Found</h1>
+            <h1 className="text-2xl font-semibold">{t("orders.orderNotFound")}</h1>
             <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-              The order you're looking for doesn't exist
+              {t("orders.orderNotFoundDesc")}
             </p>
           </div>
         </div>
@@ -109,7 +111,7 @@ const OrderViewPage = () => {
               className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
             >
               <Edit className="h-4 w-4 mr-2" />
-              Edit Order
+              {t("orders.editOrder")}
             </Button>
           </div>
         </div>
@@ -122,7 +124,7 @@ const OrderViewPage = () => {
                 <Package className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">Total Items</p>
+                <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">{t("orders.totalItems")}</p>
                 <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
                   {order.items?.length || 0}
                 </p>
@@ -135,7 +137,7 @@ const OrderViewPage = () => {
                 <CreditCard className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Total Amount</p>
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">{t("orders.totalAmount")}</p>
                 <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
                   {typeof order.totalAmount === "number"
                     ? `$${Number(order.totalAmount).toFixed(2)}`
@@ -150,9 +152,9 @@ const OrderViewPage = () => {
                 <Calendar className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">Payment Status</p>
+                <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">{t("orders.paymentStatus")}</p>
                 <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
-                  {order.isPaid ? "Paid" : "Unpaid"}
+                  {order.isPaid ? t("orders.paid") : t("orders.unpaid")}
                 </p>
               </div>
             </div>
@@ -169,7 +171,7 @@ const OrderViewPage = () => {
               <div className="flex items-center gap-2 mb-6">
                 <Package className="h-5 w-5 text-black dark:text-white" />
                 <h2 className="text-xl font-bold text-black dark:text-white">
-                  Order Items ({order.items.length})
+                  {t("orders.orderItems")} ({order.items.length})
                 </h2>
               </div>
               <div className="space-y-4">
@@ -183,7 +185,7 @@ const OrderViewPage = () => {
                       {productImage ? (
                         <img
                           src={productImage}
-                          alt={item.product?.name || "Product"}
+                          alt={item.product?.name || t("orders.product")}
                           className="w-20 h-20 rounded-lg object-cover border border-black/10 dark:border-white/10"
                         />
                       ) : (
@@ -193,18 +195,18 @@ const OrderViewPage = () => {
                       )}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-black dark:text-white text-lg mb-1">
-                          {item.product?.name || item.name || "Unknown Product"}
+                          {item.product?.name || item.name || t("orders.unknownProduct")}
                         </h3>
                         <p className="text-sm text-black/60 dark:text-white/60 mb-2">
-                          SKU: {item.product?.sku || item.sku || "N/A"}
+                          {t("products.sku")}: {item.product?.sku || item.sku || t("common.na")}
                         </p>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4 text-sm">
                             <span className="text-black/70 dark:text-white/70">
-                              Qty: <span className="font-semibold text-black dark:text-white">{item.quantity || 0}</span>
+                              {t("orders.qty")}: <span className="font-semibold text-black dark:text-white">{item.quantity || 0}</span>
                             </span>
                             <span className="text-black/70 dark:text-white/70">
-                              Price: <span className="font-semibold text-black dark:text-white">
+                              {t("products.price")}: <span className="font-semibold text-black dark:text-white">
                                 {typeof item.unitPrice === "number"
                                   ? `$${Number(item.unitPrice).toFixed(2)}`
                                   : "$0.00"}
@@ -212,7 +214,7 @@ const OrderViewPage = () => {
                             </span>
                           </div>
                           <div className="text-right">
-                            <p className="text-xs text-black/60 dark:text-white/60 mb-1">Total</p>
+                            <p className="text-xs text-black/60 dark:text-white/60 mb-1">{t("orders.total")}</p>
                             <p className="text-lg font-bold text-black dark:text-white">
                               {typeof item.totalPrice === "number"
                                 ? `$${Number(item.totalPrice).toFixed(2)}`
@@ -227,7 +229,7 @@ const OrderViewPage = () => {
               </div>
               <div className="mt-6 pt-6 border-t border-black/10 dark:border-white/10">
                 <div className="flex items-center justify-between">
-                  <span className="text-lg font-semibold text-black dark:text-white">Order Total</span>
+                  <span className="text-lg font-semibold text-black dark:text-white">{t("orders.orderTotal")}</span>
                   <span className="text-2xl font-bold text-black dark:text-white">
                     {typeof order.totalAmount === "number"
                       ? `$${Number(order.totalAmount).toFixed(2)}`
@@ -246,12 +248,12 @@ const OrderViewPage = () => {
           <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
             <div className="flex items-center gap-2 mb-4">
               <User className="h-5 w-5 text-black dark:text-white" />
-              <h2 className="text-lg font-bold text-black dark:text-white">Customer</h2>
+              <h2 className="text-lg font-bold text-black dark:text-white">{t("orders.customer")}</h2>
             </div>
             <div className="space-y-3">
               <div>
                 <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
-                  Name
+                  {t("common.name")}
                 </label>
                 <p className="text-base font-semibold text-black dark:text-white mt-1">
                   {order.customer?.name || order.customerName || "N/A"}
@@ -260,7 +262,7 @@ const OrderViewPage = () => {
               {order.customer?.email && (
                 <div>
                   <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
-                    Email
+                    {t("customers.email")}
                   </label>
                   <p className="text-sm text-black dark:text-white mt-1 break-all">{order.customer.email}</p>
                 </div>
@@ -268,7 +270,7 @@ const OrderViewPage = () => {
               {(order.customer?.phone || order.customerPhone) && (
                 <div>
                   <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
-                    Phone
+                    {t("customers.phone")}
                   </label>
                   <p className="text-sm text-black dark:text-white mt-1">
                     {order.customer?.phone || order.customerPhone}
@@ -278,7 +280,7 @@ const OrderViewPage = () => {
               {order.customerAddress && (
                 <div>
                   <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
-                    Address
+                    {t("orders.address")}
                   </label>
                   <p className="text-sm text-black dark:text-white mt-1 whitespace-pre-wrap">
                     {order.customerAddress}
@@ -292,12 +294,12 @@ const OrderViewPage = () => {
           <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
             <div className="flex items-center gap-2 mb-4">
               <CreditCard className="h-5 w-5 text-black dark:text-white" />
-              <h2 className="text-lg font-bold text-black dark:text-white">Payment</h2>
+              <h2 className="text-lg font-bold text-black dark:text-white">{t("orders.payment")}</h2>
             </div>
             <div className="space-y-3">
               <div>
                 <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
-                  Status
+                  {t("common.status")}
                 </label>
                 <p className="mt-1">
                   <span
@@ -307,13 +309,13 @@ const OrderViewPage = () => {
                         : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                     }`}
                   >
-                    {order.isPaid ? "Paid" : "Unpaid"}
+                    {order.isPaid ? t("orders.paid") : t("orders.unpaid")}
                   </span>
                 </p>
               </div>
               <div>
                 <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
-                  Method
+                  {t("orders.method")}
                 </label>
                 <p className="text-sm font-semibold text-black dark:text-white mt-1">
                   {order.paymentMethod || "N/A"}
@@ -321,9 +323,9 @@ const OrderViewPage = () => {
               </div>
               {order.paymentReference && (
                 <div>
-                  <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
-                    Reference
-                  </label>
+                <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  {t("orders.reference")}
+                </label>
                   <p className="text-sm text-black dark:text-white mt-1 font-mono break-all">
                     {order.paymentReference}
                   </p>
@@ -337,13 +339,13 @@ const OrderViewPage = () => {
             <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Truck className="h-5 w-5 text-black dark:text-white" />
-                <h2 className="text-lg font-bold text-black dark:text-white">Shipping</h2>
+                <h2 className="text-lg font-bold text-black dark:text-white">{t("orders.shipping")}</h2>
               </div>
               <div className="space-y-3">
                 {order.deliveryType && (
                   <div>
                     <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
-                      Delivery Type
+                      {t("orders.deliveryType")}
                     </label>
                     <p className="text-sm font-semibold text-black dark:text-white mt-1">
                       {order.deliveryType}
@@ -353,7 +355,7 @@ const OrderViewPage = () => {
                 {order.shippingTrackingId && (
                   <div>
                     <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
-                      Tracking ID
+                      {t("orders.trackingId")}
                     </label>
                     <p className="text-sm text-black dark:text-white mt-1 font-mono break-all">
                       {order.shippingTrackingId}
@@ -363,7 +365,7 @@ const OrderViewPage = () => {
                 {order.shippingProvider && (
                   <div>
                     <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
-                      Provider
+                      {t("orders.provider")}
                     </label>
                     <p className="text-sm font-semibold text-black dark:text-white mt-1">
                       {order.shippingProvider}
@@ -378,13 +380,13 @@ const OrderViewPage = () => {
           <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
             <div className="flex items-center gap-2 mb-4">
               <Calendar className="h-5 w-5 text-black dark:text-white" />
-              <h2 className="text-lg font-bold text-black dark:text-white">Timeline</h2>
+              <h2 className="text-lg font-bold text-black dark:text-white">{t("orders.timeline")}</h2>
             </div>
             <div className="space-y-3">
               {order.createdAt && (
                 <div>
                   <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
-                    Created
+                    {t("orders.created")}
                   </label>
                   <p className="text-sm text-black dark:text-white mt-1">
                     {new Date(order.createdAt).toLocaleString()}
@@ -394,7 +396,7 @@ const OrderViewPage = () => {
               {order.updatedAt && (
                 <div>
                   <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
-                    Last Updated
+                    {t("orders.lastUpdated")}
                   </label>
                   <p className="text-sm text-black dark:text-white mt-1">
                     {new Date(order.updatedAt).toLocaleString()}
