@@ -147,8 +147,8 @@ function Item({ to, label, tKey, Icon, badge, isCollapsed, t }) {
       to={to}
       title={isCollapsed ? label : ""}
       className={({ isActive }) =>
-        `group relative flex items-center gap-3 ${isCollapsed ? 'px-4 justify-center' : 'px-4'} py-2.5 mx-2 rounded-xl transition-all duration-200
-         ${isActive ? "bg-white text-black font-semibold shadow-md" : "text-gray-500 hover:text-white hover:bg-white/10"}`
+        `group relative flex items-center gap-3 ${isCollapsed ? 'px-4 justify-center' : 'px-4'} py-2 rounded-xl transition-colors
+         ${isActive ? "bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white"}`
       }
     >
       <Icon className="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0" />
@@ -249,7 +249,7 @@ export default function SideNav() {
   }, [showSearchResults]);
 
   return (
-    <aside className={`sticky left-0 top-0 h-screen ${isCollapsed ? 'w-20' : 'w-64'} bg-black text-gray-400 flex flex-col transition-all duration-300 shadow-2xl z-50`}>
+    <aside className={`sticky left-0 top-0 h-screen ${isCollapsed ? 'w-20' : 'w-64'} bg-white dark:bg-[#0b0f14] text-gray-800 dark:text-gray-200 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-all duration-300`}>
       {/* Header */}
       <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 h-14 border-b border-gray-200 dark:border-gray-800`}>
         {isCollapsed ? (
@@ -399,24 +399,6 @@ export default function SideNav() {
           </div>
         ))}
       </nav>
-      {/* Go Pro Card */}
-      {!isCollapsed && (
-        <div className="mx-4 mb-4 p-4 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 relative overflow-hidden group">
-             <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-                <Crown size={60} />
-             </div>
-             <div className="relative z-10">
-                 <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center mb-3">
-                    <Crown size={20} />
-                 </div>
-                 <h4 className="text-white font-bold text-lg mb-1">Go Pro</h4>
-                 <p className="text-gray-400 text-xs mb-3">Upgrade your plan to go professional</p>
-                 <Link to="/upgrade-plan" className="block text-center bg-white text-black font-semibold py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors">
-                    Upgrade Now
-                 </Link>
-             </div>
-        </div>
-      )}
 
       {/* Footer */}
       <div className="mt-auto px-4 py-3 border-t border-gray-200 dark:border-gray-800 space-y-2">
