@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Moon, Sun } from "lucide-react";
 import { useDarkMode } from "@/hooks/dark-mode";
 
-const ThemeToggle = ({ variant = "default" }) => {
+const ThemeToggle = ({ variant = "default", className = "" }) => {
   const { t } = useTranslation();
   const { isDark, toggleDarkMode } = useDarkMode();
 
@@ -15,7 +15,7 @@ const ThemeToggle = ({ variant = "default" }) => {
         onClick={toggleDarkMode}
         title={title}
         aria-label={title}
-        className="flex items-center justify-center h-9 w-9 rounded-lg text-black dark:text-white bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
+        className={`flex items-center justify-center h-9 w-9 rounded-lg text-black dark:text-white bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition-colors ${className}`}
       >
         {isDark ? (
           <Sun className="h-4 w-4" />

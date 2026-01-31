@@ -1,21 +1,63 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { DollarSign, Users, Headset, LayoutDashboard, Package, FileText, Palette, Shield, UserCircle } from "lucide-react";
+import {
+  DollarSign,
+  Users,
+  Headset,
+  LayoutDashboard,
+  Package,
+  FileText,
+  Palette,
+  Shield,
+  UserCircle,
+} from "lucide-react";
 import LanguageSwitcher from "@/components/language/LanguageSwitcher";
 
 const SuperAdminSideNav = () => {
   const { t } = useTranslation();
   const items = [
-    { labelKey: "superadmin.overview", to: "/superadmin", Icon: LayoutDashboard },
-    { labelKey: "superadmin.earnings", to: "/superadmin/earnings", Icon: DollarSign },
-    { labelKey: "superadmin.ourCustomers", to: "/superadmin/customers", Icon: Users },
-    { labelKey: "superadmin.packages", to: "/superadmin/packages", Icon: Package },
+    {
+      labelKey: "superadmin.overview",
+      to: "/superadmin",
+      Icon: LayoutDashboard,
+    },
+    {
+      labelKey: "superadmin.earnings",
+      to: "/superadmin/earnings",
+      Icon: DollarSign,
+    },
+    {
+      labelKey: "superadmin.ourCustomers",
+      to: "/superadmin/customers",
+      Icon: Users,
+    },
+    {
+      labelKey: "superadmin.packages",
+      to: "/superadmin/packages",
+      Icon: Package,
+    },
     { labelKey: "superadmin.themes", to: "/superadmin/themes", Icon: Palette },
-    { labelKey: "superadmin.invoices", to: "/superadmin/invoices", Icon: FileText },
-    { labelKey: "superadmin.support", to: "/superadmin/support", Icon: Headset },
-    { labelKey: "superadmin.superAdmins", to: "/superadmin/superadmins", Icon: Shield },
-    { labelKey: "superadmin.myProfile", to: "/superadmin/profile", Icon: UserCircle },
+    {
+      labelKey: "superadmin.invoices",
+      to: "/superadmin/invoices",
+      Icon: FileText,
+    },
+    {
+      labelKey: "superadmin.support",
+      to: "/superadmin/support",
+      Icon: Headset,
+    },
+    {
+      labelKey: "superadmin.superAdmins",
+      to: "/superadmin/superadmins",
+      Icon: Shield,
+    },
+    {
+      labelKey: "superadmin.myProfile",
+      to: "/superadmin/profile",
+      Icon: UserCircle,
+    },
   ];
 
   return (
@@ -27,8 +69,12 @@ const SuperAdminSideNav = () => {
             SA
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold">{t("superadmin.title")}</span>
-            <span className="text-[11px] text-gray-500 dark:text-slate-400">{t("superadmin.globalControl")}</span>
+            <span className="text-sm font-semibold">
+              {t("superadmin.title")}
+            </span>
+            <span className="text-[11px] text-gray-500 dark:text-slate-400">
+              {t("superadmin.globalControl")}
+            </span>
           </div>
         </div>
       </div>
@@ -62,6 +108,3 @@ const SuperAdminSideNav = () => {
 };
 
 export default SuperAdminSideNav;
-
-
-

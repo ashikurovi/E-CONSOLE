@@ -11,15 +11,28 @@ import IconButton from "../buttons/icon-button";
 import SidebarMenu from "./SidebarMenu";
 // ... existing code ...
 import SearchBar from "@/components/input/search-bar";
-import { Bell, Settings, HelpCircle, User, Package, ShoppingCart, Truck, AlertCircle, CheckCircle, Search, Eye } from "lucide-react";
+import {
+  Bell,
+  Settings,
+  HelpCircle,
+  User,
+  Package,
+  ShoppingCart,
+  Truck,
+  AlertCircle,
+  CheckCircle,
+  Search,
+  Eye,
+  Menu,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { 
-  useGetOrderCreatedNotificationsQuery, 
+import {
+  useGetOrderCreatedNotificationsQuery,
   useGetAllNotificationsQuery,
   useGetOrderStatusNotificationsQuery,
   useGetNewCustomerNotificationsQuery,
@@ -31,7 +44,7 @@ import { useSearch } from "@/contexts/SearchContext";
 import moment from "moment";
 // ... existing code ...
 
-const TopNavbar = () => {
+const TopNavbar = ({ setIsMobileMenuOpen }) => {
   const { t } = useTranslation();
   // Fetch user data from API instead of Redux
   const { data: user, isLoading: isLoadingUser } = useGetCurrentUserQuery();
@@ -40,211 +53,296 @@ const TopNavbar = () => {
 
   const companyId = user?.companyId;
   const userId = user?._id;
-  
+
   // Global search state
   const [searchTerm, setSearchTerm] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const searchInputRef = useRef(null);
   const searchContainerRef = useRef(null);
   const { setIsSearching } = useSearch();
-  
+
   // Global search hook
-  const { results, isLoading: isSearchLoading, totalResults } = useGlobalSearch(
-    searchTerm,
-    companyId
-  );
-  
+  const {
+    results,
+    isLoading: isSearchLoading,
+    totalResults,
+  } = useGlobalSearch(searchTerm, companyId);
+
   // Fetch all types of notifications
-  const { data: allNotifications = [], isLoading: isLoadingAll, refetch: refetchAll } = useGetAllNotificationsQuery(
-    { companyId },
-    { skip: !companyId }
-  );
-  
-  const { data: orderNotifications = [], isLoading: isLoadingOrders, refetch: refetchOrders } = useGetOrderCreatedNotificationsQuery(companyId, {
+  const {
+    data: allNotifications = [],
+    isLoading: isLoadingAll,
+    refetch: refetchAll,
+  } = useGetAllNotificationsQuery({ companyId }, { skip: !companyId });
+
+  const {
+    data: orderNotifications = [],
+    isLoading: isLoadingOrders,
+    refetch: refetchOrders,
+  } = useGetOrderCreatedNotificationsQuery(companyId, {
     skip: !companyId,
   });
-  
-  const { data: orderStatusNotifications = [], isLoading: isLoadingOrderStatus, refetch: refetchOrderStatus } = useGetOrderStatusNotificationsQuery(companyId, {
+
+  const {
+    data: orderStatusNotifications = [],
+    isLoading: isLoadingOrderStatus,
+    refetch: refetchOrderStatus,
+  } = useGetOrderStatusNotificationsQuery(companyId, {
     skip: !companyId,
   });
-  
-  const { data: newCustomerNotifications = [], isLoading: isLoadingCustomers, refetch: refetchCustomers } = useGetNewCustomerNotificationsQuery(companyId, {
+
+  const {
+    data: newCustomerNotifications = [],
+    isLoading: isLoadingCustomers,
+    refetch: refetchCustomers,
+  } = useGetNewCustomerNotificationsQuery(companyId, {
     skip: !companyId,
   });
-  
-  const { data: lowStockNotifications = [], isLoading: isLoadingStock, refetch: refetchStock } = useGetLowStockNotificationsQuery(companyId, {
+
+  const {
+    data: lowStockNotifications = [],
+    isLoading: isLoadingStock,
+    refetch: refetchStock,
+  } = useGetLowStockNotificationsQuery(companyId, {
     skip: !companyId,
   });
-  
+
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
-  
-  const isLoading = isLoadingAll || isLoadingOrders || isLoadingOrderStatus || isLoadingCustomers || isLoadingStock;
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+
+  const isLoading =
+    isLoadingAll ||
+    isLoadingOrders ||
+    isLoadingOrderStatus ||
+    isLoadingCustomers ||
+    isLoadingStock;
 
   // Combine notifications from all sources
   const combinedNotifications = [
-    ...allNotifications, 
-    ...orderNotifications, 
+    ...allNotifications,
+    ...orderNotifications,
     ...orderStatusNotifications,
     ...newCustomerNotifications,
     ...lowStockNotifications,
   ];
-  
+
   // Remove duplicates based on id
   const uniqueNotifications = combinedNotifications.reduce((acc, current) => {
-    const exists = acc.find(item => (item.id || item._id) === (current.id || current._id));
+    const exists = acc.find(
+      (item) => (item.id || item._id) === (current.id || current._id),
+    );
     if (!exists) {
       return acc.concat([current]);
     }
     return acc;
   }, []);
-  
-  // Transform API notifications to match UI format
-  const notifications = uniqueNotifications.map((notification) => {
-    // Determine icon and color based on notification type (matching backend enum)
-    let icon = Bell;
-    let iconColor = "text-gray-500";
-    let title = notification.subject || notification.title || t("notifications.notification");
-    
-    switch(notification.type) {
-      // Order notifications
-      case "order_created":
-      case "ORDER_CREATED":
-        icon = ShoppingCart;
-        iconColor = "text-blue-500";
-        title = notification.subject || notification.title || t("notifications.newOrderCreated");
-        break;
-      case "order_confirmed":
-      case "ORDER_CONFIRMED":
-        icon = CheckCircle;
-        iconColor = "text-blue-600";
-        title = notification.subject || notification.title || t("notifications.orderConfirmed");
-        break;
-      case "order_processing":
-      case "ORDER_PROCESSING":
-        icon = Package;
-        iconColor = "text-yellow-500";
-        title = notification.subject || notification.title || t("notifications.orderProcessing");
-        break;
-      case "order_shipped":
-      case "ORDER_SHIPPED":
-        icon = Truck;
-        iconColor = "text-purple-500";
-        title = notification.subject || notification.title || t("notifications.orderShipped");
-        break;
-      case "order_delivered":
-      case "ORDER_DELIVERED":
-        icon = CheckCircle;
-        iconColor = "text-green-500";
-        title = notification.subject || notification.title || t("notifications.orderDelivered");
-        break;
-      case "order_cancelled":
-      case "ORDER_CANCELLED":
-        icon = AlertCircle;
-        iconColor = "text-red-500";
-        title = notification.subject || notification.title || t("notifications.orderCancelled");
-        break;
-      case "order_refunded":
-      case "ORDER_REFUNDED":
-        icon = AlertCircle;
-        iconColor = "text-orange-600";
-        title = notification.subject || notification.title || t("notifications.orderRefunded");
-        break;
-      
-      // Payment notifications
-      case "payment_received":
-      case "PAYMENT_RECEIVED":
-        icon = CheckCircle;
-        iconColor = "text-green-600";
-        title = notification.subject || notification.title || t("notifications.paymentReceived");
-        break;
-      case "payment_failed":
-      case "PAYMENT_FAILED":
-        icon = AlertCircle;
-        iconColor = "text-red-600";
-        title = notification.subject || notification.title || t("notifications.paymentFailed");
-        break;
-      
-      // Customer notifications
-      case "new_customer":
-      case "NEW_CUSTOMER":
-        icon = User;
-        iconColor = "text-indigo-500";
-        title = notification.subject || notification.title || t("notifications.newCustomer");
-        break;
-      case "customer_updated":
-      case "CUSTOMER_UPDATED":
-        icon = User;
-        iconColor = "text-blue-400";
-        title = notification.subject || notification.title || t("notifications.customerUpdated");
-        break;
-      
-      // Stock notifications
-      case "low_stock":
-      case "LOW_STOCK":
-        icon = AlertCircle;
-        iconColor = "text-orange-500";
-        title = notification.subject || notification.title || t("notifications.lowStockAlert");
-        break;
-      case "out_of_stock":
-      case "OUT_OF_STOCK":
-        icon = AlertCircle;
-        iconColor = "text-red-500";
-        title = notification.subject || notification.title || t("notifications.outOfStock");
-        break;
-      
-      // Product notifications
-      case "product_added":
-      case "PRODUCT_ADDED":
-        icon = Package;
-        iconColor = "text-green-500";
-        title = notification.subject || notification.title || t("notifications.productAdded");
-        break;
-      case "product_updated":
-      case "PRODUCT_UPDATED":
-        icon = Package;
-        iconColor = "text-blue-500";
-        title = notification.subject || notification.title || t("notifications.productUpdated");
-        break;
-      
-      // Broadcast notifications
-      case "broadcast_email":
-      case "BROADCAST_EMAIL":
-        icon = Bell;
-        iconColor = "text-indigo-500";
-        title = notification.subject || notification.title || t("notifications.emailBroadcast");
-        break;
-      case "broadcast_sms":
-      case "BROADCAST_SMS":
-        icon = Bell;
-        iconColor = "text-teal-500";
-        title = notification.subject || notification.title || t("notifications.smsBroadcast");
-        break;
-      
-      default:
-        icon = Bell;
-        iconColor = "text-gray-500";
-        title = notification.subject || notification.title || t("notifications.notification");
-    }
-    
-    return {
-      id: notification.id || notification._id,
-      type: notification.type || "general",
-      title: title,
-      message: notification.message || `Notification message`,
-      time: notification.createdAt 
-        ? moment(notification.createdAt).fromNow()
-        : "Just now",
-      icon: icon,
-      iconColor: iconColor,
-      read: notification.isRead || false,
-    };
-  }).sort((a, b) => {
-    // Sort by read status (unread first) and then by time
-    if (a.read === b.read) return 0;
-    return a.read ? 1 : -1;
-  });
 
-  const newNotificationCount = notifications.filter(n => !n.read).length;
+  // Transform API notifications to match UI format
+  const notifications = uniqueNotifications
+    .map((notification) => {
+      // Determine icon and color based on notification type (matching backend enum)
+      let icon = Bell;
+      let iconColor = "text-gray-500";
+      let title =
+        notification.subject ||
+        notification.title ||
+        t("notifications.notification");
+
+      switch (notification.type) {
+        // Order notifications
+        case "order_created":
+        case "ORDER_CREATED":
+          icon = ShoppingCart;
+          iconColor = "text-blue-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.newOrderCreated");
+          break;
+        case "order_confirmed":
+        case "ORDER_CONFIRMED":
+          icon = CheckCircle;
+          iconColor = "text-blue-600";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.orderConfirmed");
+          break;
+        case "order_processing":
+        case "ORDER_PROCESSING":
+          icon = Package;
+          iconColor = "text-yellow-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.orderProcessing");
+          break;
+        case "order_shipped":
+        case "ORDER_SHIPPED":
+          icon = Truck;
+          iconColor = "text-purple-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.orderShipped");
+          break;
+        case "order_delivered":
+        case "ORDER_DELIVERED":
+          icon = CheckCircle;
+          iconColor = "text-green-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.orderDelivered");
+          break;
+        case "order_cancelled":
+        case "ORDER_CANCELLED":
+          icon = AlertCircle;
+          iconColor = "text-red-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.orderCancelled");
+          break;
+        case "order_refunded":
+        case "ORDER_REFUNDED":
+          icon = AlertCircle;
+          iconColor = "text-orange-600";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.orderRefunded");
+          break;
+
+        // Payment notifications
+        case "payment_received":
+        case "PAYMENT_RECEIVED":
+          icon = CheckCircle;
+          iconColor = "text-green-600";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.paymentReceived");
+          break;
+        case "payment_failed":
+        case "PAYMENT_FAILED":
+          icon = AlertCircle;
+          iconColor = "text-red-600";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.paymentFailed");
+          break;
+
+        // Customer notifications
+        case "new_customer":
+        case "NEW_CUSTOMER":
+          icon = User;
+          iconColor = "text-indigo-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.newCustomer");
+          break;
+        case "customer_updated":
+        case "CUSTOMER_UPDATED":
+          icon = User;
+          iconColor = "text-blue-400";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.customerUpdated");
+          break;
+
+        // Stock notifications
+        case "low_stock":
+        case "LOW_STOCK":
+          icon = AlertCircle;
+          iconColor = "text-orange-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.lowStockAlert");
+          break;
+        case "out_of_stock":
+        case "OUT_OF_STOCK":
+          icon = AlertCircle;
+          iconColor = "text-red-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.outOfStock");
+          break;
+
+        // Product notifications
+        case "product_added":
+        case "PRODUCT_ADDED":
+          icon = Package;
+          iconColor = "text-green-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.productAdded");
+          break;
+        case "product_updated":
+        case "PRODUCT_UPDATED":
+          icon = Package;
+          iconColor = "text-blue-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.productUpdated");
+          break;
+
+        // Broadcast notifications
+        case "broadcast_email":
+        case "BROADCAST_EMAIL":
+          icon = Bell;
+          iconColor = "text-indigo-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.emailBroadcast");
+          break;
+        case "broadcast_sms":
+        case "BROADCAST_SMS":
+          icon = Bell;
+          iconColor = "text-teal-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.smsBroadcast");
+          break;
+
+        default:
+          icon = Bell;
+          iconColor = "text-gray-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.notification");
+      }
+
+      return {
+        id: notification.id || notification._id,
+        type: notification.type || "general",
+        title: title,
+        message: notification.message || `Notification message`,
+        time: notification.createdAt
+          ? moment(notification.createdAt).fromNow()
+          : "Just now",
+        icon: icon,
+        iconColor: iconColor,
+        read: notification.isRead || false,
+      };
+    })
+    .sort((a, b) => {
+      // Sort by read status (unread first) and then by time
+      if (a.read === b.read) return 0;
+      return a.read ? 1 : -1;
+    });
+
+  const newNotificationCount = notifications.filter((n) => !n.read).length;
 
   // Handle search input change - show results in real-time
   const handleSearchChange = (value) => {
@@ -261,7 +359,10 @@ const TopNavbar = () => {
   // Close search results when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event) => {
-      if (searchInputRef.current && !searchInputRef.current.contains(event.target)) {
+      if (
+        searchInputRef.current &&
+        !searchInputRef.current.contains(event.target)
+      ) {
         setShowSearchResults(false);
       }
     };
@@ -274,24 +375,37 @@ const TopNavbar = () => {
     }
   }, [showSearchResults, setIsSearching]);
 
-
   // ... existing code ...
 
   return (
-    <nav className="dark:bg-[#242424] bg-white  lg:p-3  p-1 mb-5 z-50 sticky lg:static top-0">
+    <nav className="dark:bg-[#242424] bg-white lg:p-3 p-1 mb-5 z-50 static top-0">
       <div className="flbx py-2 gap-3">
+        <div className="lg:hidden pl-2">
+          <IconButton
+            icon={Menu}
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="!bg-[#DCE865] !text-black hover:!bg-[#DCE865]/90"
+          />
+        </div>
         {/* <div className="fl gap-4 pl-2">
     
           <NavLogo />
         </div> */}
 
-        <div className="flex-1 w-[500px] lg:flex hidden relative" ref={searchContainerRef}>
-          <SearchBar 
-            placeholder={t("search.placeholder")} 
+        <div
+          className={`flex-1 w-full max-w-[500px] relative ${
+            isMobileSearchOpen
+              ? "flex absolute top-full left-0 right-0 px-2 pb-2 bg-white dark:bg-[#242424] shadow-md z-50"
+              : "hidden lg:flex"
+          }`}
+          ref={searchContainerRef}
+        >
+          <SearchBar
+            placeholder={t("search.placeholder")}
             searchValue={searchTerm}
             setSearhValue={handleSearchChange}
           />
-          
+
           {/* Real-time Search Results Dropdown */}
           {showSearchResults && searchTerm && searchTerm.trim().length >= 2 && (
             <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 rounded-lg shadow-lg z-50 max-h-[70vh] overflow-y-auto">
@@ -311,11 +425,13 @@ const TopNavbar = () => {
                     {t("common.clear")}
                   </button>
                 </div>
-                
+
                 {isSearchLoading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-3"></div>
-                    <p className="text-gray-500 dark:text-gray-400">{t("search.searching")}</p>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      {t("search.searching")}
+                    </p>
                   </div>
                 ) : totalResults === 0 ? (
                   <div className="text-center py-8">
@@ -350,7 +466,8 @@ const TopNavbar = () => {
                                     Order #{o.id}
                                   </p>
                                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    {o.customer?.name ?? o.customerName ?? "-"} • {o.status}
+                                    {o.customer?.name ?? o.customerName ?? "-"}{" "}
+                                    • {o.status}
                                   </p>
                                 </div>
                                 <p className="text-sm font-semibold text-black dark:text-white">
@@ -362,7 +479,7 @@ const TopNavbar = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     {/* Products Results */}
                     {results.products.length > 0 && (
                       <div>
@@ -399,7 +516,7 @@ const TopNavbar = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     {/* Customers Results */}
                     {results.customers.length > 0 && (
                       <div>
@@ -439,14 +556,40 @@ const TopNavbar = () => {
         </div>
 
         <div className="fl lg:gap-3 gap-2 pr-2">
-          <ThemeToggle variant="compact" />
-          <LanguageSwitcher variant="compact" />
-          <Link to="/help">      <IconButton icon={HelpCircle} />  </Link>
-      
+          <div className="lg:hidden">
+            <IconButton
+              icon={Search}
+              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+              className="!bg-[#DCE865] !text-black hover:!bg-[#DCE865]/90"
+            />
+          </div>
+          <ThemeToggle
+            variant="compact"
+            className="!bg-[#DCE865] !text-black hover:!bg-[#DCE865]/90"
+          />
+          <LanguageSwitcher
+            variant="compact"
+            className="!bg-[#DCE865] !text-black hover:!bg-[#DCE865]/90"
+          />
+          <Link to="/help">
+            {" "}
+            <IconButton
+              icon={HelpCircle}
+              className="!bg-[#DCE865] !text-black hover:!bg-[#DCE865]/90"
+            />{" "}
+          </Link>
+
           {/* <IconButton icon={Settings} /> */}
           <div className="relative">
-            <div onClick={() => setIsNotificationModalOpen(true)} className="cursor-pointer">
-              <IconButton type="icon" icon={Bell} />
+            <div
+              onClick={() => setIsNotificationModalOpen(true)}
+              className="cursor-pointer"
+            >
+              <IconButton
+                type="icon"
+                icon={Bell}
+                className="!bg-[#DCE865] !text-black hover:!bg-[#DCE865]/90"
+              />
             </div>
             {newNotificationCount > 0 && (
               <span className="absolute -top-3 -right-3 bg-primary h-6 w-6 center rounded-full text-xs font-medium text-white">
@@ -454,15 +597,20 @@ const TopNavbar = () => {
               </span>
             )}
           </div>
-          <Link to="/settings">     <div className="h-9 w-9 rounded-full bg-black/5 dark:bg-white/10 center overflow-hidden">
-            <User className="h-5 w-5 opacity-70" />
-          </div> </Link>
-      
+          <Link to="/settings">
+            {" "}
+            <div className="h-9 w-9 rounded-full bg-[#DCE865] hover:bg-[#DCE865]/90 center overflow-hidden">
+              <User className="h-5 w-5 opacity-70 text-black" />
+            </div>{" "}
+          </Link>
         </div>
       </div>
 
       {/* Notifications Modal */}
-      <Dialog open={isNotificationModalOpen} onOpenChange={setIsNotificationModalOpen}>
+      <Dialog
+        open={isNotificationModalOpen}
+        onOpenChange={setIsNotificationModalOpen}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 justify-center">
@@ -474,12 +622,16 @@ const TopNavbar = () => {
             {isLoading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-3"></div>
-                <p className="text-gray-500 dark:text-gray-400">{t("notifications.loading")}</p>
+                <p className="text-gray-500 dark:text-gray-400">
+                  {t("notifications.loading")}
+                </p>
               </div>
             ) : notifications.length === 0 ? (
               <div className="text-center py-8">
                 <Bell className="h-12 w-12 mx-auto text-gray-400 mb-3" />
-                <p className="text-gray-500 dark:text-gray-400">{t("notifications.noNotifications")}</p>
+                <p className="text-gray-500 dark:text-gray-400">
+                  {t("notifications.noNotifications")}
+                </p>
               </div>
             ) : (
               notifications.map((notification) => {
@@ -495,7 +647,9 @@ const TopNavbar = () => {
                   >
                     <div className="flex gap-3">
                       <div className="flex-shrink-0">
-                        <div className={`h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center ${notification.iconColor}`}>
+                        <div
+                          className={`h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center ${notification.iconColor}`}
+                        >
                           <IconComponent className="h-5 w-5" />
                         </div>
                       </div>
@@ -540,7 +694,6 @@ const TopNavbar = () => {
           )}
         </DialogContent>
       </Dialog>
-
     </nav>
   );
 };
