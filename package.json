@@ -1,5 +1,5 @@
 {
-  "name": "celestial-weather-client",
+  "name": "squadcart-console",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,7 +8,7 @@
     "build": "vite build",
     "build:prod": "vite build --mode prod",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview --host --port ${PORT:-4173}"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
