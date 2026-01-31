@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -8,27 +8,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import TextField from "@/components/input/TextField";
-import Dropdown from "@/components/dropdown/dropdown";
 import { useCreateUserMutation } from "@/features/user/userApiSlice";
 import { useSelector } from "react-redux";
 
 function CreateCustomerPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-
-  const roleOptions = useMemo(
-    () => [
-      { label: t("customers.customerRole"), value: "customer" },
-      { label: t("customers.adminRole"), value: "admin" },
-    ],
-    [t]
-  );
-
-  const [roleOption, setRoleOption] = useState(() => roleOptions[0]);
-
-  useEffect(() => {
-    setRoleOption((prev) => roleOptions.find((o) => o.value === prev?.value) || roleOptions[0]);
-  }, [roleOptions]);
 
   const customerSchema = useMemo(
     () =>
@@ -71,7 +56,7 @@ function CreateCustomerPage() {
       email: data.email,
       phone: data.phone || undefined,
       address: data.address || undefined,
-      role: roleOption?.value || "customer",
+      role: "customer",
       isActive: true,
     };
 
@@ -83,7 +68,6 @@ function CreateCustomerPage() {
     if (res?.data) {
       toast.success(t("customers.customerCreated"));
       reset();
-      setRoleOption(roleOptions[0]);
       navigate("/customers");
     } else {
       toast.error(res?.error?.data?.message || t("customers.customerCreateFailed"));
@@ -153,24 +137,6 @@ function CreateCustomerPage() {
             name="address"
             error={errors.address?.message}
           />
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
-            <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              {t("customers.roleAndPermissions")}
-            </h3>
-          </div>
-          <Dropdown
-            name={t("customers.role")}
-            options={roleOptions}
-            setSelectedOption={setRoleOption}
-            className="py-2"
-          >
-            {roleOption?.label || (
-              <span className="text-black/50 dark:text-white/50">{t("customers.selectRole")}</span>
-            )}
-          </Dropdown>
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">

@@ -433,7 +433,7 @@ export default function SideNav() {
         </button>
       </div>
 
-      {/* Floating toggle button for collapsed state */}
+      {/* Floating toggle button for collapsed stat d QW D1 22rdQWD qweeQW e */}
       {isCollapsed && (
         <button
           onClick={toggleSidebar}

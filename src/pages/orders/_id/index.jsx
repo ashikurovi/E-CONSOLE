@@ -1,15 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Package, User, CreditCard, Truck, Calendar, Edit } from "lucide-react";
-import { useGetOrderQuery } from "@/features/order/orderApiSlice";
+import { ArrowLeft, Package, User, CreditCard, Truck, Calendar, ClipboardCheck } from "lucide-react";
+import { useGetOrderQuery, useProcessOrderMutation } from "@/features/order/orderApiSlice";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const OrderViewPage = () => {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: order, isLoading, error } = useGetOrderQuery(parseInt(id));
+  const [processOrder, { isLoading: isProcessing }] = useProcessOrderMutation();
+  const [processModal, setProcessModal] = useState(false);
 
   if (isLoading) {
     return (
@@ -72,6 +82,31 @@ const OrderViewPage = () => {
     return null;
   };
 
+  // Handle amounts from API (TypeORM returns decimals as strings)
+  const formatAmount = (val) => {
+    const num = Number(val);
+    return isNaN(num) ? "0.00" : num.toFixed(2);
+  };
+
+  const subtotal = order.items?.reduce(
+    (sum, it) => sum + (Number(it.totalPrice) || 0),
+    0
+  ) ?? 0;
+
+  const canMarkProcessing =
+    order.status?.toLowerCase() === "pending" ||
+    order.status?.toLowerCase() === "paid";
+
+  const handleProcess = async () => {
+    const res = await processOrder({ id: order.id });
+    if (res?.data) {
+      toast.success(t("orders.orderProcessing"));
+      setProcessModal(false);
+    } else {
+      toast.error(res?.error?.data?.message || t("common.failed"));
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -105,14 +140,17 @@ const OrderViewPage = () => {
             >
               {order.status?.toUpperCase() || "PENDING"}
             </span>
-            <Button
-              variant="outline"
-              onClick={() => navigate(`/orders/${id}/edit`)}
-              className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
-            >
-              <Edit className="h-4 w-4 mr-2" />
-              {t("orders.editOrder")}
-            </Button>
+            {canMarkProcessing && (
+              <Button
+                variant="outline"
+                onClick={() => setProcessModal(true)}
+                disabled={isProcessing}
+                className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800"
+              >
+                <ClipboardCheck className="h-4 w-4 mr-2" />
+                {isProcessing ? t("common.processing") : t("orders.markProcessing")}
+              </Button>
+            )}
           </div>
         </div>
 
@@ -139,9 +177,7 @@ const OrderViewPage = () => {
               <div>
                 <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">{t("orders.totalAmount")}</p>
                 <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
-                  {typeof order.totalAmount === "number"
-                    ? `$${Number(order.totalAmount).toFixed(2)}`
-                    : "$0.00"}
+                  ৳{formatAmount(order.totalAmount)}
                 </p>
               </div>
             </div>
@@ -207,18 +243,14 @@ const OrderViewPage = () => {
                             </span>
                             <span className="text-black/70 dark:text-white/70">
                               {t("products.price")}: <span className="font-semibold text-black dark:text-white">
-                                {typeof item.unitPrice === "number"
-                                  ? `$${Number(item.unitPrice).toFixed(2)}`
-                                  : "$0.00"}
+                                ৳{formatAmount(item.unitPrice)}
                               </span>
                             </span>
                           </div>
                           <div className="text-right">
                             <p className="text-xs text-black/60 dark:text-white/60 mb-1">{t("orders.total")}</p>
                             <p className="text-lg font-bold text-black dark:text-white">
-                              {typeof item.totalPrice === "number"
-                                ? `$${Number(item.totalPrice).toFixed(2)}`
-                                : "$0.00"}
+                              ৳{formatAmount(item.totalPrice)}
                             </p>
                           </div>
                         </div>
@@ -227,13 +259,17 @@ const OrderViewPage = () => {
                   );
                 })}
               </div>
-              <div className="mt-6 pt-6 border-t border-black/10 dark:border-white/10">
+              <div className="mt-6 pt-6 border-t border-black/10 dark:border-white/10 space-y-3">
                 <div className="flex items-center justify-between">
+                  <span className="text-base font-medium text-black/80 dark:text-white/80">{t("orders.subtotal")}</span>
+                  <span className="text-base font-semibold text-black dark:text-white">
+                    ৳{formatAmount(subtotal)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-black/5 dark:border-white/5">
                   <span className="text-lg font-semibold text-black dark:text-white">{t("orders.orderTotal")}</span>
                   <span className="text-2xl font-bold text-black dark:text-white">
-                    {typeof order.totalAmount === "number"
-                      ? `$${Number(order.totalAmount).toFixed(2)}`
-                      : "$0.00"}
+                    ৳{formatAmount(order.totalAmount)}
                   </span>
                 </div>
               </div>
@@ -335,7 +371,7 @@ const OrderViewPage = () => {
           </div>
 
           {/* Shipping Information */}
-          {(order.shippingTrackingId || order.shippingProvider || order.deliveryType) && (
+          {(order.deliveryNote || order.shippingTrackingId || order.shippingProvider || order.deliveryType) && (
             <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Truck className="h-5 w-5 text-black dark:text-white" />
@@ -365,10 +401,20 @@ const OrderViewPage = () => {
                 {order.shippingProvider && (
                   <div>
                     <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
-                      {t("orders.provider")}
+                      {t("orders.providerName")}
                     </label>
                     <p className="text-sm font-semibold text-black dark:text-white mt-1">
                       {order.shippingProvider}
+                    </p>
+                  </div>
+                )}
+                {order.deliveryNote && (
+                  <div>
+                    <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
+                      {t("orders.deliveryComment")}
+                    </label>
+                    <p className="text-sm text-black dark:text-white mt-1 whitespace-pre-wrap">
+                      {order.deliveryNote}
                     </p>
                   </div>
                 )}
@@ -407,6 +453,26 @@ const OrderViewPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Process Confirmation Modal */}
+      <Dialog open={processModal} onOpenChange={setProcessModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{t("orders.markProcessing")}</DialogTitle>
+            <p className="text-sm text-black/60 dark:text-white/60 mt-1">
+              {t("orders.confirmProcessing")} Order #{order.id}?
+            </p>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setProcessModal(false)} disabled={isProcessing}>
+              {t("common.cancel")}
+            </Button>
+            <Button onClick={handleProcess} disabled={isProcessing} className="bg-amber-500 hover:bg-amber-600 text-white">
+              {isProcessing ? t("common.processing") : t("orders.markProcessing")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

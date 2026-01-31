@@ -34,6 +34,7 @@ import CustomersPage from "./pages/customers";
 import CreateCustomerPage from "./pages/customers/create";
 import OrdersPage from "./pages/orders";
 import CreateOrderPage from "./pages/orders/create";
+import OrderTrackPage from "./pages/orders/track";
 import OrderViewPage from "./pages/orders/_id";
 import OrderEditPage from "./pages/orders/_id/edit";
 import FraudPage from "./pages/fraud";
@@ -74,6 +75,7 @@ import CreateRefundPolicyPage from "./pages/refund-policy/create";
 import EditRefundPolicyPage from "./pages/refund-policy/edit";
 import SteadfastPage from "./pages/steadfast";
 import PathaoPage from "./pages/pathao";
+import RedXPage from "./pages/redx";
 import UpgradePlanPage from "./pages/upgrade-plan";
 
 export const routes = createBrowserRouter([
@@ -190,6 +192,14 @@ export const routes = createBrowserRouter([
         element: (
           <PermissionRoute permission={FeaturePermission.ORDERS}>
             <CreateOrderPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/orders/track",
+        element: (
+          <PermissionRoute permission={FeaturePermission.ORDERS}>
+            <OrderTrackPage />
           </PermissionRoute>
         ),
       },
@@ -414,6 +424,14 @@ export const routes = createBrowserRouter([
         element: (
           <PermissionRoute permission={FeaturePermission.PATHAO}>
             <PathaoPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/redx",
+        element: (
+          <PermissionRoute permission={FeaturePermission.REDX}>
+            <RedXPage />
           </PermissionRoute>
         ),
       },

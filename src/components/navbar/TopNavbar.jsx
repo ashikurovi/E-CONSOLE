@@ -24,6 +24,8 @@ import {
   useGetOrderStatusNotificationsQuery,
   useGetNewCustomerNotificationsQuery,
   useGetLowStockNotificationsQuery,
+  useMarkNotificationAsReadMutation,
+  useMarkAllNotificationsAsReadMutation,
 } from "@/features/notifications/notificationsApiSlice";
 import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
 import { useGlobalSearch } from "@/features/search/searchApiSlice";
@@ -77,6 +79,8 @@ const TopNavbar = () => {
   });
   
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+  const [markAsRead] = useMarkNotificationAsReadMutation();
+  const [markAllAsRead, { isLoading: isMarkingAll }] = useMarkAllNotificationsAsReadMutation();
   
   const isLoading = isLoadingAll || isLoadingOrders || isLoadingOrderStatus || isLoadingCustomers || isLoadingStock;
 
@@ -237,6 +241,7 @@ const TopNavbar = () => {
       icon: icon,
       iconColor: iconColor,
       read: notification.isRead || false,
+      orderId: notification.orderId,
     };
   }).sort((a, b) => {
     // Sort by read status (unread first) and then by time
@@ -487,6 +492,19 @@ const TopNavbar = () => {
                 return (
                   <div
                     key={notification.id}
+                    onClick={async () => {
+                      if (!notification.read) {
+                        try {
+                          await markAsRead({ id: notification.id, companyId }).unwrap();
+                        } catch (e) {
+                          console.error("Failed to mark as read:", e);
+                        }
+                      }
+                      if (notification.orderId) {
+                        navigate(`/orders/${notification.orderId}`);
+                        setIsNotificationModalOpen(false);
+                      }
+                    }}
                     className={`p-4 rounded-lg border transition-colors ${
                       !notification.read
                         ? "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800"
@@ -522,10 +540,18 @@ const TopNavbar = () => {
             )}
           </div>
           {notifications.length > 0 && (
-            <div className="mt-4 pt-4 border-t dark:border-gray-700">
+            <div className="mt-4 pt-4 border-t dark:border-gray-700 flex flex-col gap-2">
+              {newNotificationCount > 0 && (
+                <button
+                  onClick={() => markAllAsRead(companyId)}
+                  disabled={isMarkingAll}
+                  className="w-full text-center text-sm font-medium py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors disabled:opacity-50"
+                >
+                  {isMarkingAll ? t("common.processing") : t("notifications.markAllAsRead")}
+                </button>
+              )}
               <button
                 onClick={() => {
-                  // Refetch to get latest notifications from all sources
                   refetchAll();
                   refetchOrders();
                   refetchOrderStatus();
