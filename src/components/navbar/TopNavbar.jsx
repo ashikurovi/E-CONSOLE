@@ -26,19 +26,11 @@ import {
   Menu,
 } from "lucide-react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   useGetOrderCreatedNotificationsQuery,
   useGetAllNotificationsQuery,
   useGetOrderStatusNotificationsQuery,
   useGetNewCustomerNotificationsQuery,
   useGetLowStockNotificationsQuery,
-  useMarkNotificationAsReadMutation,
-  useMarkAllNotificationsAsReadMutation,
 } from "@/features/notifications/notificationsApiSlice";
 import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
 import { useGlobalSearch } from "@/features/search/searchApiSlice";
@@ -73,53 +65,33 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
   // Fetch all types of notifications
   const {
     data: allNotifications = [],
-    isLoading: isLoadingAll,
-    refetch: refetchAll,
   } = useGetAllNotificationsQuery({ companyId }, { skip: !companyId });
 
   const {
     data: orderNotifications = [],
-    isLoading: isLoadingOrders,
-    refetch: refetchOrders,
   } = useGetOrderCreatedNotificationsQuery(companyId, {
     skip: !companyId,
   });
 
   const {
     data: orderStatusNotifications = [],
-    isLoading: isLoadingOrderStatus,
-    refetch: refetchOrderStatus,
   } = useGetOrderStatusNotificationsQuery(companyId, {
     skip: !companyId,
   });
 
   const {
     data: newCustomerNotifications = [],
-    isLoading: isLoadingCustomers,
-    refetch: refetchCustomers,
   } = useGetNewCustomerNotificationsQuery(companyId, {
     skip: !companyId,
   });
 
   const {
     data: lowStockNotifications = [],
-    isLoading: isLoadingStock,
-    refetch: refetchStock,
   } = useGetLowStockNotificationsQuery(companyId, {
     skip: !companyId,
   });
 
-  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  const [markAsRead] = useMarkNotificationAsReadMutation();
-  const [markAllAsRead, { isLoading: isMarkingAll }] = useMarkAllNotificationsAsReadMutation();
-
-  const isLoading =
-    isLoadingAll ||
-    isLoadingOrders ||
-    isLoadingOrderStatus ||
-    isLoadingCustomers ||
-    isLoadingStock;
 
   // Combine notifications from all sources
   const combinedNotifications = [
@@ -531,7 +503,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
           {/* <IconButton icon={Settings} /> */}
           <div className="relative">
             <div
-              onClick={() => setIsNotificationModalOpen(true)}
+              onClick={() => navigate("/notifications")}
               className="cursor-pointer"
             >
               <IconButton
@@ -554,116 +526,6 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
           </Link>
         </div>
       </div>
-
-      {/* Notifications Modal */}
-      <Dialog
-        open={isNotificationModalOpen}
-        onOpenChange={setIsNotificationModalOpen}
-      >
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 justify-center">
-              <Bell className="h-5 w-5" />
-              {t("notifications.title")}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 mt-4">
-            {isLoading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-3"></div>
-                <p className="text-gray-500 dark:text-gray-400">
-                  {t("notifications.loading")}
-                </p>
-              </div>
-            ) : notifications.length === 0 ? (
-              <div className="text-center py-8">
-                <Bell className="h-12 w-12 mx-auto text-gray-400 mb-3" />
-                <p className="text-gray-500 dark:text-gray-400">
-                  {t("notifications.noNotifications")}
-                </p>
-              </div>
-            ) : (
-              notifications.map((notification) => {
-                const IconComponent = notification.icon;
-                return (
-                  <div
-                    key={notification.id}
-                    onClick={async () => {
-                      if (!notification.read) {
-                        try {
-                          await markAsRead({ id: notification.id, companyId }).unwrap();
-                        } catch (e) {
-                          console.error("Failed to mark as read:", e);
-                        }
-                      }
-                      if (notification.orderId) {
-                        navigate(`/orders/${notification.orderId}`);
-                        setIsNotificationModalOpen(false);
-                      }
-                    }}
-                    className={`p-4 rounded-lg border transition-colors ${
-                      !notification.read
-                        ? "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800"
-                        : "bg-white dark:bg-[#1a1f26] border-gray-200 dark:border-gray-800"
-                    } hover:shadow-md cursor-pointer`}
-                  >
-                    <div className="flex gap-3">
-                      <div className="flex-shrink-0">
-                        <div
-                          className={`h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center ${notification.iconColor}`}
-                        >
-                          <IconComponent className="h-5 w-5" />
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {notification.title}
-                          </h4>
-                          {!notification.read && (
-                            <span className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0 mt-1"></span>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          {notification.message}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                          {notification.time}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-          {notifications.length > 0 && (
-            <div className="mt-4 pt-4 border-t dark:border-gray-700 flex flex-col gap-2">
-              {newNotificationCount > 0 && (
-                <button
-                  onClick={() => markAllAsRead(companyId)}
-                  disabled={isMarkingAll}
-                  className="w-full text-center text-sm font-medium py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors disabled:opacity-50"
-                >
-                  {isMarkingAll ? t("common.processing") : t("notifications.markAllAsRead")}
-                </button>
-              )}
-              <button
-                onClick={() => {
-                  refetchAll();
-                  refetchOrders();
-                  refetchOrderStatus();
-                  refetchCustomers();
-                  refetchStock();
-                }}
-                className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors font-medium"
-              >
-                {t("notifications.refresh")}
-              </button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </nav>
   );
 };

@@ -77,6 +77,7 @@ import SteadfastPage from "./pages/steadfast";
 import PathaoPage from "./pages/pathao";
 import RedXPage from "./pages/redx";
 import UpgradePlanPage from "./pages/upgrade-plan";
+import NotificationsPage from "./pages/notifications";
 
 export const routes = createBrowserRouter([
   {
@@ -434,6 +435,10 @@ export const routes = createBrowserRouter([
             <RedXPage />
           </PermissionRoute>
         ),
+      },
+      {
+        path: "/notifications",
+        element: <NotificationsPage />,
       },
       {
         path: "/upgrade-plan",
