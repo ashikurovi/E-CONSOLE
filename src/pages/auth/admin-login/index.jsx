@@ -245,7 +245,10 @@ const AdminLoginPage = () => {
   };
 
   return (
-    <AuthPage title="Admin Login" subtitle="Sign in to access your admin dashboard">
+    <AuthPage
+      title="Admin Login"
+      subtitle="Sign in to access your admin dashboard"
+    >
       <>
         {/* Quick Fill Button */}
         <div className="absolute top-6 right-6 sm:top-8 sm:right-8 z-20">

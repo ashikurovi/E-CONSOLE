@@ -26,8 +26,8 @@ const Layout = () => {
 
   return (
     <main className="w-full min-h-screen dark:bg-black/90 bg-gray-100 dark:text-white/75 text-black/75 ">
-      <div className="w-full ">
-        <div className="lg:px-0 px-2">
+      <div className="w-full max-h-screen">
+        <div className="lg:px-0 px-2 max-h-screen">
           <div className="lg:flex">
             <SideNav
               isMobileMenuOpen={isMobileMenuOpen}
