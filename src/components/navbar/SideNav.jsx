@@ -63,7 +63,7 @@ const getFilteredNav = (user) => {
     .filter((section) => section.items.length > 0);
 };
 
-import { ChevronDown, ChevronRight, X } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 /**
  * Collapsible Section Component
@@ -74,7 +74,7 @@ function CollapsibleSection({ section, isCollapsed, t }) {
   // Auto-expand if any child is active
   useEffect(() => {
     const isChildActive = section.items.some((item) =>
-      location.pathname.startsWith(item.to)
+      location.pathname.startsWith(item.to),
     );
     if (isChildActive) setIsOpen(true);
   }, [location.pathname, section.items]);
@@ -95,9 +95,15 @@ function CollapsibleSection({ section, isCollapsed, t }) {
             {section.tKey ? t(section.tKey) : section.title}
           </span>
           {isOpen ? (
-            <ChevronDown size={14} className="text-gray-500 group-hover:text-gray-300 transition-colors" />
+            <ChevronDown
+              size={14}
+              className="text-gray-500 group-hover:text-gray-300 transition-colors"
+            />
           ) : (
-            <ChevronRight size={14} className="text-gray-500 group-hover:text-gray-300 transition-colors" />
+            <ChevronRight
+              size={14}
+              className="text-gray-500 group-hover:text-gray-300 transition-colors"
+            />
           )}
         </div>
       )}
@@ -110,7 +116,9 @@ function CollapsibleSection({ section, isCollapsed, t }) {
       {/* Items List */}
       <div
         className={`flex flex-col gap-1 transition-all duration-300 ease-in-out overflow-hidden ${
-          !isCollapsed && !isOpen ? "max-h-0 opacity-0" : "max-h-[500px] opacity-100"
+          !isCollapsed && !isOpen
+            ? "max-h-0 opacity-0"
+            : "max-h-[500px] opacity-100"
         }`}
       >
         {section.items.map((item, index) => (
@@ -186,19 +194,6 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Reset collapsed state on mobile
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 1024) {
-        setIsCollapsed(false);
-      }
-    };
-    // Initial check
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   // Fetch user data
   const { data: user } = useGetCurrentUserQuery();
 
@@ -206,7 +201,7 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
   useGetCategoriesQuery();
 
   // Get filtered navigation based on permissions
-  const nav = useMemo(() => getFilteredNav(user?.permissions), [user]);
+  const nav = useMemo(() => getFilteredNav(user), [user]);
 
   // Sidebar search state
   const [searchTerm, setSearchTerm] = useState("");
@@ -284,7 +279,7 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
       {/* Sidebar Container */}
       <aside
         className={`fixed inset-y-0 left-0 z-[100] lg:sticky lg:top-0 h-screen 
-        ${isCollapsed ? "lg:w-20 w-[280px]" : "w-[280px]"} 
+        ${isCollapsed ? "w-20" : "w-[280px]"} 
         ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"} 
         bg-[#09090b]
         text-gray-400 
