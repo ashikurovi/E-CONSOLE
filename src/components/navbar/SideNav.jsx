@@ -63,7 +63,7 @@ const getFilteredNav = (user) => {
     .filter((section) => section.items.length > 0);
 };
 
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, X } from "lucide-react";
 
 /**
  * Collapsible Section Component
@@ -186,6 +186,19 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Reset collapsed state on mobile
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsCollapsed(false);
+      }
+    };
+    // Initial check
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Fetch user data
   const { data: user } = useGetCurrentUserQuery();
 
@@ -193,7 +206,7 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
   useGetCategoriesQuery();
 
   // Get filtered navigation based on permissions
-  const nav = useMemo(() => getFilteredNav(user), [user]);
+  const nav = useMemo(() => getFilteredNav(user?.permissions), [user]);
 
   // Sidebar search state
   const [searchTerm, setSearchTerm] = useState("");
@@ -271,7 +284,7 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
       {/* Sidebar Container */}
       <aside
         className={`fixed inset-y-0 left-0 z-[100] lg:sticky lg:top-0 h-screen 
-        ${isCollapsed ? "w-20" : "w-[280px]"} 
+        ${isCollapsed ? "lg:w-20 w-[280px]" : "w-[280px]"} 
         ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"} 
         bg-[#09090b]
         text-gray-400 

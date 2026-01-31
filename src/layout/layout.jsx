@@ -26,20 +26,20 @@ const Layout = () => {
 
   return (
     <main className="w-full min-h-screen dark:bg-black/90 bg-gray-100 dark:text-white/75 text-black/75 ">
-      <div className="w-full max-h-screen">
-        <div className="lg:px-0 px-2 max-h-screen">
-          <div className="lg:flex">
+      <div className="w-full min-h-screen">
+        <div className="lg:px-0 px-0 min-h-screen">
+          <div className="lg:flex min-h-screen">
             <SideNav
               isMobileMenuOpen={isMobileMenuOpen}
               setIsMobileMenuOpen={setIsMobileMenuOpen}
             />
 
-            <div className="flex-1 min-w-0">
-              <div className="lg:sticky top-0 z-40">
+            <div className="flex-1 min-w-0 flex flex-col">
+              <div className="fixed lg:sticky top-0 left-0 z-40 w-full">
                 <TopNavbar setIsMobileMenuOpen={setIsMobileMenuOpen} />
               </div>
               {!isSearching && (
-                <div className="px-3 md:max-w-[1100px] lg:w-full xl:max-w-[1400px] 2xl:max-w-[1800px] pb-5">
+                <div className="px-3 md:max-w-[1100px] lg:w-full xl:max-w-[1400px] 2xl:max-w-[1800px] pb-5 flex-1 pt-20 lg:pt-0">
                   <Outlet />
                 </div>
               )}
