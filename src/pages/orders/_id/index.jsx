@@ -371,13 +371,8 @@ const OrderViewPage = () => {
           </div>
 
           {/* Shipping Information */}
-<<<<<<< HEAD
-          {(order.shippingTrackingId || order.shippingProvider || order.deliveryType) && (
-            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
-=======
           {(order.deliveryNote || order.shippingTrackingId || order.shippingProvider || order.deliveryType) && (
             <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
->>>>>>> e916a0e35cb7b9b73522e4b3b4bdc8a616fcbe14
               <div className="flex items-center gap-2 mb-4">
                 <Truck className="h-5 w-5 text-black dark:text-white" />
                 <h2 className="text-lg font-bold text-black dark:text-white">{t("orders.shipping")}</h2>

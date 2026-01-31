@@ -6,7 +6,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FolderOpen, ArrowUp, ArrowDown, ArrowUpDown, Search, X } from "lucide-react";
+import {
+  FolderOpen,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+  Search,
+  X,
+} from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import TablePaginate from "./pagination";
@@ -36,7 +43,8 @@ export default function ReusableTable({
   total, // currently unused – maybe for server pagination later?
 }) {
   const { t } = useTranslation();
-  const placeholder = searchPlaceholder ?? t("table.searchPlaceholder") ?? "Search...";
+  const placeholder =
+    searchPlaceholder ?? t("table.searchPlaceholder") ?? "Search...";
 
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState("asc");
@@ -67,11 +75,15 @@ export default function ReusableTable({
         const value = item[field];
         if (value == null) return false;
         // Skip complex objects / components
-        if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+        if (
+          typeof value === "object" &&
+          value !== null &&
+          !Array.isArray(value)
+        ) {
           return false;
         }
         return String(value).toLowerCase().includes(searchLower);
-      })
+      }),
     );
   }, [data, searchTerm, searchFields, headers]);
 
@@ -161,15 +173,22 @@ export default function ReusableTable({
                   const isActive = sortKey === cell.field;
                   const sortable = cell.sortable !== false;
 
-                  const SortIcon =
-                    !sortable ? null : isActive ? (sortDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
+                  const SortIcon = !sortable
+                    ? null
+                    : isActive
+                      ? sortDir === "asc"
+                        ? ArrowUp
+                        : ArrowDown
+                      : ArrowUpDown;
 
                   return (
                     <TableHead
                       key={cell.field || idx}
                       onClick={() => sortable && onHeaderClick(cell.field)}
                       className={`h-11 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 select-none ${
-                        sortable ? "cursor-pointer hover:text-gray-900 dark:hover:text-gray-200" : ""
+                        sortable
+                          ? "cursor-pointer hover:text-gray-900 dark:hover:text-gray-200"
+                          : ""
                       } ${isLast ? "text-center" : "text-left"}`}
                     >
                       <div className="inline-flex items-center gap-1.5">
@@ -190,7 +209,10 @@ export default function ReusableTable({
             <TableBody>
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
-                  <TableRow key={i} className="border-b dark:border-neutral-800">
+                  <TableRow
+                    key={i}
+                    className="border-b dark:border-neutral-800"
+                  >
                     {headers.map((_, j) => (
                       <TableCell key={j} className="py-4">
                         <div className="h-5 w-full max-w-[180px] bg-gray-200 dark:bg-neutral-800 rounded animate-pulse" />
@@ -200,8 +222,13 @@ export default function ReusableTable({
                 ))
               ) : paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={headers.length} className="h-32 text-center text-gray-500 dark:text-gray-400">
-                    {searchTerm ? t("table.noResults") ?? "No results found" : t("table.empty") ?? "No data available"}
+                  <TableCell
+                    colSpan={headers.length}
+                    className="h-32 text-center text-gray-500 dark:text-gray-400"
+                  >
+                    {searchTerm
+                      ? (t("table.noResults") ?? "No results found")
+                      : (t("table.empty") ?? "No data available")}
                   </TableCell>
                 </TableRow>
               ) : (

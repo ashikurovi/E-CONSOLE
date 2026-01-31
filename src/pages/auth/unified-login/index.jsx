@@ -25,7 +25,7 @@ const UnifiedLoginPage = () => {
   const { handleSubmit, register } = useForm();
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  
+
   const [superadminLogin] = useSuperadminLoginMutation();
   const [loginSystemuser] = useLoginSystemuserMutation();
 
@@ -33,7 +33,7 @@ const UnifiedLoginPage = () => {
     setIsLoading(true);
     try {
       const loginCredential = data.email || data.name;
-      
+
       // Try superadmin login first (uses name)
       try {
         const superadminResult = await superadminLogin({
@@ -44,13 +44,15 @@ const UnifiedLoginPage = () => {
         if (superadminResult && superadminResult.accessToken) {
           // Decode token to check role
           const { payload } = decodeJWT(superadminResult.accessToken);
-          
+
           if (payload.role === "SUPER_ADMIN") {
-            dispatch(superadminLoggedIn({
-              accessToken: superadminResult.accessToken,
-              refreshToken: superadminResult.refreshToken || null,
-              user: superadminResult.user || null,
-            }));
+            dispatch(
+              superadminLoggedIn({
+                accessToken: superadminResult.accessToken,
+                refreshToken: superadminResult.refreshToken || null,
+                user: superadminResult.user || null,
+              }),
+            );
             toast.success("Super Admin Login Successful!");
             navigate("/superadmin");
             setIsLoading(false);
@@ -70,8 +72,10 @@ const UnifiedLoginPage = () => {
 
       if (systemuserResult?.data) {
         const responseData = systemuserResult.data;
-        const accessToken = responseData?.accessToken || responseData?.data?.accessToken;
-        const refreshToken = responseData?.refreshToken || responseData?.data?.refreshToken;
+        const accessToken =
+          responseData?.accessToken || responseData?.data?.accessToken;
+        const refreshToken =
+          responseData?.refreshToken || responseData?.data?.refreshToken;
 
         if (!accessToken) {
           toast.error("Login failed: Access token is missing.");
@@ -93,9 +97,9 @@ const UnifiedLoginPage = () => {
         }
       } else if (systemuserResult?.error) {
         toast.error(
-          systemuserResult?.error?.data?.message || 
-          systemuserResult?.error?.message || 
-          "Invalid email or password!"
+          systemuserResult?.error?.data?.message ||
+            systemuserResult?.error?.message ||
+            "Invalid email or password!",
         );
       } else {
         toast.error("Login failed. Please check your credentials.");
@@ -103,7 +107,7 @@ const UnifiedLoginPage = () => {
     } catch (error) {
       console.error("Login error:", error);
       let errorMessage = "Invalid credentials!";
-      
+
       if (error?.data?.message) {
         errorMessage = error.data.message;
       } else if (error?.message) {
@@ -113,7 +117,7 @@ const UnifiedLoginPage = () => {
       } else if (error?.error?.message) {
         errorMessage = error.error.message;
       }
-      
+
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -121,8 +125,8 @@ const UnifiedLoginPage = () => {
   };
 
   return (
-    <AuthPage 
-      title="Login" 
+    <AuthPage
+      title="Login"
       subtitle="Enter your credentials to access your dashboard"
     >
       <>

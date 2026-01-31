@@ -24,27 +24,42 @@ import PasswordField from "@/components/input/PasswordField";
 const AdminLoginPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { handleSubmit, register } = useForm();
+  const { handleSubmit, register, setValue } = useForm();
   const [rememberMe, setRememberMe] = useState(false);
-  const [loginSystemuser, { isLoading: loginLoading }] = useLoginSystemuserMutation();
-  const [superadminLogin, { isLoading: superadminLoading }] = useSuperadminLoginMutation();
+  const [loginSystemuser, { isLoading: loginLoading }] =
+    useLoginSystemuserMutation();
+  const [superadminLogin, { isLoading: superadminLoading }] =
+    useSuperadminLoginMutation();
+
+  const handleFillCredentials = () => {
+    setValue("email", "ashikurovi23@gmail.com");
+    setValue("password", "123456");
+    toast.success("Credentials Auto-filled", {
+      icon: "✨",
+      style: {
+        borderRadius: "10px",
+        background: "#333",
+        color: "#fff",
+      },
+    });
+  };
 
   const isLoading = loginLoading || superadminLoading;
 
   const onSubmit = async (data) => {
     try {
       const loginCredential = data.email || data.name;
-      
+
       // Debug: Log the form data to verify password is captured
       console.log("Form data:", data);
       console.log("Password value:", data.password);
-      
+
       // Ensure password is included
       if (!data.password) {
         toast.error("Password is required!");
         return;
       }
-      
+
       // 1st: Try systemuser login (uses email)
       const loginRes = await loginSystemuser({
         email: loginCredential,
@@ -53,13 +68,17 @@ const AdminLoginPage = () => {
 
       // Check if there's an error (like 404) - if so, proceed directly to superadmin login
       if (loginRes?.error) {
-        console.log("Systemuser login error (404 or other), proceeding to superadmin login...");
+        console.log(
+          "Systemuser login error (404 or other), proceeding to superadmin login...",
+        );
         // Proceed directly to superadmin login below
       } else if (loginRes?.data) {
         // Handle successful systemuser login
         const responseData = loginRes.data;
-        const accessToken = responseData?.accessToken || responseData?.data?.accessToken;
-        const refreshToken = responseData?.refreshToken || responseData?.data?.refreshToken;
+        const accessToken =
+          responseData?.accessToken || responseData?.data?.accessToken;
+        const refreshToken =
+          responseData?.refreshToken || responseData?.data?.refreshToken;
 
         if (accessToken) {
           // Decode token to check role
@@ -78,7 +97,7 @@ const AdminLoginPage = () => {
 
       // 2nd: Try superadmin login (uses email) - proceed if systemuser login failed (404, error, or invalid role)
       console.log("Trying superadmin login...");
-      
+
       try {
         const superadminResult = await superadminLogin({
           email: loginCredential,
@@ -99,7 +118,7 @@ const AdminLoginPage = () => {
           accessToken = superadminResult.accessToken;
           refreshToken = superadminResult.refreshToken || null;
           user = superadminResult.user || null;
-        } 
+        }
         // Fallback: check if wrapped in data property
         else if (superadminResult?.data?.accessToken) {
           accessToken = superadminResult.data.accessToken;
@@ -107,43 +126,61 @@ const AdminLoginPage = () => {
           user = superadminResult.data.user || null;
         }
         // Fallback: check if it's the response itself
-        else if (typeof superadminResult === 'string' && superadminResult.length > 100) {
+        else if (
+          typeof superadminResult === "string" &&
+          superadminResult.length > 100
+        ) {
           // If the entire response is a string, it might be the token itself (unlikely but handle it)
           accessToken = superadminResult;
         }
 
-        console.log("Extracted accessToken:", !!accessToken, accessToken ? accessToken.substring(0, 20) + "..." : "null");
+        console.log(
+          "Extracted accessToken:",
+          !!accessToken,
+          accessToken ? accessToken.substring(0, 20) + "..." : "null",
+        );
         console.log("Extracted refreshToken:", !!refreshToken);
         console.log("Extracted user:", !!user);
 
-        if (accessToken && typeof accessToken === 'string' && accessToken.length > 10) {
+        if (
+          accessToken &&
+          typeof accessToken === "string" &&
+          accessToken.length > 10
+        ) {
           console.log("Superadmin accessToken found, saving to storage...");
-          
+
           // Decode token to verify it's valid
           try {
             const { payload } = decodeJWT(accessToken);
             const userRole = payload.role || user?.role;
             console.log("Superadmin login successful - Role:", userRole);
-            console.log("Superadmin login - AccessToken (first 20 chars):", accessToken.substring(0, 20) + "...");
+            console.log(
+              "Superadmin login - AccessToken (first 20 chars):",
+              accessToken.substring(0, 20) + "...",
+            );
           } catch (decodeError) {
             console.error("Error decoding token:", decodeError);
             toast.error("Login failed: Invalid token received.");
             return;
           }
-          
+
           // Dispatch action to save tokens - this will save to sessionStorage
-          dispatch(superadminLoggedIn({
-            accessToken: accessToken,
-            refreshToken: refreshToken || null,
-            user: user || null,
-          }));
-          
+          dispatch(
+            superadminLoggedIn({
+              accessToken: accessToken,
+              refreshToken: refreshToken || null,
+              user: user || null,
+            }),
+          );
+
           // Verify tokens were saved immediately
           const savedToken = sessionStorage.getItem("superadmin_accessToken");
           console.log("Token saved to sessionStorage:", !!savedToken);
-          
+
           if (!savedToken) {
-            console.error("ERROR: Token was not saved to sessionStorage! Attempting manual save...");
+            console.error(
+              "ERROR: Token was not saved to sessionStorage! Attempting manual save...",
+            );
             // Manual fallback save
             sessionStorage.setItem("superadmin_accessToken", accessToken);
             if (refreshToken) {
@@ -157,20 +194,26 @@ const AdminLoginPage = () => {
               return;
             }
           }
-          
+
           toast.success("Super Admin Login Successful!");
           navigate("/superadmin");
           return;
         } else {
-          console.error("Superadmin login - No valid accessToken in response:", superadminResult);
-          console.error("Response structure:", JSON.stringify(superadminResult, null, 2));
+          console.error(
+            "Superadmin login - No valid accessToken in response:",
+            superadminResult,
+          );
+          console.error(
+            "Response structure:",
+            JSON.stringify(superadminResult, null, 2),
+          );
           toast.error("Login failed: No access token received.");
         }
       } catch (superadminError) {
         // Both logins failed
         console.error("Superadmin login error:", superadminError);
         let errorMessage = "Invalid email or password!";
-        
+
         if (superadminError?.data?.message) {
           errorMessage = superadminError.data.message;
         } else if (superadminError?.message) {
@@ -180,13 +223,13 @@ const AdminLoginPage = () => {
         } else if (superadminError?.error?.message) {
           errorMessage = superadminError.error.message;
         }
-        
+
         toast.error(errorMessage);
       }
     } catch (error) {
       console.error("Login error:", error);
       let errorMessage = "Invalid credentials!";
-      
+
       if (error?.data?.message) {
         errorMessage = error.data.message;
       } else if (error?.message) {
@@ -196,26 +239,35 @@ const AdminLoginPage = () => {
       } else if (error?.error?.message) {
         errorMessage = error.error.message;
       }
-      
+
       toast.error(errorMessage);
     }
   };
 
-
   return (
     <AuthPage title="Admin Login" subtitle="Sign in to access your admin dashboard">
       <>
+        {/* Quick Fill Button */}
+        <div className="absolute top-6 right-6 sm:top-8 sm:right-8 z-20">
+          <button
+            type="button"
+            onClick={handleFillCredentials}
+            className="group flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-95 ring-2 ring-white/20"
+          >
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+            Fill Now
+          </button>
+        </div>
+
         {/* Enhanced Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 relative">
+          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
           <p className="text-sm text-gray-500 dark:text-white/60">
             Enter your admin credentials to access the dashboard
           </p>
         </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-6"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
           <div className="space-y-4">
             <TextField
               placeholder="Your Email or Name"
@@ -238,8 +290,8 @@ const AdminLoginPage = () => {
                 required: "Password is required",
                 minLength: {
                   value: 1,
-                  message: "Password cannot be empty"
-                }
+                  message: "Password cannot be empty",
+                },
               }}
             />
           </div>
@@ -271,8 +323,20 @@ const AdminLoginPage = () => {
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
                   <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
                   </svg>
                   Logging In...
                 </span>
