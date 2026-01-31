@@ -26,8 +26,8 @@ export default function OrderViewModal({ order }) {
           <Eye className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0 gap-0 bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 shadow-2xl rounded-2xl">
-        <DialogHeader className="p-6 pb-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/20">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0 gap-0 backdrop-blur-2xl bg-white/90 dark:bg-gray-900/90 border border-white/50 dark:border-white/10 shadow-2xl rounded-2xl">
+        <DialogHeader className="p-6 pb-4 border-b border-gray-200/50 dark:border-gray-700/50 bg-white/40 dark:bg-black/20">
           <DialogTitle className="text-xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
             <Eye className="h-5 w-5 text-black dark:text-white" />
             {t("orders.orderDetails")} <span className="text-gray-400 font-normal">#{order.id}</span>

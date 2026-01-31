@@ -3,8 +3,19 @@ import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Package, User, CreditCard, Truck, Calendar, ClipboardCheck } from "lucide-react";
-import { useGetOrderQuery, useProcessOrderMutation } from "@/features/order/orderApiSlice";
+import {
+  ArrowLeft,
+  Package,
+  User,
+  CreditCard,
+  Truck,
+  Calendar,
+  ClipboardCheck,
+} from "lucide-react";
+import {
+  useGetOrderQuery,
+  useProcessOrderMutation,
+} from "@/features/order/orderApiSlice";
 import {
   Dialog,
   DialogContent,
@@ -27,7 +38,9 @@ const OrderViewPage = () => {
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black dark:border-white mx-auto mb-4"></div>
-            <p className="text-black/60 dark:text-white/60">{t("orders.loadingOrderDetails")}</p>
+            <p className="text-black/60 dark:text-white/60">
+              {t("orders.loadingOrderDetails")}
+            </p>
           </div>
         </div>
       </div>
@@ -47,7 +60,9 @@ const OrderViewPage = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold">{t("orders.orderNotFound")}</h1>
+            <h1 className="text-2xl font-semibold">
+              {t("orders.orderNotFound")}
+            </h1>
             <p className="text-sm text-black/60 dark:text-white/60 mt-1">
               {t("orders.orderNotFoundDesc")}
             </p>
@@ -88,10 +103,9 @@ const OrderViewPage = () => {
     return isNaN(num) ? "0.00" : num.toFixed(2);
   };
 
-  const subtotal = order.items?.reduce(
-    (sum, it) => sum + (Number(it.totalPrice) || 0),
-    0
-  ) ?? 0;
+  const subtotal =
+    order.items?.reduce((sum, it) => sum + (Number(it.totalPrice) || 0), 0) ??
+    0;
 
   const canMarkProcessing =
     order.status?.toLowerCase() === "pending" ||
@@ -122,15 +136,18 @@ const OrderViewPage = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-black dark:text-white">Order #{order.id}</h1>
+              <h1 className="text-3xl font-bold text-black dark:text-white">
+                Order #{order.id}
+              </h1>
               <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-                {order.createdAt && new Date(order.createdAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {order.createdAt &&
+                  new Date(order.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
               </p>
             </div>
           </div>
@@ -148,7 +165,9 @@ const OrderViewPage = () => {
                 className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800"
               >
                 <ClipboardCheck className="h-4 w-4 mr-2" />
-                {isProcessing ? t("common.processing") : t("orders.markProcessing")}
+                {isProcessing
+                  ? t("common.processing")
+                  : t("orders.markProcessing")}
               </Button>
             )}
           </div>
@@ -162,7 +181,9 @@ const OrderViewPage = () => {
                 <Package className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">{t("orders.totalItems")}</p>
+                <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                  {t("orders.totalItems")}
+                </p>
                 <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
                   {order.items?.length || 0}
                 </p>
@@ -175,7 +196,9 @@ const OrderViewPage = () => {
                 <CreditCard className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">{t("orders.totalAmount")}</p>
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                  {t("orders.totalAmount")}
+                </p>
                 <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
                   ৳{formatAmount(order.totalAmount)}
                 </p>
@@ -188,7 +211,9 @@ const OrderViewPage = () => {
                 <Calendar className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">{t("orders.paymentStatus")}</p>
+                <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                  {t("orders.paymentStatus")}
+                </p>
                 <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
                   {order.isPaid ? t("orders.paid") : t("orders.unpaid")}
                 </p>
@@ -231,24 +256,33 @@ const OrderViewPage = () => {
                       )}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-black dark:text-white text-lg mb-1">
-                          {item.product?.name || item.name || t("orders.unknownProduct")}
+                          {item.product?.name ||
+                            item.name ||
+                            t("orders.unknownProduct")}
                         </h3>
                         <p className="text-sm text-black/60 dark:text-white/60 mb-2">
-                          {t("products.sku")}: {item.product?.sku || item.sku || t("common.na")}
+                          {t("products.sku")}:{" "}
+                          {item.product?.sku || item.sku || t("common.na")}
                         </p>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4 text-sm">
                             <span className="text-black/70 dark:text-white/70">
-                              {t("orders.qty")}: <span className="font-semibold text-black dark:text-white">{item.quantity || 0}</span>
+                              {t("orders.qty")}:{" "}
+                              <span className="font-semibold text-black dark:text-white">
+                                {item.quantity || 0}
+                              </span>
                             </span>
                             <span className="text-black/70 dark:text-white/70">
-                              {t("products.price")}: <span className="font-semibold text-black dark:text-white">
+                              {t("products.price")}:{" "}
+                              <span className="font-semibold text-black dark:text-white">
                                 ৳{formatAmount(item.unitPrice)}
                               </span>
                             </span>
                           </div>
                           <div className="text-right">
-                            <p className="text-xs text-black/60 dark:text-white/60 mb-1">{t("orders.total")}</p>
+                            <p className="text-xs text-black/60 dark:text-white/60 mb-1">
+                              {t("orders.total")}
+                            </p>
                             <p className="text-lg font-bold text-black dark:text-white">
                               ৳{formatAmount(item.totalPrice)}
                             </p>
@@ -261,13 +295,17 @@ const OrderViewPage = () => {
               </div>
               <div className="mt-6 pt-6 border-t border-black/10 dark:border-white/10 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-base font-medium text-black/80 dark:text-white/80">{t("orders.subtotal")}</span>
+                  <span className="text-base font-medium text-black/80 dark:text-white/80">
+                    {t("orders.subtotal")}
+                  </span>
                   <span className="text-base font-semibold text-black dark:text-white">
                     ৳{formatAmount(subtotal)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-black/5 dark:border-white/5">
-                  <span className="text-lg font-semibold text-black dark:text-white">{t("orders.orderTotal")}</span>
+                  <span className="text-lg font-semibold text-black dark:text-white">
+                    {t("orders.orderTotal")}
+                  </span>
                   <span className="text-2xl font-bold text-black dark:text-white">
                     ৳{formatAmount(order.totalAmount)}
                   </span>
@@ -275,7 +313,6 @@ const OrderViewPage = () => {
               </div>
             </div>
           )}
-
         </div>
 
         {/* Sidebar */}
@@ -284,7 +321,9 @@ const OrderViewPage = () => {
           <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
             <div className="flex items-center gap-2 mb-4">
               <User className="h-5 w-5 text-black dark:text-white" />
-              <h2 className="text-lg font-bold text-black dark:text-white">{t("orders.customer")}</h2>
+              <h2 className="text-lg font-bold text-black dark:text-white">
+                {t("orders.customer")}
+              </h2>
             </div>
             <div className="space-y-3">
               <div>
@@ -300,7 +339,9 @@ const OrderViewPage = () => {
                   <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
                     {t("customers.email")}
                   </label>
-                  <p className="text-sm text-black dark:text-white mt-1 break-all">{order.customer.email}</p>
+                  <p className="text-sm text-black dark:text-white mt-1 break-all">
+                    {order.customer.email}
+                  </p>
                 </div>
               )}
               {(order.customer?.phone || order.customerPhone) && (
@@ -330,7 +371,9 @@ const OrderViewPage = () => {
           <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
             <div className="flex items-center gap-2 mb-4">
               <CreditCard className="h-5 w-5 text-black dark:text-white" />
-              <h2 className="text-lg font-bold text-black dark:text-white">{t("orders.payment")}</h2>
+              <h2 className="text-lg font-bold text-black dark:text-white">
+                {t("orders.payment")}
+              </h2>
             </div>
             <div className="space-y-3">
               <div>
@@ -359,9 +402,9 @@ const OrderViewPage = () => {
               </div>
               {order.paymentReference && (
                 <div>
-                <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
-                  {t("orders.reference")}
-                </label>
+                  <label className="text-xs font-medium text-black/60 dark:text-white/60 uppercase tracking-wide">
+                    {t("orders.reference")}
+                  </label>
                   <p className="text-sm text-black dark:text-white mt-1 font-mono break-all">
                     {order.paymentReference}
                   </p>
@@ -371,11 +414,16 @@ const OrderViewPage = () => {
           </div>
 
           {/* Shipping Information */}
-          {(order.deliveryNote || order.shippingTrackingId || order.shippingProvider || order.deliveryType) && (
+          {(order.deliveryNote ||
+            order.shippingTrackingId ||
+            order.shippingProvider ||
+            order.deliveryType) && (
             <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Truck className="h-5 w-5 text-black dark:text-white" />
-                <h2 className="text-lg font-bold text-black dark:text-white">{t("orders.shipping")}</h2>
+                <h2 className="text-lg font-bold text-black dark:text-white">
+                  {t("orders.shipping")}
+                </h2>
               </div>
               <div className="space-y-3">
                 {order.deliveryType && (
@@ -426,7 +474,9 @@ const OrderViewPage = () => {
           <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
             <div className="flex items-center gap-2 mb-4">
               <Calendar className="h-5 w-5 text-black dark:text-white" />
-              <h2 className="text-lg font-bold text-black dark:text-white">{t("orders.timeline")}</h2>
+              <h2 className="text-lg font-bold text-black dark:text-white">
+                {t("orders.timeline")}
+              </h2>
             </div>
             <div className="space-y-3">
               {order.createdAt && (
@@ -464,11 +514,21 @@ const OrderViewPage = () => {
             </p>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setProcessModal(false)} disabled={isProcessing}>
+            <Button
+              variant="ghost"
+              onClick={() => setProcessModal(false)}
+              disabled={isProcessing}
+            >
               {t("common.cancel")}
             </Button>
-            <Button onClick={handleProcess} disabled={isProcessing} className="bg-amber-500 hover:bg-amber-600 text-white">
-              {isProcessing ? t("common.processing") : t("orders.markProcessing")}
+            <Button
+              onClick={handleProcess}
+              disabled={isProcessing}
+              className="bg-amber-500 hover:bg-amber-600 text-white"
+            >
+              {isProcessing
+                ? t("common.processing")
+                : t("orders.markProcessing")}
             </Button>
           </DialogFooter>
         </DialogContent>

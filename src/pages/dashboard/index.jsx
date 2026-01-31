@@ -299,7 +299,7 @@ const DashboardPage = () => {
                     {radialChartData[0]?.paid || 0}%
                   </p>
                 </div>
-                
+
                 {/* Unpaid Card - Premium Glass/Pastel Effect */}
                 <div className="relative rounded-2xl border border-[#F25F33]/20 bg-[#FFF0F0]/80 dark:bg-[#F25F33]/10 backdrop-blur-md overflow-hidden group/unpaid hover:bg-[#FFF0F0] dark:hover:bg-[#F25F33]/20 transition-all duration-300 shadow-lg shadow-[#F25F33]/5 p-4 text-center">
                   <span className="text-xs font-bold text-[#F25F33] dark:text-[#F25F33] uppercase tracking-wider">

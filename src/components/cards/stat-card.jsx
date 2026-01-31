@@ -4,10 +4,10 @@ import { ArrowDown, ArrowUp, Minus } from "lucide-react";
 
 /**
  * StatCard Component
- * 
+ *
  * Displays a single key performance indicator (KPI) with an icon, value, and trend.
  * Designed to be responsive and visually appealing with a modern aesthetic.
- * 
+ *
  * Props:
  * @param {string} title - The label for the statistic (e.g., "Total Revenue")
  * @param {string} value - The main value to display (e.g., "$45,970")
@@ -53,23 +53,29 @@ const StatCard = ({ title, value, delta, icon: Icon, tone = "default" }) => {
   const TrendIcon = isPositive ? ArrowUp : isNegative ? ArrowDown : Minus;
 
   return (
-    <Card className="relative overflow-hidden border border-white/50 dark:border-white/20 shadow-lg backdrop-blur-2xl bg-white/40 dark:bg-gray-900/40 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] group">
+    <Card className="relative overflow-hidden border border-white/50 dark:border-white/20 backdrop-blur-2xl bg-white/40 dark:bg-gray-900/40 transition-all duration-300 hover:scale-[1.02] group shadow-none hover:shadow-none">
       {/* Glass overlay effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/10 dark:to-transparent opacity-60 pointer-events-none" />
-      
+
       {/* Background Glow */}
-      <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl opacity-30 transition-opacity duration-500 ${activeStyle.bg.replace('bg-', 'bg-')}`} />
-      
+      <div
+        className={`absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl opacity-30 transition-opacity duration-500 ${activeStyle.bg.replace("bg-", "bg-")}`}
+      />
+
       <CardContent className="relative p-6">
         <div className="flex items-center justify-between mb-4">
           {/* Icon with glass effect */}
-          <div className={`relative p-3 rounded-2xl ${activeStyle.iconBg} backdrop-blur-md shadow-sm transition-transform group-hover:scale-110 duration-200 border border-white/30`}>
+          <div
+            className={`relative p-3 rounded-2xl ${activeStyle.iconBg} backdrop-blur-md transition-transform group-hover:scale-110 duration-200 border border-white/30`}
+          >
             {Icon && <Icon className={`h-6 w-6 ${activeStyle.iconColor}`} />}
           </div>
-          
+
           {/* Trend Indicator */}
           {delta && (
-            <div className={`flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-lg border border-white/30 shadow-sm ${activeStyle.bg} ${activeStyle.deltaColor}`}>
+            <div
+              className={`flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-lg border border-white/30 ${activeStyle.bg} ${activeStyle.deltaColor}`}
+            >
               <TrendIcon className="h-3 w-3" />
               <span>{delta}</span>
             </div>

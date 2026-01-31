@@ -20,7 +20,9 @@ const OrderEditPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-  const { data: orders = [] } = useGetOrdersQuery({ companyId: user?.companyId });
+  const { data: orders = [] } = useGetOrdersQuery({
+    companyId: user?.companyId,
+  });
   const order = orders.find((o) => o.id === parseInt(id));
 
   const orderEditSchema = useMemo(
@@ -39,7 +41,7 @@ const OrderEditPage = () => {
           .max(100, t("orders.validation.providerMax"))
           .trim(),
       }),
-    [t]
+    [t],
   );
 
   const {
@@ -57,15 +59,24 @@ const OrderEditPage = () => {
     },
   });
 
-  const [completeOrder, { isLoading: isCompleting }] = useCompleteOrderMutation();
+  const [completeOrder, { isLoading: isCompleting }] =
+    useCompleteOrderMutation();
   const [shipOrder, { isLoading: isShipping }] = useShipOrderMutation();
 
   const onComplete = async (data) => {
     const params = { companyId: user?.companyId };
-    const res = await completeOrder({ id: order.id, body: { paymentRef: data.paymentRef || undefined }, params });
+    const res = await completeOrder({
+      id: order.id,
+      body: { paymentRef: data.paymentRef || undefined },
+      params,
+    });
     if (res?.data) {
       toast.success(t("orders.orderMarkedPaid"));
-      reset({ paymentRef: data.paymentRef, trackingId: order?.shippingTrackingId || "", provider: order?.shippingProvider || "" });
+      reset({
+        paymentRef: data.paymentRef,
+        trackingId: order?.shippingTrackingId || "",
+        provider: order?.shippingProvider || "",
+      });
     } else {
       toast.error(res?.error?.data?.message || t("orders.completeFailed"));
     }
@@ -73,12 +84,25 @@ const OrderEditPage = () => {
 
   const onShip = async (data) => {
     const params = { companyId: user?.companyId };
-    const res = await shipOrder({ id: order.id, body: { trackingId: data.trackingId || undefined, provider: data.provider || undefined }, params });
+    const res = await shipOrder({
+      id: order.id,
+      body: {
+        trackingId: data.trackingId || undefined,
+        provider: data.provider || undefined,
+      },
+      params,
+    });
     if (res?.data) {
       toast.success(t("orders.shippingUpdated"));
-      reset({ paymentRef: order?.paymentReference || "", trackingId: data.trackingId, provider: data.provider });
+      reset({
+        paymentRef: order?.paymentReference || "",
+        trackingId: data.trackingId,
+        provider: data.provider,
+      });
     } else {
-      toast.error(res?.error?.data?.message || t("orders.shippingUpdateFailed"));
+      toast.error(
+        res?.error?.data?.message || t("orders.shippingUpdateFailed"),
+      );
     }
   };
 
@@ -95,7 +119,9 @@ const OrderEditPage = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold">{t("orders.orderNotFound")}</h1>
+            <h1 className="text-2xl font-semibold">
+              {t("orders.orderNotFound")}
+            </h1>
             <p className="text-sm text-black/60 dark:text-white/60 mt-1">
               {t("orders.orderNotFoundDesc")}
             </p>
@@ -117,7 +143,9 @@ const OrderEditPage = () => {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold">{t("orders.editOrderTitle")} #{order.id}</h1>
+          <h1 className="text-2xl font-semibold">
+            {t("orders.editOrderTitle")} #{order.id}
+          </h1>
           <p className="text-sm text-black/60 dark:text-white/60 mt-1">
             {t("createEdit.updateOrder")}
           </p>
@@ -126,7 +154,9 @@ const OrderEditPage = () => {
 
       <div className="space-y-6">
         <section className="border border-gray-100 dark:border-gray-800 rounded-lg p-4">
-          <h4 className="text-sm font-medium mb-3">{t("orders.completePayment")}</h4>
+          <h4 className="text-sm font-medium mb-3">
+            {t("orders.completePayment")}
+          </h4>
           <form onSubmit={handleSubmit(onComplete)} className="space-y-3">
             <TextField
               label={t("orders.paymentReference")}
@@ -136,7 +166,11 @@ const OrderEditPage = () => {
               error={errors.paymentRef?.message}
             />
             <div className="flex justify-end">
-              <Button type="submit" disabled={isCompleting} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
+              <Button
+                type="submit"
+                disabled={isCompleting}
+                className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white"
+              >
                 {isCompleting ? t("common.processing") : t("orders.markPaid")}
               </Button>
             </div>
@@ -161,7 +195,12 @@ const OrderEditPage = () => {
               error={errors.provider?.message}
             />
             <div className="flex justify-end">
-              <Button className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white" type="submit" variant="outline" disabled={isShipping}>
+              <Button
+                className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white"
+                type="submit"
+                variant="outline"
+                disabled={isShipping}
+              >
                 {isShipping ? t("orders.updating") : t("orders.updateShipping")}
               </Button>
             </div>
@@ -169,7 +208,11 @@ const OrderEditPage = () => {
         </section>
 
         <div className="flex justify-end gap-2 pt-4 border-t border-gray-100 dark:border-gray-800">
-          <Button className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400" variant="outline" onClick={() => navigate(`/orders/${id}`)}>
+          <Button
+            className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
+            variant="outline"
+            onClick={() => navigate(`/orders/${id}`)}
+          >
             {t("common.cancel")}
           </Button>
         </div>

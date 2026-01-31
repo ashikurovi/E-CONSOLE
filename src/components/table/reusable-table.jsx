@@ -147,7 +147,7 @@ export default function ReusableTable({
               placeholder={placeholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2.5 text-sm bg-white/50 dark:bg-gray-900/50 backdrop-blur-md border border-gray-200/60 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 dark:focus:ring-primary/40 transition-all shadow-sm"
+              className="w-full pl-10 pr-10 py-2.5 text-sm bg-white/50 dark:bg-gray-900/50 backdrop-blur-md border border-gray-200/60 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 dark:focus:ring-primary/40 transition-all"
             />
             {searchTerm && (
               <button
@@ -163,7 +163,7 @@ export default function ReusableTable({
       )}
 
       {/* Table wrapper */}
-      <div className="rounded-2xl border border-white/40 dark:border-white/10 bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl overflow-hidden shadow-xl relative">
+      <div className="rounded-2xl border border-white/40 dark:border-white/10 bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl overflow-hidden relative">
         {/* Glass overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 dark:to-transparent opacity-50 pointer-events-none" />
         
