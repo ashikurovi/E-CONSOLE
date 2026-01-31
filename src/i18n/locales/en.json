@@ -51,7 +51,8 @@
     "no": "No",
     "copy": "Copy",
     "copied": "Copied!",
-    "copyFailed": "Failed to copy"
+    "copyFailed": "Failed to copy",
+    "downloadReport": "Download Report"
   },
   "nav": {
     "searchMenuItems": "Search menu items...",

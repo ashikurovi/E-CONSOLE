@@ -141,13 +141,13 @@ export default function ReusableTable({
       {searchable && (
         <div className="flex items-center justify-between">
           <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400 pointer-events-none" />
             <input
               type="text"
               placeholder={placeholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 text-sm bg-gray-50 dark:bg-neutral-900/70 border border-gray-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/10 dark:focus:ring-white/10 transition-all"
+              className="w-full pl-10 pr-10 py-2.5 text-sm bg-white/50 dark:bg-gray-900/50 backdrop-blur-md border border-gray-200/60 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 dark:focus:ring-primary/40 transition-all shadow-sm"
             />
             {searchTerm && (
               <button
@@ -163,11 +163,14 @@ export default function ReusableTable({
       )}
 
       {/* Table wrapper */}
-      <div className="rounded-xl border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/50 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
+      <div className="rounded-2xl border border-white/40 dark:border-white/10 bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl overflow-hidden shadow-xl relative">
+        {/* Glass overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 dark:to-transparent opacity-50 pointer-events-none" />
+        
+        <div className="relative overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50/70 dark:bg-neutral-800/40 hover:bg-transparent border-b dark:border-neutral-800">
+              <TableRow className="bg-gray-50/50 dark:bg-white/5 hover:bg-gray-50/60 dark:hover:bg-white/10 border-b border-gray-200/60 dark:border-white/10">
                 {headers.map((cell, idx) => {
                   const isLast = idx === headers.length - 1;
                   const isActive = sortKey === cell.field;
@@ -185,9 +188,9 @@ export default function ReusableTable({
                     <TableHead
                       key={cell.field || idx}
                       onClick={() => sortable && onHeaderClick(cell.field)}
-                      className={`h-11 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 select-none ${
+                      className={`h-12 text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 select-none ${
                         sortable
-                          ? "cursor-pointer hover:text-gray-900 dark:hover:text-gray-200"
+                          ? "cursor-pointer hover:text-gray-900 dark:hover:text-white"
                           : ""
                       } ${isLast ? "text-center" : "text-left"}`}
                     >
@@ -196,7 +199,7 @@ export default function ReusableTable({
                         {SortIcon && (
                           <SortIcon
                             size={14}
-                            className={isActive ? "opacity-100" : "opacity-40"}
+                            className={isActive ? "opacity-100 text-primary" : "opacity-40"}
                           />
                         )}
                       </div>
@@ -211,11 +214,11 @@ export default function ReusableTable({
                 Array.from({ length: 6 }).map((_, i) => (
                   <TableRow
                     key={i}
-                    className="border-b dark:border-neutral-800"
+                    className="border-b border-gray-100/50 dark:border-white/5"
                   >
                     {headers.map((_, j) => (
                       <TableCell key={j} className="py-4">
-                        <div className="h-5 w-full max-w-[180px] bg-gray-200 dark:bg-neutral-800 rounded animate-pulse" />
+                        <div className="h-5 w-full max-w-[180px] bg-gray-200/50 dark:bg-white/5 rounded animate-pulse" />
                       </TableCell>
                     ))}
                   </TableRow>
@@ -224,11 +227,16 @@ export default function ReusableTable({
                 <TableRow>
                   <TableCell
                     colSpan={headers.length}
-                    className="h-32 text-center text-gray-500 dark:text-gray-400"
+                    className="h-40 text-center text-gray-500 dark:text-gray-400"
                   >
-                    {searchTerm
-                      ? (t("table.noResults") ?? "No results found")
-                      : (t("table.empty") ?? "No data available")}
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <FolderOpen className="w-8 h-8 opacity-20" />
+                      <p>
+                        {searchTerm
+                          ? (t("table.noResults") ?? "No results found")
+                          : (t("table.empty") ?? "No data available")}
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -237,14 +245,14 @@ export default function ReusableTable({
                   return (
                     <TableRow
                       key={rowIdx}
-                      className={`border-b dark:border-neutral-800 transition-colors text-gray-900 dark:text-gray-100 ${rowClass} hover:bg-gray-50/70 dark:hover:bg-neutral-800/40`}
+                      className={`border-b border-gray-100/50 dark:border-white/5 transition-colors text-gray-700 dark:text-gray-200 ${rowClass} hover:bg-white/40 dark:hover:bg-white/5`}
                     >
                       {headers.map((header, colIdx) => {
                         const isLast = colIdx === headers.length - 1;
                         return (
                           <TableCell
                             key={colIdx}
-                            className={`${py || "py-3.5"} px-4 text-sm ${
+                            className={`${py || "py-4"} px-4 text-sm font-medium ${
                               isLast ? "text-center" : "text-left"
                             }`}
                           >

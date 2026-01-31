@@ -7,20 +7,23 @@ import {
 } from "@/components/ui/chart";
 
 export default function RadialChartComponent({
-  chartData,
-  chartConfig,
+  chartData = [],
+  chartConfig = {},
   total,
   name = "Total Amount",
   className
 }) {
+  const safeConfig = chartConfig || {};
+
   return (
     <ChartContainer
-      config={chartConfig}
+      config={safeConfig}
       className={`mx-auto aspect-square w-full ${className}`}
     >
       <RadialBarChart
         data={chartData}
-        endAngle={180}
+        startAngle={180}
+        endAngle={0}
         innerRadius={116}
         outerRadius={200}
       >
@@ -54,30 +57,16 @@ export default function RadialChartComponent({
             }}
           />
         </PolarRadiusAxis>
-        {Object.keys(chartConfig).map((key) => (
+        {Object.keys(safeConfig).map((key) => (
           <RadialBar
             key={key}
             dataKey={key}
             stackId="a"
             cornerRadius={5}
-            fill={chartConfig[key].color}
+            fill={safeConfig[key]?.color}
             className="stroke-transparent stroke-2"
           />
         ))}
-        {/* <RadialBar
-          dataKey="mobile"
-          fill="var(--color-mobile)"
-          stackId="a"
-          cornerRadius={5}
-          className="stroke-transparent stroke-2"
-        />
-        <RadialBar
-          dataKey="tab"
-          fill="var(--color-desktop)"
-          stackId="a"
-          cornerRadius={5}
-          className="stroke-transparent stroke-2"
-        /> */}
       </RadialBarChart>
     </ChartContainer>
   );

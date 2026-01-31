@@ -53,17 +53,23 @@ const StatCard = ({ title, value, delta, icon: Icon, tone = "default" }) => {
   const TrendIcon = isPositive ? ArrowUp : isNegative ? ArrowDown : Minus;
 
   return (
-    <Card className="border-none shadow-sm hover:shadow-md transition-shadow duration-200 bg-white dark:bg-[#1a1f26] overflow-hidden group">
-      <CardContent className="p-6">
+    <Card className="relative overflow-hidden border border-white/50 dark:border-white/20 shadow-lg backdrop-blur-2xl bg-white/40 dark:bg-gray-900/40 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] group">
+      {/* Glass overlay effect */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/10 dark:to-transparent opacity-60 pointer-events-none" />
+      
+      {/* Background Glow */}
+      <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl opacity-30 transition-opacity duration-500 ${activeStyle.bg.replace('bg-', 'bg-')}`} />
+      
+      <CardContent className="relative p-6">
         <div className="flex items-center justify-between mb-4">
-          {/* Icon with rounded background */}
-          <div className={`p-3 rounded-2xl ${activeStyle.iconBg} transition-transform group-hover:scale-110 duration-200`}>
+          {/* Icon with glass effect */}
+          <div className={`relative p-3 rounded-2xl ${activeStyle.iconBg} backdrop-blur-md shadow-sm transition-transform group-hover:scale-110 duration-200 border border-white/30`}>
             {Icon && <Icon className={`h-6 w-6 ${activeStyle.iconColor}`} />}
           </div>
           
           {/* Trend Indicator */}
           {delta && (
-            <div className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full ${activeStyle.bg} ${activeStyle.deltaColor}`}>
+            <div className={`flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-lg border border-white/30 shadow-sm ${activeStyle.bg} ${activeStyle.deltaColor}`}>
               <TrendIcon className="h-3 w-3" />
               <span>{delta}</span>
             </div>

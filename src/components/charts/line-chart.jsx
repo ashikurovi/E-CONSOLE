@@ -25,10 +25,11 @@ import moment from "moment";
  * @param {Array} chartData - Array of data points (e.g., [{ month: '2024-01', totalPNL: 1000 }])
  * @param {Object} chartConfig - Configuration object for chart colors and labels
  */
-export default function LineChartComponent({ chartData, chartConfig }) {
+export default function LineChartComponent({ chartData = [], chartConfig = {} }) {
+  const safeConfig = chartConfig || {};
   return (
     <div className="h-full w-full min-h-[300px]">
-      <ChartContainer config={chartConfig} className="h-full w-full">
+      <ChartContainer config={safeConfig} className="h-full w-full">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={chartData}
