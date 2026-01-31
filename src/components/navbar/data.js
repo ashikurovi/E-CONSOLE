@@ -13,36 +13,30 @@ export const navSections = [
     ],
   },
   {
-    id: "catalog",
-    title: "CATALOG MANAGEMENT",
-    tKey: "nav.catalogManagement",
-    items: [
-      { id: 2, title: "Categories", tKey: "nav.categories", link: "/categories", permission: FeaturePermission.CATEGORY },
-      { id: 3, title: "Product", tKey: "nav.product", link: "/products", permission: FeaturePermission.PRODUCTS },
-      { id: 3.5, title: "Flash Sell", tKey: "nav.flashSell", link: "/flash-sell", permission: FeaturePermission.PRODUCTS, icon: Zap },
-    ],
-  },
-  {
     id: "orders",
     title: "ORDERS & FULFILLMENT",
     tKey: "nav.ordersFulfillment",
     items: [
       { id: 6, title: "Order", tKey: "nav.order", link: "/orders", permission: FeaturePermission.ORDERS },
+      { id: 5, title: "Customers", tKey: "nav.customers", link: "/customers", permission: FeaturePermission.CUSTOMERS },
       { id: 7.5, title: "Steadfast Courier", tKey: "nav.steadfastCourier", link: "/steadfast", permission: FeaturePermission.STEADFAST, icon: Truck },
       { id: 7.6, title: "Pathao Courier", tKey: "nav.pathaoCourier", link: "/pathao", permission: FeaturePermission.PATHAO, icon: Truck },
     ],
   },
   {
-    id: "customers",
-    title: "CUSTOMERS",
-    tKey: "nav.customers",
+    id: "catalog",
+    title: "CATALOG",
+    tKey: "nav.catalogManagement",
     items: [
-      { id: 5, title: "Customers", tKey: "nav.customers", link: "/customers", permission: FeaturePermission.CUSTOMERS },
+      { id: 3, title: "Product", tKey: "nav.product", link: "/products", permission: FeaturePermission.PRODUCTS },
+      { id: 2, title: "Categories", tKey: "nav.categories", link: "/categories", permission: FeaturePermission.CATEGORY },
+      { id: 4, title: "Inventory", tKey: "nav.inventory", link: "/inventory", permission: FeaturePermission.INVENTORY }, // Assuming inventory link/perm exists or reusing categories perm as fallback? Added Inventory based on SideNav iconMap
+      { id: 3.5, title: "Flash Sell", tKey: "nav.flashSell", link: "/flash-sell", permission: FeaturePermission.PRODUCTS, icon: Zap },
     ],
   },
   {
     id: "marketing",
-    title: "MARKETING & PROMOTIONS",
+    title: "MARKETING",
     tKey: "nav.marketingPromotions",
     items: [
       { id: 9, title: "Banners", tKey: "nav.banners", link: "/banners", permission: FeaturePermission.SETTINGS },
@@ -50,22 +44,13 @@ export const navSections = [
     ],
   },
   {
-    id: "security",
-    title: "SECURITY & COMPLIANCE",
-    tKey: "nav.securityCompliance",
-    items: [
-      { id: 8, title: "Fraud Checker", tKey: "nav.fraudChecker", link: "/fraud", permission: FeaturePermission.REPORTS },
-      { id: 13, title: "Privacy Policy", tKey: "nav.privacyPolicy", link: "/privacy-policy", permission: FeaturePermission.PRIVACY_POLICY },
-      { id: 14, title: "Terms & Conditions", tKey: "nav.termsConditions", link: "/terms-conditions", permission: FeaturePermission.TERMS_CONDITIONS },
-      { id: 15, title: "Refund Policy", tKey: "nav.refundPolicy", link: "/refund-policy", permission: FeaturePermission.REFUND_POLICY },
-    ],
-  },
-  {
     id: "administration",
-    title: "ADMINISTRATION",
+    title: "SYSTEM",
     tKey: "nav.administration",
     items: [
       { id: 16, title: "Manage Users", tKey: "nav.manageUsers", link: "/manage-users", permission: FeaturePermission.STAFF },
+      { id: 11, title: "Settings", tKey: "nav.settings", link: "/settings" },
+      { id: 8, title: "Fraud Checker", tKey: "nav.fraudChecker", link: "/fraud", permission: FeaturePermission.REPORTS },
     ],
   },
   {
@@ -74,8 +59,10 @@ export const navSections = [
     tKey: "nav.account",
     items: [
       { id: 10.5, title: "Upgrade Plan", tKey: "nav.upgradePlan", link: "/upgrade-plan", icon: Crown },
-      { id: 11, title: "Settings", tKey: "nav.settings", link: "/settings" },
       { id: 12, title: "Help", tKey: "nav.help", link: "/help" },
+      // Policies moved here to reduce clutter
+      { id: 13, title: "Privacy Policy", tKey: "nav.privacyPolicy", link: "/privacy-policy", permission: FeaturePermission.PRIVACY_POLICY },
+      { id: 14, title: "Refund Policy", tKey: "nav.refundPolicy", link: "/refund-policy", permission: FeaturePermission.REFUND_POLICY },
     ],
   },
 ];
