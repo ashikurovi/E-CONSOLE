@@ -58,7 +58,7 @@ const Payments = () => {
       />
 
       {paymentDetails && (
-        <div className="mt-6 p-4 border border-black/10 dark:border-white/10 rounded-lg">
+        <div className="mt-6 p-4 border border-gray-100 dark:border-gray-800 rounded-lg">
           <h4 className="text-md font-semibold mb-4">{t("steadfast.paymentDetails")}</h4>
           <pre className="text-xs font-mono overflow-x-auto">
             {JSON.stringify(paymentDetails, null, 2)}

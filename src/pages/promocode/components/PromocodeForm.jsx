@@ -145,7 +145,7 @@ function PromocodeForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
           {/* Code Details Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("promocodes.codeDetails")}
               </h3>
@@ -168,7 +168,7 @@ function PromocodeForm() {
 
           {/* Discount Configuration Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("promocodes.discountConfiguration")}
               </h3>
@@ -202,7 +202,7 @@ function PromocodeForm() {
 
           {/* Usage Limits Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("promocodes.usageLimits")}
               </h3>
@@ -228,7 +228,7 @@ function PromocodeForm() {
 
           {/* Validity Period Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("promocodes.validityPeriod")}
               </h3>
@@ -253,7 +253,7 @@ function PromocodeForm() {
 
           {/* Status Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("common.status")}
               </h3>

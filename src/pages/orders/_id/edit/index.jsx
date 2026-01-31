@@ -84,7 +84,7 @@ const OrderEditPage = () => {
 
   if (!order) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
         <div className="flex items-center gap-4 mb-6">
           <Button
             variant="ghost"
@@ -106,7 +106,7 @@ const OrderEditPage = () => {
   }
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
       <div className="flex items-center gap-4 mb-6">
         <Button
           variant="ghost"
@@ -125,7 +125,7 @@ const OrderEditPage = () => {
       </div>
 
       <div className="space-y-6">
-        <section className="border border-black/10 dark:border-white/10 rounded-lg p-4">
+        <section className="border border-gray-100 dark:border-gray-800 rounded-lg p-4">
           <h4 className="text-sm font-medium mb-3">{t("orders.completePayment")}</h4>
           <form onSubmit={handleSubmit(onComplete)} className="space-y-3">
             <TextField
@@ -143,7 +143,7 @@ const OrderEditPage = () => {
           </form>
         </section>
 
-        <section className="border border-black/10 dark:border-white/10 rounded-lg p-4">
+        <section className="border border-gray-100 dark:border-gray-800 rounded-lg p-4">
           <h4 className="text-sm font-medium mb-3">{t("orders.shipping")}</h4>
           <form onSubmit={handleSubmit(onShip)} className="space-y-3">
             <TextField
@@ -168,7 +168,7 @@ const OrderEditPage = () => {
           </form>
         </section>
 
-        <div className="flex justify-end gap-2 pt-4 border-t border-black/10 dark:border-white/10">
+        <div className="flex justify-end gap-2 pt-4 border-t border-gray-100 dark:border-gray-800">
           <Button className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400" variant="outline" onClick={() => navigate(`/orders/${id}`)}>
             {t("common.cancel")}
           </Button>

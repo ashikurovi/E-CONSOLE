@@ -214,7 +214,7 @@ const BulkCreateOrder = () => {
         <label className="text-black/70 dark:text-white/70 text-sm font-medium mb-3 block">
           {t("pathao.uploadCsvFile")}
         </label>
-        <div className="border-2 border-dashed border-black/10 dark:border-white/10 rounded-lg p-8 text-center">
+        <div className="border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-lg p-8 text-center">
           <input
             id="file-input"
             type="file"
@@ -266,7 +266,7 @@ const BulkCreateOrder = () => {
           <h4 className="text-sm font-semibold mb-3">
             {t("pathao.ordersPreview", { count: orders.length })}
           </h4>
-          <div className="border border-black/10 dark:border-white/10 rounded-lg overflow-hidden">
+          <div className="border border-gray-100 dark:border-gray-800 rounded-lg overflow-hidden">
             <div className="max-h-60 overflow-y-auto">
               <table className="w-full text-xs">
                 <thead className="bg-black/5 dark:bg-white/5 sticky top-0">
@@ -315,7 +315,7 @@ const BulkCreateOrder = () => {
           <button
             onClick={clearFile}
             disabled={isLoading}
-            className="px-4 py-2 border border-black/10 dark:border-white/10 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
+            className="px-4 py-2 border border-gray-100 dark:border-gray-800 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
           >
             {t("common.cancel")}
           </button>
@@ -374,7 +374,7 @@ const BulkCreateOrder = () => {
       )}
 
       {/* CSV Format Reference */}
-      <div className="mt-8 p-4 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-lg">
+      <div className="mt-8 p-4 bg-black/5 dark:bg-white/5 border border-gray-100 dark:border-gray-800 rounded-lg">
         <h4 className="text-sm font-semibold mb-2">{t("pathao.csvFormatReference")}</h4>
         <div className="text-xs space-y-1 text-black/60 dark:text-white/60">
           <p><strong>{t("pathao.requiredFields")}:</strong></p>

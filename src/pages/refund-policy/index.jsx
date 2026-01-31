@@ -18,7 +18,7 @@ const RefundPolicyPage = () => {
   const latestPolicy = policies.length > 0 ? policies[0] : null;
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold">{t("refundPolicy.title")}</h2>
         {latestPolicy ? (
@@ -46,7 +46,7 @@ const RefundPolicyPage = () => {
         <div className="text-center py-8 text-gray-500">{t("common.loading")}</div>
       ) : latestPolicy ? (
         <div className="space-y-4">
-          <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-black/5 dark:border-white/10">
+          <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-black/5 dark:border-gray-800">
             <div 
               className="prose dark:prose-invert max-w-none"
               dangerouslySetInnerHTML={{ __html: latestPolicy.content || "" }}

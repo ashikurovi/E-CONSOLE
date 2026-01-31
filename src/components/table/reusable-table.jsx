@@ -11,6 +11,19 @@ import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import TablePaginate from "./pagination";
 
+/**
+ * ReusableTable Component
+ * 
+ * A flexible, modern table component with client-side sorting, filtering, and pagination.
+ * Designed with a clean aesthetic (minimal borders, subtle hover states).
+ * 
+ * Props:
+ * @param {Array} data - Array of objects to display
+ * @param {Array} headers - Array of header objects { header: string, field: string, sortable?: boolean }
+ * @param {boolean} isLoading - Loading state
+ * @param {boolean} searchable - Enable search functionality
+ * @param {string} searchPlaceholder - Custom placeholder text
+ */
 export default function ReusableTable({ 
   data, 
   headers, 
@@ -23,12 +36,15 @@ export default function ReusableTable({
 }) {
   const { t } = useTranslation();
   const placeholder = searchPlaceholder ?? t("table.searchPlaceholder");
+  
+  // State Management
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Handle Header Click (Sorting)
   const onHeaderClick = (field) => {
     if (!field) return;
     if (sortKey === field) {
@@ -39,7 +55,7 @@ export default function ReusableTable({
     }
   };
 
-  // Filter data based on search term
+  // Filter Logic
   const filteredData = useMemo(() => {
     if (!Array.isArray(data) || !searchTerm.trim()) return data;
     
@@ -51,7 +67,7 @@ export default function ReusableTable({
         const value = item[field];
         if (value == null) return false;
         
-        // Handle React elements (like action buttons) - skip them
+        // Skip complex objects (like React components)
         if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
           return false;
         }
@@ -62,6 +78,7 @@ export default function ReusableTable({
     });
   }, [data, searchTerm, searchFields, headers]);
 
+  // Sorting Logic
   const sortedData = useMemo(() => {
     if (!Array.isArray(filteredData) || !sortKey) return filteredData;
     const copy = [...filteredData];
@@ -83,128 +100,141 @@ export default function ReusableTable({
     return copy;
   }, [filteredData, sortKey, sortDir]);
 
-  // Paginate the sorted data
+  // Pagination Logic
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
     return sortedData.slice(startIndex, endIndex);
   }, [sortedData, currentPage, pageSize]);
 
-  // Reset to page 1 when data changes
+  // Reset page when data/search changes
   useEffect(() => {
     if (currentPage > Math.ceil(sortedData.length / pageSize) && sortedData.length > 0) {
       setCurrentPage(1);
     }
   }, [sortedData.length, currentPage, pageSize]);
 
-  // Reset to page 1 when search term changes
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
 
   return (
-    <>
+    <div className="w-full space-y-4">
+      {/* Search Bar */}
       {searchable && (
-        <div className="mb-4">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-black/50 dark:text-white/50" />
+        <div className="flex items-center justify-between">
+          <div className="relative w-full max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
               placeholder={placeholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 rounded-md outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 focus:border-transparent text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50"
+              className="w-full pl-10 pr-10 py-2 text-sm bg-gray-50 dark:bg-[#1a1f26] border-transparent focus:bg-white dark:focus:bg-black rounded-xl outline-none ring-1 ring-transparent focus:ring-black/10 dark:focus:ring-white/10 transition-all duration-200 text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                 aria-label={t("table.clearSearch")}
               >
-                <X className="h-4 w-4" />
+                <X className="h-3 w-3" />
               </button>
             )}
           </div>
         </div>
       )}
-      <div className="border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] shadow-sm overflow-hidden">
-        <Table className="mt-0">
-          <TableHeader className="sticky top-0 z-10 bg-black">
-            <TableRow className="border-b border-white/20">
-              {headers?.map((cell, index) => {
-                const alignClass =
-                  index + 1 === headers?.length ? "text-center" : "text-left";
-                const isActive = sortKey === cell.field;
-                const sortable = cell.sortable !== false;
 
-                const SortIcon = !sortable
-                  ? null
-                  : isActive
-                  ? sortDir === "asc"
-                    ? ArrowUp
-                    : ArrowDown
-                  : ArrowUpDown;
+      {/* Table Container */}
+      <div className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <Table>
+            {/* Header */}
+            <TableHeader className="bg-gray-50/50 dark:bg-gray-800/20">
+              <TableRow className="border-b border-gray-100 dark:border-gray-800 hover:bg-transparent">
+                {headers?.map((cell, index) => {
+                  const alignClass = index + 1 === headers?.length ? "text-center" : "text-left";
+                  const isActive = sortKey === cell.field;
+                  const sortable = cell.sortable !== false;
 
-                return (
-                  <TableHead
-                    key={index}
-                    onClick={() => sortable && onHeaderClick(cell.field)}
-                    className={`${alignClass} text-white font-semibold select-none ${
-                      sortable ? "cursor-pointer hover:bg-black/80" : ""
-                    }`}
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      {cell.header}
-                      {SortIcon && (
-                        <SortIcon
-                          size={16}
-                          className={`text-white ${
-                            isActive ? "opacity-100" : "opacity-70"
+                  const SortIcon = !sortable
+                    ? null
+                    : isActive
+                    ? sortDir === "asc"
+                      ? ArrowUp
+                      : ArrowDown
+                    : ArrowUpDown;
+
+                  return (
+                    <TableHead
+                      key={index}
+                      onClick={() => sortable && onHeaderClick(cell.field)}
+                      className={`${alignClass} h-12 text-xs font-semibold tracking-wide text-gray-500 uppercase select-none ${
+                        sortable ? "cursor-pointer hover:text-gray-700 dark:hover:text-gray-300" : ""
+                      }`}
+                    >
+                      <span className="inline-flex items-center gap-1.5">
+                        {cell.header}
+                        {SortIcon && (
+                          <SortIcon
+                            size={14}
+                            className={`${isActive ? "text-black dark:text-white opacity-100" : "opacity-40"}`}
+                          />
+                        )}
+                      </span>
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            </TableHeader>
+
+            {/* Body */}
+            <TableBody>
+              {isLoading
+                ? Array.from({ length: 5 }).map((_, rowIndex) => (
+                    <TableRow key={rowIndex} className="border-b border-gray-100 dark:border-gray-800">
+                      {headers.map((_, colIndex) => (
+                        <TableCell key={colIndex} className="py-4">
+                          <div className="h-5 w-full max-w-[80%] rounded-md bg-gray-100 dark:bg-gray-800 animate-pulse" />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                : paginatedData?.map((item, rowIdx) => (
+                    <TableRow
+                      key={rowIdx}
+                      className="group border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors"
+                    >
+                      {headers.map((header, colIdx) => (
+                        <TableCell
+                          key={colIdx}
+                          className={`${py ? py : "py-3.5"} text-sm text-gray-700 dark:text-gray-300 ${
+                            colIdx + 1 === headers?.length ? "text-center" : "text-left"
                           }`}
-                          strokeWidth={1.75}
-                        />
-                      )}
-                    </span>
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          </TableHeader>
+                        >
+                          {item[header.field]}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+            </TableBody>
+          </Table>
+        </div>
 
-          <TableBody>
-            {isLoading
-              ? Array.from({ length: 6 }).map((_, rowIndex) => (
-                  <TableRow key={rowIndex} className="border-b border-black/10 dark:border-white/10">
-                    {headers.map((_, colIndex) => (
-                      <TableCell key={colIndex} className="py-4 bg-white dark:bg-[#242424]">
-                        <div className="h-6 w-full rounded-md bg-black/10 dark:bg-white/10 animate-pulse" />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              : paginatedData?.map((item, rowIdx) => (
-                  <TableRow
-                    key={rowIdx}
-                    className="border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                  >
-                    {headers.map((header, colIdx) => (
-                      <TableCell
-                        key={colIdx}
-                        className={`${py ? py : "py-4"} text-black dark:text-white ${
-                          colIdx + 1 === headers?.length ? "text-center" : "text-left"
-                        }`}
-                      >
-                        {item[header.field]}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-          </TableBody>
-        </Table>
+        {/* Empty State */}
+        {!isLoading && sortedData.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+            <div className="p-4 rounded-full bg-gray-50 dark:bg-gray-800/50 mb-3">
+              <FolderOpen className="h-6 w-6 opacity-50" strokeWidth={1.5} />
+            </div>
+            <p className="text-sm font-medium">{t("table.noDataEntry")}</p>
+          </div>
+        )}
       </div>
 
+      {/* Pagination */}
       {!isLoading && sortedData.length > 0 && (
-        <div className="mt-4">
+        <div className="pt-2">
           <TablePaginate
             total={sortedData.length}
             pageSize={pageSize}
@@ -214,13 +244,6 @@ export default function ReusableTable({
           />
         </div>
       )}
-
-      {!isLoading && sortedData.length === 0 && (
-        <div className="center my-12 text-black/60 dark:text-white/60">
-          <FolderOpen strokeWidth={1} />
-          <p className="text-center mt-3">{t("table.noDataEntry")}</p>
-        </div>
-      )}
-    </>
+    </div>
   );
 }

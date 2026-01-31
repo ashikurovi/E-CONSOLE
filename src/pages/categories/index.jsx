@@ -106,7 +106,7 @@ const CategoriesPage = () => {
 
 
   return (
-    <div className=" bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+    <div className=" bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
       <div className="flex items-center py-2 justify-between">
         <h3 className="text-lg font-medium">{t("nav.categories")}</h3>
         <Button size="sm" onClick={() => navigate("/categories/create")}>

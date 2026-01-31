@@ -103,7 +103,7 @@ const InvoiceStatusUpdateForm = ({ invoice, onClose }) => {
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     {/* Invoice Summary */}
-                    <div className="p-4 bg-black/5 dark:bg-white/5 rounded-lg border border-black/10 dark:border-white/10 space-y-2">
+                    <div className="p-4 bg-black/5 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-gray-800 space-y-2">
                         <div className="flex justify-between text-sm">
                             <span className="text-black/60 dark:text-white/60">Customer:</span>
                             <span className="font-medium">{invoice.customer?.name}</span>
@@ -131,7 +131,7 @@ const InvoiceStatusUpdateForm = ({ invoice, onClose }) => {
                         </label>
                         <select
                             {...register("status")}
-                            className="w-full px-3 py-2 text-sm rounded-md border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                            className="w-full px-3 py-2 text-sm rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
                         >
                             <option value="pending">Pending</option>
                             <option value="paid">Paid</option>
@@ -156,7 +156,7 @@ const InvoiceStatusUpdateForm = ({ invoice, onClose }) => {
                     />
 
                     {/* Due Amount Display */}
-                    <div className="p-3 bg-black/5 dark:bg-white/5 rounded-lg border border-black/10 dark:border-white/10">
+                    <div className="p-3 bg-black/5 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-gray-800">
                         <p className="text-xs text-black/60 dark:text-white/60">Remaining Due Amount</p>
                         <p className="text-lg font-semibold text-red-600 dark:text-red-400">
                             ৳{dueAmount}
@@ -185,7 +185,7 @@ const InvoiceStatusUpdateForm = ({ invoice, onClose }) => {
                                 </label>
                                 <select
                                     {...register("bankPaymentStatus")}
-                                    className="w-full px-3 py-2 text-sm rounded-md border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                                    className="w-full px-3 py-2 text-sm rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
                                 >
                                     <option value="pending">Pending</option>
                                     <option value="verified">Verified</option>

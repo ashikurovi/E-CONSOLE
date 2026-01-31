@@ -33,7 +33,7 @@ const SuperAdminSupportDetailPage = () => {
         </Button>
       </div>
 
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5">
         {isLoading && <p className="text-sm">Loading ticket…</p>}
 
         {!isLoading && !ticket && (
@@ -46,7 +46,7 @@ const SuperAdminSupportDetailPage = () => {
           <div className="space-y-6 text-sm">
             {/* Ticket Information Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   Ticket Information
                 </h3>
@@ -93,12 +93,12 @@ const SuperAdminSupportDetailPage = () => {
 
             {/* Issue Description Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   Issue Description
                 </h3>
               </div>
-              <div className="border border-black/10 dark:border-white/10 rounded-lg p-4 bg-black/5 dark:bg-white/5">
+              <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-4 bg-black/5 dark:bg-white/5">
                 <p className="text-sm whitespace-pre-wrap leading-relaxed">
                   {ticket.issue ?? "-"}
                 </p>
@@ -107,7 +107,7 @@ const SuperAdminSupportDetailPage = () => {
 
             {/* Timeline Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   Timeline
                 </h3>

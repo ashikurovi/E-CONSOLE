@@ -67,7 +67,7 @@ const ThemeManagementPage = () => {
                         <img
                             src={theme.logo}
                             alt="Logo"
-                            className="h-8 w-8 object-contain rounded border border-black/10 dark:border-white/10"
+                            className="h-8 w-8 object-contain rounded border border-gray-100 dark:border-gray-800"
                             onError={(e) => {
                                 e.target.style.display = 'none';
                             }}
@@ -158,7 +158,7 @@ const ThemeManagementPage = () => {
     return (
         <div className="space-y-6">
             {/* Page header */}
-            <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5 flex flex-col gap-2">
+            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 flex flex-col gap-2">
                 <h1 className="text-2xl font-semibold">Theme Management</h1>
                 <p className="text-sm text-black/60 dark:text-white/60">
                     Create and manage themes for your e-commerce platform. Configure domain URLs, logos, and branding colors.
@@ -167,13 +167,13 @@ const ThemeManagementPage = () => {
 
             {/* Statistics cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+                <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
                     <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
                         Total Themes
                     </p>
                     <p className="mt-1 text-2xl font-semibold">{themes.length}</p>
                 </div>
-                <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+                <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
                     <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
                         With Domain URL
                     </p>
@@ -181,7 +181,7 @@ const ThemeManagementPage = () => {
                         {themes.filter((t) => t.domainUrl).length}
                     </p>
                 </div>
-                <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+                <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
                     <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
                         With Logo
                     </p>
@@ -189,7 +189,7 @@ const ThemeManagementPage = () => {
                         {themes.filter((t) => t.logo).length}
                     </p>
                 </div>
-                <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+                <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
                     <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
                         With Primary Color
                     </p>
@@ -197,7 +197,7 @@ const ThemeManagementPage = () => {
                         {themes.filter((t) => t.primaryColorCode).length}
                     </p>
                 </div>
-                <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+                <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
                     <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
                         With Secondary Color
                     </p>
@@ -208,8 +208,8 @@ const ThemeManagementPage = () => {
             </div>
 
             {/* Themes table */}
-            <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 overflow-hidden">
-                <div className="px-4 py-3 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
+            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 overflow-hidden">
+                <div className="px-4 py-3 border-b border-black/5 dark:border-gray-800 flex items-center justify-between">
                     <div>
                         <h2 className="text-sm font-medium">All Themes</h2>
                         <p className="text-xs text-black/60 dark:text-white/60">

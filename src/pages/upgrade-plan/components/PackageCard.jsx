@@ -13,7 +13,7 @@ export const PackageCard = ({ pkg, isCurrentPackage, onSelect }) => {
           ? "bg-green-50 dark:bg-green-950/20 border-green-300 dark:border-green-700"
           : pkg.isFeatured
           ? "bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-amber-300 dark:border-amber-700 shadow-lg"
-          : "bg-white dark:bg-[#242424] border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 hover:shadow-md"
+          : "bg-white dark:bg-[#1a1f26] border-gray-100 dark:border-gray-800 hover:border-black/20 dark:hover:border-white/20 hover:shadow-md"
       }`}
     >
       {/* Package Header */}

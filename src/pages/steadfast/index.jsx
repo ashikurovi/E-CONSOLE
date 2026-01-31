@@ -49,7 +49,7 @@ const SteadfastPage = () => {
 
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
      
       <div className="mb-6">
         <h2 className="text-2xl font-semibold mb-2">{t("steadfast.title")}</h2>
@@ -59,7 +59,7 @@ const SteadfastPage = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex flex-wrap gap-2 mb-6 border-b border-black/10 dark:border-white/10 pb-4">
+      <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (

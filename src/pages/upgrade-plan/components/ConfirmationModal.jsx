@@ -28,7 +28,7 @@ export const ConfirmationModal = ({
               You are about to upgrade to:
             </p>
             
-            <div className="rounded-lg bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 p-4">
+            <div className="rounded-lg bg-black/5 dark:bg-white/5 border border-gray-100 dark:border-gray-800 p-4">
               <h4 className="font-semibold text-lg flex items-center gap-2">
                 {selectedPackage.name}
                 {selectedPackage.isFeatured && (
@@ -38,7 +38,7 @@ export const ConfirmationModal = ({
               <p className="text-xs text-black/60 dark:text-white/60 mt-1">
                 {selectedPackage.description}
               </p>
-              <div className="mt-3 pt-3 border-t border-black/10 dark:border-white/10">
+              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-bold">
                     ৳{parseFloat(selectedPackage.discountPrice || selectedPackage.price).toFixed(2)}

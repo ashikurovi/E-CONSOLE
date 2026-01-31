@@ -106,7 +106,7 @@ const InvoiceManagementPage = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold flex items-center gap-2">
@@ -123,35 +123,35 @@ const InvoiceManagementPage = () => {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+        <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
           <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">Total Invoices</p>
           <p className="mt-1 text-2xl font-semibold">{stats.total}</p>
         </div>
-        <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+        <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
           <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">Pending</p>
           <p className="mt-1 text-2xl font-semibold text-yellow-600 dark:text-yellow-400">{stats.pending}</p>
         </div>
-        <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+        <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
           <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">Paid</p>
           <p className="mt-1 text-2xl font-semibold text-green-600 dark:text-green-400">{stats.paid}</p>
         </div>
-        <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+        <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
           <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">Total Amount</p>
           <p className="mt-1 text-2xl font-semibold">{formatCurrency(stats.totalAmount)}</p>
         </div>
-        <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+        <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
           <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">Total Paid</p>
           <p className="mt-1 text-2xl font-semibold text-green-600 dark:text-green-400">{formatCurrency(stats.totalPaid)}</p>
         </div>
-        <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+        <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
           <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">Total Due</p>
           <p className="mt-1 text-2xl font-semibold text-red-600 dark:text-red-400">{formatCurrency(stats.totalDue)}</p>
         </div>
       </div>
 
       {/* Invoices Table */}
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 overflow-hidden">
-        <div className="px-5 py-4 border-b border-black/5 dark:border-white/10">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 overflow-hidden">
+        <div className="px-5 py-4 border-b border-black/5 dark:border-gray-800">
           <h2 className="text-sm font-medium">All Invoices</h2>
           <p className="text-xs text-black/60 dark:text-white/60">Click on any row to view detailed information.</p>
         </div>
@@ -167,7 +167,7 @@ const InvoiceManagementPage = () => {
             </div>
           ) : (
             <table className="w-full">
-              <thead className="bg-black/5 dark:bg-white/5 border-b border-black/10 dark:border-white/10">
+              <thead className="bg-black/5 dark:bg-white/5 border-b border-gray-100 dark:border-gray-800">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-black/70 dark:text-white/70 uppercase tracking-wider w-[180px]">
                     Invoice
@@ -360,7 +360,7 @@ const InvoiceManagementPage = () => {
                                     </div>
                                   </div>
                                   {invoice.customer?.paymentInfo && (
-                                    <div className="pt-2 border-t border-black/10 dark:border-white/10">
+                                    <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
                                       <p className="text-xs text-black/60 dark:text-white/60 mb-1">Current Package</p>
                                       <div className="flex items-center justify-between">
                                         <span className="text-sm font-semibold">{invoice.customer.paymentInfo.packagename}</span>
@@ -405,7 +405,7 @@ const InvoiceManagementPage = () => {
 
                                   {/* Bank Payment Details */}
                                   {invoice.bankPayment && (
-                                    <div className="pt-3 border-t border-black/10 dark:border-white/10">
+                                    <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
                                       <div className="flex items-center gap-2 mb-2">
                                         <Building2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                         <p className="text-xs font-semibold text-black/70 dark:text-white/70">Bank Payment</p>
@@ -432,7 +432,7 @@ const InvoiceManagementPage = () => {
                                           </div>
                                         </div>
                                         {/* Bank Payment Actions */}
-                                        <div className="pt-2 border-t border-black/10 dark:border-white/10">
+                                        <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
                                           <BankPaymentActions invoice={invoice} />
                                         </div>
                                       </div>
@@ -441,7 +441,7 @@ const InvoiceManagementPage = () => {
 
                                   {/* Bkash Payment Details */}
                                   {(invoice.bkashPaymentID || invoice.bkashTrxID) && (
-                                    <div className="pt-3 border-t border-black/10 dark:border-white/10">
+                                    <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
                                       <div className="flex items-center gap-2 mb-2">
                                         <DollarSign className="h-4 w-4 text-pink-600 dark:text-pink-400" />
                                         <p className="text-xs font-semibold text-black/70 dark:text-white/70">Bkash Payment</p>
@@ -466,7 +466,7 @@ const InvoiceManagementPage = () => {
                               </div>
 
                               {/* Timeline */}
-                              <div className="lg:col-span-2 pt-4 border-t border-black/10 dark:border-white/10">
+                              <div className="lg:col-span-2 pt-4 border-t border-gray-100 dark:border-gray-800">
                                 <div className="flex items-center gap-2 mb-3">
                                   <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                                   <h3 className="text-sm font-semibold text-black/70 dark:text-white/70">

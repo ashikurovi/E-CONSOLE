@@ -228,7 +228,7 @@ const SettingsPage = () => {
       <div>
         <h2 className="text-xl font-semibold mb-4">{t("settings.accountInformation")}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card className="border border-black/10 dark:border-white/10">
+          <Card className="border border-gray-100 dark:border-gray-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <User className="h-5 w-5 text-blue-500" />
@@ -242,7 +242,7 @@ const SettingsPage = () => {
             </CardContent>
           </Card>
 
-          <Card className="border border-black/10 dark:border-white/10">
+          <Card className="border border-gray-100 dark:border-gray-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Mail className="h-5 w-5 text-blue-500" />
@@ -256,7 +256,7 @@ const SettingsPage = () => {
             </CardContent>
           </Card>
 
-          <Card className="border border-black/10 dark:border-white/10">
+          <Card className="border border-gray-100 dark:border-gray-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Phone className="h-5 w-5 text-blue-500" />
@@ -270,7 +270,7 @@ const SettingsPage = () => {
             </CardContent>
           </Card>
 
-          <Card className="border border-black/10 dark:border-white/10">
+          <Card className="border border-gray-100 dark:border-gray-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-indigo-500" />
@@ -284,7 +284,7 @@ const SettingsPage = () => {
             </CardContent>
           </Card>
 
-          <Card className="border border-black/10 dark:border-white/10">
+          <Card className="border border-gray-100 dark:border-gray-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-indigo-500" />
@@ -298,7 +298,7 @@ const SettingsPage = () => {
             </CardContent>
           </Card>
 
-          <Card className="border border-black/10 dark:border-white/10">
+          <Card className="border border-gray-100 dark:border-gray-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-blue-500" />
@@ -320,7 +320,7 @@ const SettingsPage = () => {
       {user?.package && (
         <div>
           <h2 className="text-xl font-semibold mb-4">{t("settings.packageInformation")}</h2>
-          <Card className="border border-black/10 dark:border-white/10">
+          <Card className="border border-gray-100 dark:border-gray-800">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Package className="h-5 w-5 text-purple-500" />
@@ -341,7 +341,7 @@ const SettingsPage = () => {
                   </span>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-black/10 dark:border-white/10">
+              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-100 dark:border-gray-800">
                 <div>
                   <p className="text-sm text-black/60 dark:text-white/60">{t("settings.price")}</p>
                   <p className="text-lg font-semibold">৳{parseFloat(user.package.price).toFixed(2)}</p>
@@ -356,7 +356,7 @@ const SettingsPage = () => {
                 )}
               </div>
               {user.package.features && user.package.features.length > 0 && (
-                <div className="pt-3 border-t border-black/10 dark:border-white/10">
+                <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
                   <p className="text-sm text-black/60 dark:text-white/60 mb-2">{t("settings.features")}:</p>
                   <div className="flex flex-wrap gap-2">
                     {user.package.features.map((feature) => (
@@ -381,7 +381,7 @@ const SettingsPage = () => {
       <div>
         <h2 className="text-xl font-semibold mb-4">{t("settings.accountStatus")}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="border border-black/10 dark:border-white/10">
+          <Card className="border border-gray-100 dark:border-gray-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5 text-green-500" />
@@ -398,7 +398,7 @@ const SettingsPage = () => {
             </CardContent>
           </Card>
 
-          <Card className="border border-black/10 dark:border-white/10">
+          <Card className="border border-gray-100 dark:border-gray-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-blue-500" />
@@ -412,7 +412,7 @@ const SettingsPage = () => {
             </CardContent>
           </Card>
 
-          <Card className="border border-black/10 dark:border-white/10">
+          <Card className="border border-gray-100 dark:border-gray-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-blue-500" />
@@ -435,7 +435,7 @@ const SettingsPage = () => {
           
           {/* Pathao Credentials */}
           {hasPermission(user, FeaturePermission.PATHAO) && (
-          <Card className="border border-black/10 dark:border-white/10">
+          <Card className="border border-gray-100 dark:border-gray-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Truck className="h-5 w-5 text-blue-500" />
@@ -451,7 +451,7 @@ const SettingsPage = () => {
                   <input
                     type="text"
                     {...registerPathao("clientId")}
-                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-100 dark:border-gray-800 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder={t("pathao.clientIdPlaceholder")}
                   />
                 </div>
@@ -462,7 +462,7 @@ const SettingsPage = () => {
                   <input
                     type="password"
                     {...registerPathao("clientSecret")}
-                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-100 dark:border-gray-800 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder={t("pathao.clientSecretPlaceholder")}
                   />
                 </div>
@@ -481,7 +481,7 @@ const SettingsPage = () => {
           )}
           {/* Steadfast Credentials */}
           {hasPermission(user, FeaturePermission.STEADFAST) && (
-          <Card className="border border-black/10 dark:border-white/10">
+          <Card className="border border-gray-100 dark:border-gray-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Truck className="h-5 w-5 text-green-500" />
@@ -497,7 +497,7 @@ const SettingsPage = () => {
                   <input
                     type="text"
                     {...registerSteadfast("apiKey")}
-                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-gray-100 dark:border-gray-800 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
                     placeholder={t("steadfast.apiKeyPlaceholder")}
                   />
                 </div>
@@ -508,7 +508,7 @@ const SettingsPage = () => {
                   <input
                     type="password"
                     {...registerSteadfast("secretKey")}
-                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-gray-100 dark:border-gray-800 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
                     placeholder={t("steadfast.secretKeyPlaceholder")}
                   />
                 </div>
@@ -534,7 +534,7 @@ const SettingsPage = () => {
       )}
 
       {/* Profile Update Form */}
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">{t("settings.updateProfile")}</h2>
         </div>
@@ -596,7 +596,7 @@ const SettingsPage = () => {
               };
 
               return (
-                <Card key={invoice.id} className="border border-black/10 dark:border-white/10">
+                <Card key={invoice.id} className="border border-gray-100 dark:border-gray-800">
                   <CardContent className="pt-6">
                     <div className="space-y-4">
                       <div className="flex items-start justify-between">
@@ -623,7 +623,7 @@ const SettingsPage = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-3 border-t border-black/10 dark:border-white/10">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-3 border-t border-gray-100 dark:border-gray-800">
                         <div>
                           <p className="text-xs text-black/60 dark:text-white/60">{t("settings.totalAmount")}</p>
                           <p className="text-base font-semibold">৳{parseFloat(invoice.totalAmount).toFixed(2)}</p>
@@ -648,7 +648,7 @@ const SettingsPage = () => {
 
                       {/* Bank Payment Info */}
                       {invoice.bankPayment && (
-                        <div className="pt-3 border-t border-black/10 dark:border-white/10">
+                        <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
                           <p className="text-sm font-semibold text-black/70 dark:text-white/70 mb-3">
                             {t("settings.bankPaymentDetails")}
                           </p>
@@ -683,7 +683,7 @@ const SettingsPage = () => {
 
                       {/* Bkash Payment Info */}
                       {(invoice.bkashPaymentID || invoice.bkashTrxID) && (
-                        <div className="pt-3 border-t border-black/10 dark:border-white/10">
+                        <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
                           <p className="text-sm font-semibold text-black/70 dark:text-white/70 mb-3">
                             {t("settings.bkashPaymentDetails")}
                           </p>
@@ -705,7 +705,7 @@ const SettingsPage = () => {
                       )}
 
                       {/* Dates */}
-                      <div className="pt-3 border-t border-black/10 dark:border-white/10">
+                      <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <p className="text-xs text-black/60 dark:text-white/60 flex items-center gap-1">

@@ -259,7 +259,7 @@ const CreateOrder = () => {
             </label>
             <select
               {...register("store_id", { required: t("pathao.storeRequired") })}
-              className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+              className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
             >
               <option value="">{t("pathao.selectStorePlaceholder")}</option>
               {stores.map((store) => (
@@ -284,7 +284,7 @@ const CreateOrder = () => {
         </div>
 
         {/* Recipient Information */}
-        <div className="border-t border-black/10 dark:border-white/10 pt-4 mt-4">
+        <div className="border-t border-gray-100 dark:border-gray-800 pt-4 mt-4">
           <h4 className="text-md font-semibold mb-3">{t("pathao.recipientInformation")}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <TextField
@@ -315,7 +315,7 @@ const CreateOrder = () => {
         </div>
 
         {/* Location */}
-        <div className="border-t border-black/10 dark:border-white/10 pt-4 mt-4">
+        <div className="border-t border-gray-100 dark:border-gray-800 pt-4 mt-4">
           <h4 className="text-md font-semibold mb-3">{t("pathao.deliveryLocation")}</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -324,7 +324,7 @@ const CreateOrder = () => {
               </label>
               <select
                 {...register("recipient_city", { required: t("pathao.cityRequired") })}
-                className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+                className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
               >
                 <option value="">{t("pathao.selectCity")}</option>
                 {cities.map((city) => (
@@ -344,7 +344,7 @@ const CreateOrder = () => {
               </label>
               <select
                 {...register("recipient_zone", { required: t("pathao.zoneRequired") })}
-                className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+                className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
                 disabled={!selectedCity}
               >
                 <option value="">{t("pathao.selectZone")}</option>
@@ -365,7 +365,7 @@ const CreateOrder = () => {
               </label>
               <select
                 {...register("recipient_area", { required: t("pathao.areaRequired") })}
-                className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+                className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
                 disabled={!selectedZone}
               >
                 <option value="">{t("pathao.selectArea")}</option>
@@ -394,7 +394,7 @@ const CreateOrder = () => {
         </div>
 
         {/* Item Details */}
-        <div className="border-t border-black/10 dark:border-white/10 pt-4 mt-4">
+        <div className="border-t border-gray-100 dark:border-gray-800 pt-4 mt-4">
           <h4 className="text-md font-semibold mb-3">{t("pathao.itemDetails")}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -403,7 +403,7 @@ const CreateOrder = () => {
               </label>
               <select
                 {...register("delivery_type", { required: t("pathao.deliveryTypeRequired") })}
-                className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+                className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
               >
                 <option value={48}>{t("pathao.normalDelivery")}</option>
                 <option value={12}>{t("pathao.onDemandDelivery")}</option>
@@ -416,7 +416,7 @@ const CreateOrder = () => {
               </label>
               <select
                 {...register("item_type", { required: t("pathao.itemTypeRequired") })}
-                className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+                className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
               >
                 <option value={1}>{t("pathao.document")}</option>
                 <option value={2}>{t("pathao.parcel")}</option>

@@ -184,7 +184,7 @@ Product Name 2,SKU-002,200.00,,2,true,Another product description,,https://examp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70">
-      <div className="bg-white dark:bg-[#242424] rounded-2xl border border-black/10 dark:border-white/10 p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-[#1a1f26] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Bulk Upload Products</h2>
           <Button variant="ghost" size="icon" onClick={handleClose}>
@@ -263,7 +263,7 @@ Product Name 2,SKU-002,200.00,,2,true,Another product description,,https://examp
             {preview.length > 0 && (
               <div className="mb-6">
                 <h3 className="text-sm font-semibold mb-2">Preview (First 5 rows)</h3>
-                <div className="border border-black/10 dark:border-white/10 rounded-lg overflow-x-auto">
+                <div className="border border-gray-100 dark:border-gray-800 rounded-lg overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-black/5 dark:bg-white/5">
                       <tr>
@@ -276,7 +276,7 @@ Product Name 2,SKU-002,200.00,,2,true,Another product description,,https://examp
                     </thead>
                     <tbody>
                       {preview.map((row, index) => (
-                        <tr key={index} className="border-t border-black/10 dark:border-white/10">
+                        <tr key={index} className="border-t border-gray-100 dark:border-gray-800">
                           {Object.values(row).map((value, i) => (
                             <td key={i} className="px-3 py-2">
                               {String(value || "").substring(0, 30)}
@@ -292,7 +292,7 @@ Product Name 2,SKU-002,200.00,,2,true,Another product description,,https://examp
             )}
 
             {/* Format Reference */}
-            <div className="mb-6 p-4 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-lg">
+            <div className="mb-6 p-4 bg-black/5 dark:bg-white/5 border border-gray-100 dark:border-gray-800 rounded-lg">
               <h4 className="text-sm font-semibold mb-2">Required Fields</h4>
               <div className="text-xs space-y-1 text-black/60 dark:text-white/60">
                 <ul className="list-disc list-inside ml-2 space-y-0.5">

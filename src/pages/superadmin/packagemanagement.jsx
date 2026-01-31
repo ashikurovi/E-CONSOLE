@@ -132,7 +132,7 @@ const PackageManagementPage = () => {
     return (
         <div className="space-y-6">
             {/* Page header */}
-            <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5 flex flex-col gap-2">
+            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 flex flex-col gap-2">
                 <h1 className="text-2xl font-semibold">Package Management</h1>
                 <p className="text-sm text-black/60 dark:text-white/60">
                     Create and manage subscription packages for your e-commerce platform. Define pricing, features, and benefits for each package tier.
@@ -141,13 +141,13 @@ const PackageManagementPage = () => {
 
             {/* Statistics cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+                <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
                     <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
                         Total Packages
                     </p>
                     <p className="mt-1 text-2xl font-semibold">{packages.length}</p>
                 </div>
-                <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+                <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
                     <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
                         Featured Packages
                     </p>
@@ -155,7 +155,7 @@ const PackageManagementPage = () => {
                         {packages.filter((p) => p.isFeatured).length}
                     </p>
                 </div>
-                <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+                <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
                     <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
                         Average Price
                     </p>
@@ -168,7 +168,7 @@ const PackageManagementPage = () => {
                             : "৳0.00"}
                     </p>
                 </div>
-                <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+                <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
                     <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
                         Lowest Price
                     </p>
@@ -181,8 +181,8 @@ const PackageManagementPage = () => {
             </div>
 
             {/* Packages table */}
-            <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 overflow-hidden">
-                <div className="px-4 py-3 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
+            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 overflow-hidden">
+                <div className="px-4 py-3 border-b border-black/5 dark:border-gray-800 flex items-center justify-between">
                     <div>
                         <h2 className="text-sm font-medium">All Packages</h2>
                         <p className="text-xs text-black/60 dark:text-white/60">

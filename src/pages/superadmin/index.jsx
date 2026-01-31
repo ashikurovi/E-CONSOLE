@@ -102,7 +102,7 @@ const SuperAdminOverviewPage = () => {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5 flex flex-col gap-2">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 flex flex-col gap-2">
         <h1 className="text-2xl font-semibold">Super Admin Overview</h1>
         <p className="text-sm text-black/60 dark:text-white/60">
           High level control panel with earnings overview, customers, and support in one place.
@@ -114,7 +114,7 @@ const SuperAdminOverviewPage = () => {
         {kpis.map((item, index) => (
           <div
             key={index}
-            className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4 flex flex-col gap-3"
+            className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4 flex flex-col gap-3"
           >
             <div className="flex items-center justify-between">
               <div>
@@ -149,7 +149,7 @@ const SuperAdminOverviewPage = () => {
       {/* Two-column layout: customers + support */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Customers summary */}
-        <section className="xl:col-span-2 rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+        <section className="xl:col-span-2 rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h2 className="text-lg font-medium">Our Customers</h2>
@@ -197,7 +197,7 @@ const SuperAdminOverviewPage = () => {
         </section>
 
         {/* Support */}
-        <section className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+        <section className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
           <div>
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-md font-medium flex items-center gap-2">
@@ -232,7 +232,7 @@ const SuperAdminOverviewPage = () => {
       </div>
 
       {/* Invoices summary */}
-      <section className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+      <section className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
         <div className="flex items-center justify-between mb-3">
           <div>
             <h2 className="text-lg font-medium">Invoice Overview</h2>
@@ -306,14 +306,14 @@ const SuperAdminOverviewPage = () => {
       </section>
 
       {/* Quick navigation */}
-      <section className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+      <section className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
         <h2 className="text-md font-medium mb-3">Quick navigation</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
           {quickLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="rounded-xl border border-black/5 dark:border-white/10 p-3 text-xs hover:bg-gray-50 dark:hover:bg-black/40 transition-colors"
+              className="rounded-xl border border-black/5 dark:border-gray-800 p-3 text-xs hover:bg-gray-50 dark:hover:bg-black/40 transition-colors"
             >
               <p className="font-medium">{link.label}</p>
               <p className="mt-1 text-black/60 dark:text-white/60">{link.description}</p>

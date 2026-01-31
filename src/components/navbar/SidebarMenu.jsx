@@ -51,7 +51,7 @@ const SidebarMenu = () => {
     <div>
       <button
         onClick={handleSideMenu}
-        className="h-12 w-12 rounded-full bg-bg50 center"
+        className="h-12 w-12 rounded-full bg-gray-50 dark:bg-[#1a1f26] center"
       >
         <AlignLeft className="h-5" />
       </button>

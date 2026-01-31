@@ -120,7 +120,7 @@ const SuperAdminProfilePage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5 flex flex-col gap-2">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 flex flex-col gap-2">
         <h1 className="text-2xl font-semibold">My Profile</h1>
         <p className="text-sm text-black/60 dark:text-white/60">
           Manage your super admin profile and account settings.
@@ -128,7 +128,7 @@ const SuperAdminProfilePage = () => {
       </div>
 
       {isLoadingProfile && (
-        <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5">
+        <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5">
           <p className="text-sm">Loading profile...</p>
         </div>
       )}
@@ -137,14 +137,14 @@ const SuperAdminProfilePage = () => {
         <>
           {/* Profile Photo Section */}
           {profileData.photo && (
-            <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5 space-y-4">
-              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 space-y-4">
+              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                 <User className="h-4 w-4" />
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   Profile Photo
                 </h3>
               </div>
-              <div className="border border-black/10 dark:border-white/10 rounded-lg p-3 bg-black/5 dark:bg-white/5 inline-block">
+              <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-3 bg-black/5 dark:bg-white/5 inline-block">
                 <img
                   src={profileData.photo}
                   alt="Profile"
@@ -158,8 +158,8 @@ const SuperAdminProfilePage = () => {
           )}
 
           {/* Profile Information Form */}
-          <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5 space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+          <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 space-y-4">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <User className="h-4 w-4" />
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 Profile Information
@@ -212,8 +212,8 @@ const SuperAdminProfilePage = () => {
           </div>
 
           {/* Account Information Section */}
-          <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5 space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+          <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 space-y-4">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <Shield className="h-4 w-4" />
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 Account Information
@@ -247,7 +247,7 @@ const SuperAdminProfilePage = () => {
             {/* Permissions */}
             {profileData.permissions &&
               profileData.permissions.length > 0 && (
-                <div className="pt-4 border-t border-black/10 dark:border-white/10">
+                <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
                   <p className="text-xs text-black/60 dark:text-white/60 mb-2">
                     Permissions
                   </p>
@@ -265,7 +265,7 @@ const SuperAdminProfilePage = () => {
               )}
 
             {/* Timestamps */}
-            <div className="pt-4 border-t border-black/10 dark:border-white/10">
+            <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="h-4 w-4" />
                 <p className="text-xs text-black/60 dark:text-white/60">
@@ -302,7 +302,7 @@ const SuperAdminProfilePage = () => {
       {/* Password Change Modal */}
       {isPasswordModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-[#242424] rounded-lg p-6 max-w-md w-full mx-4 border border-black/10 dark:border-white/10">
+          <div className="bg-white dark:bg-[#1a1f26] rounded-lg p-6 max-w-md w-full mx-4 border border-gray-100 dark:border-gray-800">
             <h3 className="text-lg font-semibold mb-4">Change Password</h3>
             <form
               onSubmit={handleSubmitPassword(onPasswordSubmit)}

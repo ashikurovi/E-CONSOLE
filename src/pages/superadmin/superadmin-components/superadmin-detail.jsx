@@ -36,7 +36,7 @@ const SuperAdminSuperadminDetailPage = () => {
         </div>
       </div>
 
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5">
         {isLoading && <p className="text-sm">Loading super admin details…</p>}
 
         {error && (
@@ -56,13 +56,13 @@ const SuperAdminSuperadminDetailPage = () => {
             {/* Profile Photo Section */}
             {superadmin.photo && (
               <div className="space-y-4">
-                <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                   <User className="h-4 w-4" />
                   <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                     Profile Photo
                   </h3>
                 </div>
-                <div className="border border-black/10 dark:border-white/10 rounded-lg p-3 bg-black/5 dark:bg-white/5 inline-block">
+                <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-3 bg-black/5 dark:bg-white/5 inline-block">
                   <img
                     src={superadmin.photo}
                     alt="Profile"
@@ -77,7 +77,7 @@ const SuperAdminSuperadminDetailPage = () => {
 
             {/* Basic Information Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                 <User className="h-4 w-4" />
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   Basic Information
@@ -124,7 +124,7 @@ const SuperAdminSuperadminDetailPage = () => {
             {/* Permissions Section */}
             {superadmin.permissions && superadmin.permissions.length > 0 && (
               <div className="space-y-4">
-                <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                   <Shield className="h-4 w-4" />
                   <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                     Permissions
@@ -145,7 +145,7 @@ const SuperAdminSuperadminDetailPage = () => {
 
             {/* Timestamps Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                 <Calendar className="h-4 w-4" />
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   Activity Timeline

@@ -30,7 +30,7 @@ export const PaymentModal = ({
         </DialogHeader>
         {invoice && (
           <div className="space-y-4">
-            <div className="rounded-lg bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 p-4">
+            <div className="rounded-lg bg-black/5 dark:bg-white/5 border border-gray-100 dark:border-gray-800 p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-black/60 dark:text-white/60">Invoice Number:</span>
                 <span className="text-sm font-semibold">{invoice.invoiceNumber}</span>
@@ -56,7 +56,7 @@ export const PaymentModal = ({
                 className={`w-full p-4 rounded-lg border-2 transition-all ${
                   selectedPaymentMethod === "bkash"
                     ? "border-green-500 bg-green-50 dark:bg-green-950/20"
-                    : "border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20"
+                    : "border-gray-100 dark:border-gray-800 hover:border-black/20 dark:hover:border-white/20"
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -88,7 +88,7 @@ export const PaymentModal = ({
                 className={`w-full p-4 rounded-lg border-2 transition-all ${
                   selectedPaymentMethod === "bank"
                     ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-                    : "border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20"
+                    : "border-gray-100 dark:border-gray-800 hover:border-black/20 dark:hover:border-white/20"
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -116,7 +116,7 @@ export const PaymentModal = ({
 
             {/* Bank Payment Form */}
             {selectedPaymentMethod === "bank" && (
-              <div className="space-y-3 pt-2 border-t border-black/10 dark:border-white/10">
+              <div className="space-y-3 pt-2 border-t border-gray-100 dark:border-gray-800">
                 <div className="space-y-2">
                   <label htmlFor="bankName" className="text-sm font-medium text-black/70 dark:text-white/70">
                     Bank Name
@@ -129,7 +129,7 @@ export const PaymentModal = ({
                     onChange={(e) =>
                       onBankPaymentDataChange({ ...bankPaymentData, bankName: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
                   />
                 </div>
                 <div className="space-y-2">
@@ -148,7 +148,7 @@ export const PaymentModal = ({
                         accLastDigit: e.target.value.replace(/\D/g, ""),
                       })
                     }
-                    className="w-full px-3 py-2 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
                   />
                 </div>
                 <p className="text-xs text-black/60 dark:text-white/60">

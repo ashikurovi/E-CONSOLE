@@ -13,7 +13,7 @@ const OrderViewPage = () => {
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black dark:border-white mx-auto mb-4"></div>
@@ -26,7 +26,7 @@ const OrderViewPage = () => {
 
   if (error || !order) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
         <div className="flex items-center gap-4 mb-6">
           <Button
             variant="ghost"
@@ -75,7 +75,7 @@ const OrderViewPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Button
@@ -167,7 +167,7 @@ const OrderViewPage = () => {
         <div className="lg:col-span-2 space-y-6">
           {/* Order Items Section */}
           {order.items && order.items.length > 0 && (
-            <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
               <div className="flex items-center gap-2 mb-6">
                 <Package className="h-5 w-5 text-black dark:text-white" />
                 <h2 className="text-xl font-bold text-black dark:text-white">
@@ -180,16 +180,16 @@ const OrderViewPage = () => {
                   return (
                     <div
                       key={index}
-                      className="flex items-start gap-4 p-4 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+                      className="flex items-start gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
                     >
                       {productImage ? (
                         <img
                           src={productImage}
                           alt={item.product?.name || t("orders.product")}
-                          className="w-20 h-20 rounded-lg object-cover border border-black/10 dark:border-white/10"
+                          className="w-20 h-20 rounded-lg object-cover border border-gray-100 dark:border-gray-800"
                         />
                       ) : (
-                        <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center border border-black/10 dark:border-white/10">
+                        <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center border border-gray-100 dark:border-gray-800">
                           <Package className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                         </div>
                       )}
@@ -227,7 +227,7 @@ const OrderViewPage = () => {
                   );
                 })}
               </div>
-              <div className="mt-6 pt-6 border-t border-black/10 dark:border-white/10">
+              <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-semibold text-black dark:text-white">{t("orders.orderTotal")}</span>
                   <span className="text-2xl font-bold text-black dark:text-white">
@@ -245,7 +245,7 @@ const OrderViewPage = () => {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Customer Information */}
-          <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+          <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
             <div className="flex items-center gap-2 mb-4">
               <User className="h-5 w-5 text-black dark:text-white" />
               <h2 className="text-lg font-bold text-black dark:text-white">{t("orders.customer")}</h2>
@@ -291,7 +291,7 @@ const OrderViewPage = () => {
           </div>
 
           {/* Payment Information */}
-          <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+          <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
             <div className="flex items-center gap-2 mb-4">
               <CreditCard className="h-5 w-5 text-black dark:text-white" />
               <h2 className="text-lg font-bold text-black dark:text-white">{t("orders.payment")}</h2>
@@ -336,7 +336,7 @@ const OrderViewPage = () => {
 
           {/* Shipping Information */}
           {(order.shippingTrackingId || order.shippingProvider || order.deliveryType) && (
-            <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Truck className="h-5 w-5 text-black dark:text-white" />
                 <h2 className="text-lg font-bold text-black dark:text-white">{t("orders.shipping")}</h2>
@@ -377,7 +377,7 @@ const OrderViewPage = () => {
           )}
 
           {/* Order Timeline */}
-          <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+          <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
             <div className="flex items-center gap-2 mb-4">
               <Calendar className="h-5 w-5 text-black dark:text-white" />
               <h2 className="text-lg font-bold text-black dark:text-white">{t("orders.timeline")}</h2>

@@ -322,7 +322,7 @@ const UpgradePlanPage = () => {
   if (!user) {
     return (
       <div className="space-y-6">
-        <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-12 text-center">
+        <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-12 text-center">
           <Crown className="h-16 w-16 text-black/20 dark:text-white/20 mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">Please Log In</h3>
           <p className="text-sm text-black/60 dark:text-white/60">

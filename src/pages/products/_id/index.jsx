@@ -15,7 +15,7 @@ const ProductViewPage = () => {
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
         <div className="flex items-center justify-center py-12">
           <p className="text-black/60 dark:text-white/60">{t("products.loadingProductDetails")}</p>
         </div>
@@ -25,7 +25,7 @@ const ProductViewPage = () => {
 
   if (!product) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
         <div className="flex items-center gap-4 mb-6">
           <Button
             variant="ghost"
@@ -50,7 +50,7 @@ const ProductViewPage = () => {
   const otherImages = product.images?.filter((img) => !img.isPrimary) || [];
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <Button
@@ -81,7 +81,7 @@ const ProductViewPage = () => {
       <div className="space-y-6">
         {/* Basic Information Section */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
               {t("products.basicInformation")}
             </h3>
@@ -138,7 +138,7 @@ const ProductViewPage = () => {
 
         {/* Pricing Section */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
               {t("products.pricing")}
             </h3>
@@ -169,12 +169,12 @@ const ProductViewPage = () => {
 
         {/* Inventory Section */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-2">
+          <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
               {t("products.inventory")}
             </h3>
           </div>
-          <div className="border border-black/10 dark:border-white/10 rounded-lg overflow-hidden">
+          <div className="border border-gray-100 dark:border-gray-800 rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-black/5 dark:bg-white/5">
                 <tr>
@@ -184,7 +184,7 @@ const ProductViewPage = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-t border-black/10 dark:border-white/10">
+                <tr className="border-t border-gray-100 dark:border-gray-800">
                   <td className="px-4 py-3 font-medium text-black/70 dark:text-white/70">{t("products.currentStock")}</td>
                   <td className={`px-4 py-3 font-semibold ${
                     (product.stock ?? 0) <= 5 
@@ -205,12 +205,12 @@ const ProductViewPage = () => {
                     )}
                   </td>
                 </tr>
-                <tr className="border-t border-black/10 dark:border-white/10">
+                <tr className="border-t border-gray-100 dark:border-gray-800">
                   <td className="px-4 py-3 font-medium text-black/70 dark:text-white/70">{t("products.sold")}</td>
                   <td className="px-4 py-3 text-black dark:text-white">{product.sold ?? 0} {t("products.units")}</td>
                   <td className="px-4 py-3">-</td>
                 </tr>
-                <tr className="border-t border-black/10 dark:border-white/10">
+                <tr className="border-t border-gray-100 dark:border-gray-800">
                   <td className="px-4 py-3 font-medium text-black/70 dark:text-white/70">{t("products.totalIncome")}</td>
                   <td className="px-4 py-3 font-semibold text-green-600 dark:text-green-400">
                     ${typeof product.totalIncome === "number"
@@ -219,7 +219,7 @@ const ProductViewPage = () => {
                   </td>
                   <td className="px-4 py-3">-</td>
                 </tr>
-                <tr className="border-t border-black/10 dark:border-white/10">
+                <tr className="border-t border-gray-100 dark:border-gray-800">
                   <td className="px-4 py-3 font-medium text-black/70 dark:text-white/70">{t("products.stockStatus")}</td>
                   <td className="px-4 py-3">
                     <span
@@ -241,7 +241,7 @@ const ProductViewPage = () => {
 
         {/* Images & Media Section */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
               {t("products.imagesAndMedia")}
             </h3>
@@ -253,7 +253,7 @@ const ProductViewPage = () => {
               <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
                 {t("products.thumbnail")}
               </label>
-              <div className="border border-black/5 dark:border-white/10 rounded-md overflow-hidden">
+              <div className="border border-black/5 dark:border-gray-800 rounded-md overflow-hidden">
                 <img
                   src={product.thumbnail}
                   alt={t("products.productThumbnailAlt")}
@@ -272,7 +272,7 @@ const ProductViewPage = () => {
               <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
                 {t("products.primaryImage")}
               </label>
-              <div className="border border-black/5 dark:border-white/10 rounded-md overflow-hidden">
+              <div className="border border-black/5 dark:border-gray-800 rounded-md overflow-hidden">
                 <img
                   src={primaryImage.url}
                   alt={primaryImage.alt || t("products.primaryProductImageAlt")}
@@ -300,7 +300,7 @@ const ProductViewPage = () => {
                 {otherImages.map((img, index) => (
                   <div
                     key={index}
-                    className="border border-black/5 dark:border-white/10 rounded-md overflow-hidden"
+                    className="border border-black/5 dark:border-gray-800 rounded-md overflow-hidden"
                   >
                     <img
                       src={img.url}
@@ -331,7 +331,7 @@ const ProductViewPage = () => {
                 {product.images.map((img, index) => (
                   <div
                     key={index}
-                    className="border border-black/5 dark:border-white/10 rounded-md overflow-hidden"
+                    className="border border-black/5 dark:border-gray-800 rounded-md overflow-hidden"
                   >
                     <img
                       src={img.url}

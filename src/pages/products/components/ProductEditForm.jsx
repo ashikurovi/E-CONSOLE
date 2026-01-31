@@ -223,7 +223,7 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
           {/* Basic Information Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 Basic Information
               </h3>
@@ -255,7 +255,7 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
 
           {/* Pricing Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 Pricing
               </h3>
@@ -284,7 +284,7 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
 
           {/* Images Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 Product Images
               </h3>
@@ -315,7 +315,7 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
             </div>
             <div className="space-y-3">
               {imageFiles.map((img, index) => (
-                <div key={index} className="border border-black/5 dark:border-white/10 p-3 rounded-md space-y-2">
+                <div key={index} className="border border-black/5 dark:border-gray-800 p-3 rounded-md space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-black/70 dark:text-white/70">
                       Image {index + 1}
@@ -349,14 +349,14 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
                           updateImage(index, "file", file);
                         }
                       }}
-                      className="text-sm border border-black/5 dark:border-white/10 py-2 px-3 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
+                      className="text-sm border border-black/5 dark:border-gray-800 py-2 px-3 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
                     />
                     <input
                       type="text"
                       placeholder="Or enter image URL"
                       value={img.url || ""}
                       onChange={(e) => updateImage(index, "url", e.target.value)}
-                      className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
+                      className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
                     />
                   </div>
                   <input
@@ -364,7 +364,7 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
                     placeholder="Alt text (optional)"
                     value={img.alt || ""}
                     onChange={(e) => updateImage(index, "alt", e.target.value)}
-                    className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
+                    className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
                   />
                   {img.file && (
                     <div className="mt-2">
@@ -400,7 +400,7 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
 
           {/* Category Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 Category & Classification
               </h3>

@@ -409,7 +409,7 @@ const CustomerEditForm = ({ user, onClose }) => {
                         </label>
                     </div>
 
-                    <div className="border-t border-black/10 dark:border-white/10 pt-4 space-y-4">
+                    <div className="border-t border-gray-100 dark:border-gray-800 pt-4 space-y-4">
                         <h3 className="text-sm font-semibold text-black/70 dark:text-white/70">
                             Package & Payment Information
                         </h3>
@@ -506,7 +506,7 @@ const CustomerEditForm = ({ user, onClose }) => {
                         />
                     </div>
 
-                    <div className="border-t border-black/10 dark:border-white/10 pt-4 space-y-4">
+                    <div className="border-t border-gray-100 dark:border-gray-800 pt-4 space-y-4">
                         <h3 className="text-sm font-semibold text-black/70 dark:text-white/70">
                             Courier Configuration (Optional)
                         </h3>
@@ -550,7 +550,7 @@ const CustomerEditForm = ({ user, onClose }) => {
                         </div>
                     </div>
 
-                    <div className="border-t border-black/10 dark:border-white/10 pt-4 space-y-4">
+                    <div className="border-t border-gray-100 dark:border-gray-800 pt-4 space-y-4">
                         <h3 className="text-sm font-semibold text-black/70 dark:text-white/70">
                             Notification Configuration (Optional)
                         </h3>

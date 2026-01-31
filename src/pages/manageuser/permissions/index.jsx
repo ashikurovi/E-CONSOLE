@@ -144,7 +144,7 @@ const PermissionManagerPage = () => {
   };
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
       <div className="flex items-center gap-4 mb-6">
         <Button
           variant="ghost"
@@ -188,7 +188,7 @@ const PermissionManagerPage = () => {
           )}
 
           {Object.entries(availablePermissionGroups).map(([groupName, permissions]) => (
-            <div key={groupName} className="border border-black/10 dark:border-white/10 rounded-lg p-4">
+            <div key={groupName} className="border border-gray-100 dark:border-gray-800 rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-semibold">{groupName}</h4>
                 <Button
@@ -224,7 +224,7 @@ const PermissionManagerPage = () => {
         </div>
       )}
 
-      <div className="flex justify-end gap-3 pt-6 mt-6 border-t border-black/10 dark:border-white/10">
+      <div className="flex justify-end gap-3 pt-6 mt-6 border-t border-gray-100 dark:border-gray-800">
         <Button
           type="button"
           variant="outline"

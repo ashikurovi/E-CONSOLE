@@ -132,7 +132,7 @@ const SuperAdminEarningsPage = () => {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5 flex flex-col gap-2">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 flex flex-col gap-2">
         <h1 className="text-2xl font-semibold">Earnings Overview</h1>
         <p className="text-sm text-black/60 dark:text-white/60">
           Consolidated revenue performance across all stores, markets and
@@ -145,7 +145,7 @@ const SuperAdminEarningsPage = () => {
         {kpis.map((item, index) => (
           <div
             key={index}
-            className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4 flex flex-col gap-3"
+            className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4 flex flex-col gap-3"
           >
             <div className="flex items-center justify-between">
               <div>
@@ -182,7 +182,7 @@ const SuperAdminEarningsPage = () => {
       {/* Earnings trend & breakdown */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Line chart */}
-        <section className="xl:col-span-2 rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+        <section className="xl:col-span-2 rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h2 className="text-lg font-medium">Earnings trend</h2>
@@ -213,7 +213,7 @@ const SuperAdminEarningsPage = () => {
         </section>
 
         {/* Right side breakdown cards */}
-        <section className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4 space-y-4">
+        <section className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4 space-y-4">
           <div>
             <h2 className="text-md font-medium mb-2">Payout status</h2>
             <ul className="space-y-2 text-xs text-black/70 dark:text-white/70">

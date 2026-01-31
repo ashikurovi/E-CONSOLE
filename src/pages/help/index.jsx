@@ -50,7 +50,7 @@ function HelpPage() {
   );
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">{t("help.title")}</h3>
         <Button size="sm" onClick={() => navigate("/help/create")}>

@@ -29,12 +29,12 @@ const ThemeDetailModal = ({ theme, onClose }) => {
                     <div className="space-y-6 text-sm">
                         {/* Basic Information Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                     Theme Information
                                 </h3>
                             </div>
-                            <div className="overflow-hidden border border-black/10 dark:border-white/10 rounded-lg">
+                            <div className="overflow-hidden border border-gray-100 dark:border-gray-800 rounded-lg">
                                 <table className="w-full text-sm">
                                     <tbody className="divide-y divide-black/10 dark:divide-white/10">
                                         <tr className="hover:bg-black/5 dark:hover:bg-white/5">
@@ -128,12 +128,12 @@ const ThemeDetailModal = ({ theme, onClose }) => {
                         {/* Logo Preview Section */}
                         {theme.logo && (
                             <div className="space-y-4">
-                                <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                                <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                                     <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                         Logo Preview
                                     </h3>
                                 </div>
-                                <div className="border border-black/10 dark:border-white/10 rounded-lg p-6 bg-black/5 dark:bg-white/5 flex items-center justify-center">
+                                <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-6 bg-black/5 dark:bg-white/5 flex items-center justify-center">
                                     <img
                                         src={theme.logo}
                                         alt="Theme Logo"

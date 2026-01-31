@@ -20,7 +20,7 @@ const SuperAdminTopNavbar = () => {
   };
 
   return (
-    <header className="w-full bg-white/80 dark:bg-[#121212]/80 backdrop-blur border-b border-black/10 dark:border-white/10">
+    <header className="w-full bg-white/80 dark:bg-[#121212]/80 backdrop-blur border-b border-gray-100 dark:border-gray-800">
       <div className="px-4 py-3 flex items-center justify-between">
         <div className="flex flex-col">
           <span className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">

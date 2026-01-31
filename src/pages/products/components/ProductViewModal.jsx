@@ -36,7 +36,7 @@ export default function ProductViewModal({ product }) {
                 <div className="space-y-6 mt-4">
                     {/* Basic Information Section */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                        <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                 {t("products.basicInformation")}
                             </h3>
@@ -86,7 +86,7 @@ export default function ProductViewModal({ product }) {
 
                     {/* Pricing Section */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                        <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                 {t("products.pricing")}
                             </h3>
@@ -117,7 +117,7 @@ export default function ProductViewModal({ product }) {
 
                     {/* Images & Media Section */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                        <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                 {t("products.imagesAndMedia")}
                             </h3>
@@ -129,7 +129,7 @@ export default function ProductViewModal({ product }) {
                                 <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
                                     {t("products.thumbnail")}
                                 </label>
-                                <div className="border border-black/5 dark:border-white/10 rounded-md overflow-hidden">
+                                <div className="border border-black/5 dark:border-gray-800 rounded-md overflow-hidden">
                                     <img
                                         src={product.thumbnail}
                                         alt={t("products.productThumbnailAlt")}
@@ -148,7 +148,7 @@ export default function ProductViewModal({ product }) {
                                 <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
                                     {t("products.primaryImage")}
                                 </label>
-                                <div className="border border-black/5 dark:border-white/10 rounded-md overflow-hidden">
+                                <div className="border border-black/5 dark:border-gray-800 rounded-md overflow-hidden">
                                     <img
                                         src={primaryImage.url}
                                         alt={primaryImage.alt || t("products.primaryProductImageAlt")}
@@ -176,7 +176,7 @@ export default function ProductViewModal({ product }) {
                                     {otherImages.map((img, index) => (
                                         <div
                                             key={index}
-                                            className="border border-black/5 dark:border-white/10 rounded-md overflow-hidden"
+                                            className="border border-black/5 dark:border-gray-800 rounded-md overflow-hidden"
                                         >
                                             <img
                                                 src={img.url}
@@ -207,7 +207,7 @@ export default function ProductViewModal({ product }) {
                                     {product.images.map((img, index) => (
                                         <div
                                             key={index}
-                                            className="border border-black/5 dark:border-white/10 rounded-md overflow-hidden"
+                                            className="border border-black/5 dark:border-gray-800 rounded-md overflow-hidden"
                                         >
                                             <img
                                                 src={img.url}

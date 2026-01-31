@@ -33,7 +33,7 @@ const SuperAdminCustomerDetailPage = () => {
                 </Button>
             </div>
 
-            <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5">
+            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5">
                 {isLoading && <p className="text-sm">Loading customer…</p>}
 
                 {!isLoading && !user && (
@@ -46,7 +46,7 @@ const SuperAdminCustomerDetailPage = () => {
                     <div className="space-y-6 text-sm">
                         {/* Basic Information Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                     Basic Information
                                 </h3>
@@ -99,12 +99,12 @@ const SuperAdminCustomerDetailPage = () => {
 
                         {/* Permissions Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                     Permissions
                                 </h3>
                             </div>
-                            <div className="border border-black/10 dark:border-white/10 rounded-lg p-3 bg-black/5 dark:bg-white/5 text-xs">
+                            <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-3 bg-black/5 dark:bg-white/5 text-xs">
                                 {Array.isArray(user.permissions) && user.permissions.length > 0 ? (
                                     <div className="flex flex-wrap gap-2">
                                         {user.permissions.map((permission, index) => (

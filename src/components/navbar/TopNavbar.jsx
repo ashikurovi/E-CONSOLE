@@ -378,7 +378,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
   // ... existing code ...
 
   return (
-    <nav className="dark:bg-[#242424] bg-white lg:p-3 p-1 mb-5 z-50 static top-0">
+    <nav className="dark:bg-[#1a1f26] bg-white lg:p-3 p-1 mb-5 z-50 static top-0">
       <div className="flbx py-2 gap-3">
         <div className="lg:hidden pl-2">
           <IconButton
@@ -395,7 +395,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
         <div
           className={`flex-1 w-full max-w-[500px] relative ${
             isMobileSearchOpen
-              ? "flex absolute top-full left-0 right-0 px-2 pb-2 bg-white dark:bg-[#242424] shadow-md z-50"
+              ? "flex absolute top-full left-0 right-0 px-2 pb-2 bg-white dark:bg-[#1a1f26] shadow-md z-50"
               : "hidden lg:flex"
           }`}
           ref={searchContainerRef}
@@ -408,7 +408,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
 
           {/* Real-time Search Results Dropdown */}
           {showSearchResults && searchTerm && searchTerm.trim().length >= 2 && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 rounded-lg shadow-lg z-50 max-h-[70vh] overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 rounded-lg shadow-lg z-50 max-h-[70vh] overflow-y-auto">
               <div className="p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-black dark:text-white">
@@ -458,7 +458,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                                 setShowSearchResults(false);
                                 setIsSearching(false);
                               }}
-                              className="p-3 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                              className="p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors"
                             >
                               <div className="flex items-center justify-between">
                                 <div>
@@ -496,7 +496,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                                 setShowSearchResults(false);
                                 setIsSearching(false);
                               }}
-                              className="p-3 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                              className="p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors"
                             >
                               <div className="flex items-center justify-between">
                                 <div>
@@ -533,7 +533,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                                 setShowSearchResults(false);
                                 setIsSearching(false);
                               }}
-                              className="p-3 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                              className="p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors"
                             >
                               <div>
                                 <p className="font-medium text-black dark:text-white">
@@ -560,22 +560,22 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
             <IconButton
               icon={Search}
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="!bg-[#DCE865] !text-black hover:!bg-[#DCE865]/90"
+              className="!bg-gray-100 dark:!bg-gray-800 !text-black dark:!text-white hover:!bg-gray-200 dark:hover:!bg-gray-700"
             />
           </div>
           <ThemeToggle
             variant="compact"
-            className="!bg-[#DCE865] !text-black hover:!bg-[#DCE865]/90"
+            className="!bg-gray-100 dark:!bg-gray-800 !text-black dark:!text-white hover:!bg-gray-200 dark:hover:!bg-gray-700"
           />
           <LanguageSwitcher
             variant="compact"
-            className="!bg-[#DCE865] !text-black hover:!bg-[#DCE865]/90"
+            className="!bg-gray-100 dark:!bg-gray-800 !text-black dark:!text-white hover:!bg-gray-200 dark:hover:!bg-gray-700"
           />
           <Link to="/help">
             {" "}
             <IconButton
               icon={HelpCircle}
-              className="!bg-[#DCE865] !text-black hover:!bg-[#DCE865]/90"
+              className="!bg-gray-100 dark:!bg-gray-800 !text-black dark:!text-white hover:!bg-gray-200 dark:hover:!bg-gray-700"
             />{" "}
           </Link>
 
@@ -588,19 +588,19 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
               <IconButton
                 type="icon"
                 icon={Bell}
-                className="!bg-[#DCE865] !text-black hover:!bg-[#DCE865]/90"
+                className="!bg-black dark:!bg-white !text-white dark:!text-black hover:opacity-90"
               />
             </div>
             {newNotificationCount > 0 && (
-              <span className="absolute -top-3 -right-3 bg-primary h-6 w-6 center rounded-full text-xs font-medium text-white">
+              <span className="absolute -top-1 -right-1 bg-red-500 h-4 w-4 flex items-center justify-center rounded-full text-[10px] font-bold text-white border-2 border-white dark:border-gray-800">
                 {newNotificationCount}
               </span>
             )}
           </div>
           <Link to="/settings">
             {" "}
-            <div className="h-9 w-9 rounded-full bg-[#DCE865] hover:bg-[#DCE865]/90 center overflow-hidden">
-              <User className="h-5 w-5 opacity-70 text-black" />
+            <div className="h-9 w-9 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center justify-center overflow-hidden transition-colors">
+              <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
             </div>{" "}
           </Link>
         </div>
@@ -642,7 +642,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                     className={`p-4 rounded-lg border transition-colors ${
                       !notification.read
                         ? "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800"
-                        : "bg-white dark:bg-[#2a2a2a] border-gray-200 dark:border-gray-700"
+                        : "bg-white dark:bg-[#1a1f26] border-gray-200 dark:border-gray-800"
                     } hover:shadow-md cursor-pointer`}
                   >
                     <div className="flex gap-3">

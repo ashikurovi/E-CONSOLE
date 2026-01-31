@@ -29,7 +29,7 @@ const TableFilterResult = ({
           filter?.value ? (
             <span
               key={key}
-              className="fl gap-2 pl-3 pr-2 text-sm py-1.5 bg-bg50 hover:bg-red-500/20 dark:bg-white/10 dark:hover:bg-red-500/20 tr rounded-full border dark:border-white/20"
+              className="fl gap-2 pl-3 pr-2 text-sm py-1.5 bg-gray-50 dark:bg-[#1a1f26] hover:bg-red-500/20 dark:bg-white/10 dark:hover:bg-red-500/20 tr rounded-full border dark:border-white/20"
             >
               {filter.label}
               <button onClick={() => handleFilterChange(key)}>

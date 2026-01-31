@@ -62,7 +62,7 @@ const CreateSystemOwnerPage = () => {
   };
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
       <div className="flex items-center gap-4 mb-6">
         <Button
           variant="ghost"
@@ -123,7 +123,7 @@ const CreateSystemOwnerPage = () => {
           error={errors.password}
         />
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
           <Button
             type="button"
             variant="outline"

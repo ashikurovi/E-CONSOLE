@@ -88,7 +88,7 @@ const PriceCalculator = () => {
             </label>
             <select
               {...register("recipient_city", { required: t("pathao.cityRequired") })}
-              className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+              className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
             >
               <option value="">{t("pathao.selectCity")}</option>
               {cities.map((city) => (
@@ -108,7 +108,7 @@ const PriceCalculator = () => {
             </label>
             <select
               {...register("recipient_zone", { required: t("pathao.zoneRequired") })}
-              className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+              className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
               disabled={!selectedCity}
             >
               <option value="">{t("pathao.selectZone")}</option>
@@ -129,7 +129,7 @@ const PriceCalculator = () => {
             </label>
             <select
               {...register("delivery_type", { required: "Delivery type is required" })}
-              className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+              className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
             >
               <option value={48}>Normal Delivery</option>
               <option value={12}>On Demand Delivery</option>
@@ -142,7 +142,7 @@ const PriceCalculator = () => {
             </label>
             <select
               {...register("item_type", { required: "Item type is required" })}
-              className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+              className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
             >
               <option value={1}>Document</option>
               <option value={2}>Parcel</option>
@@ -172,7 +172,7 @@ const PriceCalculator = () => {
 
       {/* Price Result */}
       {priceData && (
-        <div className="mt-6 p-6 border border-black/10 dark:border-white/10 rounded-lg bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20">
+        <div className="mt-6 p-6 border border-gray-100 dark:border-gray-800 rounded-lg bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-3 bg-green-500/10 rounded-lg">
               <DollarSign className="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -184,12 +184,12 @@ const PriceCalculator = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-white dark:bg-[#242424] rounded-lg">
+            <div className="p-4 bg-white dark:bg-[#1a1f26] rounded-lg">
               <p className="text-sm text-black/50 dark:text-white/50 mb-1">{t("pathao.basePrice")}</p>
               <p className="text-2xl font-bold">৳{priceData.price || "0"}</p>
             </div>
             {priceData.additional_charge > 0 && (
-              <div className="p-4 bg-white dark:bg-[#242424] rounded-lg">
+              <div className="p-4 bg-white dark:bg-[#1a1f26] rounded-lg">
                 <p className="text-sm text-black/50 dark:text-white/50 mb-1">{t("pathao.additionalCharge")}</p>
                 <p className="text-2xl font-bold">৳{priceData.additional_charge}</p>
               </div>

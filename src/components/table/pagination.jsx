@@ -47,7 +47,7 @@ const TablePaginate = ({
         <select
           value={pageSize}
           onChange={handlePageSizeChange}
-          className="h-9 px-3 border border-black/20 dark:border-white/20 rounded-md bg-white dark:bg-[#242424] text-black dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 cursor-pointer"
+          className="h-9 px-3 border border-black/20 dark:border-white/20 rounded-md bg-white dark:bg-[#1a1f26] text-black dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 cursor-pointer"
         >
           <option value={10}>10</option>
           <option value={25}>25</option>
@@ -87,7 +87,7 @@ const TablePaginate = ({
 
         {/* Current page indicator */}
         <div className="flex items-center gap-2">
-          <div className="h-9 px-3 flex items-center justify-center border border-black/20 dark:border-white/20 rounded-md bg-white dark:bg-[#242424] text-black dark:text-white text-sm font-medium min-w-[40px]">
+          <div className="h-9 px-3 flex items-center justify-center border border-black/20 dark:border-white/20 rounded-md bg-white dark:bg-[#1a1f26] text-black dark:text-white text-sm font-medium min-w-[40px]">
             {currentPage}
           </div>
           <span className="text-sm text-black/70 dark:text-white/70">

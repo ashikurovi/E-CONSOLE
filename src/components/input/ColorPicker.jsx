@@ -19,11 +19,11 @@ const ColorPicker = ({ value, onChange, label, error, placeholder = "#000000" })
                     <PopoverTrigger asChild>
                         <button
                             type="button"
-                            className="h-10 w-20 rounded border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 cursor-pointer hover:opacity-90 transition-opacity"
+                            className="h-10 w-20 rounded border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 cursor-pointer hover:opacity-90 transition-opacity"
                             style={{ backgroundColor: value || placeholder }}
                         />
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 border-0 shadow-lg bg-white dark:bg-[#242424]" align="start">
+                    <PopoverContent className="w-auto p-0 border-0 shadow-lg bg-white dark:bg-[#1a1f26]" align="start">
                         <div className="[&_.sketch-picker]:shadow-none [&_.sketch-picker]:bg-transparent">
                             <SketchPicker
                                 color={value || placeholder}
@@ -38,7 +38,7 @@ const ColorPicker = ({ value, onChange, label, error, placeholder = "#000000" })
                     value={value || ""}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder={placeholder}
-                    className="flex-1 px-3 py-2 text-sm rounded-md border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                    className="flex-1 px-3 py-2 text-sm rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
                 />
                 {value && /^#[0-9A-F]{6}$/i.test(value) && (
                     <div

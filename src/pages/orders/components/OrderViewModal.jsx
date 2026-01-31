@@ -33,7 +33,7 @@ export default function OrderViewModal({ order }) {
         <div className="space-y-6 mt-4">
           {/* Order Summary Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("orders.orderSummary")}
               </h3>
@@ -88,7 +88,7 @@ export default function OrderViewModal({ order }) {
 
           {/* Customer Information Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("orders.customerInformation")}
               </h3>
@@ -117,7 +117,7 @@ export default function OrderViewModal({ order }) {
 
           {/* Payment Information Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("orders.paymentInformation")}
               </h3>
@@ -153,12 +153,12 @@ export default function OrderViewModal({ order }) {
           {/* Shipping Information Section */}
           {(order.shippingAddress || order.shippingTrackingId || order.shippingProvider) && (
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   {t("orders.shippingInformation")}
                 </h3>
               </div>
-              <div className="border border-black/5 dark:border-white/10 rounded-md p-4 space-y-3 bg-black/5 dark:bg-white/5">
+              <div className="border border-black/5 dark:border-gray-800 rounded-md p-4 space-y-3 bg-black/5 dark:bg-white/5">
                 {order.shippingAddress && (
                   <div>
                     <label className="text-xs uppercase font-medium text-black/60 dark:text-white/60">{t("orders.address")}</label>
@@ -186,12 +186,12 @@ export default function OrderViewModal({ order }) {
           {/* Order Items Section */}
           {order.items && order.items.length > 0 && (
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   {t("orders.orderItems")} ({order.items.length})
                 </h3>
               </div>
-              <div className="border border-black/5 dark:border-white/10 rounded-md overflow-hidden">
+              <div className="border border-black/5 dark:border-gray-800 rounded-md overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-black/5 dark:bg-white/5">

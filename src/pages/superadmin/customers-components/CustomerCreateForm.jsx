@@ -207,7 +207,7 @@ const CustomerCreateForm = () => {
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     {/* Account Information Section */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                        <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                 Account Information
                             </h3>
@@ -250,7 +250,7 @@ const CustomerCreateForm = () => {
 
                     {/* Contact & Location Section */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                        <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                 Contact & Location
                             </h3>
@@ -276,7 +276,7 @@ const CustomerCreateForm = () => {
 
                     {/* Company Branding Section */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                        <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                 Company Branding
                             </h3>
@@ -336,7 +336,7 @@ const CustomerCreateForm = () => {
 
                     {/* Package & Payment Section */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                        <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                 Package & Payment Information
                             </h3>
@@ -409,7 +409,7 @@ const CustomerCreateForm = () => {
 
                     {/* Courier Configuration Section */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                        <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                 Courier Configuration (Optional)
                             </h3>
@@ -456,7 +456,7 @@ const CustomerCreateForm = () => {
 
                     {/* Notification Configuration Section */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                        <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                 Notification Configuration (Optional)
                             </h3>

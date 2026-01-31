@@ -35,21 +35,30 @@ function BannerEditForm({ banner }) {
         subtitle: yup.string().max(500, t("banners.validation.subtitleMax")),
         imageUrl: yup.string(),
         buttonText: yup.string().max(50, t("banners.validation.buttonTextMax")),
-        buttonLink: yup.string().required(t("banners.validation.buttonLinkRequired")),
+        buttonLink: yup
+          .string()
+          .required(t("banners.validation.buttonLinkRequired")),
         order: yup
           .number()
           .typeError(t("banners.validation.orderNumber"))
           .integer(t("banners.validation.orderInteger"))
           .min(0, t("banners.validation.orderMin"))
           .required(t("banners.validation.orderRequired")),
-        isActive: yup.boolean().required(t("banners.validation.statusRequired")),
+        isActive: yup
+          .boolean()
+          .required(t("banners.validation.statusRequired")),
       }),
-    [t]
+    [t],
   );
   const [imageFile, setImageFile] = useState(null);
   const { uploadImage, isUploading } = useImageUpload();
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
     resolver: yupResolver(bannerEditSchema),
     defaultValues: {
       title: banner?.title || "",
@@ -107,7 +116,9 @@ function BannerEditForm({ banner }) {
         setImageFile(null);
         setIsOpen(false);
       } else {
-        toast.error(res?.error?.data?.message || t("banners.bannerUpdateFailed"));
+        toast.error(
+          res?.error?.data?.message || t("banners.bannerUpdateFailed"),
+        );
       }
     } catch {
       toast.error(t("common.failed"));
@@ -120,7 +131,7 @@ function BannerEditForm({ banner }) {
         <Button
           variant="ghost"
           size="icon"
-          className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
+          className="bg-[#DCE865] hover:bg-[#DCE865]/90 text-black"
           title={t("common.edit")}
         >
           <Pencil className="h-4 w-4" />
@@ -130,7 +141,10 @@ function BannerEditForm({ banner }) {
         <DialogHeader>
           <DialogTitle>{t("banners.editBanner")}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-4 mt-4"
+        >
           <TextField
             label={t("banners.titleField")}
             placeholder={t("banners.bannerTitlePlaceholder")}
@@ -155,7 +169,9 @@ function BannerEditForm({ banner }) {
             value={banner?.imageUrl}
           />
 
-          <div className="text-center text-sm text-black/50 dark:text-white/50">{t("banners.orLabel")}</div>
+          <div className="text-center text-sm text-black/50 dark:text-white/50">
+            {t("banners.orLabel")}
+          </div>
 
           <TextField
             label={t("banners.imageUrl")}
@@ -188,21 +204,40 @@ function BannerEditForm({ banner }) {
             error={errors.order}
           />
           <div className="flex flex-col gap-2">
-            <label className="text-black/50 dark:text-white/50 text-sm ml-1">{t("common.status")}</label>
+            <label className="text-black/50 dark:text-white/50 text-sm ml-1">
+              {t("common.status")}
+            </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" {...register("isActive")} className="w-4 h-4 rounded border-black/20 dark:border-white/20" />
+              <input
+                type="checkbox"
+                {...register("isActive")}
+                className="w-4 h-4 rounded border-black/20 dark:border-white/20"
+              />
               <span className="text-sm">{t("common.active")}</span>
             </label>
             {errors.isActive && (
-              <span className="text-red-500 text-xs ml-1">{errors.isActive.message}</span>
+              <span className="text-red-500 text-xs ml-1">
+                {errors.isActive.message}
+              </span>
             )}
           </div>
           <DialogFooter>
-            <Button variant="ghost" type="button" onClick={() => setIsOpen(false)} className="bg-red-500 hover:bg-red-600 text-white">
+            <Button
+              variant="ghost"
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
               {t("common.cancel")}
             </Button>
-            <Button type="submit" disabled={isUpdating || isUploading} className="bg-black hover:bg-gray-600 text-white">
-              {isUpdating || isUploading ? t("common.processing") : t("common.update")}
+            <Button
+              type="submit"
+              disabled={isUpdating || isUploading}
+              className="bg-[#DCE865] hover:bg-[#DCE865]/90 text-black"
+            >
+              {isUpdating || isUploading
+                ? t("common.processing")
+                : t("common.update")}
             </Button>
           </DialogFooter>
         </form>

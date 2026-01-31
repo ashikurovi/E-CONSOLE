@@ -234,7 +234,7 @@ const OrderForm = () => {
           />
 
           {/* Items composer */}
-          <div className="rounded-xl border border-black/10 dark:border-white/10 p-3">
+          <div className="rounded-xl border border-gray-100 dark:border-gray-800 p-3">
             <div className="fl gap-3">
               <Dropdown
                 name={t("orders.product")}
@@ -263,7 +263,7 @@ const OrderForm = () => {
                     setItemQty(1);
                   }
                 }}
-                className="border border-black/10 dark:border-white/20 bg-bg50 dark:bg-white/10 px-3 py-2 rounded-md w-28 outline-none"
+                className="border border-gray-100 dark:border-white/20 bg-gray-50 dark:bg-[#1a1f26] dark:bg-white/10 px-3 py-2 rounded-md w-28 outline-none"
                 placeholder={t("orders.qty")}
               />
               <Button type="button" variant="outline" onClick={addItem}>
@@ -276,7 +276,7 @@ const OrderForm = () => {
                 <p className="text-sm opacity-60">{t("orders.noItemsAdded")}</p>
               ) : (
                 items.map((it) => (
-                  <div key={it.productId} className="fl justify-between border border-black/5 dark:border-white/10 rounded-md px-3 py-2">
+                  <div key={it.productId} className="fl justify-between border border-black/5 dark:border-gray-800 rounded-md px-3 py-2">
                     <span className="text-sm">{it.name}</span>
                     <div className="fl gap-3">
                       <span className="text-sm">{t("orders.qty")}: {it.quantity}</span>

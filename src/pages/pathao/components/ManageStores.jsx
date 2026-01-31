@@ -115,7 +115,7 @@ const ManageStores = () => {
       </div>
 
       {showForm && (
-        <div className="mb-6 p-4 border border-black/10 dark:border-white/10 rounded-lg bg-black/5 dark:bg-white/5">
+        <div className="mb-6 p-4 border border-gray-100 dark:border-gray-800 rounded-lg bg-black/5 dark:bg-white/5">
           <h4 className="text-md font-semibold mb-4">{t("pathao.createNewStore")}</h4>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -159,7 +159,7 @@ const ManageStores = () => {
                 </label>
                 <select
                   {...register("store_city", { required: t("pathao.cityRequired") })}
-                  className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+                  className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
                 >
                   <option value="">{t("pathao.selectCity")}</option>
                   {cities.map((city) => (
@@ -179,7 +179,7 @@ const ManageStores = () => {
                 </label>
                 <select
                   {...register("store_zone", { required: t("pathao.zoneRequired") })}
-                  className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+                  className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
                   disabled={!selectedCity}
                 >
                   <option value="">{t("pathao.selectZone")}</option>
@@ -200,7 +200,7 @@ const ManageStores = () => {
                 </label>
                 <select
                   {...register("store_area", { required: t("pathao.areaRequired") })}
-                  className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+                  className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
                   disabled={!selectedZone}
                 >
                   <option value="">{t("pathao.selectArea")}</option>
@@ -240,7 +240,7 @@ const ManageStores = () => {
         {isLoadingStores ? (
           <p className="text-black/60 dark:text-white/60">{t("pathao.loadingStores")}</p>
         ) : stores.length === 0 ? (
-          <div className="p-8 text-center border border-black/10 dark:border-white/10 rounded-lg bg-black/5 dark:bg-white/5">
+          <div className="p-8 text-center border border-gray-100 dark:border-gray-800 rounded-lg bg-black/5 dark:bg-white/5">
             <Store className="h-12 w-12 mx-auto mb-3 text-black/30 dark:text-white/30" />
             <p className="text-black/60 dark:text-white/60">{t("pathao.noStoresFoundDesc")}</p>
           </div>
@@ -249,7 +249,7 @@ const ManageStores = () => {
             {stores.map((store) => (
               <div
                 key={store.store_id}
-                className="p-4 border border-black/10 dark:border-white/10 rounded-lg bg-black/5 dark:bg-white/5"
+                className="p-4 border border-gray-100 dark:border-gray-800 rounded-lg bg-black/5 dark:bg-white/5"
               >
                 <div className="flex items-start gap-3">
                   <div className="p-2 bg-blue-500/10 rounded-lg">

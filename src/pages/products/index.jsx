@@ -335,7 +335,7 @@ const ProductsPage = () => {
   };
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-medium">{t("products.title")}</h3>
         <div className="flex items-center gap-2">
@@ -366,7 +366,7 @@ const ProductsPage = () => {
       </div>
 
       {/* Tabs */}
-      <div className="mb-4 flex gap-2 border-b border-black/10 dark:border-white/10">
+      <div className="mb-4 flex gap-2 border-b border-gray-100 dark:border-gray-800">
         <button
           onClick={() => setActiveTab("published")}
           className={`px-4 py-2 font-medium text-sm transition-colors ${

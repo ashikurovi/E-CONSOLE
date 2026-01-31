@@ -81,7 +81,7 @@ const FileUpload = ({
           />
           <label
             htmlFor={`file-upload-${name}`}
-            className="flex items-center gap-2 cursor-pointer border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus-within:border-green-300/50 dark:focus-within:border-green-300/50 dark:text-white/90 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            className="flex items-center gap-2 cursor-pointer border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus-within:border-green-300/50 dark:focus-within:border-green-300/50 dark:text-white/90 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
           >
             <Upload className="h-4 w-4 text-black/50 dark:text-white/50" />
             <span className="text-black/70 dark:text-white/70 flex-1">
@@ -92,7 +92,7 @@ const FileUpload = ({
 
         {/* Preview */}
         {preview && (
-          <div className="relative border border-black/5 dark:border-white/10 rounded-md overflow-hidden">
+          <div className="relative border border-black/5 dark:border-gray-800 rounded-md overflow-hidden">
             <div className="relative">
               <img
                 src={preview}
@@ -119,7 +119,7 @@ const FileUpload = ({
         )}
 
         {!preview && (
-          <div className="flex items-center justify-center border-2 border-dashed border-black/10 dark:border-white/10 rounded-md p-8 text-center">
+          <div className="flex items-center justify-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-md p-8 text-center">
             <div className="flex flex-col items-center gap-2">
               <ImageIcon className="h-12 w-12 text-black/30 dark:text-white/30" />
               <p className="text-sm text-black/50 dark:text-white/50">

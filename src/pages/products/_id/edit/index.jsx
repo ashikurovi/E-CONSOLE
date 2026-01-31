@@ -231,7 +231,7 @@ export default function ProductEditPage() {
 
   if (!product) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
         <div className="flex items-center gap-4 mb-6">
           <Button
             variant="ghost"
@@ -253,7 +253,7 @@ export default function ProductEditPage() {
   }
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
       <div className="flex items-center gap-4 mb-6">
         <Button
           variant="ghost"
@@ -274,7 +274,7 @@ export default function ProductEditPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
         {/* Basic Information Section */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
               {t("forms.basicInfo")}
             </h3>
@@ -306,7 +306,7 @@ export default function ProductEditPage() {
 
         {/* Pricing Section */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
               {t("productForm.pricing")}
             </h3>
@@ -335,7 +335,7 @@ export default function ProductEditPage() {
 
         {/* Inventory Section */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
               {t("productForm.inventory")}
             </h3>
@@ -355,7 +355,7 @@ export default function ProductEditPage() {
 
         {/* Images Section */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
               {t("productForm.productImages")}
             </h3>
@@ -386,7 +386,7 @@ export default function ProductEditPage() {
             </div>
             <div className="space-y-3">
               {imageFiles.map((img, index) => (
-                <div key={index} className="border border-black/5 dark:border-white/10 p-3 rounded-md space-y-2">
+                <div key={index} className="border border-black/5 dark:border-gray-800 p-3 rounded-md space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-black/70 dark:text-white/70">
                       {t("productForm.imageNumber", { num: index + 1 })}
@@ -420,14 +420,14 @@ export default function ProductEditPage() {
                           updateImage(index, "file", file);
                         }
                       }}
-                      className="text-sm border border-black/5 dark:border-white/10 py-2 px-3 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
+                      className="text-sm border border-black/5 dark:border-gray-800 py-2 px-3 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
                     />
                     <input
                       type="text"
                       placeholder={t("productForm.orEnterImageUrl")}
                       value={img.url || ""}
                       onChange={(e) => updateImage(index, "url", e.target.value)}
-                      className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
+                      className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
                     />
                   </div>
                   <input
@@ -435,7 +435,7 @@ export default function ProductEditPage() {
                     placeholder={t("productForm.altTextPlaceholder")}
                     value={img.alt || ""}
                     onChange={(e) => updateImage(index, "alt", e.target.value)}
-                    className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
+                    className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
                   />
                   {img.file && (
                     <div className="mt-2">
@@ -471,7 +471,7 @@ export default function ProductEditPage() {
 
         {/* Category Section */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
               {t("productForm.categoryClassification")}
             </h3>
@@ -488,7 +488,7 @@ export default function ProductEditPage() {
           </Dropdown>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
           <Button variant="ghost" type="button" className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700" onClick={() => navigate(`/products/${id}`)}>
             {t("common.cancel")}
           </Button>

@@ -53,7 +53,7 @@ const FraudPage = () => {
   };
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-xl font-semibold">{t("fraud.title")}</h2>
       </div>
@@ -64,7 +64,7 @@ const FraudPage = () => {
           <input
             type="text"
             placeholder={t("fraud.phonePlaceholder")}
-            className="border rounded-md px-3 py-2 w-full dark:bg-[#242424]"
+            className="border rounded-md px-3 py-2 w-full dark:bg-[#1a1f26]"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && runCheck()}
@@ -80,21 +80,21 @@ const FraudPage = () => {
         <div className="space-y-4">
           {/* Summary Card */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 rounded-lg border border-black/10 dark:border-white/10">
+            <div className="p-4 rounded-lg border border-gray-100 dark:border-gray-800">
               <p className="text-sm text-gray-500 dark:text-gray-400">{t("fraud.phoneNumber")}</p>
               <p className="text-lg font-semibold">{fraudData.phoneNumber}</p>
             </div>
-            <div className="p-4 rounded-lg border border-black/10 dark:border-white/10">
+            <div className="p-4 rounded-lg border border-gray-100 dark:border-gray-800">
               <p className="text-sm text-gray-500 dark:text-gray-400">{t("fraud.totalOrders")}</p>
               <p className="text-lg font-semibold">{fraudData.totalOrders}</p>
             </div>
-            <div className="p-4 rounded-lg border border-black/10 dark:border-white/10">
+            <div className="p-4 rounded-lg border border-gray-100 dark:border-gray-800">
               <p className="text-sm text-gray-500 dark:text-gray-400">{t("fraud.delivered")}</p>
               <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                 {fraudData.totalDelivered}
               </p>
             </div>
-            <div className="p-4 rounded-lg border border-black/10 dark:border-white/10">
+            <div className="p-4 rounded-lg border border-gray-100 dark:border-gray-800">
               <p className="text-sm text-gray-500 dark:text-gray-400">{t("fraud.cancelled")}</p>
               <p className="text-lg font-semibold text-red-600 dark:text-red-400">
                 {fraudData.totalCancelled}
@@ -103,7 +103,7 @@ const FraudPage = () => {
           </div>
 
           {/* Risk Assessment */}
-          <div className="p-4 rounded-lg border border-black/10 dark:border-white/10">
+          <div className="p-4 rounded-lg border border-gray-100 dark:border-gray-800">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t("fraud.riskAssessment")}</p>
@@ -129,7 +129,7 @@ const FraudPage = () => {
               {fraudData.couriers?.map((courier, index) => (
                 <div
                   key={index}
-                  className="p-4 rounded-lg border border-black/10 dark:border-white/10 hover:shadow-md transition-shadow"
+                  className="p-4 rounded-lg border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow"
                 >
                   <h4 className="text-lg font-semibold mb-3">{courier.name}</h4>
                   <div className="space-y-2">
@@ -149,7 +149,7 @@ const FraudPage = () => {
                         {courier.cancelled}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center pt-2 border-t border-black/10 dark:border-white/10">
+                    <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-800">
                       <span className="text-sm text-gray-500 dark:text-gray-400">{t("fraud.deliveryRate")}</span>
                       <span className="font-bold text-lg">{courier.delivery_rate}</span>
                     </div>

@@ -166,7 +166,7 @@ const PackageCreateForm = () => {
                         <textarea
                             {...register("description")}
                             placeholder="Describe the package features and benefits"
-                            className="w-full min-h-[80px] px-3 py-2 text-sm rounded-md border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                            className="w-full min-h-[80px] px-3 py-2 text-sm rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
                         />
                         {errors.description && (
                             <span className="text-red-500 text-xs ml-1">
@@ -218,7 +218,7 @@ const PackageCreateForm = () => {
                         <select
                             value={themeId}
                             onChange={(e) => setThemeId(e.target.value)}
-                            className="w-full px-3 py-2 text-sm rounded-md border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                            className="w-full px-3 py-2 text-sm rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
                             disabled={isLoadingThemes}
                         >
                             <option value="">Select a theme</option>
@@ -234,7 +234,7 @@ const PackageCreateForm = () => {
                         <p className="text-sm font-medium text-black/70 dark:text-white/70">
                             Features * (Select at least one)
                         </p>
-                        <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto border border-black/10 dark:border-white/10 rounded-lg p-3">
+                        <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto border border-gray-100 dark:border-gray-800 rounded-lg p-3">
                             {AVAILABLE_FEATURES.map((feature) => (
                                 <label
                                     key={feature}

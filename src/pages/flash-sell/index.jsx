@@ -260,7 +260,7 @@ const FlashSellPage = () => {
   };
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
       <div className="flex items-center gap-4 mb-6">
         <Button
           variant="ghost"
@@ -279,7 +279,7 @@ const FlashSellPage = () => {
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex items-center justify-between border-b border-black/10 dark:border-white/10">
+      <div className="mb-6 flex items-center justify-between border-b border-gray-100 dark:border-gray-800">
         <div className="flex gap-2">
           <button
             onClick={() => setActiveTab("list")}
@@ -341,7 +341,7 @@ const FlashSellPage = () => {
                 {selectedProducts.length === availableProducts.length ? t("flashSell.deselectAll") : t("flashSell.selectAll")}
               </Button>
             </div>
-            <div className="max-h-[300px] overflow-y-auto border border-black/10 dark:border-white/10 rounded-lg p-4">
+            <div className="max-h-[300px] overflow-y-auto border border-gray-100 dark:border-gray-800 rounded-lg p-4">
               {availableProducts.length === 0 ? (
                 <p className="text-sm text-black/50 dark:text-white/50 p-4 text-center">
                   {t("flashSell.noAvailableProducts")}
@@ -436,7 +436,7 @@ const FlashSellPage = () => {
             )}
           />
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
             <Button
               type="button"
               variant="ghost"

@@ -153,7 +153,7 @@ function BannerForm({ productOptions = [] }) {
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
           {/* Banner Content Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("banners.bannerContent")}
               </h3>
@@ -176,7 +176,7 @@ function BannerForm({ productOptions = [] }) {
 
           {/* Banner Image Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("banners.bannerImage")}
               </h3>
@@ -201,7 +201,7 @@ function BannerForm({ productOptions = [] }) {
 
           {/* Call to Action Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("banners.callToAction")}
               </h3>
@@ -224,7 +224,7 @@ function BannerForm({ productOptions = [] }) {
 
           {/* Settings Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("banners.settings")}
               </h3>

@@ -304,7 +304,7 @@ const CreateOrder = () => {
             </label>
             <select
               {...register("delivery_type", { required: t("steadfast.deliveryTypeRequired") })}
-              className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+              className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
             >
               <option value={0}>{t("steadfast.homeDelivery")}</option>
               <option value={1}>{t("steadfast.pointDelivery")}</option>

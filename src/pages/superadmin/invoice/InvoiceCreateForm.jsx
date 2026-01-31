@@ -182,7 +182,7 @@ const InvoiceCreateForm = () => {
                         </label>
                         <select
                             {...register("customerId")}
-                            className="w-full px-3 py-2 text-sm rounded-md border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                            className="w-full px-3 py-2 text-sm rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
                         >
                             <option value="">Select a customer</option>
                             {customers.map((customer) => (
@@ -231,7 +231,7 @@ const InvoiceCreateForm = () => {
                     </div>
 
                     {/* Due Amount Display */}
-                    <div className="p-3 bg-black/5 dark:bg-white/5 rounded-lg border border-black/10 dark:border-white/10">
+                    <div className="p-3 bg-black/5 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-gray-800">
                         <p className="text-xs text-black/60 dark:text-white/60">Due Amount</p>
                         <p className="text-lg font-semibold text-red-600 dark:text-red-400">
                             ৳{dueAmount}
@@ -246,7 +246,7 @@ const InvoiceCreateForm = () => {
                             </label>
                             <select
                                 {...register("amountType")}
-                                className="w-full px-3 py-2 text-sm rounded-md border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                                className="w-full px-3 py-2 text-sm rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
                             >
                                 <option value="package">Package</option>
                                 <option value="service">Service</option>
@@ -265,7 +265,7 @@ const InvoiceCreateForm = () => {
                             </label>
                             <select
                                 {...register("status")}
-                                className="w-full px-3 py-2 text-sm rounded-md border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                                className="w-full px-3 py-2 text-sm rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
                             >
                                 <option value="pending">Pending</option>
                                 <option value="paid">Paid</option>
@@ -280,7 +280,7 @@ const InvoiceCreateForm = () => {
                     </div>
 
                     {/* Payment Methods Toggle */}
-                    <div className="border-t border-black/10 dark:border-white/10 pt-4 space-y-3">
+                    <div className="border-t border-gray-100 dark:border-gray-800 pt-4 space-y-3">
                         <p className="text-sm font-medium text-black/70 dark:text-white/70">
                             Payment Methods (Optional)
                         </p>
@@ -346,7 +346,7 @@ const InvoiceCreateForm = () => {
                                     </label>
                                     <select
                                         {...register("bankPaymentStatus")}
-                                        className="w-full px-3 py-2 text-sm rounded-md border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                                        className="w-full px-3 py-2 text-sm rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
                                     >
                                         <option value="pending">Pending</option>
                                         <option value="verified">Verified</option>

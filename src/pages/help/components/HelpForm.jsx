@@ -76,7 +76,7 @@ function HelpForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
           {/* Contact Information Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("help.contactInformation")}
               </h3>
@@ -93,7 +93,7 @@ function HelpForm() {
 
           {/* Issue Description Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("help.issueDetails")}
               </h3>

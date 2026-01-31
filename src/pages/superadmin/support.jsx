@@ -83,7 +83,7 @@ const SuperAdminSupportPage = () => {
     return (
         <div className="space-y-6">
             {/* Page header */}
-            <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5">
+            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5">
                 <h1 className="text-2xl font-semibold">Support</h1>
                 <p className="text-sm text-black/60 dark:text-white/60">
                     Monitor support volume, prioritize high-impact tickets and
@@ -92,8 +92,8 @@ const SuperAdminSupportPage = () => {
             </div>
 
             {/* Support tickets table */}
-            <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 overflow-hidden">
-                <div className="px-4 py-3 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
+            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 overflow-hidden">
+                <div className="px-4 py-3 border-b border-black/5 dark:border-gray-800 flex items-center justify-between">
                     <div>
                         <h2 className="text-sm font-medium">
                             Recent support tickets

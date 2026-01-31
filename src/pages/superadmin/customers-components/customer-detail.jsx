@@ -123,7 +123,7 @@ const SuperAdminCustomerDetailPage = () => {
         </div>
       </div>
 
-      <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-5">
+      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5">
         {isLoading && <p className="text-sm">Loading customer…</p>}
 
         {!isLoading && !user && (
@@ -137,12 +137,12 @@ const SuperAdminCustomerDetailPage = () => {
             {/* Company Logo Section */}
             {user.companyLogo && (
               <div className="space-y-4">
-                <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                   <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                     Company Branding
                   </h3>
                 </div>
-                <div className="border border-black/10 dark:border-white/10 rounded-lg p-3 bg-black/5 dark:bg-white/5 inline-block">
+                <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-3 bg-black/5 dark:bg-white/5 inline-block">
                   <img
                     src={user.companyLogo}
                     alt="Company Logo"
@@ -154,7 +154,7 @@ const SuperAdminCustomerDetailPage = () => {
 
             {/* Basic Information Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   Basic Information
                 </h3>
@@ -211,12 +211,12 @@ const SuperAdminCustomerDetailPage = () => {
             {/* Theme Information Section */}
             {user.theme && (
               <div className="space-y-4">
-                <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                   <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                     Theme Details
                   </h3>
                 </div>
-                <div className="overflow-hidden border border-black/10 dark:border-white/10 rounded-lg">
+                <div className="overflow-hidden border border-gray-100 dark:border-gray-800 rounded-lg">
                   <table className="w-full text-sm">
                     <tbody className="divide-y divide-black/10 dark:divide-white/10">
                       <tr className="hover:bg-black/5 dark:hover:bg-white/5">
@@ -280,12 +280,12 @@ const SuperAdminCustomerDetailPage = () => {
             {/* Package Information Section */}
             {user.package && (
               <div className="space-y-4">
-                <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                   <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                     Package Details
                   </h3>
                 </div>
-                <div className="border border-black/10 dark:border-white/10 rounded-lg p-4 bg-black/5 dark:bg-white/5 space-y-3">
+                <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-4 bg-black/5 dark:bg-white/5 space-y-3">
                   <div className="flex items-start justify-between">
                     <div>
                       <h4 className="font-semibold text-base">{user.package.name}</h4>
@@ -299,7 +299,7 @@ const SuperAdminCustomerDetailPage = () => {
                       </span>
                     )}
                   </div>
-                  <div className="grid grid-cols-2 gap-3 pt-2 border-t border-black/10 dark:border-white/10">
+                  <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
                     <div>
                       <p className="text-xs text-black/60 dark:text-white/60">Price</p>
                       <p className="font-semibold">৳{parseFloat(user.package.price).toFixed(2)}</p>
@@ -314,7 +314,7 @@ const SuperAdminCustomerDetailPage = () => {
                     )}
                   </div>
                   {user.package.features && user.package.features.length > 0 && (
-                    <div className="pt-2 border-t border-black/10 dark:border-white/10">
+                    <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
                       <p className="text-xs text-black/60 dark:text-white/60 mb-2">Features:</p>
                       <div className="flex flex-wrap gap-1">
                         {user.package.features.map((feature) => (
@@ -334,14 +334,14 @@ const SuperAdminCustomerDetailPage = () => {
 
             {/* Courier Configurations Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   Courier Configuration
                 </h3>
               </div>
               <div className="grid md:grid-cols-2 gap-4">
                 {/* Pathao Config */}
-                <div className="border border-black/10 dark:border-white/10 rounded-lg p-4 bg-black/5 dark:bg-white/5">
+                <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-4 bg-black/5 dark:bg-white/5">
                   <p className="text-xs font-semibold text-black/70 dark:text-white/70 mb-2">
                     Pathao
                   </p>
@@ -364,7 +364,7 @@ const SuperAdminCustomerDetailPage = () => {
                 </div>
 
                 {/* Steadfast Config */}
-                <div className="border border-black/10 dark:border-white/10 rounded-lg p-4 bg-black/5 dark:bg-white/5">
+                <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-4 bg-black/5 dark:bg-white/5">
                   <p className="text-xs font-semibold text-black/70 dark:text-white/70 mb-2">
                     Steadfast
                   </p>
@@ -390,12 +390,12 @@ const SuperAdminCustomerDetailPage = () => {
 
             {/* Notification Configuration Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   Notification Configuration
                 </h3>
               </div>
-              <div className="border border-black/10 dark:border-white/10 rounded-lg p-4 bg-black/5 dark:bg-white/5">
+              <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-4 bg-black/5 dark:bg-white/5">
                 {user.notificationConfig ? (
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
@@ -415,7 +415,7 @@ const SuperAdminCustomerDetailPage = () => {
 
             {/* Timestamps Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   Activity Timeline
                 </h3>
@@ -448,7 +448,7 @@ const SuperAdminCustomerDetailPage = () => {
             {/* Invoice Information Section */}
             {user.invoices && user.invoices.length > 0 && (
               <div className="space-y-4">
-                <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                   <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide flex items-center gap-2">
                     <FileText className="h-4 w-4" />
                     Invoices ({user.invoices.length})
@@ -473,7 +473,7 @@ const SuperAdminCustomerDetailPage = () => {
                     };
 
                     return (
-                      <div key={invoice.id} className="border border-black/10 dark:border-white/10 rounded-lg p-4 bg-black/5 dark:bg-white/5 space-y-3">
+                      <div key={invoice.id} className="border border-gray-100 dark:border-gray-800 rounded-lg p-4 bg-black/5 dark:bg-white/5 space-y-3">
                         <div className="flex items-start justify-between">
                           <div>
                             <h4 className="font-semibold flex items-center gap-2">
@@ -498,7 +498,7 @@ const SuperAdminCustomerDetailPage = () => {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-black/10 dark:border-white/10">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
                           <div>
                             <p className="text-xs text-black/60 dark:text-white/60">Total Amount</p>
                             <p className="font-semibold">৳{parseFloat(invoice.totalAmount).toFixed(2)}</p>
@@ -523,7 +523,7 @@ const SuperAdminCustomerDetailPage = () => {
 
                         {/* Bank Payment Info */}
                         {invoice.bankPayment && (
-                          <div className="pt-2 border-t border-black/10 dark:border-white/10">
+                          <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
                             <p className="text-xs font-semibold text-black/70 dark:text-white/70 mb-2">
                               Bank Payment Details
                             </p>
@@ -558,7 +558,7 @@ const SuperAdminCustomerDetailPage = () => {
 
                         {/* Bkash Payment Info */}
                         {(invoice.bkashPaymentID || invoice.bkashTrxID) && (
-                          <div className="pt-2 border-t border-black/10 dark:border-white/10">
+                          <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
                             <p className="text-xs font-semibold text-black/70 dark:text-white/70 mb-2">
                               Bkash Payment Details
                             </p>
@@ -580,7 +580,7 @@ const SuperAdminCustomerDetailPage = () => {
                         )}
 
                         {/* Dates */}
-                        <div className="pt-2 border-t border-black/10 dark:border-white/10">
+                        <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
                           <div className="grid grid-cols-2 gap-3">
                             <div>
                               <p className="text-xs text-black/60 dark:text-white/60 flex items-center gap-1">
@@ -629,7 +629,7 @@ const SuperAdminCustomerDetailPage = () => {
 
             {/* Password Fields Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   New Password
                 </h3>

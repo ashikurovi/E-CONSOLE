@@ -136,7 +136,7 @@ const ReturnRequests = () => {
       </div>
 
       {showCreateForm && (
-        <div className="mb-6 p-4 border border-black/10 dark:border-white/10 rounded-lg">
+        <div className="mb-6 p-4 border border-gray-100 dark:border-gray-800 rounded-lg">
           <h4 className="text-md font-semibold mb-4">{t("steadfast.createReturnRequest")}</h4>
           <form onSubmit={handleCreate} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -212,7 +212,7 @@ const ReturnRequests = () => {
       />
 
       {selectedRequest && (
-        <div className="mt-6 p-4 border border-black/10 dark:border-white/10 rounded-lg">
+        <div className="mt-6 p-4 border border-gray-100 dark:border-gray-800 rounded-lg">
           <h4 className="text-md font-semibold mb-4">{t("steadfast.returnRequestDetails")}</h4>
           <pre className="text-xs font-mono overflow-x-auto">
             {JSON.stringify(selectedRequest, null, 2)}

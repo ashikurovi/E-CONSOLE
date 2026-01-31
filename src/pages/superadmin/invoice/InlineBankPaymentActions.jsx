@@ -106,7 +106,7 @@ const InlineBankPaymentActions = ({ invoice }) => {
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="Enter reason for rejection..."
-                className="w-full min-h-[100px] px-3 py-2 text-sm rounded-md border border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                className="w-full min-h-[100px] px-3 py-2 text-sm rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] focus:outline-none focus:ring-2 focus:ring-red-500/20"
               />
               <p className="text-xs text-black/50 dark:text-white/50">
                 Providing a reason helps the customer understand why the payment was rejected.

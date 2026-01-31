@@ -33,8 +33,8 @@ const Locations = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Cities */}
-        <div className="border border-black/10 dark:border-white/10 rounded-lg overflow-hidden">
-          <div className="bg-black/5 dark:bg-white/5 p-3 border-b border-black/10 dark:border-white/10">
+        <div className="border border-gray-100 dark:border-gray-800 rounded-lg overflow-hidden">
+          <div className="bg-black/5 dark:bg-white/5 p-3 border-b border-gray-100 dark:border-gray-800">
             <h4 className="font-semibold text-sm">{t("pathao.cities")} ({cities.length})</h4>
           </div>
           <div className="max-h-96 overflow-y-auto">
@@ -68,8 +68,8 @@ const Locations = () => {
         </div>
 
         {/* Zones */}
-        <div className="border border-black/10 dark:border-white/10 rounded-lg overflow-hidden">
-          <div className="bg-black/5 dark:bg-white/5 p-3 border-b border-black/10 dark:border-white/10">
+        <div className="border border-gray-100 dark:border-gray-800 rounded-lg overflow-hidden">
+          <div className="bg-black/5 dark:bg-white/5 p-3 border-b border-gray-100 dark:border-gray-800">
             <h4 className="font-semibold text-sm">
               {t("pathao.zones")} {selectedCity && `(${zones.length})`}
             </h4>
@@ -112,8 +112,8 @@ const Locations = () => {
         </div>
 
         {/* Areas */}
-        <div className="border border-black/10 dark:border-white/10 rounded-lg overflow-hidden">
-          <div className="bg-black/5 dark:bg-white/5 p-3 border-b border-black/10 dark:border-white/10">
+        <div className="border border-gray-100 dark:border-gray-800 rounded-lg overflow-hidden">
+          <div className="bg-black/5 dark:bg-white/5 p-3 border-b border-gray-100 dark:border-gray-800">
             <h4 className="font-semibold text-sm">
               {t("pathao.areas")} {selectedZone && `(${areas.length})`}
             </h4>

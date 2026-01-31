@@ -59,7 +59,7 @@ function CreateHelpPage() {
   };
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
       <div className="flex items-center gap-4 mb-6">
         <Button
           variant="ghost"
@@ -79,7 +79,7 @@ function CreateHelpPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
         <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
               {t("help.contactInformation")}
             </h3>
@@ -95,7 +95,7 @@ function CreateHelpPage() {
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
               {t("help.issueDetails")}
             </h3>
@@ -111,7 +111,7 @@ function CreateHelpPage() {
           />
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
           <Button variant="ghost" type="button" onClick={() => navigate("/help")} className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400">
             {t("common.cancel")}
           </Button>

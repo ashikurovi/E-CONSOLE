@@ -181,7 +181,7 @@ const PermissionManager = ({ userId, isOpen, onClose }) => {
             )}
 
             {Object.entries(availablePermissionGroups).map(([groupName, permissions]) => (
-              <div key={groupName} className="border border-black/10 dark:border-white/10 rounded-lg p-4">
+              <div key={groupName} className="border border-gray-100 dark:border-gray-800 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="text-sm font-semibold">{groupName}</h4>
                   <Button

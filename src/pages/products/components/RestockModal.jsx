@@ -48,7 +48,7 @@ const RestockModal = ({ isOpen, onClose, product }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70">
-      <div className="bg-white dark:bg-[#242424] rounded-2xl border border-black/10 dark:border-white/10 p-6 max-w-md w-full mx-4">
+      <div className="bg-white dark:bg-[#1a1f26] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 max-w-md w-full mx-4">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Restock Product</h2>
           <Button variant="ghost" size="icon" onClick={onClose}>

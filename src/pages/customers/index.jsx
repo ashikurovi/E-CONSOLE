@@ -144,7 +144,7 @@ const CustomersPage = () => {
   );
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
       <div className="flex items-center justify-between mb-3 gap-4 flex-wrap">
         <h2 className="text-xl font-semibold">{t("customers.title")}</h2>
         <div className="flex items-center gap-2 flex-wrap justify-end">

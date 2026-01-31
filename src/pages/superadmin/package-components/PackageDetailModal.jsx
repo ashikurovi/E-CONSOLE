@@ -40,7 +40,7 @@ const PackageDetailModal = ({ pkg, onClose }) => {
                     <div className="space-y-6 text-sm">
                         {/* Package Information Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                     Package Information
                                 </h3>
@@ -72,7 +72,7 @@ const PackageDetailModal = ({ pkg, onClose }) => {
 
                         {/* Pricing Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                     Pricing
                                 </h3>
@@ -115,12 +115,12 @@ const PackageDetailModal = ({ pkg, onClose }) => {
                         {/* Theme Section */}
                         {pkg.theme && (
                             <div className="space-y-4">
-                                <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                                <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                                     <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                         Theme Details
                                     </h3>
                                 </div>
-                                <div className="overflow-hidden border border-black/10 dark:border-white/10 rounded-lg">
+                                <div className="overflow-hidden border border-gray-100 dark:border-gray-800 rounded-lg">
                                     <table className="w-full text-sm">
                                         <tbody className="divide-y divide-black/10 dark:divide-white/10">
                                             <tr className="hover:bg-black/5 dark:hover:bg-white/5">
@@ -183,12 +183,12 @@ const PackageDetailModal = ({ pkg, onClose }) => {
 
                         {/* Features Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                     Features ({pkg.features?.length || 0})
                                 </h3>
                             </div>
-                            <div className="border border-black/10 dark:border-white/10 rounded-lg p-3 bg-black/5 dark:bg-white/5 max-h-[200px] overflow-y-auto">
+                            <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-3 bg-black/5 dark:bg-white/5 max-h-[200px] overflow-y-auto">
                                 {pkg.features && pkg.features.length > 0 ? (
                                     <div className="grid grid-cols-2 gap-2">
                                         {pkg.features.map((feature, index) => (
@@ -211,7 +211,7 @@ const PackageDetailModal = ({ pkg, onClose }) => {
 
                         {/* Timeline Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-2">
+                            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
                                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                                     Timeline
                                 </h3>

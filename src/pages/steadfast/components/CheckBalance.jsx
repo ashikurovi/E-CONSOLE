@@ -12,7 +12,7 @@ const CheckBalance = () => {
     <div className="max-w-2xl">
       <h3 className="text-lg font-semibold mb-4">{t("steadfast.currentBalance")}</h3>
 
-      <div className="p-6 border border-black/10 dark:border-white/10 rounded-lg bg-black/5 dark:bg-white/5">
+      <div className="p-6 border border-gray-100 dark:border-gray-800 rounded-lg bg-black/5 dark:bg-white/5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-green-500/10 rounded-lg">

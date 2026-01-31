@@ -3,17 +3,19 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 const Table = React.forwardRef(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto scroll-horizon">
-    <table
-      ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
-      {...props} />
+  <div className="relative w-full overflow-hidden rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] shadow-sm">
+    <div className="overflow-x-auto">
+      <table
+        ref={ref}
+        className={cn("w-full caption-bottom text-sm", className)}
+        {...props} />
+    </div>
   </div>
 ))
 Table.displayName = "Table"
 
 const TableHeader = React.forwardRef(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
+  <thead ref={ref} className={cn("[&_tr]:border-b bg-gray-50/50 dark:bg-gray-800/20", className)} {...props} />
 ))
 TableHeader.displayName = "TableHeader"
 
@@ -37,7 +39,7 @@ const TableRow = React.forwardRef(({ className, ...props }, ref) => (
   <tr
     ref={ref}
     className={cn(
-      "border-b border-black/10 dark:border-white/10 transition-colors",
+      "border-b border-gray-100 dark:border-gray-800 transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/30 data-[state=selected]:bg-muted",
       className
     )}
     {...props} />
@@ -48,7 +50,7 @@ const TableHead = React.forwardRef(({ className, ...props }, ref) => (
   <th
     ref={ref}
     className={cn(
-      "h-12 px-4 text-left align-middle font-medium [&:has([role=checkbox])]:pr-0",
+      "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 text-xs uppercase tracking-wider text-gray-500",
       className
     )}
     {...props} />
@@ -58,7 +60,7 @@ TableHead.displayName = "TableHead"
 const TableCell = React.forwardRef(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)}
+    className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0 text-gray-700 dark:text-gray-300", className)}
     {...props} />
 ))
 TableCell.displayName = "TableCell"

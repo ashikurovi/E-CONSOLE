@@ -73,7 +73,7 @@ const OrderNotificationSettings = () => {
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">{t("settings.orderNotificationSettings")}</h2>
-      <Card className="border border-black/10 dark:border-white/10">
+      <Card className="border border-gray-100 dark:border-gray-800">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
             <Bell className="h-5 w-5 text-yellow-500" />
@@ -89,7 +89,7 @@ const OrderNotificationSettings = () => {
               <input
                 type="email"
                 {...register("email")}
-                className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                className="w-full px-3 py-2 border border-gray-100 dark:border-gray-800 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
                 placeholder={t("settings.emailPlaceholder")}
               />
             </div>
@@ -100,7 +100,7 @@ const OrderNotificationSettings = () => {
               <input
                 type="tel"
                 {...register("whatsapp")}
-                className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                className="w-full px-3 py-2 border border-gray-100 dark:border-gray-800 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
                 placeholder={t("settings.whatsappPlaceholder")}
               />
             </div>

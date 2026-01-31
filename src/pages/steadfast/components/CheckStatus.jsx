@@ -96,7 +96,7 @@ const CheckStatus = () => {
               setSearchValue("");
               setShouldFetch(false);
             }}
-            className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+            className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
           >
             <option value="consignment">{t("steadfast.consignmentId")}</option>
             <option value="invoice">{t("steadfast.invoiceIdOption")}</option>
@@ -131,7 +131,7 @@ const CheckStatus = () => {
         </div>
 
         {statusData && (
-          <div className="mt-6 p-4 border border-black/10 dark:border-white/10 rounded-lg">
+          <div className="mt-6 p-4 border border-gray-100 dark:border-gray-800 rounded-lg">
             <h4 className="text-md font-semibold mb-2">{t("steadfast.statusResult")}</h4>
             <div className="space-y-2">
               <div>

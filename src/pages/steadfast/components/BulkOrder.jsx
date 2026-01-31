@@ -157,7 +157,7 @@ const BulkOrder = () => {
             value={ordersJson}
             onChange={(e) => setOrdersJson(e.target.value)}
             placeholder='[{"invoice": "INV-001", "recipient_name": "John Doe", "recipient_phone": "01711111111", "recipient_address": "Address", "cod_amount": "1000.00"}]'
-            className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded min-h-[300px] font-mono text-sm"
+            className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded min-h-[300px] font-mono text-sm"
             rows={15}
           />
         </div>
@@ -169,7 +169,7 @@ const BulkOrder = () => {
       {results && (
         <div className="mt-6">
           <h4 className="text-md font-semibold mb-2">{t("steadfast.results")}</h4>
-          <div className="max-h-96 overflow-y-auto border border-black/10 dark:border-white/10 rounded-lg p-4">
+          <div className="max-h-96 overflow-y-auto border border-gray-100 dark:border-gray-800 rounded-lg p-4">
             <pre className="text-xs font-mono overflow-x-auto">
               {JSON.stringify(results, null, 2)}
             </pre>

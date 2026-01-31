@@ -7,7 +7,7 @@ import { FOOTER_TEXT, footerNavLinks } from "./data";
 
 const Footer = () => {
   return (
-    <footer className="dark:bg-[#242424] bg-white rounded-2xl pt-5 p-8 mt-5">
+    <footer className="dark:bg-[#1a1f26] bg-white rounded-2xl pt-5 p-8 mt-5">
       <div className="flbx lg:flex-row flex-col lg:items-center items-start py-5 gap-4">
         <FooterLogo />
         <div className="fl lg:gap-10 gap-x-6 gap-y-2 flex-wrap">
