@@ -21,12 +21,6 @@ const categoryEditSchema = yup.object().shape({
     .min(2, "Category name must be at least 2 characters")
     .max(100, "Category name must be less than 100 characters")
     .trim(),
-  slug: yup
-    .string()
-    .nullable()
-    .transform((value) => (value === "" ? null : value))
-    .max(100, "Slug must be less than 100 characters")
-    .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$|^$/, "Slug must be lowercase letters, numbers, and hyphens only"),
 });
 
 const CategoryEditPage = () => {
@@ -55,7 +49,6 @@ const CategoryEditPage = () => {
     mode: "onChange",
     defaultValues: {
       name: category?.name ?? "",
-      slug: category?.slug ?? "",
       isActive: category?.isActive ?? false,
     },
   });
@@ -81,7 +74,6 @@ const CategoryEditPage = () => {
 
     const payload = {
       name: data.name,
-      slug: data.slug,
       isActive: data.isActive,
       photo: photoUrl,
       parentId: selectedParent?.value || null,
@@ -154,13 +146,6 @@ const CategoryEditPage = () => {
             register={register}
             name="name"
             error={errors.name?.message}
-          />
-          <TextField
-            label={t("common.slug")}
-            placeholder="category-slug (optional)"
-            register={register}
-            name="slug"
-            error={errors.slug?.message}
           />
         </div>
 

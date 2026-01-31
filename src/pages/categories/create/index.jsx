@@ -21,12 +21,6 @@ const categorySchema = yup.object().shape({
     .required("Category name is required")
     .min(2, "Category name must be at least 2 characters")
     .max(100, "Category name must be less than 100 characters"),
-  slug: yup
-    .string()
-    .nullable()
-    .transform((value) => (value === "" ? null : value))
-    .max(100, "Slug must be less than 100 characters")
-    .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$|^$/, "Slug must be lowercase letters, numbers, and hyphens only"),
 });
 
 function CreateCategoryPage() {
@@ -64,7 +58,6 @@ function CreateCategoryPage() {
 
     const payload = {
       name: data.name,
-      slug: data.slug || null,
       isActive: true,
       photo: photoUrl || null,
       parentId: parentOption?.value || null,
@@ -123,13 +116,6 @@ function CreateCategoryPage() {
             register={register}
             name="name"
             error={errors.name}
-          />
-          <TextField
-            label={t("common.slug")}
-            placeholder="category-slug (optional)"
-            register={register}
-            name="slug"
-            error={errors.slug}
           />
         </div>
 

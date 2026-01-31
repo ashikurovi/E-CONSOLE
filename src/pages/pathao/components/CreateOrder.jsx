@@ -131,9 +131,18 @@ const CreateOrder = () => {
     setSelectedCity("");
     setSelectedZone("");
     
-    setValue("item_description", order.orderItems?.map(item => item.productName || item.name).join(", ") || "");
+    // Build item description: product name and description only
+    const items = order.items || order.orderItems || [];
+    const itemDescription = items
+      .map((item) => {
+        const name = item.product?.name || item.productName || item.name || "Product";
+        const desc = item.product?.description || item.description;
+        return desc ? `${name}: ${desc}` : name;
+      })
+      .join(", ");
+    setValue("item_description", itemDescription || "");
     setValue("special_instruction", order.notes || "");
-    setValue("item_quantity", order.orderItems?.length || 1);
+    setValue("item_quantity", items.length || 1);
     setValue("amount_to_collect", order.totalAmount?.toString() || "0");
     setValue("item_weight", "0.5"); // Default weight
     setValue("delivery_type", 48); // Normal delivery

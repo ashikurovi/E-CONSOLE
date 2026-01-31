@@ -37,6 +37,8 @@ import {
   useGetOrderStatusNotificationsQuery,
   useGetNewCustomerNotificationsQuery,
   useGetLowStockNotificationsQuery,
+  useMarkNotificationAsReadMutation,
+  useMarkAllNotificationsAsReadMutation,
 } from "@/features/notifications/notificationsApiSlice";
 import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
 import { useGlobalSearch } from "@/features/search/searchApiSlice";
@@ -109,6 +111,8 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
 
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [markAsRead] = useMarkNotificationAsReadMutation();
+  const [markAllAsRead, { isLoading: isMarkingAll }] = useMarkAllNotificationsAsReadMutation();
 
   const isLoading =
     isLoadingAll ||
@@ -137,210 +141,155 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
     return acc;
   }, []);
 
+  
   // Transform API notifications to match UI format
-  const notifications = uniqueNotifications
-    .map((notification) => {
-      // Determine icon and color based on notification type (matching backend enum)
-      let icon = Bell;
-      let iconColor = "text-gray-500";
-      let title =
-        notification.subject ||
-        notification.title ||
-        t("notifications.notification");
+  const notifications = uniqueNotifications.map((notification) => {
+    // Determine icon and color based on notification type (matching backend enum)
+    let icon = Bell;
+    let iconColor = "text-gray-500";
+    let title = notification.subject || notification.title || t("notifications.notification");
+    
+    switch(notification.type) {
+      // Order notifications
+      case "order_created":
+      case "ORDER_CREATED":
+        icon = ShoppingCart;
+        iconColor = "text-blue-500";
+        title = notification.subject || notification.title || t("notifications.newOrderCreated");
+        break;
+      case "order_confirmed":
+      case "ORDER_CONFIRMED":
+        icon = CheckCircle;
+        iconColor = "text-blue-600";
+        title = notification.subject || notification.title || t("notifications.orderConfirmed");
+        break;
+      case "order_processing":
+      case "ORDER_PROCESSING":
+        icon = Package;
+        iconColor = "text-yellow-500";
+        title = notification.subject || notification.title || t("notifications.orderProcessing");
+        break;
+      case "order_shipped":
+      case "ORDER_SHIPPED":
+        icon = Truck;
+        iconColor = "text-purple-500";
+        title = notification.subject || notification.title || t("notifications.orderShipped");
+        break;
+      case "order_delivered":
+      case "ORDER_DELIVERED":
+        icon = CheckCircle;
+        iconColor = "text-green-500";
+        title = notification.subject || notification.title || t("notifications.orderDelivered");
+        break;
+      case "order_cancelled":
+      case "ORDER_CANCELLED":
+        icon = AlertCircle;
+        iconColor = "text-red-500";
+        title = notification.subject || notification.title || t("notifications.orderCancelled");
+        break;
+      case "order_refunded":
+      case "ORDER_REFUNDED":
+        icon = AlertCircle;
+        iconColor = "text-orange-600";
+        title = notification.subject || notification.title || t("notifications.orderRefunded");
+        break;
+      
+      // Payment notifications
+      case "payment_received":
+      case "PAYMENT_RECEIVED":
+        icon = CheckCircle;
+        iconColor = "text-green-600";
+        title = notification.subject || notification.title || t("notifications.paymentReceived");
+        break;
+      case "payment_failed":
+      case "PAYMENT_FAILED":
+        icon = AlertCircle;
+        iconColor = "text-red-600";
+        title = notification.subject || notification.title || t("notifications.paymentFailed");
+        break;
+      
+      // Customer notifications
+      case "new_customer":
+      case "NEW_CUSTOMER":
+        icon = User;
+        iconColor = "text-indigo-500";
+        title = notification.subject || notification.title || t("notifications.newCustomer");
+        break;
+      case "customer_updated":
+      case "CUSTOMER_UPDATED":
+        icon = User;
+        iconColor = "text-blue-400";
+        title = notification.subject || notification.title || t("notifications.customerUpdated");
+        break;
+      
+      // Stock notifications
+      case "low_stock":
+      case "LOW_STOCK":
+        icon = AlertCircle;
+        iconColor = "text-orange-500";
+        title = notification.subject || notification.title || t("notifications.lowStockAlert");
+        break;
+      case "out_of_stock":
+      case "OUT_OF_STOCK":
+        icon = AlertCircle;
+        iconColor = "text-red-500";
+        title = notification.subject || notification.title || t("notifications.outOfStock");
+        break;
+      
+      // Product notifications
+      case "product_added":
+      case "PRODUCT_ADDED":
+        icon = Package;
+        iconColor = "text-green-500";
+        title = notification.subject || notification.title || t("notifications.productAdded");
+        break;
+      case "product_updated":
+      case "PRODUCT_UPDATED":
+        icon = Package;
+        iconColor = "text-blue-500";
+        title = notification.subject || notification.title || t("notifications.productUpdated");
+        break;
+      
+      // Broadcast notifications
+      case "broadcast_email":
+      case "BROADCAST_EMAIL":
+        icon = Bell;
+        iconColor = "text-indigo-500";
+        title = notification.subject || notification.title || t("notifications.emailBroadcast");
+        break;
+      case "broadcast_sms":
+      case "BROADCAST_SMS":
+        icon = Bell;
+        iconColor = "text-teal-500";
+        title = notification.subject || notification.title || t("notifications.smsBroadcast");
+        break;
+      
+      default:
+        icon = Bell;
+        iconColor = "text-gray-500";
+        title = notification.subject || notification.title || t("notifications.notification");
+    }
+    
+    return {
+      id: notification.id || notification._id,
+      type: notification.type || "general",
+      title: title,
+      message: notification.message || `Notification message`,
+      time: notification.createdAt 
+        ? moment(notification.createdAt).fromNow()
+        : "Just now",
+      icon: icon,
+      iconColor: iconColor,
+      read: notification.isRead || false,
+      orderId: notification.orderId,
+    };
+  }).sort((a, b) => {
+    // Sort by read status (unread first) and then by time
+    if (a.read === b.read) return 0;
+    return a.read ? 1 : -1;
+  });
 
-      switch (notification.type) {
-        // Order notifications
-        case "order_created":
-        case "ORDER_CREATED":
-          icon = ShoppingCart;
-          iconColor = "text-blue-500";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.newOrderCreated");
-          break;
-        case "order_confirmed":
-        case "ORDER_CONFIRMED":
-          icon = CheckCircle;
-          iconColor = "text-blue-600";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.orderConfirmed");
-          break;
-        case "order_processing":
-        case "ORDER_PROCESSING":
-          icon = Package;
-          iconColor = "text-yellow-500";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.orderProcessing");
-          break;
-        case "order_shipped":
-        case "ORDER_SHIPPED":
-          icon = Truck;
-          iconColor = "text-purple-500";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.orderShipped");
-          break;
-        case "order_delivered":
-        case "ORDER_DELIVERED":
-          icon = CheckCircle;
-          iconColor = "text-green-500";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.orderDelivered");
-          break;
-        case "order_cancelled":
-        case "ORDER_CANCELLED":
-          icon = AlertCircle;
-          iconColor = "text-red-500";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.orderCancelled");
-          break;
-        case "order_refunded":
-        case "ORDER_REFUNDED":
-          icon = AlertCircle;
-          iconColor = "text-orange-600";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.orderRefunded");
-          break;
 
-        // Payment notifications
-        case "payment_received":
-        case "PAYMENT_RECEIVED":
-          icon = CheckCircle;
-          iconColor = "text-green-600";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.paymentReceived");
-          break;
-        case "payment_failed":
-        case "PAYMENT_FAILED":
-          icon = AlertCircle;
-          iconColor = "text-red-600";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.paymentFailed");
-          break;
-
-        // Customer notifications
-        case "new_customer":
-        case "NEW_CUSTOMER":
-          icon = User;
-          iconColor = "text-indigo-500";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.newCustomer");
-          break;
-        case "customer_updated":
-        case "CUSTOMER_UPDATED":
-          icon = User;
-          iconColor = "text-blue-400";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.customerUpdated");
-          break;
-
-        // Stock notifications
-        case "low_stock":
-        case "LOW_STOCK":
-          icon = AlertCircle;
-          iconColor = "text-orange-500";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.lowStockAlert");
-          break;
-        case "out_of_stock":
-        case "OUT_OF_STOCK":
-          icon = AlertCircle;
-          iconColor = "text-red-500";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.outOfStock");
-          break;
-
-        // Product notifications
-        case "product_added":
-        case "PRODUCT_ADDED":
-          icon = Package;
-          iconColor = "text-green-500";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.productAdded");
-          break;
-        case "product_updated":
-        case "PRODUCT_UPDATED":
-          icon = Package;
-          iconColor = "text-blue-500";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.productUpdated");
-          break;
-
-        // Broadcast notifications
-        case "broadcast_email":
-        case "BROADCAST_EMAIL":
-          icon = Bell;
-          iconColor = "text-indigo-500";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.emailBroadcast");
-          break;
-        case "broadcast_sms":
-        case "BROADCAST_SMS":
-          icon = Bell;
-          iconColor = "text-teal-500";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.smsBroadcast");
-          break;
-
-        default:
-          icon = Bell;
-          iconColor = "text-gray-500";
-          title =
-            notification.subject ||
-            notification.title ||
-            t("notifications.notification");
-      }
-
-      return {
-        id: notification.id || notification._id,
-        type: notification.type || "general",
-        title: title,
-        message: notification.message || `Notification message`,
-        time: notification.createdAt
-          ? moment(notification.createdAt).fromNow()
-          : "Just now",
-        icon: icon,
-        iconColor: iconColor,
-        read: notification.isRead || false,
-      };
-    })
-    .sort((a, b) => {
-      // Sort by read status (unread first) and then by time
-      if (a.read === b.read) return 0;
-      return a.read ? 1 : -1;
-    });
 
   const newNotificationCount = notifications.filter((n) => !n.read).length;
 
@@ -639,6 +588,19 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                 return (
                   <div
                     key={notification.id}
+                    onClick={async () => {
+                      if (!notification.read) {
+                        try {
+                          await markAsRead({ id: notification.id, companyId }).unwrap();
+                        } catch (e) {
+                          console.error("Failed to mark as read:", e);
+                        }
+                      }
+                      if (notification.orderId) {
+                        navigate(`/orders/${notification.orderId}`);
+                        setIsNotificationModalOpen(false);
+                      }
+                    }}
                     className={`p-4 rounded-lg border transition-colors ${
                       !notification.read
                         ? "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800"
@@ -676,10 +638,18 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
             )}
           </div>
           {notifications.length > 0 && (
-            <div className="mt-4 pt-4 border-t dark:border-gray-700">
+            <div className="mt-4 pt-4 border-t dark:border-gray-700 flex flex-col gap-2">
+              {newNotificationCount > 0 && (
+                <button
+                  onClick={() => markAllAsRead(companyId)}
+                  disabled={isMarkingAll}
+                  className="w-full text-center text-sm font-medium py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors disabled:opacity-50"
+                >
+                  {isMarkingAll ? t("common.processing") : t("notifications.markAllAsRead")}
+                </button>
+              )}
               <button
                 onClick={() => {
-                  // Refetch to get latest notifications from all sources
                   refetchAll();
                   refetchOrders();
                   refetchOrderStatus();

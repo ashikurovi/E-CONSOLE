@@ -14,7 +14,14 @@ import { Button } from "@/components/ui/button";
 
 const ReturnRequests = () => {
   const { t } = useTranslation();
-  const { data: returnRequests = [], isLoading, refetch } = useGetReturnRequestsQuery();
+  const { data, isLoading, refetch } = useGetReturnRequestsQuery();
+  const returnRequests = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.data)
+      ? data.data
+      : Array.isArray(data?.return_requests)
+        ? data.return_requests
+        : [];
   const [createReturnRequest, { isLoading: isCreating }] = useCreateReturnRequestMutation();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState({

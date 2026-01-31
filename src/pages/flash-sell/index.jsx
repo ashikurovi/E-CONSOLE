@@ -113,8 +113,8 @@ const FlashSellPage = () => {
   const tableData = useMemo(
     () =>
       flashSellProducts.map((product) => {
-        const regularPrice = product.price || 0;
-        const flashPrice = product.flashSellPrice || product.price || 0;
+        const regularPrice = parseFloat(product.price) || 0;
+        const flashPrice = parseFloat(product.flashSellPrice ?? product.price) || 0;
         const discount = regularPrice > 0 
           ? (((regularPrice - flashPrice) / regularPrice) * 100).toFixed(0)
           : 0;

@@ -40,7 +40,7 @@ export const navSections = [
     tKey: "nav.orderManagement",
     items: [
       {
-        id: 2,
+        id: 6,
         title: "Order",
         tKey: "nav.order",
         link: "/orders",
@@ -48,7 +48,7 @@ export const navSections = [
         icon: ShoppingCart,
       },
       {
-        id: 3,
+        id: 7.5,
         title: "Steadfast Courier",
         tKey: "nav.steadfastCourier",
         link: "/steadfast",
@@ -56,7 +56,7 @@ export const navSections = [
         icon: Truck,
       },
       {
-        id: 4,
+        id: 7.6,
         title: "Pathao Courier",
         tKey: "nav.pathaoCourier",
         link: "/pathao",
@@ -64,7 +64,15 @@ export const navSections = [
         icon: Truck,
       },
       {
-        id: 5,
+        id: 7.7,
+        title: "RedX Courier",
+        tKey: "nav.redxCourier",
+        link: "/redx",
+        permission: FeaturePermission.REDX,
+        icon: Truck,
+      },
+      {
+        id: 7.8,
         title: "Fraud Checker",
         tKey: "nav.fraudChecker",
         link: "/fraud",

@@ -46,9 +46,9 @@ const ManageUsersPage = () => {
     );
   };
 
-  // Filter out SYSTEM_OWNER role users
+  // Only show SYSTEM_OWNER role users
   const filteredUsers = useMemo(
-    () => users.filter((u) => u.role !== "SYSTEM_OWNER"),
+    () => users.filter((u) => u.role === "SYSTEM_OWNER"),
     [users]
   );
 

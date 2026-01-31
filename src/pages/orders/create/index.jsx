@@ -36,6 +36,13 @@ const CreateOrderPage = () => {
             then: (schema) => schema.max(20, t("orders.validation.phoneMax")).matches(/^[+\d\s()-]*$/, t("orders.validation.phoneValid")).trim(),
             otherwise: (schema) => schema.trim(),
           }),
+        customerEmail: yup
+          .string()
+          .transform((v) => (v === "" ? undefined : v))
+          .optional()
+          .email(t("orders.validation.emailValid"))
+          .max(255, t("orders.validation.emailMax"))
+          .trim(),
         customerAddress: yup
           .string()
           .max(500, t("orders.validation.addressMax"))
@@ -132,6 +139,7 @@ const CreateOrderPage = () => {
     const payload = {
       customerId: selectedCustomer?.value || undefined,
       customerName: !selectedCustomer ? data.customerName || undefined : undefined,
+      customerEmail: !selectedCustomer ? data.customerEmail || undefined : undefined,
       customerPhone: !selectedCustomer ? data.customerPhone || undefined : undefined,
       customerAddress: !selectedCustomer ? data.customerAddress || undefined : undefined,
       items: items.map((it) => ({ productId: it.productId, quantity: it.quantity })),
@@ -202,13 +210,21 @@ const CreateOrderPage = () => {
 
         {/* Manual customer info (used only if no selectedCustomer) */}
         {!selectedCustomer && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             <TextField
               label={t("orders.customerName")}
               placeholder={t("orders.customerPlaceholder")}
               register={register}
               name="customerName"
               error={errors.customerName?.message}
+            />
+            <TextField
+              label={t("orders.customerEmail")}
+              placeholder={t("orders.emailPlaceholder")}
+              type="email"
+              register={register}
+              name="customerEmail"
+              error={errors.customerEmail?.message}
             />
             <TextField
               label={t("orders.customerPhone")}

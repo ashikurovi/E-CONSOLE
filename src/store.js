@@ -4,6 +4,7 @@ import { setupListeners } from "@reduxjs/toolkit/query";
 import { apiSlice } from "./features/api/apiSlice";
 import { steadfastApiSlice } from "./features/steadfast/steadfastApiSlice";
 import { pathaoApiSlice } from "./features/pathao/pathaoApiSlice";
+import { redxApiSlice } from "./features/redx/redxApiSlice";
 import { superadminAuthApiSlice } from "./features/superadminAuth/superadminAuthApiSlice";
 import { superadminApiSlice } from "./features/superadmin/superadminApiSlice";
 import authReducer from "./features/auth/authSlice";
@@ -14,6 +15,7 @@ export const store = configureStore({
     [apiSlice.reducerPath]: apiSlice.reducer,
     [steadfastApiSlice.reducerPath]: steadfastApiSlice.reducer,
     [pathaoApiSlice.reducerPath]: pathaoApiSlice.reducer,
+    [redxApiSlice.reducerPath]: redxApiSlice.reducer,
     [superadminAuthApiSlice.reducerPath]: superadminAuthApiSlice.reducer,
     [superadminApiSlice.reducerPath]: superadminApiSlice.reducer,
     auth: authReducer,
@@ -24,6 +26,7 @@ export const store = configureStore({
     apiSlice.middleware, 
     steadfastApiSlice.middleware, 
     pathaoApiSlice.middleware,
+    redxApiSlice.middleware,
     superadminAuthApiSlice.middleware,
     superadminApiSlice.middleware,
   ]),

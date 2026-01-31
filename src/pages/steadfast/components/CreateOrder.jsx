@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { useCreateOrderMutation } from "@/features/steadfast/steadfastApiSlice";
@@ -39,6 +39,7 @@ const CreateOrder = () => {
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -49,12 +50,27 @@ const CreateOrder = () => {
       recipient_email: "",
       recipient_address: "",
       cod_amount: "",
+      delivery_location: "inside",
       note: "",
       item_description: "",
       total_lot: "",
       delivery_type: 0,
     },
   });
+
+  const deliveryLocation = watch("delivery_location");
+
+  // Delivery charges: Inside Dhaka = 70, Outside Dhaka = 150
+  const DELIVERY_CHARGE_INSIDE_DHAKA = 70;
+  const DELIVERY_CHARGE_OUTSIDE_DHAKA = 150;
+
+  // Recalculate COD when delivery location changes (if order is selected)
+  useEffect(() => {
+    if (!selectedOrder?.orderData) return;
+    const orderTotal = Number(selectedOrder.orderData.totalAmount) || 0;
+    const deliveryCharge = deliveryLocation === "outside" ? DELIVERY_CHARGE_OUTSIDE_DHAKA : DELIVERY_CHARGE_INSIDE_DHAKA;
+    setValue("cod_amount", (orderTotal + deliveryCharge).toString());
+  }, [deliveryLocation, selectedOrder, setValue]);
 
   // Handle order selection and auto-fill form
   const handleOrderSelect = (option) => {
@@ -66,6 +82,10 @@ const CreateOrder = () => {
     }
     
     const order = option.orderData;
+    const orderTotal = Number(order.totalAmount) || 0;
+    const isInsideDhaka = order.deliveryType?.toUpperCase() !== "OUTSIDEDHAKA";
+    const deliveryCharge = isInsideDhaka ? DELIVERY_CHARGE_INSIDE_DHAKA : DELIVERY_CHARGE_OUTSIDE_DHAKA;
+    const codAmount = orderTotal + deliveryCharge;
     
     // Auto-fill form fields from selected order
     setValue("invoice", order.id?.toString() || "");
@@ -74,10 +94,20 @@ const CreateOrder = () => {
     setValue("alternative_phone", order.customer?.phone || "");
     setValue("recipient_email", order.customer?.email || order.customerEmail || "");
     setValue("recipient_address", order.customerAddress || order.billingAddress || "");
-    setValue("cod_amount", order.totalAmount?.toString() || "");
+    setValue("cod_amount", codAmount.toString());
     setValue("note", order.notes || "");
-    setValue("item_description", order.orderItems?.map(item => item.productName || item.name).join(", ") || "");
-    setValue("total_lot", order.orderItems?.length?.toString() || "1");
+    // Build item description: product name and description only
+    const items = order.items || order.orderItems || [];
+    const itemDescription = items
+      .map((item) => {
+        const name = item.product?.name || item.productName || item.name || "Product";
+        const desc = item.product?.description || item.description;
+        return desc ? `${name}: ${desc}` : name;
+      })
+      .join(", ");
+    setValue("item_description", itemDescription || "");
+    setValue("total_lot", items.length?.toString() || "1");
+    setValue("delivery_location", isInsideDhaka ? "inside" : "outside");
     setValue("delivery_type", 0);
     
     toast.success(t("steadfast.orderAutoFilled"));
@@ -268,6 +298,18 @@ const CreateOrder = () => {
             placeholder="email@example.com"
             error={errors.recipient_email}
           />
+          <div>
+            <label className="text-black/50 dark:text-white/50 text-sm ml-1 mb-2 block">
+              {t("steadfast.deliveryLocation")}
+            </label>
+            <select
+              {...register("delivery_location")}
+              className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-bg50 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
+            >
+              <option value="inside">{t("steadfast.insideDhaka")} (৳70)</option>
+              <option value="outside">{t("steadfast.outsideDhaka")} (৳150)</option>
+            </select>
+          </div>
           <TextField
             label={t("steadfast.codAmount")}
             name="cod_amount"

@@ -7,10 +7,15 @@ export const dashboardApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res) => res?.data ?? {},
       providesTags: [{ type: "dashboard", id: "DATA" }],
     }),
+    getStats: builder.query({
+      query: (params) => ({ url: "/dashboard/stats", method: "GET", params }),
+      transformResponse: (res) => res?.data ?? {},
+      providesTags: [{ type: "dashboard", id: "STATS" }],
+    }),
   }),
 });
 
-export const { useGetDashboardQuery } = dashboardApiSlice;
+export const { useGetDashboardQuery, useGetStatsQuery } = dashboardApiSlice;
 
 
 
