@@ -237,14 +237,14 @@ export default function ReusableTable({
                   return (
                     <TableRow
                       key={rowIdx}
-                      className={`border-b dark:border-neutral-800 transition-colors ${rowClass} hover:bg-gray-50/70 dark:hover:bg-neutral-800/40`}
+                      className={`border-b dark:border-neutral-800 transition-colors text-gray-900 dark:text-gray-100 ${rowClass} hover:bg-gray-50/70 dark:hover:bg-neutral-800/40`}
                     >
                       {headers.map((header, colIdx) => {
                         const isLast = colIdx === headers.length - 1;
                         return (
                           <TableCell
                             key={colIdx}
-                            className={`${py || "py-3.5"} px-4 text-sm text-gray-900 dark:text-gray-100 ${
+                            className={`${py || "py-3.5"} px-4 text-sm ${
                               isLast ? "text-center" : "text-left"
                             }`}
                           >

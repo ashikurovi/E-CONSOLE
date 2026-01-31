@@ -9,7 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Truck, Package, XCircle, RotateCcw, FileText, Trash2, ClipboardCheck, Eye, Clock, CheckCircle, DollarSign, CreditCard, MapPin, Copy, Printer, ScanBarcode } from "lucide-react";
+import { Truck, Package, XCircle, RotateCcw, FileText, Trash2, ClipboardCheck, Eye, Clock, CheckCircle, DollarSign, CreditCard, MapPin, Copy, Printer, ScanBarcode, Box, Hourglass, Loader2, CheckSquare, Banknote, ShoppingBag } from "lucide-react";
 import {
   useGetOrdersQuery,
   useGetOrderStatsQuery,
@@ -37,6 +37,7 @@ import { generateParcelSlip } from "@/utils/parcelSlip";
 import { useSelector } from "react-redux";
 import Dropdown from "@/components/dropdown/dropdown";
 import StatCard from "@/components/cards/stat-card";
+import OrderViewModal from "./components/OrderViewModal";
 
 const OrdersPage = () => {
   const { t } = useTranslation();
@@ -144,11 +145,11 @@ const OrdersPage = () => {
   const getRowClassNameByStatus = (item) => {
     const s = (item?.status || "").toLowerCase();
     const map = {
-      pending: "bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-950/60",
+      pending: "bg-[#DCE865]/20 dark:bg-[#DCE865]/10 hover:bg-[#DCE865]/30 dark:hover:bg-[#DCE865]/20 !text-black dark:!text-[#DCE865]",
       processing: "bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-950/60",
       paid: "bg-green-50 dark:bg-green-950/40 hover:bg-green-100 dark:hover:bg-green-950/60",
       shipped: "bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 dark:hover:bg-orange-950/60",
-      delivered: "bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-950/60",
+      delivered: "bg-green-100 dark:bg-green-900/20 hover:bg-green-200 dark:hover:bg-green-900/40 !text-green-800 dark:!text-green-300",
       cancelled: "bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50",
       refunded: "bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-800/70",
       completed: "bg-green-50 dark:bg-green-950/40 hover:bg-green-100 dark:hover:bg-green-950/60",
@@ -217,28 +218,13 @@ const OrdersPage = () => {
           return (
             <TooltipProvider>
               <div className="flex items-center gap-2 justify-end">
+                <OrderViewModal order={o} />
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
-                      onClick={() => navigate(`/orders/${o.id}`)}
-                      title={t("common.view")}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{t("orders.viewOrder")}</p>
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
+                      className="bg-black/5 hover:bg-black/10 text-black dark:bg-white/10 dark:hover:bg-white/20 dark:text-white"
                       onClick={() => {
                         try {
                           generateOrderInvoice(o);
@@ -263,7 +249,7 @@ const OrdersPage = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400"
+                        className="bg-black/5 hover:bg-black/10 text-black dark:bg-white/10 dark:hover:bg-white/20 dark:text-white"
                         onClick={() => navigate(`/orders/track?trackingId=${encodeURIComponent(o.shippingTrackingId)}`)}
                         title={t("orders.trackOrder")}
                       >
@@ -282,7 +268,7 @@ const OrdersPage = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="bg-slate-500/10 hover:bg-slate-500/20 text-slate-600 dark:text-slate-400"
+                        className="bg-black/5 hover:bg-black/10 text-black dark:bg-white/10 dark:hover:bg-white/20 dark:text-white"
                         onClick={async () => {
                           try {
                             // Company domain from auth/me API: customDomain (if active) or subdomain
@@ -322,7 +308,7 @@ const OrdersPage = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
+                        className="bg-black/5 hover:bg-black/10 text-black dark:bg-white/10 dark:hover:bg-white/20 dark:text-white"
                         onClick={() => setProcessModal({ isOpen: true, order: o })}
                         disabled={isProcessing}
                       >
@@ -342,7 +328,7 @@ const OrdersPage = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
+                          className="bg-black/5 hover:bg-black/10 text-black dark:bg-white/10 dark:hover:bg-white/20 dark:text-white"
                           onClick={() => {
                             setShipModal({ isOpen: true, order: o });
                             setShipForm({
@@ -364,7 +350,7 @@ const OrdersPage = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                          className="bg-black/5 hover:bg-black/10 text-black dark:bg-white/10 dark:hover:bg-white/20 dark:text-white"
                           onClick={() => {
                             setDeliverModal({ isOpen: true, order: o });
                             setDeliverForm({ comment: "", markAsPaid: true });
@@ -387,7 +373,7 @@ const OrdersPage = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                        className="bg-black/5 hover:bg-black/10 text-black dark:bg-white/10 dark:hover:bg-white/20 dark:text-white"
                         onClick={() => {
                           setDeliverModal({ isOpen: true, order: o });
                           setDeliverForm({ comment: "", markAsPaid: true });
@@ -409,7 +395,7 @@ const OrdersPage = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
+                        className="bg-black/5 hover:bg-black/10 text-black dark:bg-white/10 dark:hover:bg-white/20 dark:text-white hover:text-red-600 dark:hover:text-red-400"
                         onClick={async () => {
                           if (!confirm("Cancel this order?")) return;
                           const res = await cancelOrder({ id: o.id });
@@ -433,7 +419,7 @@ const OrdersPage = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400"
+                        className="bg-black/5 hover:bg-black/10 text-black dark:bg-white/10 dark:hover:bg-white/20 dark:text-white"
                         onClick={async () => {
                           if (!confirm("Refund this order?")) return;
                           const res = await refundOrder({ id: o.id });
@@ -457,7 +443,7 @@ const OrdersPage = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
+                        className="bg-black/5 hover:bg-black/10 text-black dark:bg-white/10 dark:hover:bg-white/20 dark:text-white hover:text-red-600 dark:hover:text-red-400"
                         onClick={() => setDeleteModal({ isOpen: true, order: o })}
                         disabled={isDeleting}
                       >
@@ -543,12 +529,12 @@ const OrdersPage = () => {
   };
 
   const statsCards = [
-    { title: t("orders.statsTotal"), value: stats.total ?? 0, icon: Package, tone: "default" },
-    { title: t("orders.statsPending"), value: stats.pending ?? 0, icon: Clock, tone: "blue" },
-    { title: t("orders.statsProcessing"), value: stats.processing ?? 0, icon: ClipboardCheck, tone: "blue" },
+    { title: t("orders.statsTotal"), value: stats.total ?? 0, icon: ShoppingBag, tone: "default" },
+    { title: t("orders.statsPending"), value: stats.pending ?? 0, icon: Hourglass, tone: "blue" },
+    { title: t("orders.statsProcessing"), value: stats.processing ?? 0, icon: Loader2, tone: "blue" },
     { title: t("orders.statsShipped"), value: stats.shipped ?? 0, icon: Truck, tone: "blue" },
-    { title: t("orders.statsDelivered"), value: stats.delivered ?? 0, icon: CheckCircle, tone: "green" },
-    { title: t("orders.statsRevenue"), value: `৳${formatAmount(stats.totalRevenue)}`, icon: DollarSign, tone: "green" },
+    { title: t("orders.statsDelivered"), value: stats.delivered ?? 0, icon: CheckSquare, tone: "green" },
+    { title: t("orders.statsRevenue"), value: `৳${formatAmount(stats.totalRevenue)}`, icon: Banknote, tone: "green" },
     { title: t("orders.statsUnpaid"), value: stats.unpaidCount ?? 0, icon: CreditCard, tone: "red" },
   ];
 
@@ -562,7 +548,10 @@ const OrdersPage = () => {
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-        <h2 className="text-xl font-semibold">{t("orders.title")}</h2>
+        <h2 className="text-xl font-bold flex items-center gap-2">
+          <ShoppingBag className="h-6 w-6" />
+          {t("orders.title")}
+        </h2>
         <div className="flex flex-wrap items-center gap-3">
           <Dropdown
             name={t("orders.filterByStatus")}
@@ -613,7 +602,7 @@ const OrdersPage = () => {
             <Button variant="ghost" onClick={() => setProcessModal({ isOpen: false, order: null })} disabled={isProcessing}>
               {t("common.cancel")}
             </Button>
-            <Button onClick={handleProcess} disabled={isProcessing} className="bg-purple-500 hover:bg-purple-600 text-white">
+            <Button onClick={handleProcess} disabled={isProcessing} className="bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white hover:from-black hover:to-gray-900 dark:from-white dark:via-gray-200 dark:to-white dark:text-black dark:hover:from-gray-100 dark:hover:to-gray-200">
               {isProcessing ? t("common.processing") : t("orders.markProcessing")}
             </Button>
           </DialogFooter>
@@ -670,7 +659,7 @@ const OrdersPage = () => {
             >
               {t("common.cancel")}
             </Button>
-            <Button onClick={handleShip} disabled={isShipping} className="bg-orange-500 hover:bg-orange-600 text-white">
+            <Button onClick={handleShip} disabled={isShipping} className="bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white hover:from-black hover:to-gray-900 dark:from-white dark:via-gray-200 dark:to-white dark:text-black dark:hover:from-gray-100 dark:hover:to-gray-200">
               {isShipping ? t("common.processing") : t("orders.markShipped")}
             </Button>
           </DialogFooter>
@@ -737,7 +726,7 @@ const OrdersPage = () => {
                 }
               }}
               disabled={isBarcodeScanning}
-              className="bg-slate-500 hover:bg-slate-600 text-white"
+              className="bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white hover:from-black hover:to-gray-900 dark:from-white dark:via-gray-200 dark:to-white dark:text-black dark:hover:from-gray-100 dark:hover:to-gray-200"
             >
               {isBarcodeScanning ? t("common.processing") : t("orders.recordScan")}
             </Button>
@@ -790,7 +779,7 @@ const OrdersPage = () => {
             >
               {t("common.cancel")}
             </Button>
-            <Button onClick={handleDeliver} disabled={isDelivering} className="bg-blue-500 hover:bg-blue-600 text-white">
+            <Button onClick={handleDeliver} disabled={isDelivering} className="bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white hover:from-black hover:to-gray-900 dark:from-white dark:via-gray-200 dark:to-white dark:text-black dark:hover:from-gray-100 dark:hover:to-gray-200">
               {isDelivering ? t("common.processing") : t("orders.markDelivered")}
             </Button>
           </DialogFooter>

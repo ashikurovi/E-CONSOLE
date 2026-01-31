@@ -38,10 +38,10 @@ const TablePaginate = ({
   const isLastPage = currentPage === totalPages;
 
   return (
-    <div className={`flex items-center justify-between ${className || ""}`}>
+    <div className={`flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between ${className || ""}`}>
       {/* Left side: Items per page selector */}
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-black/70 dark:text-white/70">
+      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 w-full sm:w-auto">
+        <span className="text-sm text-black/70 dark:text-white/70 whitespace-nowrap">
           {t("table.itemsPerPage")}
         </span>
         <select
@@ -54,13 +54,13 @@ const TablePaginate = ({
           <option value={50}>50</option>
           <option value={100}>100</option>
         </select>
-        <span className="text-sm text-black/70 dark:text-white/70">
+        <span className="text-sm text-black/70 dark:text-white/70 whitespace-nowrap">
           {startItem}-{endItem} {t("table.of")} {total} {t("table.items")}
         </span>
       </div>
 
       {/* Right side: Page navigation */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-center gap-2 w-full sm:w-auto">
         {/* First page button */}
         <Button
           variant="ghost"
@@ -82,7 +82,7 @@ const TablePaginate = ({
           className={`h-9 px-3 gap-1 bg-black text-white ${isFirstPage ? "opacity-50 cursor-not-allowed" : "hover:bg-black/90"}`}
         >
           <ChevronLeft className="h-4 w-4" />
-          <span>{t("table.previous")}</span>
+          <span className="hidden sm:inline">{t("table.previous")}</span>
         </Button>
 
         {/* Current page indicator */}
@@ -90,7 +90,7 @@ const TablePaginate = ({
           <div className="h-9 px-3 flex items-center justify-center border border-black/20 dark:border-white/20 rounded-md bg-white dark:bg-[#1a1f26] text-black dark:text-white text-sm font-medium min-w-[40px]">
             {currentPage}
           </div>
-          <span className="text-sm text-black/70 dark:text-white/70">
+          <span className="text-sm text-black/70 dark:text-white/70 whitespace-nowrap">
             {t("table.of")} {totalPages}
           </span>
         </div>
@@ -103,7 +103,7 @@ const TablePaginate = ({
           disabled={isLastPage}
           className={`h-9 px-3 gap-1 bg-black text-white ${isLastPage ? "opacity-50 cursor-not-allowed" : "hover:bg-black/90"}`}
         >
-          <span>{t("table.next")}</span>
+          <span className="hidden sm:inline">{t("table.next")}</span>
           <ChevronRight className="h-4 w-4" />
         </Button>
 

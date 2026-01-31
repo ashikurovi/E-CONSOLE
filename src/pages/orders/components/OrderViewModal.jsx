@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, FileText, User, CreditCard, Truck, Package, Calendar } from "lucide-react";
 
 export default function OrderViewModal({ order }) {
   const { t } = useTranslation();
@@ -20,20 +20,24 @@ export default function OrderViewModal({ order }) {
         <Button
           variant="ghost"
           size="icon"
-          className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
+          className="bg-black/5 hover:bg-black/10 text-black dark:bg-white/10 dark:hover:bg-white/20 dark:text-white"
           title={t("common.view")}
         >
           <Eye className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{t("orders.orderDetails")} #{order.id}</DialogTitle>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0 gap-0 bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 shadow-2xl rounded-2xl">
+        <DialogHeader className="p-6 pb-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/20">
+          <DialogTitle className="text-xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
+            <Eye className="h-5 w-5 text-black dark:text-white" />
+            {t("orders.orderDetails")} <span className="text-gray-400 font-normal">#{order.id}</span>
+          </DialogTitle>
         </DialogHeader>
-        <div className="space-y-6 mt-4">
+        <div className="p-6 space-y-8">
           {/* Order Summary Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
+              <FileText className="h-4 w-4 text-black dark:text-white" />
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("orders.orderSummary")}
               </h3>
@@ -89,6 +93,7 @@ export default function OrderViewModal({ order }) {
           {/* Customer Information Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
+              <User className="h-4 w-4 text-black dark:text-white" />
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("orders.customerInformation")}
               </h3>
@@ -118,6 +123,7 @@ export default function OrderViewModal({ order }) {
           {/* Payment Information Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
+              <CreditCard className="h-4 w-4 text-black dark:text-white" />
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                 {t("orders.paymentInformation")}
               </h3>
@@ -154,6 +160,7 @@ export default function OrderViewModal({ order }) {
           {(order.shippingAddress || order.shippingTrackingId || order.shippingProvider) && (
             <div className="space-y-4">
               <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
+                <Truck className="h-4 w-4 text-black dark:text-white" />
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   {t("orders.shippingInformation")}
                 </h3>
@@ -187,6 +194,7 @@ export default function OrderViewModal({ order }) {
           {order.items && order.items.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
+                <Package className="h-4 w-4 text-black dark:text-white" />
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
                   {t("orders.orderItems")} ({order.items.length})
                 </h3>

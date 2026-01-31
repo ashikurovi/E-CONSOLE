@@ -1,4 +1,13 @@
-import { CartesianGrid, Area, AreaChart, XAxis, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  Bar,
+  ComposedChart,
+  XAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -8,10 +17,10 @@ import moment from "moment";
 
 /**
  * LineChartComponent
- * 
- * Renders a responsive area chart with a smooth gradient fill.
+ *
+ * Renders a responsive composed chart with background bars and a dashed line.
  * Used for visualizing trends over time (e.g., Income Growth).
- * 
+ *
  * Props:
  * @param {Array} chartData - Array of data points (e.g., [{ month: '2024-01', totalPNL: 1000 }])
  * @param {Object} chartConfig - Configuration object for chart colors and labels
@@ -21,33 +30,40 @@ export default function LineChartComponent({ chartData, chartConfig }) {
     <div className="h-full w-full min-h-[300px]">
       <ChartContainer config={chartConfig} className="h-full w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
+          <ComposedChart
             data={chartData}
             margin={{
-              top: 10,
-              right: 10,
-              left: 0,
+              top: 20,
+              right: 20,
+              left: 20,
               bottom: 0,
             }}
           >
-            {/* Gradient Definition */}
-            <defs>
-              <linearGradient id="colorTotalPNL" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-desktop)" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="var(--color-desktop)" stopOpacity={0} />
-              </linearGradient>
-            </defs>
+            {/* Background Bars */}
+            <Bar
+              dataKey="totalPNL"
+              barSize={40}
+              fill="transparent"
+              background={{
+                fill: "var(--muted)",
+                radius: [20, 20, 20, 20],
+                opacity: 0.2
+              }}
+            />
 
-            {/* Grid Lines (Horizontal only, subtle) */}
-            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border)" opacity={0.4} />
-
-            {/* X-Axis (Months) */}
+            {/* X-Axis */}
             <XAxis
               dataKey="month"
               tickLine={false}
               axisLine={false}
               tickMargin={10}
-              tickFormatter={(value) => moment(value).format("MMM")}
+              tickFormatter={(value) => {
+                 // Try to detect if it's a date string or day name
+                 if (moment(value, moment.ISO_8601, true).isValid()) {
+                     return moment(value).format("MMM");
+                 }
+                 return value;
+              }}
               stroke="var(--foreground)"
               opacity={0.5}
               fontSize={12}
@@ -55,21 +71,32 @@ export default function LineChartComponent({ chartData, chartConfig }) {
 
             {/* Tooltip */}
             <ChartTooltip
-              cursor={{ stroke: "var(--foreground)", strokeWidth: 1, strokeDasharray: "4 4", opacity: 0.3 }}
+              cursor={false}
               content={<ChartTooltipContent indicator="dot" />}
             />
 
-            {/* Area (The Chart itself) */}
-            <Area
-              type="monotone"
+            {/* Dashed Line */}
+            <Line
+              type="linear"
               dataKey="totalPNL"
-              stroke="var(--color-desktop)"
-              strokeWidth={3}
-              fillOpacity={1}
-              fill="url(#colorTotalPNL)"
-              animationDuration={1500}
+              stroke="#F25F33"
+              strokeWidth={2}
+              strokeDasharray="5 5"
+              dot={{
+                fill: "#F25F33",
+                stroke: "var(--background)",
+                strokeWidth: 2,
+                r: 4,
+                fillOpacity: 1
+              }}
+              activeDot={{
+                r: 6,
+                fill: "#F25F33",
+                stroke: "var(--background)",
+                strokeWidth: 2,
+              }}
             />
-          </AreaChart>
+          </ComposedChart>
         </ResponsiveContainer>
       </ChartContainer>
     </div>
