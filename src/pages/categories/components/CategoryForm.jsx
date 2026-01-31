@@ -29,12 +29,6 @@ function CategoryForm({ parentOptions = [] }) {
       .required(t("forms.categoryNameRequired"))
       .min(2, t("forms.categoryNameMin"))
       .max(100, t("forms.categoryNameMax")),
-    slug: yup
-      .string()
-      .nullable()
-      .transform((value) => (value === "" ? null : value))
-      .max(100, t("forms.slugMax"))
-      .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$|^$/, t("forms.slugMatch")),
   }), [t]);
   const [isOpen, setIsOpen] = useState(false);
   const [parentOption, setParentOption] = useState(null);
@@ -65,7 +59,6 @@ function CategoryForm({ parentOptions = [] }) {
 
     const payload = {
       name: data.name,
-      slug: data.slug || null, // Ensure null instead of empty string
       isActive: true,
       photo: photoUrl || null,
       parentId: parentOption?.value || null,
@@ -121,13 +114,6 @@ function CategoryForm({ parentOptions = [] }) {
               register={register}
               name="name"
               error={errors.name}
-            />
-            <TextField
-              label={t("common.slug")}
-              placeholder="category-slug (optional)"
-              register={register}
-              name="slug"
-              error={errors.slug}
             />
           </div>
 

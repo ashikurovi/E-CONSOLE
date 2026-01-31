@@ -3,13 +3,16 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useGetActivityLogsQuery } from "@/features/systemuser/systemuserApiSlice";
+import { useGetActivityLogsQuery, useGetSystemusersQuery } from "@/features/systemuser/systemuserApiSlice";
 import ReusableTable from "@/components/table/reusable-table";
 import Dropdown from "@/components/dropdown/dropdown";
 
 const ActivityLogsPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const { data: systemUsersData } = useGetSystemusersQuery();
+  const systemUsers = Array.isArray(systemUsersData) ? systemUsersData : systemUsersData?.data || [];
 
   const ACTION_OPTIONS = useMemo(
     () => [
@@ -21,6 +24,7 @@ const ActivityLogsPage = () => {
       { label: t("activityLogs.permissionRevoke"), value: "PERMISSION_REVOKE" },
       { label: t("activityLogs.statusChange"), value: "STATUS_CHANGE" },
       { label: t("activityLogs.passwordChange"), value: "PASSWORD_CHANGE" },
+      { label: t("activityLogs.barcodeScan"), value: "BARCODE_SCAN" },
     ],
     [t]
   );
@@ -36,14 +40,41 @@ const ActivityLogsPage = () => {
     ],
     [t]
   );
+
+  const PERFORMED_BY_OPTIONS = useMemo(
+    () => [
+      { label: t("activityLogs.allUsers"), value: "" },
+      ...systemUsers.map((u) => ({
+        label: `${u.name || u.email || "User"} (${u.email || u.id})`,
+        value: String(u.id),
+      })),
+    ],
+    [t, systemUsers]
+  );
+
+  const TARGET_USER_OPTIONS = useMemo(
+    () => [
+      { label: t("activityLogs.allUsers"), value: "" },
+      ...systemUsers.map((u) => ({
+        label: `${u.name || u.email || "User"} (${u.email || u.id})`,
+        value: String(u.id),
+      })),
+    ],
+    [t, systemUsers]
+  );
+
   const [selectedAction, setSelectedAction] = useState(ACTION_OPTIONS[0]);
   const [selectedEntity, setSelectedEntity] = useState(ENTITY_OPTIONS[0]);
+  const [selectedPerformedBy, setSelectedPerformedBy] = useState({ label: t("activityLogs.allUsers"), value: "" });
+  const [selectedTargetUser, setSelectedTargetUser] = useState({ label: t("activityLogs.allUsers"), value: "" });
   const [limit] = useState(50);
   const [offset, setOffset] = useState(0);
 
   const { data, isLoading } = useGetActivityLogsQuery({
     action: selectedAction.value || undefined,
     entity: selectedEntity.value || undefined,
+    performedByUserId: selectedPerformedBy.value || undefined,
+    targetUserId: selectedTargetUser.value || undefined,
     limit,
     offset,
   });
@@ -93,7 +124,11 @@ const ActivityLogsPage = () => {
     date: formatDate(log.createdAt),
     action: getActionBadge(log.action),
     entity: log.entity.replace(/_/g, " "),
-    description: log.description || "-",
+    description: (
+      <span className="px-2 py-1 rounded bg-amber-100/80 dark:bg-amber-900/30 text-amber-900 dark:text-amber-200 font-medium text-sm">
+        {log.description || "-"}
+      </span>
+    ),
     performedBy: log.performedBy?.name || log.performedBy?.email || "-",
     targetUser: log.targetUser ? (log.targetUser.name || log.targetUser.email || "-") : "-",
   }));
@@ -117,7 +152,7 @@ const ActivityLogsPage = () => {
         </div>
       </div>
 
-      <div className="flex gap-4 mb-4">
+      <div className="flex flex-wrap gap-4 mb-4">
         <div className="flex-1">
           <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
             {t("activityLogs.filterByAction")}
@@ -146,6 +181,36 @@ const ActivityLogsPage = () => {
             }}
           >
             {selectedEntity?.label}
+          </Dropdown>
+        </div>
+        <div className="flex-1">
+          <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
+            {t("activityLogs.filterByPerformedBy")}
+          </label>
+          <Dropdown
+            name="performedBy"
+            options={PERFORMED_BY_OPTIONS}
+            setSelectedOption={(opt) => {
+              setSelectedPerformedBy(opt);
+              setOffset(0);
+            }}
+          >
+            {selectedPerformedBy?.label}
+          </Dropdown>
+        </div>
+        <div className="flex-1">
+          <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
+            {t("activityLogs.filterByTargetUser")}
+          </label>
+          <Dropdown
+            name="targetUser"
+            options={TARGET_USER_OPTIONS}
+            setSelectedOption={(opt) => {
+              setSelectedTargetUser(opt);
+              setOffset(0);
+            }}
+          >
+            {selectedTargetUser?.label}
           </Dropdown>
         </div>
       </div>

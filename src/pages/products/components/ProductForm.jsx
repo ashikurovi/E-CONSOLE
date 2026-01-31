@@ -29,10 +29,6 @@ const productSchema = yup.object().shape({
     .min(2, "Product name must be at least 2 characters")
     .max(200, "Product name must be less than 200 characters")
     .trim(),
-  sku: yup
-    .string()
-    .max(100, "SKU must be less than 100 characters")
-    .trim(),
   description: yup
     .string()
     .max(2000, "Description must be less than 2000 characters")
@@ -137,7 +133,6 @@ function ProductForm({ categoryOptions = [] }) {
 
     const payload = {
       name: data.name,
-      sku: data.sku,
       price: parseFloat(data.price) || 0,
       discountPrice: data.discountPrice ? parseFloat(data.discountPrice) : null,
       description: data.description || "",
@@ -183,13 +178,6 @@ function ProductForm({ categoryOptions = [] }) {
               register={register}
               name="name"
               error={errors.name?.message}
-            />
-            <TextField
-              label="SKU"
-              placeholder="Enter SKU (optional)"
-              register={register}
-              name="sku"
-              error={errors.sku?.message}
             />
             <TextField 
               label="Description"

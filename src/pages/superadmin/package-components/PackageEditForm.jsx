@@ -16,12 +16,22 @@ import {
 import { useUpdatePackageMutation } from "@/features/package/packageApiSlice";
 import { useGetThemesQuery } from "@/features/theme/themeApiSlice";
 
+const FEATURE_DISPLAY_NAMES = {
+    PATHAO: "Pathao Courier",
+    STEADFAST: "Steadfast Courier",
+    REDX: "RedX Courier",
+};
+
+const getFeatureDisplayName = (feature) =>
+    FEATURE_DISPLAY_NAMES[feature] || feature.replace(/_/g, " ");
+
 const AVAILABLE_FEATURES = [
     "PRODUCTS",
     "ORDERS",
     "ORDER_ITEMS",
     "STEADFAST",
     "PATHAO",
+    "REDX",
     "NOTIFICATIONS",
     "EMAIL_NOTIFICATIONS",
     "WHATSAPP_NOTIFICATIONS",
@@ -252,7 +262,7 @@ const PackageEditForm = ({ pkg, onClose }) => {
                                         checked={features.includes(feature)}
                                         onChange={() => toggleFeature(feature)}
                                     />
-                                    <span>{feature.replace(/_/g, " ")}</span>
+                                    <span>{getFeatureDisplayName(feature)}</span>
                                 </label>
                             ))}
                         </div>

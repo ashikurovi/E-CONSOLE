@@ -56,6 +56,7 @@ const ProductsPage = () => {
   const [permanentDeleteModal, setPermanentDeleteModal] = useState({ isOpen: false, product: null });
   const [restockModal, setRestockModal] = useState({ isOpen: false, product: null });
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedStockFilter, setSelectedStockFilter] = useState(null); // null | 'all' | 'low' | 'out' | 'in'
 
   // Get products based on active tab
   const products = useMemo(() => {
@@ -101,14 +102,46 @@ const ProductsPage = () => {
     [categoryOptions, t]
   );
 
-  // Filter products by selected category
+  // Stock filter options
+  const stockFilterOptions = useMemo(
+    () => [
+      { label: t("products.allStock"), value: null },
+      { label: t("products.lowStock"), value: "low" },
+      { label: t("products.outOfStock"), value: "out" },
+      { label: t("products.inStock"), value: "in" },
+    ],
+    [t]
+  );
+
+  // Filter products by selected category and stock
   const filteredProducts = useMemo(() => {
-    if (!selectedCategory?.value) return products;
-    return products.filter((p) => {
-      const categoryId = p.category?.id ?? p.categoryId;
-      return categoryId === selectedCategory.value;
-    });
-  }, [products, selectedCategory]);
+    let result = products;
+    // Category filter
+    if (selectedCategory?.value) {
+      result = result.filter((p) => {
+        const categoryId = p.category?.id ?? p.categoryId;
+        return categoryId === selectedCategory.value;
+      });
+    }
+    // Stock filter
+    if (selectedStockFilter?.value) {
+      const stock = (p) => p.stock ?? 0;
+      switch (selectedStockFilter.value) {
+        case "low":
+          result = result.filter((p) => stock(p) > 0 && stock(p) <= 5);
+          break;
+        case "out":
+          result = result.filter((p) => stock(p) === 0);
+          break;
+        case "in":
+          result = result.filter((p) => stock(p) > 0);
+          break;
+        default:
+          break;
+      }
+    }
+    return result;
+  }, [products, selectedCategory, selectedStockFilter]);
 
   const tableData = useMemo(
     () =>
@@ -418,18 +451,38 @@ const ProductsPage = () => {
             </Dropdown>
           </div>
         </div>
-        {selectedCategory && (
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-black/70 dark:text-white/70">
+            {t("products.filterByStock")}:
+          </label>
+          <div className="min-w-[160px]">
+            <Dropdown
+              name={t("products.stock")}
+              options={stockFilterOptions}
+              setSelectedOption={setSelectedStockFilter}
+              className="py-2"
+            >
+              {selectedStockFilter?.label || (
+                <span className="text-black/50 dark:text-white/50">{t("products.allStock")}</span>
+              )}
+            </Dropdown>
+          </div>
+        </div>
+        {(selectedCategory || selectedStockFilter) && (
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setSelectedCategory(null)}
+            onClick={() => {
+              setSelectedCategory(null);
+              setSelectedStockFilter(null);
+            }}
             className="flex items-center gap-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
           >
             <X className="h-4 w-4" />
             {t("products.clearFilter")}
           </Button>
         )}
-        {selectedCategory && (
+        {(selectedCategory || selectedStockFilter) && (
           <span className="text-sm text-black/60 dark:text-white/60">
             {t("products.showingOf", { count: filteredProducts.length, total: products.length })}
           </span>

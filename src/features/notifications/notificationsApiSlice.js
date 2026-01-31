@@ -102,6 +102,22 @@ export const notificationsApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: ['Notifications'],
     }),
+    markNotificationAsRead: builder.mutation({
+      query: ({ id, companyId }) => ({
+        url: `/notifications/${id}/read`,
+        method: "PATCH",
+        params: companyId ? { companyId } : {},
+      }),
+      invalidatesTags: ['Notifications'],
+    }),
+    markAllNotificationsAsRead: builder.mutation({
+      query: (companyId) => ({
+        url: "/notifications/mark-all-read",
+        method: "PATCH",
+        params: companyId ? { companyId } : {},
+      }),
+      invalidatesTags: ['Notifications'],
+    }),
   }),
 });
 
@@ -113,5 +129,7 @@ export const {
   useGetOrderStatusNotificationsQuery,
   useGetNewCustomerNotificationsQuery,
   useGetLowStockNotificationsQuery,
+  useMarkNotificationAsReadMutation,
+  useMarkAllNotificationsAsReadMutation,
 } = notificationsApiSlice;
 

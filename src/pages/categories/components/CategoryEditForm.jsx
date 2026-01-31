@@ -25,12 +25,6 @@ const categoryEditSchema = yup.object().shape({
     .min(2, "Category name must be at least 2 characters")
     .max(100, "Category name must be less than 100 characters")
     .trim(),
-  slug: yup
-    .string()
-    .nullable()
-    .transform((value) => (value === "" ? null : value))
-    .max(100, "Slug must be less than 100 characters")
-    .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$|^$/, "Slug must be lowercase letters, numbers, and hyphens only"),
 });
 const CategoryEditForm = ({ category, parentOptions, onClose }) => {
     const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
@@ -49,7 +43,6 @@ const CategoryEditForm = ({ category, parentOptions, onClose }) => {
         mode: "onChange",
         defaultValues: {
             name: category?.name ?? "",
-            slug: category?.slug ?? "",
             isActive: category?.isActive ?? false,
         },
     });
@@ -69,7 +62,6 @@ const CategoryEditForm = ({ category, parentOptions, onClose }) => {
         // Backend uses path param for id and forbids extra fields (id in body)
         const payload = {
             name: data.name,
-            slug: data.slug,
             isActive: data.isActive,
             photo: photoUrl,
             parentId: selectedParent?.value || null,
@@ -106,13 +98,6 @@ const CategoryEditForm = ({ category, parentOptions, onClose }) => {
                         register={register}
                         name="name"
                         error={errors.name?.message}
-                    />
-                    <TextField
-                        label="Slug"
-                        placeholder="category-slug (optional)"
-                        register={register}
-                        name="slug"
-                        error={errors.slug?.message}
                     />
                 </div>
 

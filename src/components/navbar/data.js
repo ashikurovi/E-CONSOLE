@@ -30,6 +30,7 @@ export const navSections = [
       { id: 6, title: "Order", tKey: "nav.order", link: "/orders", permission: FeaturePermission.ORDERS },
       { id: 7.5, title: "Steadfast Courier", tKey: "nav.steadfastCourier", link: "/steadfast", permission: FeaturePermission.STEADFAST, icon: Truck },
       { id: 7.6, title: "Pathao Courier", tKey: "nav.pathaoCourier", link: "/pathao", permission: FeaturePermission.PATHAO, icon: Truck },
+      { id: 7.7, title: "RedX Courier", tKey: "nav.redxCourier", link: "/redx", permission: FeaturePermission.REDX, icon: Truck },
     ],
   },
   {

@@ -20,6 +20,7 @@ export default function ReusableTable({
   searchable = true,
   searchPlaceholder,
   searchFields = null, // If null, search all string fields
+  getRowClassName = null, // Optional: (item) => string for row styling
 }) {
   const { t } = useTranslation();
   const placeholder = searchPlaceholder ?? t("table.searchPlaceholder");
@@ -182,10 +183,12 @@ export default function ReusableTable({
                     ))}
                   </TableRow>
                 ))
-              : paginatedData?.map((item, rowIdx) => (
+              : paginatedData?.map((item, rowIdx) => {
+                  const rowClass = getRowClassName?.(item) ?? "";
+                  return (
                   <TableRow
                     key={rowIdx}
-                    className="border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#242424] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                    className={`border-b border-black/10 dark:border-white/10 transition-colors ${rowClass || "bg-white dark:bg-[#242424] hover:bg-black/5 dark:hover:bg-white/5"}`}
                   >
                     {headers.map((header, colIdx) => (
                       <TableCell
@@ -198,7 +201,9 @@ export default function ReusableTable({
                       </TableCell>
                     ))}
                   </TableRow>
-                ))}
+                );
+                })
+              }
           </TableBody>
         </Table>
       </div>

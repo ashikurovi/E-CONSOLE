@@ -129,6 +129,7 @@ export const apiSlice = createApi({
     "settings",
     "help",
     "systemuser",
+    "activityLog",
     "earnings",
     "overview",
     "dashboard",

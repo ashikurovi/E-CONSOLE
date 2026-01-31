@@ -59,6 +59,14 @@ const SettingsPage = () => {
     },
   });
 
+  // RedX credentials form
+  const { register: registerRedX, handleSubmit: handleSubmitRedX, reset: resetRedX } = useForm({
+    defaultValues: {
+      token: "",
+      sandbox: true,
+    },
+  });
+
   useEffect(() => {
     if (user) {
       reset({
@@ -84,8 +92,13 @@ const SettingsPage = () => {
         apiKey: user.steadfastConfig?.apiKey || localStorage.getItem("steadfastApiKey") || import.meta.env.VITE_STEADFAST_API_KEY || "",
         secretKey: user.steadfastConfig?.secretKey || localStorage.getItem("steadfastSecretKey") || import.meta.env.VITE_STEADFAST_SECRET_KEY || "",
       });
+
+      resetRedX({
+        token: user.redxConfig?.token || localStorage.getItem("redxToken") || import.meta.env.VITE_REDX_TOKEN || "",
+        sandbox: user.redxConfig?.sandbox !== false,
+      });
     }
-  }, [user, resetPathao, resetSteadfast]);
+  }, [user, resetPathao, resetSteadfast, resetRedX]);
 
 
   const onSubmit = async (data) => {
@@ -188,6 +201,34 @@ const SettingsPage = () => {
       }
     } catch (e) {
       toast.error(t("steadfast.credentialsFailed"));
+    }
+  };
+
+  const onSubmitRedX = async (data) => {
+    if (!userId) {
+      toast.error(t("settings.userIdNotFound"));
+      return;
+    }
+
+    try {
+      const payload = {
+        redxConfig: {
+          token: data.token,
+          sandbox: data.sandbox === true,
+        },
+      };
+
+      const res = await updateSystemuser({ id: userId, ...payload });
+      if (res?.data) {
+        localStorage.setItem("redxToken", data.token);
+        localStorage.setItem("redxSandbox", data.sandbox ? "true" : "false");
+        dispatch(userDetailsFetched(payload));
+        toast.success(t("redx.credentialsSaved"));
+      } else {
+        toast.error(res?.error?.data?.message || t("redx.credentialsFailed"));
+      }
+    } catch (e) {
+      toast.error(t("redx.credentialsFailed"));
     }
   };
 
@@ -430,8 +471,8 @@ const SettingsPage = () => {
 
       {/* Courier Credentials Section */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">{t("pathao.courierIntegrationSettings")}</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <h2 className="text-xl font-semibold mb-4">{t("settings.courierIntegrationSettings")}</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           
           {/* Pathao Credentials */}
           {hasPermission(user, FeaturePermission.PATHAO) && (
@@ -520,6 +561,52 @@ const SettingsPage = () => {
                 </div>
                 <div className="text-xs text-black/50 dark:text-white/50 mt-2">
                   {t("steadfast.getCredentialsFrom")} <a href="https://portal.packzy.com" target="_blank" rel="noopener noreferrer" className="text-green-500 hover:underline">{t("steadfast.steadfastPortal")}</a>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+          )}
+          {/* RedX Credentials */}
+          {hasPermission(user, FeaturePermission.REDX) && (
+          <Card className="border border-black/10 dark:border-white/10">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Truck className="h-5 w-5 text-red-500" />
+                <CardTitle className="text-base font-semibold">{t("redx.credentialsTitle")}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmitRedX(onSubmitRedX)} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
+                    {t("redx.apiToken")}
+                  </label>
+                  <input
+                    type="password"
+                    {...registerRedX("token")}
+                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                    placeholder={t("redx.apiTokenPlaceholder")}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    {...registerRedX("sandbox")}
+                    id="redx-sandbox"
+                    className="rounded"
+                  />
+                  <label htmlFor="redx-sandbox" className="text-sm text-black/70 dark:text-white/70">
+                    {t("redx.useSandbox")}
+                  </label>
+                </div>
+                <div className="pt-2">
+                  <Button type="submit" className="w-full" disabled={isUpdating}>
+                    <Key className="h-4 w-4 mr-2" />
+                    {isUpdating ? t("common.saving") : t("redx.saveCredentials")}
+                  </Button>
+                </div>
+                <div className="text-xs text-black/50 dark:text-white/50 mt-2">
+                  {t("redx.getCredentialsFrom")} <a href="https://redx.com.bd/developer-api/" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:underline">{t("redx.redxPortal")}</a>
                 </div>
               </form>
             </CardContent>
