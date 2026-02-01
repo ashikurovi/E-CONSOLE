@@ -18,7 +18,7 @@ import { useGetThemesQuery } from "@/features/theme/themeApiSlice";
 
 const FEATURE_DISPLAY_NAMES = {
     PATHAO: "Pathao Courier",
-    STEADFAST: "Steadfast Courier",
+    STEARDFAST: "Steadfast Courier",
     REDX: "RedX Courier",
 };
 
@@ -28,17 +28,17 @@ const getFeatureDisplayName = (feature) =>
 const AVAILABLE_FEATURES = [
     "PRODUCTS",
     "ORDERS",
-    "ORDER_ITEMS",
-    "STEADFAST",
+    "STEARDFAST",
     "PATHAO",
     "REDX",
     "NOTIFICATIONS",
     "EMAIL_NOTIFICATIONS",
     "WHATSAPP_NOTIFICATIONS",
+    "SMS_NOTIFICATIONS",
+    "ORDERS_ITEM",
     "CATEGORY",
     "CUSTOMERS",
     "REPORTS",
-    "INVENTORY",
     "SETTINGS",
     "STAFF",
     "SMS_CONFIGURATION",
@@ -50,7 +50,7 @@ const AVAILABLE_FEATURES = [
     "PROMOCODES",
     "HELP",
     "BANNERS",
-    "FRAUD_CHECKER",
+    "FRUAD_CHECKER",
     "MANAGE_USERS",
     "DASHBOARD",
     "REVENUE",
@@ -58,11 +58,7 @@ const AVAILABLE_FEATURES = [
     "REPEAT_PURCHASE_RATE",
     "AVERAGE_ORDER_VALUE",
     "STATS",
-    "PRIVACY_POLICY",
-    "TERMS_CONDITIONS",
-    "REFUND_POLICY",
     "LOG_ACTIVITY",
-    "ACTIVITY_LOGS",
 ];
 
 const schema = yup.object().shape({
@@ -121,7 +117,9 @@ const PackageEditForm = ({ pkg, onClose }) => {
                 price: pkg.price || "",
                 discountPrice: pkg.discountPrice || "",
             });
-            setFeatures(pkg.features || []);
+            // Filter to only valid features (backend enum may have changed; old packages can have invalid values)
+            const validFeatures = (pkg.features || []).filter((f) => AVAILABLE_FEATURES.includes(f));
+            setFeatures(validFeatures.length > 0 ? validFeatures : []);
             setIsFeatured(pkg.isFeatured || false);
             setThemeId(pkg?.themeId || "");
         }
@@ -136,7 +134,9 @@ const PackageEditForm = ({ pkg, onClose }) => {
     };
 
     const onSubmit = async (data) => {
-        if (!features.length) {
+        // Filter to only valid features before submit
+        const validFeatures = features.filter((f) => AVAILABLE_FEATURES.includes(f));
+        if (!validFeatures.length) {
             toast.error("Select at least one feature");
             return;
         }

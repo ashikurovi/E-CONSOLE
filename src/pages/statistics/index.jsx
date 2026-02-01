@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import {
   Search,
@@ -22,6 +23,7 @@ import {
   Cell,
 } from "recharts";
 import { motion } from "framer-motion";
+import { useGetStatisticsQuery } from "@/features/dashboard/dashboardApiSlice";
 
 /**
  * StatisticsPage Component
@@ -29,6 +31,11 @@ import { motion } from "framer-motion";
  */
 export default function StatisticsPage() {
   const { t } = useTranslation();
+  const authUser = useSelector((s) => s?.auth?.user);
+  const { data: statsData } = useGetStatisticsQuery(
+    { companyId: authUser?.companyId },
+    { skip: !authUser?.companyId }
+  );
 
   // --- MOCK DATA ---
 

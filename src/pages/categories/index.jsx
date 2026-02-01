@@ -13,6 +13,9 @@ import {
   useDeleteCategoryMutation,
   useToggleCategoryActiveMutation,
 } from "@/features/category/categoryApiSlice";
+import { useGetCategoryStatsQuery } from "@/features/dashboard/dashboardApiSlice";
+import StatCard from "@/components/cards/stat-card";
+import { FolderTree, CheckCircle, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DeleteModal from "@/components/modals/DeleteModal";
 import ConfirmModal from "@/components/modals/ConfirmModal";  
@@ -23,6 +26,7 @@ const CategoriesPage = () => {
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
   const { data: categories = [], isLoading } = useGetCategoriesQuery({ companyId: authUser?.companyId });
+  const { data: categoryStats = {} } = useGetCategoryStatsQuery({ companyId: authUser?.companyId });
   const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
   const [toggleActive, { isLoading: isToggling }] = useToggleCategoryActiveMutation();
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, category: null });
@@ -105,16 +109,28 @@ const CategoriesPage = () => {
 
 
 
+  const statsCards = [
+    { title: t("dashboard.totalCategories") || "Total Categories", value: categoryStats.totalCategories ?? 0, icon: FolderTree, tone: "default" },
+    { title: t("dashboard.activeCategories") || "Active Categories", value: categoryStats.activeCategories ?? 0, icon: CheckCircle, tone: "green" },
+    { title: t("dashboard.productsWithCategory") || "Products", value: categoryStats.productsWithCategory ?? 0, icon: Package, tone: "blue" },
+  ];
+
   return (
-    <div className=" bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
-      <div className="flex items-center py-2 justify-between">
+    <div className="bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
+      <div className="flex items-center py-2 justify-between mb-4">
         <h3 className="text-lg font-medium">{t("nav.categories")}</h3>
         <Button size="sm" onClick={() => navigate("/categories/create")}>
           {t("common.add")} {t("nav.categories")}
         </Button>
       </div>
 
-      {/* Removed inline Dialog+form here */}
+      {/* Category Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+        {statsCards.map((s, i) => (
+          <StatCard key={i} title={s.title} value={s.value} icon={s.icon} tone={s.tone} />
+        ))}
+      </div>
+
       <ReusableTable
         data={tableData}
         headers={headers}

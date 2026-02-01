@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { useCreateInvoiceMutation } from "@/features/invoice/invoiceApiSlice";
 import { useGetSystemusersQuery } from "@/features/systemuser/systemuserApiSlice";
+import { useGetPackagesQuery } from "@/features/package/packageApiSlice";
 import { Plus } from "lucide-react";
 
 const schema = yup.object().shape({
@@ -66,6 +67,7 @@ const InvoiceCreateForm = () => {
     const [open, setOpen] = useState(false);
     const [createInvoice, { isLoading }] = useCreateInvoiceMutation();
     const { data: customers = [] } = useGetSystemusersQuery();
+    const { data: packages = [] } = useGetPackagesQuery();
     const [showBankPayment, setShowBankPayment] = useState(false);
     const [showBkashPayment, setShowBkashPayment] = useState(false);
     const [selectedPackageName, setSelectedPackageName] = useState("");
@@ -81,6 +83,7 @@ const InvoiceCreateForm = () => {
         resolver: yupResolver(schema),
         defaultValues: {
             customerId: "",
+            packageId: "",
             totalAmount: "",
             paidAmount: "0",
             amountType: "package",
@@ -97,10 +100,27 @@ const InvoiceCreateForm = () => {
     const totalAmount = watch("totalAmount");
     const paidAmount = watch("paidAmount");
     const customerId = watch("customerId");
+    const packageId = watch("packageId");
 
-    // Auto-populate package name and price when customer is selected
+    // Auto-fill total amount when package is selected
     React.useEffect(() => {
-        if (customerId) {
+        if (packageId) {
+            const selectedPackage = packages.find(p => p.id === parseInt(packageId));
+            if (selectedPackage) {
+                const amount = parseFloat(selectedPackage.discountPrice ?? selectedPackage.price ?? 0);
+                setSelectedPackageName(selectedPackage.name);
+                if (amount > 0) {
+                    setValue("totalAmount", amount.toString(), { shouldValidate: true });
+                }
+            }
+        } else {
+            setSelectedPackageName("");
+        }
+    }, [packageId, packages, setValue]);
+
+    // Auto-populate package name and price when customer is selected (if no package selected)
+    React.useEffect(() => {
+        if (customerId && !packageId) {
             const selectedCustomer = customers.find(c => c.id === parseInt(customerId));
             if (selectedCustomer?.paymentInfo) {
                 const { packagename, amount } = selectedCustomer.paymentInfo;
@@ -113,10 +133,10 @@ const InvoiceCreateForm = () => {
             } else {
                 setSelectedPackageName("");
             }
-        } else {
+        } else if (!packageId) {
             setSelectedPackageName("");
         }
-    }, [customerId, customers, setValue]);
+    }, [customerId, packageId, customers, setValue]);
 
     // Auto-calculate due amount
     const dueAmount = totalAmount && paidAmount 
@@ -126,9 +146,8 @@ const InvoiceCreateForm = () => {
     const onSubmit = async (data) => {
         const payload = {
             customerId: parseInt(data.customerId),
-            totalAmount: parseFloat(data.totalAmount).toFixed(2),
-            paidAmount: data.paidAmount ? parseFloat(data.paidAmount).toFixed(2) : "0.00",
-            dueAmount,
+            totalAmount: Number(parseFloat(data.totalAmount).toFixed(2)),
+            paidAmount: data.paidAmount ? Number(parseFloat(data.paidAmount).toFixed(2)) : 0,
             amountType: data.amountType,
             status: data.status,
         };
@@ -152,7 +171,7 @@ const InvoiceCreateForm = () => {
         const res = await createInvoice(payload);
         if (res?.data) {
             toast.success("Invoice created successfully");
-            reset();
+            reset({ customerId: "", packageId: "", totalAmount: "", paidAmount: "0", amountType: "package", status: "pending" });
             setShowBankPayment(false);
             setShowBkashPayment(false);
             setSelectedPackageName("");
@@ -198,10 +217,28 @@ const InvoiceCreateForm = () => {
                         )}
                     </div>
 
+                    {/* Package Selection */}
+                    <div className="space-y-1">
+                        <label className="text-sm font-medium text-black/70 dark:text-white/70">
+                            Package (optional - auto-fills amount)
+                        </label>
+                        <select
+                            {...register("packageId")}
+                            className="w-full px-3 py-2 text-sm rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                        >
+                            <option value="">Select a package</option>
+                            {packages.map((pkg) => (
+                                <option key={pkg.id} value={pkg.id}>
+                                    {pkg.name} - ৳{parseFloat(pkg.discountPrice ?? pkg.price ?? 0).toFixed(2)}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
                     {/* Package Info Display */}
                     {selectedPackageName && (
                         <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
-                            <p className="text-xs text-green-700 dark:text-green-300 mb-1">Customer's Package</p>
+                            <p className="text-xs text-green-700 dark:text-green-300 mb-1">Selected Package</p>
                             <p className="text-sm font-semibold text-green-800 dark:text-green-200">
                                 {selectedPackageName}
                             </p>
@@ -389,7 +426,7 @@ const InvoiceCreateForm = () => {
                             className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
                             onClick={() => {
                                 setOpen(false);
-                                reset();
+                                reset({ customerId: "", packageId: "", totalAmount: "", paidAmount: "0", amountType: "package", status: "pending" });
                                 setShowBankPayment(false);
                                 setShowBkashPayment(false);
                                 setSelectedPackageName("");
