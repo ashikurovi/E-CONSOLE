@@ -118,7 +118,9 @@ const PackageEditForm = ({ pkg, onClose }) => {
                 price: pkg.price || "",
                 discountPrice: pkg.discountPrice || "",
             });
-            setFeatures(pkg.features || []);
+            // Filter to only valid features (backend enum may have changed; old packages can have invalid values)
+            const validFeatures = (pkg.features || []).filter((f) => AVAILABLE_FEATURES.includes(f));
+            setFeatures(validFeatures.length > 0 ? validFeatures : []);
             setIsFeatured(pkg.isFeatured || false);
             setThemeId(pkg?.themeId || "");
         }
@@ -133,7 +135,9 @@ const PackageEditForm = ({ pkg, onClose }) => {
     };
 
     const onSubmit = async (data) => {
-        if (!features.length) {
+        // Filter to only valid features before submit
+        const validFeatures = features.filter((f) => AVAILABLE_FEATURES.includes(f));
+        if (!validFeatures.length) {
             toast.error("Select at least one feature");
             return;
         }
@@ -145,7 +149,7 @@ const PackageEditForm = ({ pkg, onClose }) => {
             price: parseFloat(data.price),
             discountPrice: data.discountPrice ? parseFloat(data.discountPrice) : null,
             isFeatured,
-            features,
+            features: validFeatures,
             ...(themeId && { themeId: parseInt(themeId) }),
         };
 
