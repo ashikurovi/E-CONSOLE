@@ -19,6 +19,7 @@ import {
 import { format } from "date-fns";
 
 import { useGetOrdersQuery, useGetOrderStatsQuery } from "@/features/order/orderApiSlice";
+import { useGetSaleInvoicesQuery } from "@/features/invoice/saleInvoiceApiSlice";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -67,7 +68,7 @@ const InvoicesPage = () => {
   const [statusFilter, setStatusFilter] = useState("All");
 
   // API Queries
-  const { data: orders = [], isLoading } = useGetOrdersQuery({ companyId: authUser?.companyId });
+  const { data: saleInvoicesData = [], isLoading } = useGetSaleInvoicesQuery({ companyId: authUser?.companyId });
   const { data: stats } = useGetOrderStatsQuery({ companyId: authUser?.companyId });
 
   // Status Tabs
@@ -99,17 +100,17 @@ const InvoicesPage = () => {
 
   // Processing Data
   const processedData = useMemo(() => {
-    let data = orders.map(order => ({
-        id: order._id, // Internal ID
-        invoiceId: `INV${order.orderId?.toString().padStart(5, '0') || '00000'}`,
-        customer: order.customerName || 'Guest User',
-        avatar: null, // Placeholder
-        createdOn: order.createdAt,
-        amount: order.totalAmount || 0,
-        paid: order.paidAmount || (order.status === 'delivered' ? order.totalAmount : 0),
-        status: getInvoiceStatus(order.status),
-        paymentMode: order.paymentMethod || 'Cash',
-        dueDate: new Date(new Date(order.createdAt).getTime() + 14 * 24 * 60 * 60 * 1000).toISOString(), // Mock +14 days
+    let data = saleInvoicesData.map(invoice => ({
+        id: invoice.id,
+        invoiceId: invoice.invoiceNumber,
+        customer: invoice.customer?.name || invoice.customerName || 'Customer',
+        avatar: null,
+        createdOn: invoice.createdAt,
+        amount: invoice.totalAmount || 0,
+        paid: invoice.status === 'paid' ? invoice.totalAmount : 0,
+        status: invoice.status?.charAt(0).toUpperCase() + invoice.status?.slice(1) || 'Pending',
+        paymentMode: invoice.paymentMethod || 'Cash',
+        dueDate: invoice.dueDate || new Date(new Date(invoice.createdAt).getTime() + 14 * 24 * 60 * 60 * 1000).toISOString(),
     }));
 
     if (statusFilter !== "All") {
@@ -163,10 +164,10 @@ const InvoicesPage = () => {
               <Download className="w-4 h-4 mr-2" />
               Export
            </Button>
-           <Button className="bg-[#7c3aed] hover:bg-[#6d28d9] text-white" onClick={() => navigate("/orders/create")}>
-              <Plus className="w-4 h-4 mr-2" />
-              New Invoice
-           </Button>
+            <Button className="bg-[#7c3aed] hover:bg-[#6d28d9] text-white" onClick={() => navigate("/invoices/create")}>
+               <Plus className="w-4 h-4 mr-2" />
+               New Invoice
+            </Button>
         </div>
       </div>
 
@@ -300,7 +301,7 @@ const InvoicesPage = () => {
                            <TableCell>
                               <span 
                                 className="font-semibold text-[#7c3aed] hover:underline cursor-pointer"
-                                onClick={() => navigate(`/orders/${invoice.id}`)}
+                                onClick={() => navigate(`/invoices/${invoice.id}`)}
                               >
                                 {invoice.invoiceId}
                               </span>

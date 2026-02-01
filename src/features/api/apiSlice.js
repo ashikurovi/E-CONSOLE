@@ -138,7 +138,8 @@ export const apiSlice = createApi({
     "refundPolicy",
     "package",
     "invoice",
-    "reviews"
+    "reviews",
+    "saleInvoice"
   ],
 
   // ✅ Keep cache for 60s (avoid data disappearing)
