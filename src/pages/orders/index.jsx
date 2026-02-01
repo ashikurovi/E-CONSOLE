@@ -9,30 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Truck,
-  Package,
-  XCircle,
-  RotateCcw,
-  FileText,
-  Trash2,
-  ClipboardCheck,
-  Eye,
-  Clock,
-  CheckCircle,
-  DollarSign,
-  CreditCard,
-  MapPin,
-  Copy,
-  Printer,
-  ScanBarcode,
-  Box,
-  Hourglass,
-  Loader2,
-  CheckSquare,
-  Banknote,
-  ShoppingBag,
-} from "lucide-react";
+import { Truck, Package, XCircle, RotateCcw, FileText, Trash2, ClipboardCheck, Eye, Clock, CheckCircle, DollarSign, CreditCard, MapPin, Copy, Printer, ScanBarcode, Banknote } from "lucide-react";
 import {
   useGetOrdersQuery,
   useGetOrderStatsQuery,
@@ -66,23 +43,16 @@ const OrdersPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
-  const { data: orders = [], isLoading } = useGetOrdersQuery({
-    companyId: authUser?.companyId,
-  });
-  const { data: stats = {} } = useGetOrderStatsQuery({
-    companyId: authUser?.companyId,
-  });
+  const { data: orders = [], isLoading } = useGetOrdersQuery({ companyId: authUser?.companyId });
+  const { data: stats = {} } = useGetOrderStatsQuery({ companyId: authUser?.companyId });
   const [processOrder, { isLoading: isProcessing }] = useProcessOrderMutation();
   const [deliverOrder, { isLoading: isDelivering }] = useDeliverOrderMutation();
   const [shipOrder, { isLoading: isShipping }] = useShipOrderMutation();
   const [cancelOrder, { isLoading: isCancelling }] = useCancelOrderMutation();
   const [refundOrder, { isLoading: isRefunding }] = useRefundOrderMutation();
   const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
-
-  // Combined state from HEAD and ovi-dev
   const [barcodeScan, { isLoading: isBarcodeScanning }] = useBarcodeScanMutation();
   const [recordPartialPayment, { isLoading: isRecordingPartial }] = useRecordPartialPaymentMutation();
-  
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, order: null });
   const [processModal, setProcessModal] = useState({ isOpen: false, order: null });
   const [shipModal, setShipModal] = useState({ isOpen: false, order: null });
@@ -92,7 +62,6 @@ const OrdersPage = () => {
   const [barcodeScanModal, setBarcodeScanModal] = useState({ isOpen: false, value: "" });
   const [partialPaymentModal, setPartialPaymentModal] = useState({ isOpen: false, order: null });
   const [partialPaymentForm, setPartialPaymentForm] = useState({ partialAmount: "", partialPaymentRef: "" });
-
   const [statusFilter, setStatusFilter] = useState(null);
   const [paymentFilter, setPaymentFilter] = useState(null);
 
@@ -107,7 +76,7 @@ const OrdersPage = () => {
       { label: t("orders.filterCancelled"), value: "cancelled" },
       { label: t("orders.filterRefunded"), value: "refunded" },
     ],
-    [t],
+    [t]
   );
 
   const paymentFilterOptions = useMemo(
@@ -116,15 +85,13 @@ const OrdersPage = () => {
       { label: t("orders.paid"), value: "paid" },
       { label: t("orders.unpaid"), value: "unpaid" },
     ],
-    [t],
+    [t]
   );
 
   const filteredOrders = useMemo(() => {
     let result = orders;
     if (statusFilter?.value) {
-      result = result.filter(
-        (o) => (o.status?.toLowerCase() || "") === statusFilter.value,
-      );
+      result = result.filter((o) => (o.status?.toLowerCase() || "") === statusFilter.value);
     }
     if (paymentFilter?.value) {
       const isPaid = paymentFilter.value === "paid";
@@ -149,7 +116,7 @@ const OrdersPage = () => {
       { header: t("orders.created"), field: "createdAt" },
       { header: t("common.actions"), field: "actions" },
     ],
-    [t],
+    [t]
   );
 
   const copyToClipboard = useCallback(
@@ -157,10 +124,10 @@ const OrdersPage = () => {
       if (!text) return;
       navigator.clipboard.writeText(text).then(
         () => toast.success(t("common.copied")),
-        () => toast.error(t("common.copyFailed")),
+        () => toast.error(t("common.copyFailed"))
       );
     },
-    [t],
+    [t]
   );
 
   const getStatusLabel = (status) => {
@@ -181,21 +148,14 @@ const OrdersPage = () => {
   const getRowClassNameByStatus = (item) => {
     const s = (item?.status || "").toLowerCase();
     const map = {
-      pending:
-        "bg-[#DCE865]/20 dark:bg-[#DCE865]/10 hover:bg-[#DCE865]/30 dark:hover:bg-[#DCE865]/20 !text-black dark:!text-[#DCE865]",
-      processing:
-        "bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-950/60",
+      pending: "bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-950/60",
+      processing: "bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-950/60",
       paid: "bg-green-50 dark:bg-green-950/40 hover:bg-green-100 dark:hover:bg-green-950/60",
-      shipped:
-        "bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 dark:hover:bg-orange-950/60",
-      delivered:
-        "bg-green-100 dark:bg-green-900/20 hover:bg-green-200 dark:hover:bg-green-900/40 !text-green-800 dark:!text-green-300",
-      cancelled:
-        "bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50",
-      refunded:
-        "bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-800/70",
-      completed:
-        "bg-green-50 dark:bg-green-950/40 hover:bg-green-100 dark:hover:bg-green-950/60",
+      shipped: "bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 dark:hover:bg-orange-950/60",
+      delivered: "bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-950/60",
+      cancelled: "bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50",
+      refunded: "bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-800/70",
+      completed: "bg-green-50 dark:bg-green-950/40 hover:bg-green-100 dark:hover:bg-green-950/60",
     };
     return map[s] ?? "";
   };
@@ -211,13 +171,10 @@ const OrdersPage = () => {
         total:
           typeof o.totalAmount === "number"
             ? `$${Number(o.totalAmount).toFixed(2)}`
-            : (o.totalAmount ?? "-"),
+            : o.totalAmount ?? "-",
         trackingId: o.shippingTrackingId ? (
           <div className="flex items-center gap-2">
-            <span
-              className="font-mono text-sm truncate max-w-[120px]"
-              title={o.shippingTrackingId}
-            >
+            <span className="font-mono text-sm truncate max-w-[120px]" title={o.shippingTrackingId}>
               {o.shippingTrackingId}
             </span>
             <TooltipProvider>
@@ -252,27 +209,14 @@ const OrdersPage = () => {
           const isRefunded = status === "refunded";
 
           // Processing: show Ship only. Deliver only when shipped.
-          const showShipDeliver =
-            (isProcessing || isCompleted) &&
-            !isShipped &&
-            !isDelivered &&
-            !isCancelled &&
-            !isRefunded;
+          const showShipDeliver = (isProcessing || isCompleted) && !isShipped && !isDelivered && !isCancelled && !isRefunded;
           // Shipped: hide Ship. Show Deliver only.
-          const showDeliverWhenShipped =
-            isShipped && !isDelivered && !isCancelled && !isRefunded;
+          const showDeliverWhenShipped = isShipped && !isDelivered && !isCancelled && !isRefunded;
           // Delivered: only View, Invoice, Delete
           const showOnlyViewInvoiceDelete = isDelivered;
           // Pending: show Process, Cancel. Shipped: show Cancel.
-          const showProcessCancel =
-            !isProcessing &&
-            !isCompleted &&
-            !isShipped &&
-            !isDelivered &&
-            !isCancelled &&
-            !isRefunded;
-          const showCancelWhenShipped =
-            isShipped && !isDelivered && !isCancelled && !isRefunded;
+          const showProcessCancel = !isProcessing && !isCompleted && !isShipped && !isDelivered && !isCancelled && !isRefunded;
+          const showCancelWhenShipped = isShipped && !isDelivered && !isCancelled && !isRefunded;
 
           return (
             <TooltipProvider>
@@ -282,7 +226,7 @@ const OrdersPage = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="bg-teal-50 hover:bg-teal-100 text-teal-600 dark:bg-teal-900/20 dark:hover:bg-teal-900/40 dark:text-teal-400"
+                      className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
                       onClick={() => navigate(`/orders/${o.id}`)}
                       title={t("common.view")}
                     >
@@ -290,7 +234,7 @@ const OrdersPage = () => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>{t("common.view")}</p>
+                    <p>{t("orders.viewOrder")}</p>
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>
@@ -298,7 +242,7 @@ const OrdersPage = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 dark:text-blue-400"
+                      className="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
                       onClick={() => {
                         try {
                           generateOrderInvoice(o);
@@ -345,12 +289,8 @@ const OrdersPage = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-900/20 dark:hover:bg-indigo-900/40 dark:text-indigo-400"
-                        onClick={() =>
-                          navigate(
-                            `/orders/track?trackingId=${encodeURIComponent(o.shippingTrackingId)}`,
-                          )
-                        }
+                        className="bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400"
+                        onClick={() => navigate(`/orders/track?trackingId=${encodeURIComponent(o.shippingTrackingId)}`)}
                         title={t("orders.trackOrder")}
                       >
                         <MapPin className="h-4 w-4" />
@@ -368,22 +308,16 @@ const OrdersPage = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="bg-purple-50 hover:bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:hover:bg-purple-900/40 dark:text-purple-400"
+                        className="bg-slate-500/10 hover:bg-slate-500/20 text-slate-600 dark:text-slate-400"
                         onClick={async () => {
                           try {
                             // Company domain from auth/me API: customDomain (if active) or subdomain
                             let companyDomain =
-                              import.meta.env.VITE_APP_URL ||
-                              import.meta.env.VITE_TRACKING_PAGE_URL;
-                            if (
-                              authUser?.customDomain &&
-                              authUser?.customDomainStatus === "active"
-                            ) {
+                              import.meta.env.VITE_APP_URL || import.meta.env.VITE_TRACKING_PAGE_URL;
+                            if (authUser?.customDomain && authUser?.customDomainStatus === "active") {
                               companyDomain = `https://${authUser.customDomain.replace(/^https?:\/\//, "")}`;
                             } else if (authUser?.subdomain) {
-                              const base =
-                                import.meta.env.VITE_APP_BASE_DOMAIN ||
-                                "squadcart.com";
+                              const base = import.meta.env.VITE_APP_BASE_DOMAIN || "squadcart.com";
                               companyDomain = `https://${authUser.subdomain}.${base}`;
                             }
                             await generateParcelSlip(o, {
@@ -414,10 +348,8 @@ const OrdersPage = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="bg-amber-50 hover:bg-amber-100 text-amber-600 dark:bg-amber-900/20 dark:hover:bg-amber-900/40 dark:text-amber-400"
-                        onClick={() =>
-                          setProcessModal({ isOpen: true, order: o })
-                        }
+                        className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
+                        onClick={() => setProcessModal({ isOpen: true, order: o })}
                         disabled={isProcessing}
                       >
                         <ClipboardCheck className="h-4 w-4" />
@@ -436,7 +368,7 @@ const OrdersPage = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="bg-cyan-50 hover:bg-cyan-100 text-cyan-600 dark:bg-cyan-900/20 dark:hover:bg-cyan-900/40 dark:text-cyan-400"
+                          className="bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
                           onClick={() => {
                             setShipModal({ isOpen: true, order: o });
                             setShipForm({
@@ -458,7 +390,7 @@ const OrdersPage = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 dark:text-emerald-400"
+                          className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                           onClick={() => {
                             setDeliverModal({ isOpen: true, order: o });
                             setDeliverForm({ comment: "", markAsPaid: true });
@@ -481,7 +413,7 @@ const OrdersPage = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 dark:text-emerald-400"
+                        className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                         onClick={() => {
                           setDeliverModal({ isOpen: true, order: o });
                           setDeliverForm({ comment: "", markAsPaid: true });
@@ -503,16 +435,12 @@ const OrdersPage = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400"
+                        className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
                         onClick={async () => {
                           if (!confirm("Cancel this order?")) return;
                           const res = await cancelOrder({ id: o.id });
-                          if (res?.data)
-                            toast.success(t("orders.orderCancelled"));
-                          else
-                            toast.error(
-                              res?.error?.data?.message || t("common.failed"),
-                            );
+                          if (res?.data) toast.success(t("orders.orderCancelled"));
+                          else toast.error(res?.error?.data?.message || t("common.failed"));
                         }}
                         disabled={isCancelling}
                       >
@@ -531,16 +459,12 @@ const OrdersPage = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="bg-black/5 hover:bg-black/10 text-black dark:bg-white/10 dark:hover:bg-white/20 dark:text-white"
+                        className="bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400"
                         onClick={async () => {
                           if (!confirm("Refund this order?")) return;
                           const res = await refundOrder({ id: o.id });
-                          if (res?.data)
-                            toast.success(t("orders.orderRefunded"));
-                          else
-                            toast.error(
-                              res?.error?.data?.message || t("common.failed"),
-                            );
+                          if (res?.data) toast.success(t("orders.orderRefunded"));
+                          else toast.error(res?.error?.data?.message || t("common.failed"));
                         }}
                         disabled={isRefunding}
                       >
@@ -559,10 +483,8 @@ const OrdersPage = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 dark:text-rose-400"
-                        onClick={() =>
-                          setDeleteModal({ isOpen: true, order: o })
-                        }
+                        className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
+                        onClick={() => setDeleteModal({ isOpen: true, order: o })}
                         disabled={isDeleting}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -578,30 +500,10 @@ const OrdersPage = () => {
           );
         })(),
       })),
-    [
-      filteredOrders,
-      processOrder,
-      deliverOrder,
-      shipOrder,
-      cancelOrder,
-      refundOrder,
-      deleteOrder,
-      isProcessing,
-      isDelivering,
-      isShipping,
-      isCancelling,
-      isRefunding,
-      isDeleting,
-      copyToClipboard,
-      t,
-      navigate,
-      authUser,
-      isRecordingPartial
-    ],
+    [filteredOrders, processOrder, deliverOrder, shipOrder, cancelOrder, refundOrder, deleteOrder, isProcessing, isDelivering, isShipping, isCancelling, isRefunding, isDeleting, isRecordingPartial, copyToClipboard, t, navigate, authUser]
   );
 
-  const getRowClassName = (item) =>
-    getRowClassNameByStatus({ status: item?._rawStatus });
+  const getRowClassName = (item) => getRowClassNameByStatus({ status: item?._rawStatus });
 
   const handleProcess = async () => {
     if (!processModal.order) return;
@@ -698,172 +600,65 @@ const OrdersPage = () => {
   };
 
   const statsCards = [
-    {
-      title: t("orders.statsTotal"),
-      value: stats.total ?? 0,
-      icon: ShoppingBag,
-      tone: "default",
-    },
-    {
-      title: t("orders.statsPending"),
-      value: stats.pending ?? 0,
-      icon: Hourglass,
-      tone: "blue",
-    },
-    {
-      title: t("orders.statsProcessing"),
-      value: stats.processing ?? 0,
-      icon: Loader2,
-      tone: "blue",
-    },
-    {
-      title: t("orders.statsShipped"),
-      value: stats.shipped ?? 0,
-      icon: Truck,
-      tone: "blue",
-    },
-    {
-      title: t("orders.statsDelivered"),
-      value: stats.delivered ?? 0,
-      icon: CheckSquare,
-      tone: "green",
-    },
-    {
-      title: t("orders.statsRevenue"),
-      value: `৳${formatAmount(stats.totalRevenue)}`,
-      icon: Banknote,
-      tone: "green",
-    },
-    {
-      title: t("orders.statsUnpaid"),
-      value: stats.unpaidCount ?? 0,
-      icon: CreditCard,
-      tone: "red",
-    },
+    { title: t("orders.statsTotal"), value: stats.total ?? 0, icon: Package, tone: "default" },
+    { title: t("orders.statsPending"), value: stats.pending ?? 0, icon: Clock, tone: "blue" },
+    { title: t("orders.statsProcessing"), value: stats.processing ?? 0, icon: ClipboardCheck, tone: "blue" },
+    { title: t("orders.statsShipped"), value: stats.shipped ?? 0, icon: Truck, tone: "blue" },
+    { title: t("orders.statsDelivered"), value: stats.delivered ?? 0, icon: CheckCircle, tone: "green" },
+    { title: t("orders.statsRevenue"), value: `৳${formatAmount(stats.totalRevenue)}`, icon: DollarSign, tone: "green" },
+    { title: t("orders.statsUnpaid"), value: stats.unpaidCount ?? 0, icon: CreditCard, tone: "red" },
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50/50 dark:from-[#0b0f14] dark:via-[#11161d] dark:to-[#0b0f14] p-6 lg:p-8 rounded-3xl">
-      {/* Header Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] rounded-3xl shadow-2xl dark:shadow-black/50 mb-8 border border-white/10">
-        {/* Animated background pattern */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.1),transparent)]" />
-        </div>
-
-        <div className="relative px-8 py-10 lg:px-12 lg:py-14">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20 shadow-inner">
-                  <ShoppingBag className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-3xl lg:text-4xl font-bold text-white tracking-tight">
-                    {t("orders.title")}
-                  </h1>
-                  <p className="text-white/70 text-sm lg:text-base font-medium mt-1">
-                    {t("orders.managementDesc")}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => navigate("/orders/track")}
-                className="bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white backdrop-blur-sm"
-              >
-                <MapPin className="h-4 w-4 mr-2" />
-                {t("orders.trackOrder")}
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => setBarcodeScanModal({ isOpen: true, value: "" })}
-                className="bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white backdrop-blur-sm"
-              >
-                <ScanBarcode className="h-4 w-4 mr-2" />
-                {t("orders.scanBarcode")}
-              </Button>
-              <Button
-                size="lg"
-                onClick={() => navigate("/orders/create")}
-                className="bg-white text-gray-900 hover:bg-gray-100 font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all border-none"
-              >
-                <Package className="mr-2 h-4 w-4" />
-                {t("orders.createOrder")}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-8">
+    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-6">
         {statsCards.map((s, i) => (
-          <StatCard
-            key={i}
-            title={s.title}
-            value={s.value}
-            icon={s.icon}
-            tone={s.tone}
-          />
+          <StatCard key={i} title={s.title} value={s.value} icon={s.icon} tone={s.tone} />
         ))}
       </div>
 
-      {/* Main Content Glass Container */}
-      <div className="relative backdrop-blur-2xl bg-white/40 dark:bg-gray-900/40 rounded-3xl shadow-lg border border-white/50 dark:border-white/20 overflow-hidden group hover:shadow-xl transition-all duration-500">
-        {/* Gradient background orbs */}
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
-        <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-gradient-to-tr from-purple-400 to-pink-600 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
-
-        {/* Glass overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/10 dark:to-transparent pointer-events-none opacity-60" />
-
-        <div className="relative p-6 lg:p-8">
-          {/* Filters */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="w-full md:w-64">
-              <Dropdown
-                name={t("orders.filterByStatus")}
-                options={statusFilterOptions}
-                setSelectedOption={setStatusFilter}
-              >
-                {statusFilter?.label ?? t("orders.filterAllStatus")}
-              </Dropdown>
-            </div>
-            <div className="w-full md:w-64">
-              <Dropdown
-                name={t("orders.filterByPayment")}
-                options={paymentFilterOptions}
-                setSelectedOption={setPaymentFilter}
-              >
-                {paymentFilter?.label ?? t("orders.filterAllPayment")}
-              </Dropdown>
-            </div>
-          </div>
-
-          <ReusableTable
-            data={tableData}
-            headers={headers}
-            total={filteredOrders.length}
-            isLoading={isLoading}
-            py="py-3"
-            getRowClassName={getRowClassName}
-          />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+        <h2 className="text-xl font-semibold">{t("orders.title")}</h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <Dropdown
+            name={t("orders.filterByStatus")}
+            options={statusFilterOptions}
+            setSelectedOption={setStatusFilter}
+          >
+            {statusFilter?.label ?? t("orders.filterAllStatus")}
+          </Dropdown>
+          <Dropdown
+            name={t("orders.filterByPayment")}
+            options={paymentFilterOptions}
+            setSelectedOption={setPaymentFilter}
+          >
+            {paymentFilter?.label ?? t("orders.filterAllPayment")}
+          </Dropdown>
+          <Button size="sm" variant="outline" onClick={() => navigate("/orders/track")}>
+            <MapPin className="h-4 w-4 mr-2" />
+            {t("orders.trackOrder")}
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setBarcodeScanModal({ isOpen: true, value: "" })}>
+            <ScanBarcode className="h-4 w-4 mr-2" />
+            {t("orders.scanBarcode")}
+          </Button>
+          <Button size="sm" onClick={() => navigate("/orders/create")}>
+            {t("orders.createOrder")}
+          </Button>
         </div>
       </div>
+      <ReusableTable
+        data={tableData}
+        headers={headers}
+        total={filteredOrders.length}
+        isLoading={isLoading}
+        py="py-2"
+        getRowClassName={getRowClassName}
+      />
 
       {/* Process Confirmation Modal */}
-      <Dialog
-        open={processModal.isOpen}
-        onOpenChange={(open) =>
-          !open && setProcessModal({ isOpen: false, order: null })
-        }
-      >
+      <Dialog open={processModal.isOpen} onOpenChange={(open) => !open && setProcessModal({ isOpen: false, order: null })}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>{t("orders.markProcessing")}</DialogTitle>
@@ -872,21 +667,11 @@ const OrdersPage = () => {
             </p>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              variant="ghost"
-              onClick={() => setProcessModal({ isOpen: false, order: null })}
-              disabled={isProcessing}
-            >
+            <Button variant="ghost" onClick={() => setProcessModal({ isOpen: false, order: null })} disabled={isProcessing}>
               {t("common.cancel")}
             </Button>
-            <Button
-              onClick={handleProcess}
-              disabled={isProcessing}
-              className="bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white hover:from-black hover:to-gray-900 dark:from-white dark:via-gray-200 dark:to-white dark:text-black dark:hover:from-gray-100 dark:hover:to-gray-200"
-            >
-              {isProcessing
-                ? t("common.processing")
-                : t("orders.markProcessing")}
+            <Button onClick={handleProcess} disabled={isProcessing} className="bg-purple-500 hover:bg-purple-600 text-white">
+              {isProcessing ? t("common.processing") : t("orders.markProcessing")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -915,26 +700,20 @@ const OrdersPage = () => {
       >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>
-              {t("orders.markShipped")} - Order #{shipModal.order?.id}
-            </DialogTitle>
+            <DialogTitle>{t("orders.markShipped")} - Order #{shipModal.order?.id}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <TextField
               label={t("orders.trackingId")}
               placeholder={t("orders.trackingId")}
               value={shipForm.trackingId}
-              onChange={(e) =>
-                setShipForm((prev) => ({ ...prev, trackingId: e.target.value }))
-              }
+              onChange={(e) => setShipForm((prev) => ({ ...prev, trackingId: e.target.value }))}
             />
             <TextField
               label={t("orders.shippingProvider")}
               placeholder={t("orders.providerPlaceholder")}
               value={shipForm.provider}
-              onChange={(e) =>
-                setShipForm((prev) => ({ ...prev, provider: e.target.value }))
-              }
+              onChange={(e) => setShipForm((prev) => ({ ...prev, provider: e.target.value }))}
             />
           </div>
           <DialogFooter>
@@ -948,11 +727,7 @@ const OrdersPage = () => {
             >
               {t("common.cancel")}
             </Button>
-            <Button
-              onClick={handleShip}
-              disabled={isShipping}
-              className="bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white hover:from-black hover:to-gray-900 dark:from-white dark:via-gray-200 dark:to-white dark:text-black dark:hover:from-gray-100 dark:hover:to-gray-200"
-            >
+            <Button onClick={handleShip} disabled={isShipping} className="bg-orange-500 hover:bg-orange-600 text-white">
               {isShipping ? t("common.processing") : t("orders.markShipped")}
             </Button>
           </DialogFooter>
@@ -962,9 +737,7 @@ const OrdersPage = () => {
       {/* Barcode Scan Modal */}
       <Dialog
         open={barcodeScanModal.isOpen}
-        onOpenChange={(open) =>
-          !open && setBarcodeScanModal({ isOpen: false, value: "" })
-        }
+        onOpenChange={(open) => !open && setBarcodeScanModal({ isOpen: false, value: "" })}
       >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -978,20 +751,11 @@ const OrdersPage = () => {
               label={t("orders.trackingId")}
               placeholder={t("orders.enterTrackingId")}
               value={barcodeScanModal.value}
-              onChange={(e) =>
-                setBarcodeScanModal((prev) => ({
-                  ...prev,
-                  value: e.target.value,
-                }))
-              }
+              onChange={(e) => setBarcodeScanModal((prev) => ({ ...prev, value: e.target.value }))}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  const val = (
-                    e.target?.value ||
-                    barcodeScanModal.value ||
-                    ""
-                  ).trim();
+                  const val = (e.target?.value || barcodeScanModal.value || "").trim();
                   if (val) {
                     barcodeScan({ body: { trackingId: val } })
                       .unwrap()
@@ -999,9 +763,7 @@ const OrdersPage = () => {
                         toast.success(t("orders.barcodeScanRecorded"));
                         setBarcodeScanModal({ isOpen: false, value: "" });
                       })
-                      .catch((err) =>
-                        toast.error(err?.data?.message || t("common.failed")),
-                      );
+                      .catch((err) => toast.error(err?.data?.message || t("common.failed")));
                   }
                 }
               }}
@@ -1032,11 +794,9 @@ const OrdersPage = () => {
                 }
               }}
               disabled={isBarcodeScanning}
-              className="bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white hover:from-black hover:to-gray-900 dark:from-white dark:via-gray-200 dark:to-white dark:text-black dark:hover:from-gray-100 dark:hover:to-gray-200"
+              className="bg-slate-500 hover:bg-slate-600 text-white"
             >
-              {isBarcodeScanning
-                ? t("common.processing")
-                : t("orders.recordScan")}
+              {isBarcodeScanning ? t("common.processing") : t("orders.recordScan")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1054,34 +814,25 @@ const OrdersPage = () => {
       >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>
-              {t("orders.markDelivered")} - Order #{deliverModal.order?.id}
-            </DialogTitle>
+            <DialogTitle>{t("orders.markDelivered")} - Order #{deliverModal.order?.id}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <TextField
               label={t("orders.note")}
               placeholder={t("orders.notePlaceholder")}
               value={deliverForm.comment}
-              onChange={(e) =>
-                setDeliverForm((prev) => ({ ...prev, comment: e.target.value }))
-              }
+              onChange={(e) => setDeliverForm((prev) => ({ ...prev, comment: e.target.value }))}
               multiline
               rows={3}
             />
             <div className="flex items-center justify-between rounded-lg border border-black/10 dark:border-white/10 p-4">
-              <label
-                htmlFor="markAsPaid"
-                className="text-sm font-medium cursor-pointer"
-              >
+              <label htmlFor="markAsPaid" className="text-sm font-medium cursor-pointer">
                 {t("orders.markPaid")}
               </label>
               <Switch
                 id="markAsPaid"
                 checked={deliverForm.markAsPaid}
-                onCheckedChange={(checked) =>
-                  setDeliverForm((prev) => ({ ...prev, markAsPaid: checked }))
-                }
+                onCheckedChange={(checked) => setDeliverForm((prev) => ({ ...prev, markAsPaid: checked }))}
               />
             </div>
           </div>
@@ -1096,14 +847,8 @@ const OrdersPage = () => {
             >
               {t("common.cancel")}
             </Button>
-            <Button
-              onClick={handleDeliver}
-              disabled={isDelivering}
-              className="bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white hover:from-black hover:to-gray-900 dark:from-white dark:via-gray-200 dark:to-white dark:text-black dark:hover:from-gray-100 dark:hover:to-gray-200"
-            >
-              {isDelivering
-                ? t("common.processing")
-                : t("orders.markDelivered")}
+            <Button onClick={handleDeliver} disabled={isDelivering} className="bg-blue-500 hover:bg-blue-600 text-white">
+              {isDelivering ? t("common.processing") : t("orders.markDelivered")}
             </Button>
           </DialogFooter>
         </DialogContent>
