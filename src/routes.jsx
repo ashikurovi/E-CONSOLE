@@ -93,6 +93,7 @@ import UpgradePlanPage from "./pages/upgrade-plan";
 import NotificationsPage from "./pages/notifications";
 import StatisticsPage from "./pages/statistics";
 import ConnectedAppsPage from "./pages/connected-apps";
+import BannersOffersPage from "./pages/marketing/banners-offers";
 
 export const routes = createBrowserRouter([
   {
@@ -126,6 +127,10 @@ export const routes = createBrowserRouter([
       {
         path: "/connected-apps",
         element: <ConnectedAppsPage />,
+      },
+      {
+        path: "/banners-offers",
+        element: <BannersOffersPage />,
       },
       {
         path: "/categories",
