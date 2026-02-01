@@ -126,7 +126,7 @@ const InvoicesPage = () => {
     }
 
     return data;
-  }, [orders, searchTerm, statusFilter]);
+  }, [saleInvoicesData, searchTerm, statusFilter]);
 
   // Pagination
   const paginatedData = useMemo(() => {
@@ -138,7 +138,7 @@ const InvoicesPage = () => {
   const formatCurrency = (amt) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BDT' }).format(amt);
 
   // Status Stats Calculation (Mocked from list or API stats if detailed enough)
-  const totalAmount = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+  const totalAmount = saleInvoicesData.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
   const paidAmount = processedData.filter(i => i.status === 'Paid').reduce((sum, i) => sum + i.paid, 0);
   const pendingAmount = processedData.filter(i => i.status === 'Pending').reduce((sum, i) => sum + i.amount, 0);
   const overdueAmount = processedData.filter(i => i.status === 'Overdue').reduce((sum, i) => sum + i.amount, 0); // Mock logic for overdue
