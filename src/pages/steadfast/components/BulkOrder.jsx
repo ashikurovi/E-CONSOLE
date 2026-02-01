@@ -32,7 +32,7 @@ const BulkOrder = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!ordersJson.trim()) {
       toast.error(t("steadfast.provideOrdersData"));
       return;
@@ -40,7 +40,7 @@ const BulkOrder = () => {
 
     try {
       const orders = JSON.parse(ordersJson);
-      
+
       if (!Array.isArray(orders)) {
         toast.error(t("steadfast.ordersMustBeArray"));
         return;
@@ -58,36 +58,42 @@ const BulkOrder = () => {
           !order.recipient_name ||
           !order.recipient_phone ||
           !order.recipient_address ||
-          order.cod_amount === undefined
+          order.cod_amount === undefined,
       );
 
       if (invalidOrders.length > 0) {
-        toast.error(t("steadfast.ordersMissingFields", { count: invalidOrders.length }));
+        toast.error(
+          t("steadfast.ordersMissingFields", { count: invalidOrders.length }),
+        );
         return;
       }
 
       const result = await createBulkOrders(orders).unwrap();
       setResults(result);
-      
+
       const successCount = result.filter((r) => r.status === "success").length;
       const errorCount = result.filter((r) => r.status === "error").length;
-      
+
       toast.success(
-        t("steadfast.bulkOrderSuccess", { success: successCount, failed: errorCount })
+        t("steadfast.bulkOrderSuccess", {
+          success: successCount,
+          failed: errorCount,
+        }),
       );
     } catch (error) {
-      const errorMessage = error?.data?.message || t("steadfast.bulkOrderFailed");
+      const errorMessage =
+        error?.data?.message || t("steadfast.bulkOrderFailed");
       const errorDetails = error?.data?.details;
-      
+
       if (error?.status === 429) {
         toast.error(
           `${errorMessage}${errorDetails ? ` - ${errorDetails}` : ""}`,
-          { duration: 6000 }
+          { duration: 6000 },
         );
       } else if (error?.status === 401) {
         toast.error(
           `${errorMessage}${errorDetails ? ` - ${errorDetails}` : ""}`,
-          { duration: 6000 }
+          { duration: 6000 },
         );
       } else {
         toast.error(errorMessage);
@@ -123,15 +129,17 @@ const BulkOrder = () => {
 
   return (
     <div className="max-w-4xl">
-      <h3 className="text-lg font-semibold mb-4">{t("steadfast.bulkOrderCreate")}</h3>
+      <h3 className="text-lg font-semibold mb-4">
+        {t("steadfast.bulkOrderCreate")}
+      </h3>
       <p className="text-sm text-black/60 dark:text-white/60 mb-4">
         {t("steadfast.bulkOrderDesc")}
       </p>
 
-      <div className="flex gap-4 mb-4">
-        <label className="flex items-center gap-2 px-4 py-2 bg-black/5 dark:bg-white/5 rounded-lg cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
+      <div className="flex gap-4 mb-6">
+        <label className="flex items-center gap-2 px-6 py-2.5 bg-white/50 dark:bg-white/10 backdrop-blur-md border border-black/5 dark:border-white/10 rounded-lg cursor-pointer hover:bg-white/80 dark:hover:bg-white/20 transition-all duration-300 shadow-sm">
           <Upload className="h-4 w-4" />
-          <span>{t("steadfast.uploadJsonFile")}</span>
+          <span className="font-medium">{t("steadfast.uploadJsonFile")}</span>
           <input
             type="file"
             accept=".json"
@@ -141,10 +149,10 @@ const BulkOrder = () => {
         </label>
         <button
           onClick={downloadTemplate}
-          className="flex items-center gap-2 px-4 py-2 bg-black/5 dark:bg-white/5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+          className="flex items-center gap-2 px-6 py-2.5 bg-white/50 dark:bg-white/10 backdrop-blur-md border border-black/5 dark:border-white/10 rounded-lg hover:bg-white/80 dark:hover:bg-white/20 transition-all duration-300 shadow-sm"
         >
           <Download className="h-4 w-4" />
-          <span>{t("steadfast.downloadTemplate")}</span>
+          <span className="font-medium">{t("steadfast.downloadTemplate")}</span>
         </button>
       </div>
 
@@ -157,19 +165,25 @@ const BulkOrder = () => {
             value={ordersJson}
             onChange={(e) => setOrdersJson(e.target.value)}
             placeholder='[{"invoice": "INV-001", "recipient_name": "John Doe", "recipient_phone": "01711111111", "recipient_address": "Address", "cod_amount": "1000.00"}]'
-            className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded min-h-[300px] font-mono text-sm"
+            className="border border-black/10 dark:border-white/10 py-4 px-6 bg-white/50 dark:bg-white/5 w-full outline-none focus:border-black/20 dark:focus:border-white/30 dark:text-white/90 rounded-xl min-h-[300px] font-mono text-sm backdrop-blur-md shadow-inner transition-all duration-300"
             rows={15}
           />
         </div>
-        <PrimaryButton type="submit" isLoading={isLoading}>
+        <PrimaryButton
+          type="submit"
+          isLoading={isLoading}
+          className="px-8 py-2.5 !bg-black/80 dark:!bg-white/90 !text-white dark:!text-black backdrop-blur-md shadow-lg border border-white/20 hover:!bg-black dark:hover:!bg-white transition-all duration-300"
+        >
           {t("steadfast.createBulkOrders")}
         </PrimaryButton>
       </form>
 
       {results && (
         <div className="mt-6">
-          <h4 className="text-md font-semibold mb-2">{t("steadfast.results")}</h4>
-          <div className="max-h-96 overflow-y-auto border border-gray-100 dark:border-gray-800 rounded-lg p-4">
+          <h4 className="text-md font-semibold mb-2">
+            {t("steadfast.results")}
+          </h4>
+          <div className="max-h-96 overflow-y-auto border border-black/10 dark:border-white/10 rounded-xl p-6 bg-white/50 dark:bg-white/5 backdrop-blur-md shadow-inner">
             <pre className="text-xs font-mono overflow-x-auto">
               {JSON.stringify(results, null, 2)}
             </pre>
