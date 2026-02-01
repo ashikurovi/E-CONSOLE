@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { DollarSign, ShoppingCart, Users, Package, Calendar } from "lucide-react";
@@ -106,39 +107,19 @@ const DashboardPage = () => {
   // MAIN RENDER
   // ==========================================
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      
-      {/* 
-        SECTION 1: HEADER
-        Welcome message and date picker/actions 
-      */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {t("dashboard.welcomeBack", { name: userName })}
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {t("dashboard.storeOverview")}
-          </p>
-        </div>
-        
-        {/* Date Filter / Action Button */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-[#1a1f26] border border-gray-200 dark:border-gray-800 rounded-lg text-sm text-gray-600 dark:text-gray-300">
-            <Calendar className="w-4 h-4" />
-            <span>{t("dashboard.last7Days")}</span>
-          </div>
-          <button className="px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
-             {t("common.downloadReport")}
-          </button>
-        </div>
+    <div className="space-y-6 lg:space-y-8 animate-in fade-in duration-500">
+      {/* Welcome Section */}
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+          {t("dashboard.welcome", { name: userName })}
+        </h1>
+        <p className="text-gray-500 dark:text-gray-400">
+          {t("dashboard.overview_subtitle")}
+        </p>
       </div>
 
-      {/* 
-        SECTION 2: KPI STATS
-        Grid of status cards showing high-level metrics
-      */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         {statsWithIcons.map((s, i) => (
           <StatCard 
             key={i} 
@@ -151,129 +132,124 @@ const DashboardPage = () => {
         ))}
       </div>
 
-      {/* 
-        SECTION 3: CHARTS & ANALYTICS
-        Main chart taking 2/3 width, side panel taking 1/3
-      */}
+      {/* Charts Section */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        
-        {/* Main Revenue Chart */}
-        <div className="xl:col-span-2 rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800/50 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t("dashboard.incomeGrowth")}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Revenue over time</p>
-            </div>
-          </div>
-          <div className="h-[300px] w-full">
+        {/* Revenue Chart */}
+        <div className="xl:col-span-2 bg-white dark:bg-zinc-900/50 border border-gray-100 dark:border-white/5 rounded-xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+            {t("dashboard.revenue_analytics")}
+          </h3>
+          <div className="h-[350px] w-full">
             <LineChartComponent chartData={lineChartData} chartConfig={lineChartConfig} />
           </div>
         </div>
 
-        {/* Payment/Order Breakdown Radial Chart */}
-        <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800/50 p-6 shadow-sm flex flex-col">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{t("dashboard.paymentsBreakdown")}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Order payment status distribution</p>
-          
-          <div className="flex-1 flex items-center justify-center">
-            <RadialChartComponent
-              chartData={radialChartData}
-              chartConfig={radialChartConfig}
-              total={`${paidPercentage}%`}
-              name={t("dashboard.paidOrders")}
-              className="w-full max-w-[250px]"
-            />
-          </div>
-          
-          <div className="mt-6 grid grid-cols-2 gap-4">
-            <div className="text-center p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
-              <span className="text-xs text-gray-500 uppercase">Paid</span>
-              <p className="font-semibold text-lg">{radialChartData[0]?.paid || 0}%</p>
-            </div>
-            <div className="text-center p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
-              <span className="text-xs text-gray-500 uppercase">Unpaid</span>
-              <p className="font-semibold text-lg">{radialChartData[0]?.unpaid || 0}%</p>
-            </div>
+        {/* Order Status Chart */}
+        <div className="bg-white dark:bg-zinc-900/50 border border-gray-100 dark:border-white/5 rounded-xl p-6 shadow-sm flex flex-col">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+            {t("dashboard.order_status")}
+          </h3>
+          <div className="flex-1 min-h-[300px] flex items-center justify-center">
+            <RadialChartComponent chartData={radialChartData} chartConfig={radialChartConfig} total={`${paidPercentage}%`} name={t("dashboard.paidOrders")} />
           </div>
         </div>
       </div>
 
-      {/* 
-        SECTION 4: DETAILED LISTS
-        Recent Orders Table and Top Products/Customers
-      */}
+      {/* Recent Orders & Top Lists */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        
-        {/* Recent Orders Table (Takes 2/3 width) */}
-        <div className="xl:col-span-2 rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800/50 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t("dashboard.recentOrders")}</h3>
-            <button className="text-xs font-medium px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-              {t("common.viewAll")}
-            </button>
+        {/* Recent Orders Table */}
+        <div className="xl:col-span-2 bg-white dark:bg-zinc-900/50 border border-gray-100 dark:border-white/5 rounded-xl shadow-sm overflow-hidden flex flex-col">
+          <div className="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {t("dashboard.recent_orders")}
+            </h3>
+            <Link 
+              to="/orders" 
+              className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+            >
+              {t("common.view_all")}
+            </Link>
           </div>
-          <ReusableTable 
-            data={recentOrders} 
-            headers={tableHeaders} 
-            total={recentOrders.length} 
-            isLoading={isLoading} 
-            py="py-3" 
-          />
+          <div className="overflow-x-auto">
+             <ReusableTable 
+                data={recentOrders} 
+                headers={tableHeaders} 
+                total={recentOrders.length} 
+                isLoading={isLoading} 
+                py="py-3" 
+              />
+          </div>
         </div>
 
-        {/* Side Lists (Takes 1/3 width) */}
-        <div className="flex flex-col gap-6">
-          
+        {/* Side Lists (Best Sellers & Top Customers) */}
+        <div className="space-y-6">
           {/* Best Selling Products */}
-          <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800/50 p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t("dashboard.mostSellingProducts")}</h3>
-            <ul className="space-y-4">
-              {bestSellers.slice(0, 5).map((p, idx) => (
-                <li key={idx} className="flex items-center justify-between group">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500">
-                      <Package size={18} />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">{p.name}</p>
-                      <p className="text-xs text-gray-500">ID: {p.id}</p>
-                    </div>
+          <div className="bg-white dark:bg-zinc-900/50 border border-gray-100 dark:border-white/5 rounded-xl shadow-sm overflow-hidden text-sm">
+            <div className="p-4 border-b border-gray-100 dark:border-white/5">
+              <h3 className="font-semibold text-gray-900 dark:text-white">
+                {t("dashboard.best_selling_products")}
+              </h3>
+            </div>
+            <div className="divide-y divide-gray-100 dark:divide-white/5">
+              {bestSellers.map((product, idx) => (
+                <div key={idx} className="p-4 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                  <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-400">
+                    <Package className="h-5 w-5" />
                   </div>
-                  <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-                    {p.sales}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 dark:text-white truncate">
+                      {product.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {product.sales} {t("common.sales")}
+                    </p>
+                  </div>
+                  <span className="font-semibold text-gray-900 dark:text-white">
+                    ${product.revenue?.toLocaleString() || "0"}
                   </span>
-                </li>
+                </div>
               ))}
               {bestSellers.length === 0 && (
-                 <li className="text-sm text-gray-500 text-center py-4">No data available</li>
+                <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                  {t("common.no_data")}
+                </div>
               )}
-            </ul>
+            </div>
           </div>
 
           {/* Top Customers */}
-          <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800/50 p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t("dashboard.weeklyTopCustomers")}</h3>
-            <ul className="space-y-4">
-              {topCustomers.slice(0, 5).map((c, idx) => (
-                <li key={idx} className="flex items-center justify-between group">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-xs">
-                      {c.name.substring(0, 2).toUpperCase()}
-                    </div>
-                    <p className="font-medium text-sm text-gray-900 dark:text-white">{c.name}</p>
+          <div className="bg-white dark:bg-zinc-900/50 border border-gray-100 dark:border-white/5 rounded-xl shadow-sm overflow-hidden text-sm">
+            <div className="p-4 border-b border-gray-100 dark:border-white/5">
+              <h3 className="font-semibold text-gray-900 dark:text-white">
+                {t("dashboard.top_customers")}
+              </h3>
+            </div>
+            <div className="divide-y divide-gray-100 dark:divide-white/5">
+               {topCustomers.map((customer, idx) => (
+                <div key={idx} className="p-4 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                  <div className="h-8 w-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 text-xs font-bold">
+                    {customer.name.charAt(0)}
                   </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-xs font-bold text-gray-900 dark:text-white">{c.orders} Orders</span>
-                    <span className="text-[10px] text-gray-400">Total</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 dark:text-white truncate">
+                      {customer.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {customer.orders} {t("common.orders")}
+                    </p>
                   </div>
-                </li>
+                  <span className="font-semibold text-gray-900 dark:text-white">
+                    ${customer.totalSpent?.toLocaleString() || "0"}
+                  </span>
+                </div>
               ))}
                {topCustomers.length === 0 && (
-                 <li className="text-sm text-gray-500 text-center py-4">No data available</li>
+                <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                  {t("common.no_data")}
+                </div>
               )}
-            </ul>
+            </div>
           </div>
-
         </div>
       </div>
     </div>

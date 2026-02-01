@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
 
 /**
@@ -53,7 +53,7 @@ const StatCard = ({ title, value, delta, icon: Icon, tone = "default" }) => {
   const TrendIcon = isPositive ? ArrowUp : isNegative ? ArrowDown : Minus;
 
   return (
-    <Card className="border-none shadow-sm hover:shadow-md transition-shadow duration-200 bg-white dark:bg-[#1a1f26] overflow-hidden group">
+    <Card className="border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-200 bg-white dark:bg-zinc-900/50 overflow-hidden group">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
           {/* Icon with rounded background */}

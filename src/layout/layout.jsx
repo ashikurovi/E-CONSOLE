@@ -1,4 +1,3 @@
-import Footer from "@/components/footer/footer";
 import TopNavbar from "@/components/navbar/TopNavbar";
 import React from "react";
 import { Outlet } from "react-router-dom";
@@ -13,7 +12,7 @@ const Layout = () => {
   const { isSearching } = useSearch();
 
   // Fetch user data at layout level so it's cached and available to all child components
-  const { data: user, isLoading } = useGetCurrentUserQuery();
+  const { data: user } = useGetCurrentUserQuery();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
@@ -25,27 +24,28 @@ const Layout = () => {
   }, [user, dispatch]);
 
   return (
-    <main className="w-full min-h-screen dark:bg-black/90 bg-gray-100 dark:text-white/75 text-black/75 ">
-      <div className="w-full min-h-screen">
-        <div className="lg:px-0 px-0 min-h-screen">
-          <div className="lg:flex min-h-screen">
-            <SideNav
-              isMobileMenuOpen={isMobileMenuOpen}
-              setIsMobileMenuOpen={setIsMobileMenuOpen}
-            />
+    <main className="min-h-screen w-full bg-gray-50 dark:bg-[#09090b] text-slate-900 dark:text-slate-50 flex transition-colors duration-300">
+      {/* Sidebar - Fixed on detailed, hidden on mobile */}
+      <SideNav
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+      />
 
-            <div className="flex-1 min-w-0 flex flex-col">
-              <div className="fixed lg:sticky top-0 left-0 z-40 w-full">
-                <TopNavbar setIsMobileMenuOpen={setIsMobileMenuOpen} />
-              </div>
-              {!isSearching && (
-                <div className="px-3 md:max-w-[1100px] lg:w-full xl:max-w-[1400px] 2xl:max-w-[1800px] pb-5 flex-1 pt-20 lg:pt-0">
-                  <Outlet />
-                </div>
-              )}
+      {/* Main Content Wrapper */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 ease-in-out">
+        {/* Top Navbar - Sticky */}
+        <div className="sticky top-0 z-40 w-full backdrop-blur-md bg-white/70 dark:bg-[#09090b]/80 border-b border-gray-200/50 dark:border-white/5 supports-[backdrop-filter]:bg-white/60">
+          <TopNavbar setIsMobileMenuOpen={setIsMobileMenuOpen} />
+        </div>
+
+        {/* Page Content */}
+        {!isSearching && (
+          <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden max-w-[1600px] w-full mx-auto">
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
+              <Outlet />
             </div>
           </div>
-        </div>
+        )}
       </div>
     </main>
   );

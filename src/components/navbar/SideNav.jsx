@@ -1,13 +1,9 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import React, { useState, useEffect, useMemo } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+
 import { useTranslation } from "react-i18next";
-import { userLoggedOut } from "@/features/auth/authSlice";
-import { apiSlice } from "@/features/api/apiSlice";
-import toast from "react-hot-toast";
 import { navSections } from "./data";
 import { hasPermission } from "@/constants/feature-permission";
-import SearchBar from "@/components/input/search-bar";
 import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
 import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
 
@@ -70,6 +66,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
  */
 function CollapsibleSection({ section, isCollapsed, t }) {
   const [isOpen, setIsOpen] = useState(true);
+  const location = useLocation();
 
   // Auto-expand if any child is active
   useEffect(() => {
@@ -84,25 +81,25 @@ function CollapsibleSection({ section, isCollapsed, t }) {
   };
 
   return (
-    <div className="mb-2">
+    <div className="mb-2 px-3">
       {/* Section Header */}
       {!isCollapsed && (
         <div
           onClick={toggleSection}
-          className="flex items-center justify-between px-4 py-2 cursor-pointer group hover:bg-white/5 rounded-lg transition-colors mb-1"
+          className="flex items-center justify-between px-3 py-2 cursor-pointer group rounded-lg hover:bg-zinc-800/50 transition-colors mb-1 select-none"
         >
-          <span className="text-xs font-bold tracking-wider text-gray-500 uppercase group-hover:text-gray-300 transition-colors">
+          <span className="text-[11px] font-bold tracking-widest text-zinc-500 uppercase group-hover:text-zinc-300 transition-colors">
             {section.tKey ? t(section.tKey) : section.title}
           </span>
           {isOpen ? (
             <ChevronDown
               size={14}
-              className="text-gray-500 group-hover:text-gray-300 transition-colors"
+              className="text-zinc-600 group-hover:text-zinc-300 transition-colors"
             />
           ) : (
             <ChevronRight
               size={14}
-              className="text-gray-500 group-hover:text-gray-300 transition-colors"
+              className="text-zinc-600 group-hover:text-zinc-300 transition-colors"
             />
           )}
         </div>
@@ -110,15 +107,15 @@ function CollapsibleSection({ section, isCollapsed, t }) {
 
       {/* Collapsed Sidebar Header (Tooltip-like or minimal) */}
       {isCollapsed && (
-        <div className="h-px bg-white/5 mx-4 my-2" title={section.title} />
+        <div className="h-px bg-white/5 mx-2 my-2" title={section.title} />
       )}
 
       {/* Items List */}
       <div
-        className={`flex flex-col gap-1 transition-all duration-300 ease-in-out overflow-hidden ${
+        className={`flex flex-col gap-0.5 transition-all duration-300 ease-in-out overflow-hidden ${
           !isCollapsed && !isOpen
             ? "max-h-0 opacity-0"
-            : "max-h-[500px] opacity-100"
+            : "max-h-[800px] opacity-100"
         }`}
       >
         {section.items.map((item, index) => (
@@ -149,27 +146,28 @@ function Item({ to, label, tKey, Icon, badge, isCollapsed, t }) {
       end
       title={isCollapsed ? label : ""}
       className={({ isActive }) =>
-        `group relative flex items-center gap-3 ${isCollapsed ? "px-0 justify-center h-10 w-10 mx-auto" : "px-4 py-3 mx-2"} rounded-xl transition-all duration-200 ease-in-out
+        `group relative flex items-center gap-3 ${isCollapsed ? "justify-center h-10 w-10 mx-auto" : "px-3 py-2 mx-0"} rounded-lg transition-all duration-200 border border-transparent
          ${
            isActive
-             ? "bg-white/10 text-white shadow-lg shadow-black/10"
-             : "text-gray-400 hover:bg-white/5 hover:text-white"
+             ? "bg-white/10 text-white shadow-sm border-white/5"
+             : "text-zinc-400 hover:bg-white/5 hover:text-white"
          }`
       }
     >
       {Icon && (
         <Icon
-          className={`flex-shrink-0 transition-colors duration-200 ${isCollapsed ? "w-5 h-5" : "w-5 h-5"}`}
+          strokeWidth={1.5}
+          className={`flex-shrink-0 transition-colors duration-200 ${isCollapsed ? "w-5 h-5" : "w-[18px] h-[18px]"}`}
         />
       )}
 
       {!isCollapsed && (
         <>
-          <span className="flex-1 text-sm font-medium tracking-wide truncate">
+          <span className="flex-1 text-[13px] font-medium tracking-wide truncate">
             {tKey ? t(tKey) : label}
           </span>
           {badge && (
-            <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-600 text-white shadow-sm shadow-blue-500/50">
+            <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-600/80 text-white shadow-sm">
               {badge}
             </span>
           )}
@@ -191,8 +189,6 @@ function Item({ to, label, tKey, Icon, badge, isCollapsed, t }) {
 export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
   const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   // Fetch user data
   const { data: user } = useGetCurrentUserQuery();
@@ -203,68 +199,9 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
   // Get filtered navigation based on permissions
   const nav = useMemo(() => getFilteredNav(user), [user]);
 
-  // Sidebar search state
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const searchContainerRef = useRef(null);
-
-  // Filter navigation items based on search term
-  const filteredNavItems = useMemo(() => {
-    if (!searchTerm || searchTerm.trim().length < 1) {
-      return [];
-    }
-
-    const searchLower = searchTerm.toLowerCase().trim();
-    const results = [];
-
-    nav.forEach((section) => {
-      section.items.forEach((item) => {
-        const labelMatch = item.label.toLowerCase().includes(searchLower);
-        if (labelMatch) {
-          results.push({
-            ...item,
-            sectionTitle: section.title,
-            sectionTKey: section.tKey,
-          });
-        }
-      });
-    });
-
-    return results;
-  }, [nav, searchTerm]);
-
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
-
-  // Handle search input change
-  const handleSearchChange = (value) => {
-    setSearchTerm(value);
-    if (value && value.trim().length >= 1) {
-      setShowSearchResults(true);
-    } else {
-      setShowSearchResults(false);
-    }
-  };
-
-  // Close search results when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target)
-      ) {
-        setShowSearchResults(false);
-      }
-    };
-
-    if (showSearchResults) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }
-  }, [showSearchResults]);
 
   return (
     <>
@@ -279,11 +216,11 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
       {/* Sidebar Container */}
       <aside
         className={`fixed inset-y-0 left-0 z-[100] lg:sticky lg:top-0 h-screen 
-        ${isCollapsed ? "w-20" : "w-[280px]"} 
+        ${isCollapsed ? "w-[72px]" : "w-[260px]"} 
         ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"} 
         bg-[#09090b]
-        text-gray-400 
-        border-r border-white/5 
+        text-zinc-400 
+        border-r border-zinc-800/50
         flex flex-col transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] shadow-2xl lg:shadow-none`}
       >
         {/* Header (Logo & Toggle) */}
@@ -350,66 +287,7 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
           )}
         </div>
 
-        {/* Search Bar */}
-        {!isCollapsed && (
-          <div className="px-5 py-6 relative" ref={searchContainerRef}>
-            <SearchBar
-              placeholder={t("nav.searchMenuItems")}
-              searchValue={searchTerm}
-              setSearhValue={handleSearchChange}
-              className="bg-white/5 text-gray-200 placeholder:text-gray-600 border-transparent focus:bg-white/10 transition-all duration-200"
-            />
 
-            {/* Real-time Search Results */}
-            {showSearchResults &&
-              searchTerm &&
-              searchTerm.trim().length >= 1 && (
-                <div className="absolute top-full left-5 right-5 mt-2 bg-[#1a1f26] border border-white/10 rounded-xl shadow-2xl z-50 max-h-[60vh] overflow-y-auto overflow-x-hidden">
-                  <div className="p-3">
-                    <div className="flex items-center justify-between mb-2 px-2">
-                      <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                        {t("nav.menuItems")} ({filteredNavItems.length})
-                      </h3>
-                    </div>
-
-                    {filteredNavItems.length > 0 ? (
-                      <div className="flex flex-col gap-1">
-                        {filteredNavItems.map((item, index) => (
-                          <Link
-                            key={index}
-                            to={item.to}
-                            onClick={() => {
-                              setSearchTerm("");
-                              setShowSearchResults(false);
-                              if (window.innerWidth < 1024)
-                                setIsMobileMenuOpen(false);
-                            }}
-                            className="flex items-center gap-3 px-3 py-2 hover:bg-white/5 rounded-lg group transition-colors"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-white transition-colors">
-                              {item.icon && <item.icon size={16} />}
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-300 group-hover:text-white">
-                                {item.label}
-                              </span>
-                              <span className="text-[10px] text-gray-500">
-                                {item.sectionTitle}
-                              </span>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="py-4 text-center text-gray-500 text-sm">
-                        {t("common.noResultsFound")}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-          </div>
-        )}
 
         {/* Navigation Items - Scrollable Area */}
         <div className="flex-1 overflow-y-auto custom-scrollbar py-2 px-2">
