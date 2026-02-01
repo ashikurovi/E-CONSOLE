@@ -69,9 +69,9 @@ const CreateInvoicePage = () => {
         items
       };
       
-      await createSaleInvoice(payload).unwrap();
+      const result = await createSaleInvoice(payload).unwrap();
       toast.success("Invoice created successfully");
-      navigate("/invoices");
+      navigate(`/invoices/${result.id}`);
     } catch (err) {
       toast.error(err?.data?.message || "Failed to create invoice");
     }
