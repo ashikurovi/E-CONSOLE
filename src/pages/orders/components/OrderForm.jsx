@@ -172,12 +172,9 @@ const OrderForm = () => {
       <DialogTrigger asChild>
         <Button size="sm">{t("orders.createOrder")}</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] backdrop-blur-2xl bg-white/90 dark:bg-gray-900/90 border border-white/50 dark:border-white/10 shadow-2xl rounded-2xl">
-        <DialogHeader className="border-b border-gray-200/50 dark:border-gray-700/50 pb-4">
-          <DialogTitle className="text-xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
-            <FileText className="h-5 w-5 text-black dark:text-white" />
-            {t("orders.createNewOrder")}
-          </DialogTitle>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>{t("orders.createOrder")}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit, (errors) => {
