@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import { 
@@ -12,6 +13,7 @@ import {
   Circle
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useGetStatisticsQuery } from "@/features/dashboard/dashboardApiSlice";
 
 /**
  * StatisticsPage Component
@@ -19,10 +21,15 @@ import { motion } from "framer-motion";
  */
 export default function StatisticsPage() {
   const { t } = useTranslation();
+  const authUser = useSelector((s) => s?.auth?.user);
+  const { data: statsData } = useGetStatisticsQuery(
+    { companyId: authUser?.companyId },
+    { skip: !authUser?.companyId }
+  );
 
-  const incomeData = [
-    { year: 2022, customers: "3,234", trend: "10%", revenue: "$124k", trendDir: "up" },
-    { year: 2023, customers: "12,345", trend: "35%", revenue: "$32k", trendDir: "up" },
+  const incomeData = statsData?.incomeData ?? [
+    { year: 2022, customers: "0", trend: "0%", revenue: "$0k", trendDir: "up" },
+    { year: new Date().getFullYear(), customers: "0", trend: "0%", revenue: "$0k", trendDir: "up" },
   ];
 
   const cityProgress = [
@@ -113,7 +120,11 @@ export default function StatisticsPage() {
                 </svg>
               </div>
               <div className="flex flex-col">
-                <span className="text-3xl font-black tracking-tight">$923k</span>
+                <span className="text-3xl font-black tracking-tight">
+                  ${statsData?.totalRevenue != null
+                    ? Number(statsData.totalRevenue).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    : "0.00"}
+                </span>
                 <span className="text-[11px] font-bold text-white/70 uppercase tracking-wider">Total Income</span>
               </div>
             </div>

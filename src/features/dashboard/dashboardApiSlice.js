@@ -40,6 +40,11 @@ export const dashboardApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res) => res?.data ?? {},
       providesTags: [{ type: "dashboard", id: "AI_SALES" }],
     }),
+    getStatistics: builder.query({
+      query: (params) => ({ url: "/dashboard/statistics", method: "GET", params }),
+      transformResponse: (res) => res?.data ?? {},
+      providesTags: [{ type: "dashboard", id: "STATISTICS" }],
+    }),
     suggestDescription: builder.mutation({
       query: ({ body, params }) => ({
         url: "/dashboard/ai-suggest-description",
@@ -59,6 +64,7 @@ export const {
   useGetAiReportQuery,
   useGetAiLiveMessagesQuery,
   useGetAiSalesDirectionQuery,
+  useGetStatisticsQuery,
   useSuggestDescriptionMutation,
   useTranslateReportMutation,
 } = dashboardApiSlice;

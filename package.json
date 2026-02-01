@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npx vite",
+    "build": "npx vite build",
     "build:prod": "vite build --mode prod",
     "lint": "eslint .",
     "preview": "vite preview --host --port ${PORT:-4173}"
