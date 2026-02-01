@@ -121,7 +121,9 @@ const PackageCreateForm = () => {
     };
 
     const onSubmit = async (data) => {
-        if (!features.length) {
+        // Filter to only valid features before submit
+        const validFeatures = features.filter((f) => AVAILABLE_FEATURES.includes(f));
+        if (!validFeatures.length) {
             toast.error("Select at least one feature");
             return;
         }
@@ -132,7 +134,7 @@ const PackageCreateForm = () => {
             price: parseFloat(data.price),
             discountPrice: data.discountPrice ? parseFloat(data.discountPrice) : null,
             isFeatured,
-            features,
+            features: validFeatures,
             ...(themeId && { themeId: parseInt(themeId) }),
         };
 
