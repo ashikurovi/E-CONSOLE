@@ -1,15 +1,15 @@
 import React, { useMemo } from "react";
 import ReusableTable from "@/components/table/reusable-table";
 import {
-    useGetHelpQuery,
-    useUpdateHelpMutation,
-} from "@/features/help/helpApiSlice";
+    useGetSuperadminHelpQuery,
+    useUpdateSuperadminHelpMutation,
+} from "@/features/superadmin/superadminApiSlice";
 import { useNavigate } from "react-router-dom";
 
 const SuperAdminSupportPage = () => {
     const navigate = useNavigate();
-    const { data: tickets = [], isLoading } = useGetHelpQuery();
-    const [updateHelp, { isLoading: isUpdating }] = useUpdateHelpMutation();
+    const { data: tickets = [], isLoading } = useGetSuperadminHelpQuery();
+    const [updateHelp, { isLoading: isUpdating }] = useUpdateSuperadminHelpMutation();
 
     const headers = useMemo(
         () => [
@@ -52,7 +52,7 @@ const SuperAdminSupportPage = () => {
                                 try {
                                     await updateHelp({
                                         id: t.id,
-                                        status: newStatus,
+                                        body: { status: newStatus },
                                     }).unwrap();
                                 } catch {
                                     // ignore; no toast here

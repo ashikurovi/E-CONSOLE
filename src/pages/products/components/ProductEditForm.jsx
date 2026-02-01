@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast from "react-hot-toast";
@@ -19,6 +19,7 @@ import {
 import { useUpdateProductMutation } from "@/features/product/productApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
 import FileUpload from "@/components/input/FileUpload";
+import DescriptionInputWithAI from "@/components/input/DescriptionInputWithAI";
 import { useSelector } from "react-redux";
 
 // Yup validation schema
@@ -74,7 +75,9 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
   const { user } = useSelector((state) => state.auth);
   const {
     register,
+    control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(productEditSchema),
@@ -229,14 +232,20 @@ export default function ProductEditForm({ product, categoryOptions = [] }) {
               name="name"
               error={errors.name?.message}
             />
-            <TextField 
-              label="Description"
-              placeholder="Enter product description"
-              register={register}
+            <Controller
               name="description"
-              multiline
-              rows={4}
-              error={errors.description?.message}
+              control={control}
+              render={({ field }) => (
+                <DescriptionInputWithAI
+                  {...field}
+                  label="Description"
+                  placeholder="Enter product description"
+                  rows={4}
+                  error={errors.description?.message}
+                  type="product"
+                  title={watch("name")}
+                />
+              )}
             />
           </div>
 

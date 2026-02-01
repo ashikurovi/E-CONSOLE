@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast from "react-hot-toast";
@@ -14,6 +14,7 @@ import { useCreateProductMutation } from "@/features/product/productApiSlice";
 import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
 import FileUpload from "@/components/input/FileUpload";
+import DescriptionInputWithAI from "@/components/input/DescriptionInputWithAI";
 import { useSelector } from "react-redux";
 
 // Yup validation schema
@@ -69,8 +70,10 @@ function CreateProductPage() {
   const [categoryOption, setCategoryOption] = useState(null);
   const {
     register,
+    control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(productSchema),
@@ -210,14 +213,20 @@ function CreateProductPage() {
             error={errors.name?.message}
           />
          
-          <TextField 
-            label={t("productForm.description")}
-            placeholder={t("productForm.descriptionPlaceholder")}
-            register={register}
+          <Controller
             name="description"
-            multiline
-            rows={4}
-            error={errors.description?.message}
+            control={control}
+            render={({ field }) => (
+              <DescriptionInputWithAI
+                {...field}
+                label={t("productForm.description")}
+                placeholder={t("productForm.descriptionPlaceholder")}
+                rows={4}
+                error={errors.description?.message}
+                type="product"
+                title={watch("name")}
+              />
+            )}
           />
         </div>
 

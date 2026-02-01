@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-
+import { useNotificationSound } from "@/hooks/useNotificationSound";
 
 // components
 import LanguageSwitcher from "@/components/language/LanguageSwitcher";
@@ -61,12 +61,15 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
     totalResults,
   } = useGlobalSearch(searchTerm, companyId);
 
-  // Fetch all types of notifications
+  // Fetch all types of notifications (poll every 30s for new notifications)
   const {
     data: allNotifications = [],
     isLoading: isLoadingAll,
     refetch: refetchAll,
-  } = useGetAllNotificationsQuery({ companyId }, { skip: !companyId });
+  } = useGetAllNotificationsQuery(
+    { companyId },
+    { skip: !companyId, refetchInterval: 30000 }
+  );
 
   const {
     data: orderNotifications = [],
@@ -280,6 +283,9 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
 
 
   const newNotificationCount = notifications.filter((n) => !n.read).length;
+
+  // Play sound when new unread notifications arrive
+  useNotificationSound(newNotificationCount, true);
 
   // Handle search input change - show results in real-time
   const handleSearchChange = (value) => {

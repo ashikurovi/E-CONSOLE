@@ -9,7 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Truck, Package, XCircle, RotateCcw, FileText, Trash2, ClipboardCheck, Eye, Clock, CheckCircle, DollarSign, CreditCard, MapPin, Copy, Printer, ScanBarcode } from "lucide-react";
+import { Truck, Package, XCircle, RotateCcw, FileText, Trash2, ClipboardCheck, Eye, Clock, CheckCircle, DollarSign, CreditCard, MapPin, Copy, Printer, ScanBarcode, Banknote } from "lucide-react";
 import {
   useGetOrdersQuery,
   useGetOrderStatsQuery,
@@ -20,6 +20,7 @@ import {
   useRefundOrderMutation,
   useDeleteOrderMutation,
   useBarcodeScanMutation,
+  useRecordPartialPaymentMutation,
 } from "@/features/order/orderApiSlice";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -51,6 +52,7 @@ const OrdersPage = () => {
   const [refundOrder, { isLoading: isRefunding }] = useRefundOrderMutation();
   const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
   const [barcodeScan, { isLoading: isBarcodeScanning }] = useBarcodeScanMutation();
+  const [recordPartialPayment, { isLoading: isRecordingPartial }] = useRecordPartialPaymentMutation();
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, order: null });
   const [processModal, setProcessModal] = useState({ isOpen: false, order: null });
   const [shipModal, setShipModal] = useState({ isOpen: false, order: null });
@@ -58,6 +60,8 @@ const OrdersPage = () => {
   const [deliverModal, setDeliverModal] = useState({ isOpen: false, order: null });
   const [deliverForm, setDeliverForm] = useState({ comment: "", markAsPaid: true });
   const [barcodeScanModal, setBarcodeScanModal] = useState({ isOpen: false, value: "" });
+  const [partialPaymentModal, setPartialPaymentModal] = useState({ isOpen: false, order: null });
+  const [partialPaymentForm, setPartialPaymentForm] = useState({ partialAmount: "", partialPaymentRef: "" });
   const [statusFilter, setStatusFilter] = useState(null);
   const [paymentFilter, setPaymentFilter] = useState(null);
 
@@ -256,6 +260,28 @@ const OrdersPage = () => {
                     <p>{t("orders.generateInvoice")}</p>
                   </TooltipContent>
                 </Tooltip>
+
+                {!isCancelled && !isRefunded && (Number(o.paidAmount ?? 0) < Number(o.totalAmount ?? 0)) && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                        onClick={() => {
+                          setPartialPaymentModal({ isOpen: true, order: o });
+                          setPartialPaymentForm({ partialAmount: "", partialPaymentRef: "" });
+                        }}
+                        disabled={isRecordingPartial}
+                      >
+                        <Banknote className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{t("orders.recordPayment") || "Partial Payment"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
 
                 {o.shippingTrackingId && (
                   <Tooltip>
@@ -474,7 +500,7 @@ const OrdersPage = () => {
           );
         })(),
       })),
-    [filteredOrders, processOrder, deliverOrder, shipOrder, cancelOrder, refundOrder, deleteOrder, isProcessing, isDelivering, isShipping, isCancelling, isRefunding, isDeleting, copyToClipboard, t, navigate, authUser]
+    [filteredOrders, processOrder, deliverOrder, shipOrder, cancelOrder, refundOrder, deleteOrder, isProcessing, isDelivering, isShipping, isCancelling, isRefunding, isDeleting, isRecordingPartial, copyToClipboard, t, navigate, authUser]
   );
 
   const getRowClassName = (item) => getRowClassNameByStatus({ status: item?._rawStatus });
@@ -534,6 +560,37 @@ const OrdersPage = () => {
       setShipForm({ trackingId: "", provider: "" });
     } else {
       toast.error(res?.error?.data?.message || t("common.failed"));
+    }
+  };
+
+  const handlePartialPayment = async () => {
+    if (!partialPaymentModal.order) return;
+    const amount = Number(partialPaymentForm.partialAmount);
+    if (!amount || amount <= 0) {
+      toast.error(t("orders.validation.amountRequired") || "Amount is required");
+      return;
+    }
+    const total = Number(partialPaymentModal.order.totalAmount ?? 0);
+    const paid = Number(partialPaymentModal.order.paidAmount ?? 0);
+    const remaining = total - paid;
+    if (amount > remaining) {
+      toast.error(t("orders.validation.amountExceedsRemaining") || "Amount exceeds remaining balance");
+      return;
+    }
+    const res = await recordPartialPayment({
+      id: partialPaymentModal.order.id,
+      body: {
+        amount,
+        paymentRef: partialPaymentForm.partialPaymentRef?.trim() || undefined,
+      },
+      params: { companyId: authUser?.companyId },
+    });
+    if (res?.data) {
+      toast.success(t("orders.partialPaymentRecorded"));
+      setPartialPaymentModal({ isOpen: false, order: null });
+      setPartialPaymentForm({ partialAmount: "", partialPaymentRef: "" });
+    } else {
+      toast.error(res?.error?.data?.message || t("orders.partialPaymentFailed"));
     }
   };
 
@@ -792,6 +849,68 @@ const OrdersPage = () => {
             </Button>
             <Button onClick={handleDeliver} disabled={isDelivering} className="bg-blue-500 hover:bg-blue-600 text-white">
               {isDelivering ? t("common.processing") : t("orders.markDelivered")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Partial Payment Modal */}
+      <Dialog
+        open={partialPaymentModal.isOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPartialPaymentModal({ isOpen: false, order: null });
+            setPartialPaymentForm({ partialAmount: "", partialPaymentRef: "" });
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{t("orders.recordPayment") || "Partial Payment"} - Order #{partialPaymentModal.order?.id}</DialogTitle>
+            <p className="text-sm text-black/60 dark:text-white/60 mt-1">
+              {partialPaymentModal.order && (
+                <>
+                  {t("orders.total")}: ${Number(partialPaymentModal.order.totalAmount ?? 0).toFixed(2)} |{" "}
+                  {t("orders.paid")}: ${Number(partialPaymentModal.order.paidAmount ?? 0).toFixed(2)} |{" "}
+                  {t("orders.remaining") || "Remaining"}: ${(Number(partialPaymentModal.order.totalAmount ?? 0) - Number(partialPaymentModal.order.paidAmount ?? 0)).toFixed(2)}
+                </>
+              )}
+            </p>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <TextField
+              label={t("orders.partialAmount") || "Amount"}
+              placeholder="0.00"
+              type="number"
+              step="0.01"
+              min="0"
+              value={partialPaymentForm.partialAmount}
+              onChange={(e) => setPartialPaymentForm((prev) => ({ ...prev, partialAmount: e.target.value }))}
+            />
+            <TextField
+              label={t("orders.paymentReference")}
+              placeholder={t("orders.paymentReference")}
+              value={partialPaymentForm.partialPaymentRef}
+              onChange={(e) => setPartialPaymentForm((prev) => ({ ...prev, partialPaymentRef: e.target.value }))}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setPartialPaymentModal({ isOpen: false, order: null });
+                setPartialPaymentForm({ partialAmount: "", partialPaymentRef: "" });
+              }}
+              disabled={isRecordingPartial}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              onClick={handlePartialPayment}
+              disabled={isRecordingPartial}
+              className="bg-emerald-500 hover:bg-emerald-600 text-white"
+            >
+              {isRecordingPartial ? t("common.processing") : (t("orders.recordPayment") || "Record Payment")}
             </Button>
           </DialogFooter>
         </DialogContent>

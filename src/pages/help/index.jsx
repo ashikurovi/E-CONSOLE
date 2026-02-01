@@ -17,6 +17,7 @@ function HelpPage() {
       { label: t("help.pending"), value: "pending" },
       { label: t("help.inProgress"), value: "in_progress" },
       { label: t("help.resolved"), value: "resolved" },
+      { label: t("help.closed"), value: "closed" },
     ],
     [t]
   );
@@ -30,23 +31,33 @@ function HelpPage() {
       { header: "Issue", field: "issue" },
       { header: "Status", field: "status" },
       { header: "Created", field: "createdAt" },
+      { header: t("common.actions") || "Actions", field: "actions", sortable: false },
     ],
-    []
+    [t]
   );
 
   const tableData = useMemo(
     () =>
-      tickets.map((t) => {
-        const currentStatus = STATUS_OPTIONS.find((s) => s.value === t.status) || STATUS_OPTIONS[0];
+      tickets.map((ticket) => {
+        const currentStatus = STATUS_OPTIONS.find((s) => s.value === ticket.status) || STATUS_OPTIONS[0];
         return {
-          id: t.id,
-          email: t.email,
-          issue: (t.issue?.length > 120 ? `${t.issue.slice(0, 120)}…` : t.issue) || "-",
+          id: ticket.id,
+          email: ticket.email,
+          issue: (ticket.issue?.length > 120 ? `${ticket.issue.slice(0, 120)}…` : ticket.issue) || "-",
           status: currentStatus?.label || t("help.pending"),
-          createdAt: t.createdAt ? new Date(t.createdAt).toLocaleString() : "-",
+          createdAt: ticket.createdAt ? new Date(ticket.createdAt).toLocaleString() : "-",
+          actions: (
+            <button
+              type="button"
+              onClick={() => navigate(`/help/${ticket.id}`)}
+              className="text-xs px-3 py-1 rounded border border-primary/30 hover:bg-primary/10 text-primary font-medium"
+            >
+              {t("help.viewReply") || "View / Reply"}
+            </button>
+          ),
         };
       }),
-    [tickets, t]
+    [tickets, t, navigate, STATUS_OPTIONS]
   );
 
   return (

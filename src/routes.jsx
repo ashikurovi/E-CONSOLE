@@ -21,6 +21,9 @@ import ResetPasswordPage from "./pages/auth/forgot-password/reset-password";
 import CheckResetPasswordEmailPage from "./pages/auth/forgot-password/check-email";
 import RegisterPage from "./pages/auth/register";
 import DashboardPage from "./pages/dashboard";
+import AiReportPage from "./pages/ai-report";
+import AiLiveFeedPage from "./pages/ai-live-feed";
+import AiSalesDirectionPage from "./pages/ai-sales-direction";
 import CategoriesPage from "./pages/categories";
 import CreateCategoryPage from "./pages/categories/create";
 import CategoryEditPage from "./pages/categories/_id/edit";
@@ -46,6 +49,9 @@ import CreatePromocodePage from "./pages/promocode/create";
 import PromocodeEditPage from "./pages/promocode/_id/edit";
 import HelpPage from "./pages/help";
 import CreateHelpPage from "./pages/help/create";
+import HelpDetailPage from "./pages/help/_id";
+import ReviewsPage from "./pages/reviews";
+import ReviewDetailPage from "./pages/reviews/_id";
 import SettingsPage from "./pages/settings"; // settings
 import ManageUsersPage from "./pages/manageuser"; // manage users
 import CreateUserPage from "./pages/manageuser/create";
@@ -90,6 +96,18 @@ export const routes = createBrowserRouter([
       {
         path: "/",
         element: <DashboardPage />,
+      },
+      {
+        path: "/ai-report",
+        element: <AiReportPage />,
+      },
+      {
+        path: "/ai-live-feed",
+        element: <AiLiveFeedPage />,
+      },
+      {
+        path: "/ai-sales-direction",
+        element: <AiSalesDirectionPage />,
       },
       {
         path: "/categories",
@@ -288,6 +306,30 @@ export const routes = createBrowserRouter([
         element: (
           <PermissionRoute permission={FeaturePermission.HELP}>
             <CreateHelpPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/help/:id",
+        element: (
+          <PermissionRoute permission={FeaturePermission.HELP}>
+            <HelpDetailPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/reviews",
+        element: (
+          <PermissionRoute permission={FeaturePermission.CUSTOMERS}>
+            <ReviewsPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/reviews/:id",
+        element: (
+          <PermissionRoute permission={FeaturePermission.CUSTOMERS}>
+            <ReviewDetailPage />
           </PermissionRoute>
         ),
       },
