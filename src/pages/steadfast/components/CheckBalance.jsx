@@ -12,7 +12,7 @@ const CheckBalance = () => {
     <div className="max-w-2xl">
       <h3 className="text-lg font-semibold mb-4">{t("steadfast.currentBalance")}</h3>
 
-      <div className="p-6 border border-gray-100 dark:border-gray-800 rounded-lg bg-black/5 dark:bg-white/5">
+      <div className="p-6 border border-black/10 dark:border-white/10 rounded-lg bg-white/50 dark:bg-white/5 backdrop-blur-md">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-green-500/10 rounded-lg">
@@ -32,10 +32,9 @@ const CheckBalance = () => {
           <PrimaryButton
             onClick={() => refetch()}
             isLoading={isLoading}
-            variant="outline"
-            className="px-4"
+            className="px-8 !bg-black/80 dark:!bg-white/90 !text-white dark:!text-black backdrop-blur-md shadow-lg border border-white/20 hover:!bg-black dark:hover:!bg-white transition-all duration-300 flex items-center justify-center gap-2"
           >
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <RefreshCw className="h-4 w-4" />
             {t("steadfast.refresh")}
           </PrimaryButton>
         </div>
