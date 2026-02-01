@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
-import { ShieldX, ShieldCheck, Trash2, Info } from "lucide-react";
+import { ShieldX, ShieldCheck, Trash2, Info, Eye } from "lucide-react";
 import Dropdown from "@/components/dropdown/dropdown";
 import {
   useGetUsersQuery,
@@ -136,6 +136,15 @@ const CustomersPage = () => {
         isBanned: u.isBanned ? t("orders.yes") : t("orders.no"),
         actions: (
           <div className="flex items-center  gap-2 justify-end">
+            <Button
+              variant="secondary"
+              size="icon"
+              className="bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:text-black dark:hover:bg-indigo-400"
+              onClick={() => navigate(`/customers/${u.id}`)}
+              title={t("common.view")}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
             {u.isBanned ? (
               <Button
                 variant="secondary"

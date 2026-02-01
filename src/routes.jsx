@@ -36,6 +36,7 @@ import InventoryPage from "./pages/inventory";
 import FlashSellPage from "./pages/flash-sell";
 import CustomersPage from "./pages/customers";
 import CreateCustomerPage from "./pages/customers/create";
+import CustomerDetailsPage from "./pages/customers/details";
 import OrdersPage from "./pages/orders";
 import CreateOrderPage from "./pages/orders/create";
 import OrderTrackPage from "./pages/orders/track";
@@ -231,6 +232,14 @@ export const routes = createBrowserRouter([
         element: (
           <PermissionRoute permission={FeaturePermission.CUSTOMERS}>
             <CreateCustomerPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/customers/:id",
+        element: (
+          <PermissionRoute permission={FeaturePermission.CUSTOMERS}>
+            <CustomerDetailsPage />
           </PermissionRoute>
         ),
       },
