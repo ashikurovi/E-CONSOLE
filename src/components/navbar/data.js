@@ -18,6 +18,7 @@ import {
   MessageSquare,
   Target,
   Star,
+  LayoutGrid,
 } from "lucide-react";
 import { FeaturePermission } from "@/constants/feature-permission";
 
@@ -210,6 +211,13 @@ export const navSections = [
         tKey: "nav.promocodes",
         link: "/promocodes",
         permission: FeaturePermission.SETTINGS,
+        icon: Megaphone,
+      },
+      {
+        id: 11.5,
+        title: "Banners & Offers",
+        tKey: "nav.bannersOffers",
+        link: "/banners-offers",
         icon: Megaphone,
       },
     ],
