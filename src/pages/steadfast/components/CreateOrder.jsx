@@ -199,7 +199,7 @@ const CreateOrder = () => {
       <h3 className="text-lg font-semibold mb-4">{t("steadfast.createNewOrder")}</h3>
       
       {/* Order Selection Dropdown */}
-      <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+      <div className="mb-6 p-4 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-200/50 dark:border-blue-800/50 rounded-lg backdrop-blur-sm">
         <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
           {t("steadfast.selectProcessingOrder")}
         </label>

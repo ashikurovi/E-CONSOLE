@@ -73,7 +73,9 @@ const DashboardPage = () => {
     paid: { label: t("dashboard.paid"), color: "#0FAD96" },
     unpaid: { label: t("dashboard.unpaid"), color: "#F2994A" },
   };
-  const radialChartData = dashboardData?.radialChartData || [{ paid: 0, unpaid: 0 }];
+  const radialChartData = dashboardData?.radialChartData || [
+    { paid: 0, unpaid: 0 },
+  ];
 
   const tableHeaders = [
     { header: t("nav.product"), field: "product" },
@@ -162,7 +164,10 @@ const DashboardPage = () => {
             {t("dashboard.revenue_analytics")}
           </h3>
           <div className="h-[350px] w-full">
-            <LineChartComponent chartData={lineChartData} chartConfig={lineChartConfig} />
+            <LineChartComponent
+              chartData={lineChartData}
+              chartConfig={lineChartConfig}
+            />
           </div>
         </div>
 

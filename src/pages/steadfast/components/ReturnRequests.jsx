@@ -22,7 +22,8 @@ const ReturnRequests = () => {
       : Array.isArray(data?.return_requests)
         ? data.return_requests
         : [];
-  const [createReturnRequest, { isLoading: isCreating }] = useCreateReturnRequestMutation();
+  const [createReturnRequest, { isLoading: isCreating }] =
+    useCreateReturnRequestMutation();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState({
     consignment_id: "",
@@ -32,14 +33,18 @@ const ReturnRequests = () => {
   });
   const [selectedRequestId, setSelectedRequestId] = useState(null);
 
-  const { data: selectedRequest } = useGetReturnRequestQuery(selectedRequestId, {
-    skip: !selectedRequestId,
-  });
+  const { data: selectedRequest } = useGetReturnRequestQuery(
+    selectedRequestId,
+    {
+      skip: !selectedRequestId,
+    },
+  );
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    
-    const identifier = formData.consignment_id || formData.invoice || formData.tracking_code;
+
+    const identifier =
+      formData.consignment_id || formData.invoice || formData.tracking_code;
     if (!identifier) {
       toast.error(t("steadfast.provideIdentifier"));
       return;
@@ -47,9 +52,13 @@ const ReturnRequests = () => {
 
     try {
       const body = {
-        ...(formData.consignment_id && { consignment_id: formData.consignment_id }),
+        ...(formData.consignment_id && {
+          consignment_id: formData.consignment_id,
+        }),
         ...(formData.invoice && { invoice: formData.invoice }),
-        ...(formData.tracking_code && { tracking_code: formData.tracking_code }),
+        ...(formData.tracking_code && {
+          tracking_code: formData.tracking_code,
+        }),
         ...(formData.reason && { reason: formData.reason }),
       };
 
@@ -64,18 +73,19 @@ const ReturnRequests = () => {
       });
       refetch();
     } catch (error) {
-      const errorMessage = error?.data?.message || t("steadfast.returnRequestFailed");
+      const errorMessage =
+        error?.data?.message || t("steadfast.returnRequestFailed");
       const errorDetails = error?.data?.details;
-      
+
       if (error?.status === 429) {
         toast.error(
           `${errorMessage}${errorDetails ? ` - ${errorDetails}` : ""}`,
-          { duration: 6000 }
+          { duration: 6000 },
         );
       } else if (error?.status === 401) {
         toast.error(
           `${errorMessage}${errorDetails ? ` - ${errorDetails}` : ""}`,
-          { duration: 6000 }
+          { duration: 6000 },
         );
       } else {
         toast.error(errorMessage);
@@ -131,21 +141,32 @@ const ReturnRequests = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">{t("steadfast.returnRequestsTitle")}</h3>
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-xl font-semibold">{t("steadfast.returnRequestsTitle")}</h3>
         <PrimaryButton
           onClick={() => setShowCreateForm(!showCreateForm)}
-          className="px-4"
+          className="px-6 py-2.5 !bg-black/80 dark:!bg-white/90 !text-white dark:!text-black backdrop-blur-md border border-white/20 hover:!bg-black dark:hover:!bg-white transition-all duration-300 flex items-center gap-2"
         >
-          <Plus className="h-4 w-4 mr-2" />
-          {t("steadfast.createReturnRequest")}
+          {showCreateForm ? (
+            <>
+              {t("common.cancel")}
+            </>
+          ) : (
+            <>
+              <Plus className="h-4 w-4" />
+              {t("steadfast.createReturnRequest")}
+            </>
+          )}
         </PrimaryButton>
       </div>
 
       {showCreateForm && (
-        <div className="mb-6 p-4 border border-gray-100 dark:border-gray-800 rounded-lg">
-          <h4 className="text-md font-semibold mb-4">{t("steadfast.createReturnRequest")}</h4>
-          <form onSubmit={handleCreate} className="space-y-4">
+        <div className="mb-8 p-8 border border-black/10 dark:border-white/10 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-xl transition-all duration-300">
+          <div className="flex items-center justify-between mb-6">
+            <h4 className="text-xl font-bold">{t("steadfast.createReturnRequest")}</h4>
+          </div>
+          
+          <form onSubmit={handleCreate} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <TextField
                 label={t("steadfast.consignmentIdLabel")}
@@ -186,8 +207,12 @@ const ReturnRequests = () => {
               multiline
               rows={2}
             />
-            <div className="flex gap-2">
-              <PrimaryButton type="submit" isLoading={isCreating}>
+            <div className="flex gap-4 pt-4">
+              <PrimaryButton 
+                type="submit" 
+                isLoading={isCreating}
+                className="flex-1 py-3 !bg-black/80 dark:!bg-white/90 !text-white dark:!text-black backdrop-blur-md border border-white/20 hover:!bg-black dark:hover:!bg-white transition-all duration-300 text-base font-medium"
+              >
                 {t("steadfast.createRequest")}
               </PrimaryButton>
               <PrimaryButton
@@ -202,6 +227,7 @@ const ReturnRequests = () => {
                     reason: "",
                   });
                 }}
+                className="px-8 border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10"
               >
                 {t("common.cancel")}
               </PrimaryButton>
@@ -210,16 +236,18 @@ const ReturnRequests = () => {
         </div>
       )}
 
-      <ReusableTable
-        data={tableData}
-        headers={headers}
-        total={returnRequests.length}
-        isLoading={isLoading}
-        py="py-2"
-      />
+      <div className="rounded-xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md overflow-hidden">
+        <ReusableTable
+          data={tableData}
+          headers={headers}
+          total={returnRequests.length}
+          isLoading={isLoading}
+          py="py-3"
+        />
+      </div>
 
       {selectedRequest && (
-        <div className="mt-6 p-4 border border-gray-100 dark:border-gray-800 rounded-lg">
+        <div className="mt-6 p-6 border border-black/10 dark:border-white/10 rounded-xl bg-white/50 dark:bg-white/5 backdrop-blur-md">
           <h4 className="text-md font-semibold mb-4">{t("steadfast.returnRequestDetails")}</h4>
           <pre className="text-xs font-mono overflow-x-auto">
             {JSON.stringify(selectedRequest, null, 2)}
