@@ -37,6 +37,12 @@ const StatCard = ({ title, value, delta, icon: Icon, tone = "default" }) => {
       iconColor: "text-rose-600 dark:text-rose-400",
       deltaColor: "text-rose-600 dark:text-rose-400",
     },
+    violet: {
+      bg: "bg-[#5347CE]/5 dark:bg-[#5347CE]/10",
+      iconBg: "bg-[#5347CE]/10 dark:bg-[#5347CE]/20",
+      iconColor: "text-[#5347CE]",
+      deltaColor: "text-[#5347CE]",
+    },
     default: {
       bg: "bg-gray-50 dark:bg-gray-800/50",
       iconBg: "bg-gray-100 dark:bg-gray-800",

@@ -8,6 +8,14 @@ import { hasPermission } from "@/constants/feature-permission";
 import { userLoggedOut } from "@/features/auth/authSlice";
 import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
 import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
+import {
+  ChevronDown,
+  ChevronRight,
+  LogOut,
+  PanelLeftClose,
+  PanelLeftOpen,
+  LayoutDashboard,
+} from "lucide-react";
 
 // Custom Bag Icon Component
 const BagIcon = (props) => (
@@ -24,8 +32,6 @@ const BagIcon = (props) => (
 
 /**
  * Filter navigation items based on user permissions
- * @param {Object} user - The current user object
- * @returns {Array} - Filtered navigation sections
  */
 const getFilteredNav = (user) => {
   return navSections
@@ -33,33 +39,40 @@ const getFilteredNav = (user) => {
       id: section.id,
       title: section.title,
       tKey: section.tKey,
+      icon: section.icon, // Ensure icon is passed
       items: section.items
         .filter((item) => hasPermission(user, item.permission))
         .map((item) => ({
           label: item.title,
           tKey: item.tKey,
           to: item.link,
-          icon: item.icon, // Use the icon directly from the data
+          icon: item.icon,
           badge: item.title === "Review" ? "02" : undefined,
+          children: item.children, // Pass children if any
         })),
     }))
     .filter((section) => section.items.length > 0);
 };
 
-import { ChevronDown, ChevronRight, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
-
 /**
  * Collapsible Section Component
+ * Renders a top-level Accordion Item (e.g. "Orders", "Inventory")
  */
 function CollapsibleSection({ section, isCollapsed, t }) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false); // Default closed to match accordion style usually
   const location = useLocation();
+  const Icon = section.icon;
 
   // Auto-expand if any child is active
   useEffect(() => {
-    const isChildActive = section.items.some((item) =>
-      location.pathname.startsWith(item.to),
-    );
+    const isChildActive = section.items.some((item) => {
+      if (item.children) {
+        return item.children.some((child) =>
+          location.pathname.startsWith(child.link),
+        );
+      }
+      return location.pathname.startsWith(item.to);
+    });
     if (isChildActive) setIsOpen(true);
   }, [location.pathname, section.items]);
 
@@ -67,56 +80,71 @@ function CollapsibleSection({ section, isCollapsed, t }) {
     setIsOpen(!isOpen);
   };
 
+  if (isCollapsed) {
+    // Simplified view for collapsed state
+    return (
+      <div className="mb-2 px-2 flex justify-center group relative">
+        <button className="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+          {Icon && <Icon size={20} strokeWidth={1.5} />}
+        </button>
+        {/* Tooltip on hover */}
+        <div className="absolute left-full top-2 ml-2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity">
+          {section.tKey ? t(section.tKey) : section.title}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="mb-4 px-4">
-      {/* Section Header */}
-      {!isCollapsed && (
-        <div
-          onClick={toggleSection}
-          className="flex items-center justify-between px-2 py-1.5 cursor-pointer group mb-1 select-none"
-        >
-          <span className="text-[11px] font-bold tracking-wider text-gray-500 uppercase group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-200 transition-colors">
-            {section.tKey ? t(section.tKey) : section.title}
-          </span>
-          {isOpen ? (
-            <ChevronDown
-              size={12}
-              className="text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300 transition-colors"
-            />
-          ) : (
-            <ChevronRight
-              size={12}
-              className="text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300 transition-colors"
+    <div className="mb-1 px-4">
+      {/* Section Header (Accordion Toggle) */}
+      <div
+        onClick={toggleSection}
+        className={`flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer select-none transition-all duration-200
+          ${
+            isOpen
+              ? "text-black dark:text-white font-semibold"
+              : "text-gray-600 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white"
+          }`}
+      >
+        <div className="flex items-center gap-3">
+          {Icon && (
+            <Icon
+              size={20}
+              strokeWidth={1.5}
+              className={isOpen ? "text-[#8B5CF6]" : ""}
             />
           )}
+          <span className="text-[14px] tracking-wide">
+            {section.tKey ? t(section.tKey) : section.title}
+          </span>
         </div>
-      )}
+        {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+      </div>
 
-      {/* Collapsed Sidebar Header (Tooltip-like or minimal) */}
-      {isCollapsed && (
-        <div className="h-px bg-black/5 dark:bg-white/5 mx-2 my-2" title={section.title} />
-      )}
-
-      {/* Items List */}
+      {/* Items List (Tree Structure) */}
       <div
-        className={`flex flex-col gap-1 transition-all duration-300 ease-in-out overflow-hidden ${
-          !isCollapsed && !isOpen
-            ? "max-h-0 opacity-0"
-            : "max-h-[800px] opacity-100"
+        className={`grid transition-all duration-300 ease-in-out ${
+          isOpen
+            ? "grid-rows-[1fr] opacity-100 mt-1"
+            : "grid-rows-[0fr] opacity-0"
         }`}
       >
-        {section.items.map((item, index) => (
-          <Item
-            key={index}
-            to={item.to}
-            label={item.label}
-            tKey={item.tKey}
-            Icon={item.icon}
-            badge={item.badge}
-            isCollapsed={isCollapsed}
-            t={t}
-          />
-        ))}
+        <div className="overflow-hidden">
+          <div className="flex flex-col gap-1 pl-4 relative">
+            {/* Vertical Tree Line */}
+            <div className="absolute left-[29px] top-0 bottom-4 w-px bg-gray-200 dark:bg-gray-800" />
+
+            {section.items.map((item, index) => (
+              <Item
+                key={index}
+                item={item}
+                isLast={index === section.items.length - 1}
+                t={t}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -124,52 +152,106 @@ function CollapsibleSection({ section, isCollapsed, t }) {
 
 /**
  * Navigation Item Component
- * Renders individual links in the sidebar
+ * Renders individual links or nested sub-menus
  */
-function Item({ to, label, tKey, Icon, badge, isCollapsed, t }) {
-  return (
-    <NavLink
-      to={to}
-      end
-      title={isCollapsed ? label : ""}
-      className={({ isActive }) =>
-        `group relative flex items-center gap-3 ${isCollapsed ? "justify-center h-10 w-10 mx-auto rounded-xl" : "px-3 py-2.5 mx-3 rounded-xl"} transition-all duration-300
-         ${
-           isActive
-             ? "bg-black/90 dark:bg-white/90 text-white dark:text-black shadow-lg shadow-black/5 dark:shadow-white/5 backdrop-blur-md"
-             : "text-gray-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10 hover:text-black dark:hover:text-white"
-         }`
-      }
-    >
-      {Icon && (
-        <Icon
-          strokeWidth={1.5}
-          className={`flex-shrink-0 transition-colors duration-200 ${isCollapsed ? "w-5 h-5" : "w-[18px] h-[18px]"} ${
-             !isCollapsed && "group-hover:scale-110 transition-transform"
-          }`}
-        />
-      )}
+function Item({ item, isLast, t }) {
+  const location = useLocation();
+  const isActive = location.pathname.startsWith(item.to);
+  const hasChildren = item.children && item.children.length > 0;
 
-      {!isCollapsed && (
-        <>
-          <span className="flex-1 text-[13px] font-medium tracking-wide truncate">
-            {tKey ? t(tKey) : label}
+  // State for collapsible submenu
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Auto-expand if child is active
+  useEffect(() => {
+    if (hasChildren) {
+      const isChildActive = item.children.some((child) =>
+        location.pathname.startsWith(child.link),
+      );
+      if (isChildActive) setIsOpen(true);
+    }
+  }, [location.pathname, hasChildren, item.children]);
+
+  // Render Branch Connector
+  const Branch = () => (
+    <div className="absolute left-[-11px] top-1/2 -translate-y-1/2 w-3 h-px bg-gray-200 dark:bg-gray-800">
+      {/* Curve corner effect could go here if we wanted exact curve matching, but straight lines are cleaner for dynamic lists */}
+      <div
+        className={`absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full ${isActive ? "bg-[#8B5CF6]" : "bg-gray-200 dark:bg-gray-800"} hidden`}
+      />
+    </div>
+  );
+
+  if (hasChildren) {
+    // If item has children (e.g. Invoices -> List, Recurring), render as collapsible sub-menu
+    return (
+      <div className="relative pl-10 py-1">
+        <Branch />
+        <div
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center justify-between cursor-pointer group pr-2 mb-1 select-none"
+        >
+          <span
+            className={`text-[13px] font-bold transition-colors ${isOpen ? "text-black dark:text-white" : "text-black dark:text-white"}`}
+          >
+            {item.label}
           </span>
-          {badge && (
-            <span className={`ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm ${
-              "bg-white/20 text-current"
-            }`}>
-              {badge}
-            </span>
-          )}
-        </>
-      )}
+          <ChevronRight
+            size={14}
+            className={`text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
+          />
+        </div>
 
-      {/* Active Indicator for Collapsed State */}
-      {isCollapsed && (
-        <NavLink to={to} className={({ isActive }) => isActive ? "absolute top-0 right-0 w-2.5 h-2.5 bg-black dark:bg-white border-2 border-white dark:border-black rounded-full" : "hidden"} />
-      )}
-    </NavLink>
+        <div
+          className={`flex flex-col gap-1 border-l border-gray-200 dark:border-gray-800 pl-3 ml-1 overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}`}
+        >
+          {item.children.map((child, idx) => (
+            <NavLink
+              key={idx}
+              to={child.link}
+              className={({ isActive }) =>
+                `block text-[13px] py-1.5 px-2 rounded-lg transition-colors relative font-bold
+                ${
+                  isActive
+                    ? "text-[#8B5CF6] bg-[#8B5CF6]/5"
+                    : "text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
+                }`
+              }
+            >
+              {child.title}
+            </NavLink>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative pl-10 pr-2">
+      <Branch />
+      <NavLink
+        to={item.to}
+        end
+        className={({ isActive }) =>
+          `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 font-bold
+           ${
+             isActive
+               ? "bg-white dark:bg-white/5 text-[#8B5CF6] shadow-sm border border-gray-100 dark:border-gray-800"
+               : "text-black dark:text-white hover:bg-gray-50 dark:hover:bg-white/5"
+           }`
+        }
+      >
+        {item.icon && <item.icon size={16} strokeWidth={1.5} />}
+        <span className="text-[13px] truncate">
+          {item.tKey ? t(item.tKey) : item.label}
+        </span>
+        {item.badge && (
+          <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+            {item.badge}
+          </span>
+        )}
+      </NavLink>
+    </div>
   );
 }
 
@@ -191,7 +273,7 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
     navigate("/login");
   };
 
-  // Pre-fetch categories (optional, keeping existing logic)
+  // Pre-fetch categories
   useGetCategoriesQuery();
 
   // Get filtered navigation based on permissions
@@ -216,89 +298,77 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
         className={`fixed inset-y-0 left-0 z-[100] lg:sticky lg:top-0 h-screen 
         ${isCollapsed ? "w-[80px]" : "w-[280px]"} 
         ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"} 
-        bg-white/80 dark:bg-black/80 backdrop-blur-2xl
-        text-gray-500 dark:text-zinc-400 
-        border-r border-black/5 dark:border-white/5
-        flex flex-col transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] shadow-2xl lg:shadow-none`}
+        bg-white dark:bg-black/95 backdrop-blur-2xl
+        border-r border-gray-100 dark:border-white/5
+        flex flex-col transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] shadow-xl lg:shadow-none`}
       >
-        {/* Header (Logo & Toggle) */}
+        {/* Brand Header */}
         <div
-          className={`flex items-center ${isCollapsed ? "justify-center" : "justify-between"} px-6 h-24 border-b border-black/5 dark:border-white/5`}
+          className={`px-6 pt-8 pb-2 flex items-center gap-3 ${isCollapsed ? "justify-center px-2" : ""}`}
         >
-          {isCollapsed ? (
-            <div className="flex flex-col items-center gap-2 w-full">
-              <Link
-                to="/"
-                className="flex items-center justify-center transform transition-transform hover:scale-105"
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20 shrink-0">
+            {user?.companyLogo ? (
+              <img
+                src={user.companyLogo}
+                className="w-full h-full object-cover rounded-xl"
+                alt="Logo"
+              />
+            ) : (
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="w-6 h-6"
               >
-                {user?.companyLogo ? (
-                  <img
-                    src={user.companyLogo}
-                    alt={user?.companyName || "Logo"}
-                    className="w-10 h-10 rounded-xl object-cover shadow-sm ring-1 ring-gray-200 dark:ring-white/10"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                    }}
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-xl bg-black dark:bg-white text-white dark:text-black grid place-items-center shadow-sm">
-                    <BagIcon width="20" height="20" />
-                  </div>
-                )}
-              </Link>
-              <button
-                onClick={toggleSidebar}
-                title={t("common.expandSidebar")}
-                className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-white p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-              >
-                <PanelLeftOpen className="w-5 h-5" />
-              </button>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            )}
+          </div>
+          {!isCollapsed && (
+            <div className="flex flex-col">
+              <span className="font-bold text-lg leading-tight text-gray-900 dark:text-white tracking-tight">
+                Squadlog
+              </span>
+              <span className="text-[10px] font-medium text-gray-500 uppercase tracking-widest">
+                Console
+              </span>
             </div>
-          ) : (
-            <>
-              <Link
-                to="/"
-                className="flex items-center gap-3 min-w-0 flex-1 group"
-              >
-                {user?.companyLogo ? (
-                  <img
-                    src={user.companyLogo}
-                    alt={user?.companyName || "Logo"}
-                    className="w-10 h-10 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform ring-1 ring-gray-200 dark:ring-white/10"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                    }}
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-xl bg-black dark:bg-white text-white dark:text-black grid place-items-center shadow-sm group-hover:scale-105 transition-transform">
-                    <BagIcon width="20" height="20" />
-                  </div>
-                )}
-                <div className="flex flex-col">
-                  <span className="font-bold text-lg text-gray-900 dark:text-white truncate leading-tight tracking-tight">
-                    {user?.companyName || t("common.company")}
-                  </span>
-                  <span className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">
-                    Console
-                  </span>
-                </div>
-              </Link>
-              <button
-                onClick={toggleSidebar}
-                title={t("common.collapseSidebar")}
-                className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-white p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-              >
-                <PanelLeftClose className="w-5 h-5" />
-              </button>
-            </>
           )}
         </div>
 
-
+        {/* Dashboard Link */}
+        <div className="px-4 pt-4 pb-2">
+          {isCollapsed ? (
+            <div className="flex justify-center mb-2">
+              <Link
+                to="/"
+                className="p-2 rounded-xl text-gray-400 hover:text-purple-600 transition-colors"
+              >
+                <LayoutDashboard size={24} />
+              </Link>
+            </div>
+          ) : (
+            <Link
+              to="/"
+              className="flex items-center gap-3 bg-[#8B5CF6] text-white px-4 py-2.5 rounded-xl shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 group relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <LayoutDashboard size={20} className="text-white relative z-10" />
+              <span className="font-bold text-[15px] tracking-wide relative z-10">
+                Dashboard
+              </span>
+            </Link>
+          )}
+        </div>
 
         {/* Navigation Items - Scrollable Area */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar py-2 px-2">
-          <nav className="flex flex-col gap-2">
+        <div className="flex-1 overflow-y-auto custom-scrollbar py-2">
+          <nav className="flex flex-col gap-1">
             {nav.map((section) => (
               <CollapsibleSection
                 key={section.id}
@@ -310,20 +380,39 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
           </nav>
         </div>
 
-        {/* Logout Button */}
-        <div className="p-2 border-t border-black/5 dark:border-white/5">
+        {/* Footer Actions */}
+        <div className="p-4 space-y-1 mt-auto pb-6">
           <button
-            onClick={handleLogout}
-            className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-gray-500 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all ${
+            onClick={toggleSidebar}
+            className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-gray-500 hover:text-gray-900 hover:bg-gray-50 dark:hover:bg-white/5 transition-all duration-200 group ${
               isCollapsed ? "justify-center" : ""
             }`}
-            title={isCollapsed ? t("common.logout") : ""}
           >
-            <LogOut className="w-5 h-5 flex-shrink-0" />
+            {isCollapsed ? (
+              <PanelLeftOpen size={20} />
+            ) : (
+              <PanelLeftClose
+                size={20}
+                className="group-hover:scale-110 transition-transform"
+              />
+            )}
             {!isCollapsed && (
-              <span className="text-[13px] font-medium tracking-wide">
-                {t("common.logout")}
-              </span>
+              <span className="text-[13px] font-medium">Collapse Sidebar</span>
+            )}
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all duration-200 group ${
+              isCollapsed ? "justify-center" : ""
+            }`}
+          >
+            <LogOut
+              size={20}
+              className="group-hover:translate-x-1 transition-transform"
+            />
+            {!isCollapsed && (
+              <span className="text-[13px] font-medium">Logout</span>
             )}
           </button>
         </div>

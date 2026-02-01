@@ -20,6 +20,10 @@ import {
   Target,
   Star,
   LayoutGrid,
+  Briefcase,
+  BookOpen,
+  Lock,
+  BarChart,
 } from "lucide-react";
 import { FeaturePermission } from "@/constants/feature-permission";
 
@@ -28,16 +32,10 @@ import { FeaturePermission } from "@/constants/feature-permission";
 export const navSections = [
   {
     id: "main",
-    title: "MAIN",
+    title: "General",
     tKey: "nav.main",
+    icon: LayoutDashboard,
     items: [
-      {
-        id: 1,
-        title: "Dashboard",
-        tKey: "nav.dashboard",
-        link: "/",
-        icon: LayoutDashboard,
-      },
       {
         id: 1.6,
         title: "AI Daily Report",
@@ -79,6 +77,7 @@ export const navSections = [
     id: "orders",
     title: "ORDER MANAGEMENT",
     tKey: "nav.orderManagement",
+    icon: ShoppingCart,
     items: [
       {
         id: 6,
@@ -154,8 +153,9 @@ export const navSections = [
   },
   {
     id: "products",
-    title: "PRODUCT MANAGEMENT",
+    title: "Inventory Management",
     tKey: "nav.productManagement",
+    icon: Package,
     items: [
       {
         id: 6,
@@ -193,8 +193,9 @@ export const navSections = [
   },
   {
     id: "customers",
-    title: "CUSTOMER MANAGEMENT",
+    title: "Customer Management",
     tKey: "nav.customerManagement",
+    icon: Users,
     items: [
       {
         id: 9,
@@ -216,8 +217,9 @@ export const navSections = [
   },
   {
     id: "marketing",
-    title: "MARKETING & PROMOTIONS",
+    title: "Marketing",
     tKey: "nav.marketingPromotions",
+    icon: Megaphone,
     items: [
       {
         id: 10,
@@ -246,8 +248,9 @@ export const navSections = [
   },
   {
     id: "content",
-    title: "CONTENT & POLICY",
+    title: "Content & Policy",
     tKey: "nav.contentPolicy",
+    icon: BookOpen,
     items: [
       {
         id: 12,
@@ -277,8 +280,9 @@ export const navSections = [
   },
   {
     id: "system",
-    title: "SYSTEM",
+    title: "Admin",
     tKey: "nav.system",
+    icon: Lock,
     items: [
       {
         id: 15,
@@ -313,8 +317,9 @@ export const navSections = [
   },
   {
     id: "integrations",
-    title: "INTEGRATIONS",
+    title: "Reports",
     tKey: "nav.integrations",
+    icon: BarChart,
     items: [
       {
         id: 19,

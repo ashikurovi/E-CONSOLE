@@ -14,6 +14,9 @@ import {
   RefreshCw,
   Check,
   Clock,
+  Search,
+  ChevronRight,
+  MoreHorizontal,
 } from "lucide-react";
 import {
   useGetOrderCreatedNotificationsQuery,
@@ -30,6 +33,7 @@ const NotificationsPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch user data from API instead of Redux
   const { data: user } = useGetCurrentUserQuery();
@@ -123,9 +127,9 @@ const NotificationsPage = () => {
         case "order_created":
         case "ORDER_CREATED":
           icon = ShoppingCart;
-          iconColor = "text-blue-500";
+          iconColor = "text-[#976DF7]";
           bgGradient =
-            "from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20";
+            "from-[#976DF7]/10 to-[#976DF7]/20 dark:from-[#976DF7]/20 dark:to-[#976DF7]/10";
           title =
             notification.subject ||
             notification.title ||
@@ -134,9 +138,9 @@ const NotificationsPage = () => {
         case "order_confirmed":
         case "ORDER_CONFIRMED":
           icon = CheckCircle;
-          iconColor = "text-blue-600";
+          iconColor = "text-[#976DF7]";
           bgGradient =
-            "from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20";
+            "from-[#976DF7]/10 to-[#976DF7]/20 dark:from-[#976DF7]/20 dark:to-[#976DF7]/10";
           title =
             notification.subject ||
             notification.title ||
@@ -354,6 +358,15 @@ const NotificationsPage = () => {
 
   // Filter Logic
   const filteredNotifications = notifications.filter((n) => {
+    // Search Filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch =
+        n.title.toLowerCase().includes(query) ||
+        n.message.toLowerCase().includes(query);
+      if (!matchesSearch) return false;
+    }
+
     if (activeFilter === "all") return true;
     if (activeFilter === "unread") return !n.read;
     if (activeFilter === "orders")
@@ -408,6 +421,38 @@ const NotificationsPage = () => {
     { id: "stock", label: "Stock & Products" },
   ];
 
+  // Stats for Premium UI
+  const stats = [
+    {
+      label: "Total Unread",
+      value: notifications.filter((n) => !n.read).length,
+      icon: Bell,
+      color: "text-red-500",
+      bg: "bg-red-50 dark:bg-red-900/20",
+      border: "border-red-100 dark:border-red-900/30",
+    },
+    {
+      label: "Order Updates",
+      value: notifications.filter((n) =>
+        n.type.toLowerCase().includes("order")
+      ).length,
+      icon: ShoppingCart,
+      color: "text-[#976DF7]",
+      bg: "bg-[#976DF7]/10 dark:bg-[#976DF7]/20",
+      border: "border-[#976DF7]/20 dark:border-[#976DF7]/30",
+    },
+    {
+      label: "Stock Alerts",
+      value: notifications.filter((n) =>
+        n.type.toLowerCase().includes("stock")
+      ).length,
+      icon: Package,
+      color: "text-orange-500",
+      bg: "bg-orange-50 dark:bg-orange-900/20",
+      border: "border-orange-100 dark:border-orange-900/30",
+    },
+  ];
+
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       {/* Header Section */}
@@ -443,7 +488,7 @@ const NotificationsPage = () => {
           )}
           <button
             onClick={handleRefresh}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md shadow-blue-500/20"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#976DF7] text-white hover:bg-[#8250e5] transition-all shadow-md shadow-[#976DF7]/20"
           >
             <RefreshCw
               className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
@@ -453,31 +498,69 @@ const NotificationsPage = () => {
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex overflow-x-auto pb-2 gap-2 scrollbar-hide">
-        {filters.map((filter) => (
-          <button
-            key={filter.id}
-            onClick={() => setActiveFilter(filter.id)}
-            className={`
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {stats.map((stat, idx) => (
+          <div
+            key={idx}
+            className={`p-4 rounded-2xl border ${stat.border} ${stat.bg} flex items-center gap-4 transition-transform hover:scale-[1.02]`}
+          >
+            <div
+              className={`p-3 rounded-xl bg-white dark:bg-gray-800 shadow-sm ${stat.color}`}
+            >
+              <stat.icon className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                {stat.label}
+              </p>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {stat.value}
+              </h3>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filter Tabs & Search */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex overflow-x-auto pb-2 gap-2 scrollbar-hide">
+          {filters.map((filter) => (
+            <button
+              key={filter.id}
+              onClick={() => setActiveFilter(filter.id)}
+              className={`
               whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
               ${
                 activeFilter === filter.id
-                  ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900 shadow-md transform scale-105"
+                  ? "bg-[#976DF7] text-white dark:bg-white dark:text-gray-900 shadow-md transform scale-105"
                   : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
               }
             `}
-          >
-            {filter.label}
-          </button>
-        ))}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Search Input */}
+        <div className="relative w-full md:w-64">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#976DF7]/20 focus:border-[#976DF7] transition-all"
+          />
+        </div>
       </div>
 
       {/* Content Area */}
       <div className="space-y-8 min-h-[400px]">
         {isLoading && notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#976DF7] mx-auto mb-4"></div>
             <p className="text-gray-500 dark:text-gray-400 animate-pulse">
               {t("notifications.loading")}
             </p>
@@ -498,7 +581,7 @@ const NotificationsPage = () => {
             {activeFilter !== "all" && (
               <button
                 onClick={() => setActiveFilter("all")}
-                className="mt-4 text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                className="mt-4 text-[#976DF7] dark:text-[#976DF7] hover:underline font-medium"
               >
                 View all notifications
               </button>
@@ -545,15 +628,31 @@ const NotificationsPage = () => {
                             group relative overflow-hidden p-4 rounded-xl transition-all duration-300 border
                             ${
                               !notification.read
-                                ? "bg-white dark:bg-gray-800 border-blue-200 dark:border-blue-900/50 shadow-sm hover:shadow-md"
+                                ? "bg-white dark:bg-gray-800 border-[#976DF7]/20 dark:border-blue-900/50 shadow-sm hover:shadow-md"
                                 : "bg-gray-50/50 dark:bg-gray-900/20 border-transparent hover:bg-white dark:hover:bg-gray-800 hover:border-gray-200 dark:hover:border-gray-700"
                             }
                             cursor-pointer
                           `}
                         >
-                          {/* Unread Indicator */}
+                          {/* Hover Actions */}
+                          <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                            {!notification.read && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  markAsRead({ id: notification.id, companyId });
+                                }}
+                                className="p-1.5 rounded-lg bg-white dark:bg-gray-700 text-gray-500 hover:text-[#976DF7] shadow-sm border border-gray-100 dark:border-gray-600"
+                                title="Mark as read"
+                              >
+                                <Check className="h-4 w-4" />
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Unread Indicator (New Design) */}
                           {!notification.read && (
-                            <div className="absolute top-4 right-4 h-2.5 w-2.5 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50 animate-pulse"></div>
+                            <div className="absolute top-4 right-4 h-2 w-2 rounded-full bg-[#976DF7] shadow-sm shadow-[#976DF7]/50 group-hover:opacity-0 transition-opacity"></div>
                           )}
 
                           <div className="flex gap-4">
@@ -570,35 +669,35 @@ const NotificationsPage = () => {
                               />
                             </div>
 
-                            {/* Content */}
-                            <div className="flex-1 min-w-0 pt-0.5">
+                            <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-4 pr-6">
-                                <h4
-                                  className={`
-                                  text-base font-semibold leading-tight mb-1
-                                  ${!notification.read ? "text-gray-900 dark:text-white" : "text-gray-700 dark:text-gray-300"}
-                                `}
-                                >
-                                  {notification.title}
-                                </h4>
+                                <div>
+                                  <h4
+                                    className={`text-sm font-semibold mb-1 ${!notification.read ? "text-gray-900 dark:text-white" : "text-gray-600 dark:text-gray-400"}`}
+                                  >
+                                    {notification.title}
+                                  </h4>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                                    {notification.message}
+                                  </p>
+                                </div>
                               </div>
-
-                              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-2 line-clamp-2">
-                                {notification.message}
-                              </p>
-
-                              <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-500">
-                                <span className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md">
+                              <div className="flex items-center gap-3 mt-3">
+                                <span className="flex items-center gap-1 text-xs font-medium text-gray-400">
                                   <Clock className="h-3 w-3" />
                                   {notification.time}
                                 </span>
                                 {notification.orderId && (
-                                  <span className="flex items-center gap-1 hover:text-blue-500 transition-colors">
-                                    <ShoppingCart className="h-3 w-3" />
-                                    Order #{notification.orderId}
-                                  </span>
-                                )}
+                                    <span className="flex items-center gap-1 text-xs font-medium text-[#976DF7] dark:text-blue-400 bg-[#976DF7]/10 dark:bg-blue-900/20 px-2 py-0.5 rounded-md">
+                                      Order #{String(notification.orderId).slice(-6)}
+                                    </span>
+                                  )}
                               </div>
+                            </div>
+
+                            {/* Chevron */}
+                            <div className="flex flex-col justify-center opacity-0 group-hover:opacity-100 transition-opacity -mr-2">
+                              <ChevronRight className="h-5 w-5 text-gray-300" />
                             </div>
                           </div>
                         </div>
