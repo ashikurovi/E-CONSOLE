@@ -1,29 +1,22 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { io } from "socket.io-client";
+
 
 // components
 import LanguageSwitcher from "@/components/language/LanguageSwitcher";
 import ThemeToggle from "@/components/theme/ThemeToggle";
-import NavLogo from "../logo/nav-logo";
 import IconButton from "../buttons/icon-button";
-import SidebarMenu from "./SidebarMenu";
-// ... existing code ...
-import SearchBar from "@/components/input/search-bar";
 import {
   Bell,
-  Settings,
-  HelpCircle,
+  CheckCircle,
+  Search,
+  Menu,
   User,
-  Package,
   ShoppingCart,
   Truck,
   AlertCircle,
-  CheckCircle,
-  Search,
-  Eye,
-  Menu,
+  Package,
 } from "lucide-react";
 import {
   Dialog,
@@ -49,12 +42,10 @@ import moment from "moment";
 const TopNavbar = ({ setIsMobileMenuOpen }) => {
   const { t } = useTranslation();
   // Fetch user data from API instead of Redux
-  const { data: user, isLoading: isLoadingUser } = useGetCurrentUserQuery();
-  const { pathname } = useLocation();
+  const { data: user } = useGetCurrentUserQuery();
   const navigate = useNavigate();
 
   const companyId = user?.companyId;
-  const userId = user?._id;
 
   // Global search state
   const [searchTerm, setSearchTerm] = useState("");
@@ -88,7 +79,6 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
   const {
     data: orderStatusNotifications = [],
     isLoading: isLoadingOrderStatus,
-    refetch: refetchOrderStatus,
   } = useGetOrderStatusNotificationsQuery(companyId, {
     skip: !companyId,
   });
@@ -96,7 +86,6 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
   const {
     data: newCustomerNotifications = [],
     isLoading: isLoadingCustomers,
-    refetch: refetchCustomers,
   } = useGetNewCustomerNotificationsQuery(companyId, {
     skip: !companyId,
   });
@@ -104,7 +93,6 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
   const {
     data: lowStockNotifications = [],
     isLoading: isLoadingStock,
-    refetch: refetchStock,
   } = useGetLowStockNotificationsQuery(companyId, {
     skip: !companyId,
   });
@@ -327,40 +315,43 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
   // ... existing code ...
 
   return (
-    <nav className="dark:bg-[#1a1f26] bg-white lg:p-3 p-1 mb-5 z-50 static top-0">
-      <div className="flbx py-2 gap-3">
-        <div className="lg:hidden pl-2">
+    <nav className="w-full h-16 flex items-center gap-4 px-4 lg:px-6">
+      <div className="flex items-center gap-3 w-full">
+        {/* Mobile Menu Toggle */}
+        <div className="lg:hidden">
           <IconButton
             icon={Menu}
             onClick={() => setIsMobileMenuOpen(true)}
-            className="!bg-[#DCE865] !text-black hover:!bg-[#DCE865]/90"
+            className="!bg-transparent text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
           />
         </div>
-        {/* <div className="fl gap-4 pl-2">
-    
-          <NavLogo />
-        </div> */}
 
+        {/* Global Search Bar - Clean & Modern */}
         <div
-          className={`flex-1 w-full max-w-[500px] relative ${
+          className={`flex-1 max-w-xl relative ${
             isMobileSearchOpen
-              ? "flex absolute top-full left-0 right-0 px-2 pb-2 bg-white dark:bg-[#1a1f26] shadow-md z-50"
+              ? "flex absolute top-16 left-0 right-0 p-4 bg-white dark:bg-[#09090b] shadow-lg border-b border-gray-100 dark:border-white/5 z-50"
               : "hidden lg:flex"
           }`}
           ref={searchContainerRef}
         >
-          <SearchBar
-            placeholder={t("search.placeholder")}
-            searchValue={searchTerm}
-            setSearhValue={handleSearchChange}
-          />
+          <div className="relative w-full group">
+             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+             <input 
+                type="text"
+                placeholder={t("search.placeholder")}
+                value={searchTerm}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="w-full bg-gray-100/50 dark:bg-white/5 border border-transparent focus:border-blue-500/20 focus:bg-white dark:focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 rounded-xl pl-10 pr-4 py-2 text-sm outline-none transition-all duration-300"
+             />
+          </div>
 
           {/* Real-time Search Results Dropdown */}
           {showSearchResults && searchTerm && searchTerm.trim().length >= 2 && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 rounded-lg shadow-lg z-50 max-h-[70vh] overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#09090b] border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl shadow-black/5 z-50 max-h-[70vh] overflow-y-auto ring-1 ring-black/5">
               <div className="p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-black dark:text-white">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                     {t("search.results")} ({totalResults})
                   </h3>
                   <button
@@ -369,35 +360,33 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                       setShowSearchResults(false);
                       setIsSearching(false);
                     }}
-                    className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                    className="text-xs font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
                   >
                     {t("common.clear")}
                   </button>
                 </div>
 
                 {isSearchLoading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-3"></div>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      {t("search.searching")}
-                    </p>
+                  <div className="text-center py-12">
+                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3 opacity-50"></div>
+                     <p className="text-sm text-gray-500">{t("search.searching")}</p>
                   </div>
                 ) : totalResults === 0 ? (
-                  <div className="text-center py-8">
-                    <Search className="h-12 w-12 mx-auto text-gray-400 mb-3" />
-                    <p className="text-gray-500 dark:text-gray-400">
+                  <div className="text-center py-12">
+                    <Search className="h-10 w-10 mx-auto text-gray-300 dark:text-gray-700 mb-3" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {t("search.noResults", { term: searchTerm })}
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {/* Orders Results */}
                     {results.orders.length > 0 && (
                       <div>
-                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                          {t("search.orders")} ({results.orders.length})
+                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                          {t("search.orders")}
                         </h4>
-                        <div className="space-y-2">
+                        <div className="grid gap-2">
                           {results.orders.slice(0, 5).map((o) => (
                             <div
                               key={o.id}
@@ -407,19 +396,19 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                                 setShowSearchResults(false);
                                 setIsSearching(false);
                               }}
-                              className="p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                              className="p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors group"
                             >
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <p className="font-medium text-black dark:text-white">
+                                  <p className="font-medium text-sm text-gray-900 dark:text-gray-100 group-hover:text-blue-500 transition-colors">
                                     Order #{o.id}
                                   </p>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  <p className="text-xs text-gray-500 mt-0.5">
                                     {o.customer?.name ?? o.customerName ?? "-"}{" "}
-                                    • {o.status}
+                                    <span className="mx-1">•</span> {o.status}
                                   </p>
                                 </div>
-                                <p className="text-sm font-semibold text-black dark:text-white">
+                                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                                   ${Number(o.totalAmount || 0).toFixed(2)}
                                 </p>
                               </div>
@@ -432,10 +421,10 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                     {/* Products Results */}
                     {results.products.length > 0 && (
                       <div>
-                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                          {t("search.products")} ({results.products.length})
+                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                          {t("search.products")}
                         </h4>
-                        <div className="space-y-2">
+                        <div className="grid gap-2">
                           {results.products.slice(0, 5).map((p) => (
                             <div
                               key={p.id}
@@ -445,18 +434,18 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                                 setShowSearchResults(false);
                                 setIsSearching(false);
                               }}
-                              className="p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                              className="p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors group"
                             >
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <p className="font-medium text-black dark:text-white">
+                                  <p className="font-medium text-sm text-gray-900 dark:text-gray-100 group-hover:text-blue-500 transition-colors">
                                     {p.name ?? p.title ?? "-"}
                                   </p>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    SKU: {p.sku || "-"} • Stock: {p.stock || 0}
+                                  <p className="text-xs text-gray-500 mt-0.5">
+                                    SKU: {p.sku || "-"} <span className="mx-1">•</span> Stock: {p.stock || 0}
                                   </p>
                                 </div>
-                                <p className="text-sm font-semibold text-black dark:text-white">
+                                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                                   ${Number(p.price || 0).toFixed(2)}
                                 </p>
                               </div>
@@ -469,10 +458,10 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                     {/* Customers Results */}
                     {results.customers.length > 0 && (
                       <div>
-                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                          {t("search.customers")} ({results.customers.length})
+                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                           {t("search.customers")}
                         </h4>
-                        <div className="space-y-2">
+                        <div className="grid gap-2">
                           {results.customers.slice(0, 5).map((c) => (
                             <div
                               key={c.id}
@@ -482,16 +471,21 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                                 setShowSearchResults(false);
                                 setIsSearching(false);
                               }}
-                              className="p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                              className="p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors group"
                             >
-                              <div>
-                                <p className="font-medium text-black dark:text-white">
-                                  {c.name ?? "-"}
-                                </p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                  {c.email || "-"} • {c.phone || "-"}
-                                </p>
-                              </div>
+                               <div className="flex items-center gap-3">
+                                 <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 text-xs font-bold">
+                                   {c.name?.charAt(0) || "U"}
+                                 </div>
+                                  <div>
+                                    <p className="font-medium text-sm text-gray-900 dark:text-gray-100 group-hover:text-blue-500 transition-colors">
+                                      {c.name ?? "-"}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-0.5">
+                                      {c.email || "-"}
+                                    </p>
+                                  </div>
+                               </div>
                             </div>
                           ))}
                         </div>
@@ -504,83 +498,82 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
           )}
         </div>
 
-        <div className="fl lg:gap-3 gap-2 pr-2">
+        {/* Right Actions */}
+        <div className="flex items-center gap-3 lg:gap-4 ml-auto">
+           {/* Mobile Search Toggle */}
           <div className="lg:hidden">
             <IconButton
               icon={Search}
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="!bg-gray-100 dark:!bg-gray-800 !text-black dark:!text-white hover:!bg-gray-200 dark:hover:!bg-gray-700"
+              className="!bg-transparent text-gray-500 dark:text-gray-400"
             />
           </div>
-          <ThemeToggle
-            variant="compact"
-            className="!bg-gray-100 dark:!bg-gray-800 !text-black dark:!text-white hover:!bg-gray-200 dark:hover:!bg-gray-700"
-          />
-          <LanguageSwitcher
-            variant="compact"
-            className="!bg-gray-100 dark:!bg-gray-800 !text-black dark:!text-white hover:!bg-gray-200 dark:hover:!bg-gray-700"
-          />
-          <Link to="/help">
-            {" "}
-            <IconButton
-              icon={HelpCircle}
-              className="!bg-gray-100 dark:!bg-gray-800 !text-black dark:!text-white hover:!bg-gray-200 dark:hover:!bg-gray-700"
-            />{" "}
-          </Link>
 
-          {/* <IconButton icon={Settings} /> */}
-          <div className="relative">
-            <div
-              onClick={() => setIsNotificationModalOpen(true)}
-              className="cursor-pointer"
-            >
-              <IconButton
-                type="icon"
-                icon={Bell}
-                className="!bg-black dark:!bg-white !text-white dark:!text-black hover:opacity-90"
+          <div className="hidden sm:flex items-center gap-2">
+             <ThemeToggle
+                variant="compact"
+                className="!bg-gray-100/50 dark:!bg-white/5 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-200 dark:hover:!bg-white/10 border-0"
               />
-            </div>
-            {newNotificationCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 h-4 w-4 flex items-center justify-center rounded-full text-[10px] font-bold text-white border-2 border-white dark:border-gray-800">
-                {newNotificationCount}
-              </span>
-            )}
+              <LanguageSwitcher
+                variant="compact"
+                 className="!bg-gray-100/50 dark:!bg-white/5 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-200 dark:hover:!bg-white/10 border-0"
+              />
           </div>
-          <Link to="/settings">
-            {" "}
-            <div className="h-9 w-9 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center justify-center overflow-hidden transition-colors">
-              <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-            </div>{" "}
+
+          <div className="h-6 w-px bg-gray-200 dark:bg-white/10 mx-1 hidden sm:block"></div>
+
+          {/* Notifications */}
+          <div className="relative">
+            <button
+              onClick={() => setIsNotificationModalOpen(true)}
+              className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 transition-colors"
+            >
+              <Bell className="w-5 h-5" />
+              {newNotificationCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-[#09090b]"></span>
+              )}
+            </button>
+          </div>
+
+          {/* Profile */}
+          <Link to="/settings" className="flex items-center gap-3 pl-2">
+            <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 ring-2 ring-white dark:ring-white/10">
+              <span className="text-sm font-bold">{user?.name?.charAt(0) || "U"}</span>
+            </div>
+            {/* <div className="hidden lg:block text-left">
+               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-none">{user?.name || "User"}</p>
+               <p className="text-[10px] text-gray-500 font-medium leading-none mt-1 uppercase tracking-wide">{user?.role || "Admin"}</p>
+            </div> */}
           </Link>
         </div>
       </div>
 
-      {/* Notifications Modal */}
+      {/* Notifications Modal Wrapper - Keeping original logic but clean trigger */}
       <Dialog
         open={isNotificationModalOpen}
         onOpenChange={setIsNotificationModalOpen}
       >
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 justify-center">
-              <Bell className="h-5 w-5" />
+        <DialogContent className="max-w-md sm:max-w-lg p-0 gap-0 overflow-hidden bg-white dark:bg-[#09090b] border-gray-100 dark:border-white/10">
+          <DialogHeader className="p-4 border-b border-gray-100 dark:border-white/5">
+            <DialogTitle className="flex items-center gap-2 text-base font-semibold">
+              <Bell className="h-4 w-4 text-blue-500" />
               {t("notifications.title")}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 mt-4">
+          
+          <div className="max-h-[60vh] overflow-y-auto p-2 space-y-1 custom-scrollbar">
             {isLoading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-3"></div>
-                <p className="text-gray-500 dark:text-gray-400">
-                  {t("notifications.loading")}
-                </p>
+              <div className="text-center py-12">
+                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3 opacity-50"></div>
+                 <p className="text-xs text-gray-500">{t("notifications.loading")}</p>
               </div>
             ) : notifications.length === 0 ? (
-              <div className="text-center py-8">
-                <Bell className="h-12 w-12 mx-auto text-gray-400 mb-3" />
-                <p className="text-gray-500 dark:text-gray-400">
-                  {t("notifications.noNotifications")}
-                </p>
+              <div className="text-center py-12">
+                <div className="w-12 h-12 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center mx-auto mb-3">
+                   <Bell className="h-5 w-5 text-gray-400" />
+                </div>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">{t("notifications.noNotifications")}</p>
+                <p className="text-xs text-gray-500 mt-1">You&apos;re all caught up!</p>
               </div>
             ) : (
               notifications.map((notification) => {
@@ -601,66 +594,65 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                         setIsNotificationModalOpen(false);
                       }
                     }}
-                    className={`p-4 rounded-lg border transition-colors ${
+                    className={`p-3 rounded-xl transition-all ${
                       !notification.read
-                        ? "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800"
-                        : "bg-white dark:bg-[#1a1f26] border-gray-200 dark:border-gray-800"
-                    } hover:shadow-md cursor-pointer`}
+                        ? "bg-blue-50/50 dark:bg-blue-500/10 hover:bg-blue-50 dark:hover:bg-blue-500/20"
+                        : "hover:bg-gray-50 dark:hover:bg-white/5"
+                    } cursor-pointer group relative`}
                   >
                     <div className="flex gap-3">
-                      <div className="flex-shrink-0">
+                      <div className="flex-shrink-0 mt-1">
                         <div
-                          className={`h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center ${notification.iconColor}`}
+                          className={`h-8 w-8 rounded-full flex items-center justify-center ${
+                             !notification.read ? "bg-white dark:bg-white/10 shadow-sm" : "bg-gray-100 dark:bg-white/5"
+                          } ${notification.iconColor}`}
                         >
-                          <IconComponent className="h-5 w-5" />
+                          <IconComponent className="h-4 w-4" />
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
-                          <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+                          <h4 className={`text-sm ${!notification.read ? "font-semibold text-gray-900 dark:text-white" : "font-medium text-gray-700 dark:text-gray-300"}`}>
                             {notification.title}
                           </h4>
-                          {!notification.read && (
-                            <span className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0 mt-1"></span>
-                          )}
+                          <span className="text-[10px] text-gray-400 whitespace-nowrap">{notification.time}</span>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">
                           {notification.message}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                          {notification.time}
-                        </p>
                       </div>
+                      {!notification.read && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                      )}
                     </div>
                   </div>
                 );
               })
             )}
           </div>
+          
           {notifications.length > 0 && (
-            <div className="mt-4 pt-4 border-t dark:border-gray-700 flex flex-col gap-2">
-              {newNotificationCount > 0 && (
+             <div className="p-3 border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 flex gap-2">
+               {newNotificationCount > 0 && (
                 <button
                   onClick={() => markAllAsRead(companyId)}
                   disabled={isMarkingAll}
-                  className="w-full text-center text-sm font-medium py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  className="flex-1 text-xs font-medium py-2 rounded-lg bg-white dark:bg-white/10 border border-gray-200 dark:border-transparent hover:bg-gray-50 dark:hover:bg-white/20 transition-colors shadow-sm"
                 >
                   {isMarkingAll ? t("common.processing") : t("notifications.markAllAsRead")}
                 </button>
-              )}
-              <button
-                onClick={() => {
-                  refetchAll();
-                  refetchOrders();
-                  refetchOrderStatus();
-                  refetchCustomers();
-                  refetchStock();
-                }}
-                className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors font-medium"
-              >
-                {t("notifications.refresh")}
-              </button>
-            </div>
+               )}
+               <button
+                  onClick={() => {
+                    refetchAll();
+                    refetchOrders();
+                  }}
+                  className="flex-none px-3 py-2 rounded-lg text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  title={t("notifications.refresh")}
+               >
+                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+               </button>
+             </div>
           )}
         </DialogContent>
       </Dialog>
