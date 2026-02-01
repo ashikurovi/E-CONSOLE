@@ -124,6 +124,60 @@ const ZoomIcon = () => (
   </div>
 );
 
+const TypewriterText = ({
+  texts,
+  typingSpeed = 100,
+  deletingSpeed = 50,
+  pauseTime = 2000,
+}) => {
+  const [displayedText, setDisplayedText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [textIndex, setTextIndex] = useState(0);
+
+  useEffect(() => {
+    let timeout;
+    const currentFullText = texts[textIndex];
+
+    if (isDeleting) {
+      if (displayedText === "") {
+        setIsDeleting(false);
+        setTextIndex((prev) => (prev + 1) % texts.length);
+      } else {
+        timeout = setTimeout(() => {
+          setDisplayedText(displayedText.slice(0, -1));
+        }, deletingSpeed);
+      }
+    } else {
+      if (displayedText === currentFullText) {
+        timeout = setTimeout(() => {
+          setIsDeleting(true);
+        }, pauseTime);
+      } else {
+        timeout = setTimeout(() => {
+          setDisplayedText(currentFullText.slice(0, displayedText.length + 1));
+        }, typingSpeed);
+      }
+    }
+
+    return () => clearTimeout(timeout);
+  }, [
+    displayedText,
+    isDeleting,
+    textIndex,
+    texts,
+    typingSpeed,
+    deletingSpeed,
+    pauseTime,
+  ]);
+
+  return (
+    <span className="font-medium bg-gradient-to-r from-nexus-primary to-nexus-secondary bg-clip-text text-transparent">
+      {displayedText}
+      <span className="animate-pulse text-nexus-primary ml-1">|</span>
+    </span>
+  );
+};
+
 const MetricCard = ({
   title,
   value,
@@ -236,6 +290,22 @@ const SkeletonLoader = ({ rows = 5 }) => (
 const DashboardPage = () => {
   const { t } = useTranslation();
   const authUser = useSelector((state) => state.auth.user);
+
+  // Dynamic Time
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentDateTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const getGreeting = () => {
+    const hour = currentDateTime.getHours();
+    if (hour >= 5 && hour < 12) return "Good Morning";
+    if (hour >= 12 && hour < 17) return "Good Afternoon";
+    if (hour >= 17 && hour < 21) return "Good Evening";
+    return "Good Night";
+  };
 
   // Use API data or fall back to mock data
   const { data: dashboardData } = useGetDashboardQuery({
@@ -574,29 +644,46 @@ const DashboardPage = () => {
       }}
     >
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-end gap-4 mb-8">
-        <div>
-          <h1 className="text-4xl font-black bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-200 dark:to-gray-400 bg-clip-text text-transparent tracking-tighter">
-            Dashboard
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8 p-6 rounded-2xl bg-white/40 dark:bg-black/40 backdrop-blur-xl border border-white/20 shadow-sm relative overflow-hidden group">
+        {/* Decorative background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-r from-nexus-primary/5 via-transparent to-nexus-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+        <div className="relative z-10">
+          <h1 className="text-4xl font-black bg-gradient-to-r from-gray-900 via-nexus-primary to-gray-900 dark:from-white dark:via-nexus-primary dark:to-gray-400 bg-clip-text text-transparent tracking-tighter animate-gradient-x bg-[length:200%_auto]">
+            {getGreeting()}, SquadCart
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Overview of your store performance
-          </p>
+          <div className="text-gray-500 dark:text-gray-400 mt-2 font-medium flex items-center gap-2">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+            </span>
+            <TypewriterText
+              texts={[
+                "Overview of your store performance",
+                "Real-time analytics and insights",
+                "Manage orders and inventory effortlessly",
+                "Track your growth and revenue",
+              ]}
+            />
+          </div>
         </div>
 
         {/* Date Display */}
-        <div className="hidden md:block text-right">
-          <p className="text-sm font-semibold text-gray-900 dark:text-white">
-            {new Date().toLocaleDateString("en-US", {
+        <div className="text-left md:text-right relative z-10 w-full md:w-auto">
+          <p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+            {currentDateTime.toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            })}
+          </p>
+          <p className="text-sm font-medium text-nexus-primary dark:text-nexus-blue mt-0.5 uppercase tracking-wider">
+            {currentDateTime.toLocaleDateString("en-US", {
               weekday: "long",
               year: "numeric",
               month: "long",
               day: "numeric",
             })}
-          </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-            Updated just now
           </p>
         </div>
       </div>
