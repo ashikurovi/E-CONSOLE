@@ -281,6 +281,20 @@ export const navSections = [
       },
     ],
   },
+  {
+    id: "integrations",
+    title: "INTEGRATIONS",
+    tKey: "nav.integrations",
+    items: [
+      {
+        id: 19,
+        title: "Connected Apps",
+        tKey: "nav.connectedApps",
+        link: "/connected-apps",
+        icon: LayoutGrid,
+      },
+    ],
+  },
 ];
 
 // Flattened navLinks for backward compatibility

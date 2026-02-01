@@ -92,6 +92,7 @@ import RedXPage from "./pages/redx";
 import UpgradePlanPage from "./pages/upgrade-plan";
 import NotificationsPage from "./pages/notifications";
 import StatisticsPage from "./pages/statistics";
+import ConnectedAppsPage from "./pages/connected-apps";
 
 export const routes = createBrowserRouter([
   {
@@ -121,6 +122,10 @@ export const routes = createBrowserRouter([
       {
         path: "/statistics",
         element: <StatisticsPage />,
+      },
+      {
+        path: "/connected-apps",
+        element: <ConnectedAppsPage />,
       },
       {
         path: "/categories",
