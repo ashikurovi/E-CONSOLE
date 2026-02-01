@@ -68,25 +68,25 @@ function CollapsibleSection({ section, isCollapsed, t }) {
   };
 
   return (
-    <div className="mb-2 px-3">
+    <div className="mb-4 px-4">
       {/* Section Header */}
       {!isCollapsed && (
         <div
           onClick={toggleSection}
-          className="flex items-center justify-between px-3 py-2 cursor-pointer group rounded-lg hover:bg-zinc-800/50 transition-colors mb-1 select-none"
+          className="flex items-center justify-between px-2 py-1.5 cursor-pointer group mb-1 select-none"
         >
-          <span className="text-[11px] font-bold tracking-widest text-zinc-500 uppercase group-hover:text-zinc-300 transition-colors">
+          <span className="text-[11px] font-bold tracking-wider text-gray-500 uppercase group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-200 transition-colors">
             {section.tKey ? t(section.tKey) : section.title}
           </span>
           {isOpen ? (
             <ChevronDown
-              size={14}
-              className="text-zinc-600 group-hover:text-zinc-300 transition-colors"
+              size={12}
+              className="text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300 transition-colors"
             />
           ) : (
             <ChevronRight
-              size={14}
-              className="text-zinc-600 group-hover:text-zinc-300 transition-colors"
+              size={12}
+              className="text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300 transition-colors"
             />
           )}
         </div>
@@ -94,12 +94,12 @@ function CollapsibleSection({ section, isCollapsed, t }) {
 
       {/* Collapsed Sidebar Header (Tooltip-like or minimal) */}
       {isCollapsed && (
-        <div className="h-px bg-white/5 mx-2 my-2" title={section.title} />
+        <div className="h-px bg-black/5 dark:bg-white/5 mx-2 my-2" title={section.title} />
       )}
 
       {/* Items List */}
       <div
-        className={`flex flex-col gap-0.5 transition-all duration-300 ease-in-out overflow-hidden ${
+        className={`flex flex-col gap-1 transition-all duration-300 ease-in-out overflow-hidden ${
           !isCollapsed && !isOpen
             ? "max-h-0 opacity-0"
             : "max-h-[800px] opacity-100"
@@ -133,18 +133,20 @@ function Item({ to, label, tKey, Icon, badge, isCollapsed, t }) {
       end
       title={isCollapsed ? label : ""}
       className={({ isActive }) =>
-        `group relative flex items-center gap-3 ${isCollapsed ? "justify-center h-10 w-10 mx-auto" : "px-3 py-2 mx-0"} rounded-lg transition-all duration-200 border border-transparent
+        `group relative flex items-center gap-3 ${isCollapsed ? "justify-center h-10 w-10 mx-auto rounded-xl" : "px-3 py-2.5 mx-3 rounded-xl"} transition-all duration-300
          ${
            isActive
-             ? "bg-white/10 text-white shadow-sm border-white/5"
-             : "text-zinc-400 hover:bg-white/5 hover:text-white"
+             ? "bg-black/90 dark:bg-white/90 text-white dark:text-black shadow-lg shadow-black/5 dark:shadow-white/5 backdrop-blur-md"
+             : "text-gray-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10 hover:text-black dark:hover:text-white"
          }`
       }
     >
       {Icon && (
         <Icon
           strokeWidth={1.5}
-          className={`flex-shrink-0 transition-colors duration-200 ${isCollapsed ? "w-5 h-5" : "w-[18px] h-[18px]"}`}
+          className={`flex-shrink-0 transition-colors duration-200 ${isCollapsed ? "w-5 h-5" : "w-[18px] h-[18px]"} ${
+             !isCollapsed && "group-hover:scale-110 transition-transform"
+          }`}
         />
       )}
 
@@ -154,7 +156,9 @@ function Item({ to, label, tKey, Icon, badge, isCollapsed, t }) {
             {tKey ? t(tKey) : label}
           </span>
           {badge && (
-            <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-600/80 text-white shadow-sm">
+            <span className={`ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm ${
+              "bg-white/20 text-current"
+            }`}>
               {badge}
             </span>
           )}
@@ -162,8 +166,8 @@ function Item({ to, label, tKey, Icon, badge, isCollapsed, t }) {
       )}
 
       {/* Active Indicator for Collapsed State */}
-      {isCollapsed && badge && (
-        <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-blue-500 border-2 border-[#09090b] rounded-full"></span>
+      {isCollapsed && (
+        <NavLink to={to} className={({ isActive }) => isActive ? "absolute top-0 right-0 w-2.5 h-2.5 bg-black dark:bg-white border-2 border-white dark:border-black rounded-full" : "hidden"} />
       )}
     </NavLink>
   );
@@ -210,16 +214,16 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
       {/* Sidebar Container */}
       <aside
         className={`fixed inset-y-0 left-0 z-[100] lg:sticky lg:top-0 h-screen 
-        ${isCollapsed ? "w-[72px]" : "w-[260px]"} 
+        ${isCollapsed ? "w-[80px]" : "w-[280px]"} 
         ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"} 
-        bg-[#09090b]
-        text-zinc-400 
-        border-r border-zinc-800/50
+        bg-white/80 dark:bg-black/80 backdrop-blur-2xl
+        text-gray-500 dark:text-zinc-400 
+        border-r border-black/5 dark:border-white/5
         flex flex-col transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] shadow-2xl lg:shadow-none`}
       >
         {/* Header (Logo & Toggle) */}
         <div
-          className={`flex items-center ${isCollapsed ? "justify-center" : "justify-between"} px-6 h-24 border-b border-white/5`}
+          className={`flex items-center ${isCollapsed ? "justify-center" : "justify-between"} px-6 h-24 border-b border-black/5 dark:border-white/5`}
         >
           {isCollapsed ? (
             <div className="flex flex-col items-center gap-2 w-full">
@@ -231,13 +235,13 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
                   <img
                     src={user.companyLogo}
                     alt={user?.companyName || "Logo"}
-                    className="w-10 h-10 rounded-xl object-cover shadow-sm ring-1 ring-white/10"
+                    className="w-10 h-10 rounded-xl object-cover shadow-sm ring-1 ring-gray-200 dark:ring-white/10"
                     onError={(e) => {
                       e.target.style.display = "none";
                     }}
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-xl bg-white text-black grid place-items-center shadow-sm">
+                  <div className="w-10 h-10 rounded-xl bg-black dark:bg-white text-white dark:text-black grid place-items-center shadow-sm">
                     <BagIcon width="20" height="20" />
                   </div>
                 )}
@@ -245,7 +249,7 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
               <button
                 onClick={toggleSidebar}
                 title={t("common.expandSidebar")}
-                className="text-gray-500 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-all"
+                className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-white p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
               >
                 <PanelLeftOpen className="w-5 h-5" />
               </button>
@@ -260,18 +264,18 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
                   <img
                     src={user.companyLogo}
                     alt={user?.companyName || "Logo"}
-                    className="w-10 h-10 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform ring-1 ring-white/10"
+                    className="w-10 h-10 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform ring-1 ring-gray-200 dark:ring-white/10"
                     onError={(e) => {
                       e.target.style.display = "none";
                     }}
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-xl bg-white text-black grid place-items-center shadow-sm group-hover:scale-105 transition-transform">
+                  <div className="w-10 h-10 rounded-xl bg-black dark:bg-white text-white dark:text-black grid place-items-center shadow-sm group-hover:scale-105 transition-transform">
                     <BagIcon width="20" height="20" />
                   </div>
                 )}
                 <div className="flex flex-col">
-                  <span className="font-bold text-lg text-white truncate leading-tight tracking-tight">
+                  <span className="font-bold text-lg text-gray-900 dark:text-white truncate leading-tight tracking-tight">
                     {user?.companyName || t("common.company")}
                   </span>
                   <span className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">
@@ -282,7 +286,7 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
               <button
                 onClick={toggleSidebar}
                 title={t("common.collapseSidebar")}
-                className="text-gray-500 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-all"
+                className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-white p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
               >
                 <PanelLeftClose className="w-5 h-5" />
               </button>
@@ -307,10 +311,10 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
         </div>
 
         {/* Logout Button */}
-        <div className="p-2 border-t border-white/5">
+        <div className="p-2 border-t border-black/5 dark:border-white/5">
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-zinc-400 hover:text-white hover:bg-white/5 transition-all ${
+            className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-gray-500 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all ${
               isCollapsed ? "justify-center" : ""
             }`}
             title={isCollapsed ? t("common.logout") : ""}
