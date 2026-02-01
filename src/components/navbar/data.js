@@ -128,6 +128,14 @@ export const navSections = [
         icon: FileText,
       },
       {
+        id: 7.5,
+        title: "Inventory",
+        tKey: "nav.inventory",
+        link: "/inventory",
+        permission: FeaturePermission.PRODUCTS,
+        icon: Package,
+      },
+      {
         id: 8,
         title: "Flash Sell",
         tKey: "nav.flashSell",

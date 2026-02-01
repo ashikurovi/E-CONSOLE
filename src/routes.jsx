@@ -32,6 +32,7 @@ import CreateProductPage from "./pages/products/create";
 import BulkUploadPage from "./pages/products/bulk-upload";
 import ProductViewPage from "./pages/products/_id";
 import ProductEditPage from "./pages/products/_id/edit";
+import InventoryPage from "./pages/inventory";
 import FlashSellPage from "./pages/flash-sell";
 import CustomersPage from "./pages/customers";
 import CreateCustomerPage from "./pages/customers/create";
@@ -171,6 +172,14 @@ export const routes = createBrowserRouter([
         element: (
           <PermissionRoute permission={FeaturePermission.PRODUCTS}>
             <ProductEditPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/inventory",
+        element: (
+          <PermissionRoute permission={FeaturePermission.PRODUCTS}>
+            <InventoryPage />
           </PermissionRoute>
         ),
       },
