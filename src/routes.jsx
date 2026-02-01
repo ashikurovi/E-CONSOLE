@@ -95,6 +95,7 @@ import StatisticsPage from "./pages/statistics";
 import ConnectedAppsPage from "./pages/connected-apps";
 import BannersOffersPage from "./pages/marketing/banners-offers";
 import MediaPage from "./pages/media";
+import RecurringInvoicesPage from "./pages/invoices/recurring";
 
 export const routes = createBrowserRouter([
   {
@@ -262,6 +263,14 @@ export const routes = createBrowserRouter([
         element: (
           <PermissionRoute permission={FeaturePermission.ORDERS}>
             <SaleInvoiceDetailsPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/recurring-invoices",
+        element: (
+          <PermissionRoute permission={FeaturePermission.ORDERS}>
+            <RecurringInvoicesPage />
           </PermissionRoute>
         ),
       },

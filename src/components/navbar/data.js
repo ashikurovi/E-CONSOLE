@@ -95,6 +95,20 @@ export const navSections = [
         link: "/invoices",
         permission: FeaturePermission.ORDERS,
         icon: FileText,
+        children: [
+          {
+            id: 6.51,
+            title: "Invoice List",
+            tKey: "nav.invoiceList",
+            link: "/invoices",
+          },
+          {
+            id: 6.52,
+            title: "Recurring Invoices",
+            tKey: "nav.recurringInvoices",
+            link: "/recurring-invoices",
+          },
+        ],
       },
       {
         id: 7.0,
