@@ -11,6 +11,7 @@ import {
   Package,
   Users,
   Megaphone,
+  Image,
   Shield,
   Server,
   LifeBuoy,
@@ -43,6 +44,13 @@ export const navSections = [
         tKey: "nav.aiDailyReport",
         link: "/ai-report",
         icon: Sparkles,
+      },
+      {
+        id: 1.65,
+        title: "Media",
+        tKey: "nav.media",
+        link: "/media",
+        icon: Image,
       },
       {
         id: 1.7,

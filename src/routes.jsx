@@ -94,6 +94,7 @@ import NotificationsPage from "./pages/notifications";
 import StatisticsPage from "./pages/statistics";
 import ConnectedAppsPage from "./pages/connected-apps";
 import BannersOffersPage from "./pages/marketing/banners-offers";
+import MediaPage from "./pages/media";
 
 export const routes = createBrowserRouter([
   {
@@ -111,6 +112,10 @@ export const routes = createBrowserRouter([
       {
         path: "/ai-report",
         element: <AiReportPage />,
+      },
+      {
+        path: "/media",
+        element: <MediaPage />,
       },
       {
         path: "/ai-live-feed",
