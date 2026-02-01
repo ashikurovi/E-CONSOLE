@@ -1,573 +1,381 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
-import ReusableTable from "@/components/table/reusable-table";
-import { Button } from "@/components/ui/button";
-import { Power, Trash2, X, Download, Eye, Pencil, Upload, RotateCcw, Send, Package } from "lucide-react";
-import {
-  useGetProductsQuery,
-  useGetDraftProductsQuery,
-  useGetTrashedProductsQuery,
-  useDeleteProductMutation,
-  useToggleProductActiveMutation,
-  useRecoverProductMutation,
-  usePublishDraftMutation,
-  usePermanentDeleteProductMutation,
-} from "@/features/product/productApiSlice";
-import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
 import { useNavigate } from "react-router-dom";
-import FlashSell from "./components/FlashSell";
+import { useSelector } from "react-redux";
+import { 
+  Plus, 
+  Download, 
+  Search, 
+  Filter, 
+  ChevronDown, 
+  MoreHorizontal, 
+  Edit, 
+  Trash2, 
+  Eye, 
+  RotateCcw,
+  LayoutGrid,
+  ListFilter
+} from "lucide-react";
+
+import { useGetProductsQuery, useGetDraftProductsQuery, useGetTrashedProductsQuery, useDeleteProductMutation, useToggleProductActiveMutation, useRecoverProductMutation, usePublishDraftMutation, usePermanentDeleteProductMutation } from "@/features/product/productApiSlice";
+import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
+
+// UI Components
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input-otp"; // Using standard input
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import TablePaginate from "@/components/table/pagination";
+
+// Modals
 import DeleteModal from "@/components/modals/DeleteModal";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import RestockModal from "./components/RestockModal";
-import Dropdown from "@/components/dropdown/dropdown";
 import { exportProductsToPDF } from "@/utils/pdfExport";
-import { useSelector } from "react-redux";
 
 const ProductsPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
-  const [activeTab, setActiveTab] = useState("published"); // published, drafts, trash
   
-  // Always fetch all queries so tab counts update in real-time
-  // RTK Query will cache the results, so this is efficient
-  const { data: publishedProducts = [], isLoading: isLoadingPublished } = useGetProductsQuery(
-    { companyId: authUser?.companyId }
-  );
-  const { data: draftProducts = [], isLoading: isLoadingDrafts } = useGetDraftProductsQuery(
-    { companyId: authUser?.companyId }
-  );
-  const { data: trashedProducts = [], isLoading: isLoadingTrash } = useGetTrashedProductsQuery(
-    { companyId: authUser?.companyId }
-  );
-  
+  // State
+  const [activeTab, setActiveTab] = useState("published"); // 'published', 'drafts', 'trash'
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
+
+  // API Queries
+  const { data: publishedProducts = [], isLoading: isLoadingPublished } = useGetProductsQuery({ companyId: authUser?.companyId });
+  const { data: draftProducts = [], isLoading: isLoadingDrafts } = useGetDraftProductsQuery({ companyId: authUser?.companyId });
+  const { data: trashedProducts = [], isLoading: isLoadingTrash } = useGetTrashedProductsQuery({ companyId: authUser?.companyId });
   const { data: categories = [] } = useGetCategoriesQuery({ companyId: authUser?.companyId });
+
+  // Mutations
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
   const [toggleActive, { isLoading: isToggling }] = useToggleProductActiveMutation();
   const [recoverProduct, { isLoading: isRecovering }] = useRecoverProductMutation();
   const [publishDraft, { isLoading: isPublishing }] = usePublishDraftMutation();
   const [permanentDeleteProduct, { isLoading: isPermanentlyDeleting }] = usePermanentDeleteProductMutation();
-  
-  const [deleteModal, setDeleteModal] = useState({ isOpen: false, product: null });
-  const [toggleModal, setToggleModal] = useState({ isOpen: false, product: null });
-  const [recoverModal, setRecoverModal] = useState({ isOpen: false, product: null });
-  const [publishModal, setPublishModal] = useState({ isOpen: false, product: null });
-  const [permanentDeleteModal, setPermanentDeleteModal] = useState({ isOpen: false, product: null });
-  const [restockModal, setRestockModal] = useState({ isOpen: false, product: null });
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedStockFilter, setSelectedStockFilter] = useState(null); // null | 'all' | 'low' | 'out' | 'in'
 
-  // Get products based on active tab
-  const products = useMemo(() => {
-    if (activeTab === "drafts") return draftProducts;
-    if (activeTab === "trash") return trashedProducts;
-    return publishedProducts;
+  // Modals Data
+  const [modalState, setModalState] = useState({ type: null, product: null });
+  const closeModal = () => setModalState({ type: null, product: null });
+
+  // Data Aggregation
+  const currentData = useMemo(() => {
+    switch(activeTab) {
+      case 'drafts': return draftProducts;
+      case 'trash': return trashedProducts;
+      default: return publishedProducts;
+    }
   }, [activeTab, publishedProducts, draftProducts, trashedProducts]);
 
-  const isLoading = useMemo(() => {
-    if (activeTab === "drafts") return isLoadingDrafts;
-    if (activeTab === "trash") return isLoadingTrash;
-    return isLoadingPublished;
-  }, [activeTab, isLoadingPublished, isLoadingDrafts, isLoadingTrash]);
+  const isLoading = activeTab === 'drafts' ? isLoadingDrafts : activeTab === 'trash' ? isLoadingTrash : isLoadingPublished;
 
-  const headers = useMemo(
-    () => [
-      { header: t("common.name"), field: "name" },
-      { header: t("products.sku"), field: "sku" },
-      { header: t("products.category"), field: "categoryName" },
-      { header: t("products.price"), field: "price" },
-      { header: t("products.stock"), field: "stock" },
-      { header: t("common.status"), field: "status" },
-      { header: t("common.actions"), field: "actions" },
-    ],
-    [t]
-  );
+  // Filtering & Sorting
+  const processedData = useMemo(() => {
+    let data = [...currentData];
 
-  const categoryOptions = useMemo(
-    () =>
-      categories.map((cat) => ({
-        label: cat.name,
-        value: cat.id,
-      })),
-    [categories]
-  );
+    // Search
+    if (searchTerm) {
+      const lower = searchTerm.toLowerCase();
+      data = data.filter(p => 
+        p.name?.toLowerCase().includes(lower) || 
+        p.sku?.toLowerCase().includes(lower) ||
+        p.category?.name?.toLowerCase().includes(lower)
+      );
+    }
 
-  // Add "All Categories" option to filter dropdown
-  const filterCategoryOptions = useMemo(
-    () => [
-      { label: t("products.allCategories"), value: null },
-      ...categoryOptions,
-    ],
-    [categoryOptions, t]
-  );
-
-  // Stock filter options
-  const stockFilterOptions = useMemo(
-    () => [
-      { label: t("products.allStock"), value: null },
-      { label: t("products.lowStock"), value: "low" },
-      { label: t("products.outOfStock"), value: "out" },
-      { label: t("products.inStock"), value: "in" },
-    ],
-    [t]
-  );
-
-  // Filter products by selected category and stock
-  const filteredProducts = useMemo(() => {
-    let result = products;
-    // Category filter
-    if (selectedCategory?.value) {
-      result = result.filter((p) => {
-        const categoryId = p.category?.id ?? p.categoryId;
-        return categoryId === selectedCategory.value;
+    // Sort
+    if (sortConfig.key) {
+      data.sort((a, b) => {
+        const aVal = a[sortConfig.key] ?? '';
+        const bVal = b[sortConfig.key] ?? '';
+        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
       });
     }
-    // Stock filter
-    if (selectedStockFilter?.value) {
-      const stock = (p) => p.stock ?? 0;
-      switch (selectedStockFilter.value) {
-        case "low":
-          result = result.filter((p) => stock(p) > 0 && stock(p) <= 5);
-          break;
-        case "out":
-          result = result.filter((p) => stock(p) === 0);
-          break;
-        case "in":
-          result = result.filter((p) => stock(p) > 0);
-          break;
-        default:
-          break;
+
+    return data;
+  }, [currentData, searchTerm, sortConfig]);
+
+  // Pagination
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return processedData.slice(start, start + pageSize);
+  }, [processedData, currentPage, pageSize]);
+
+  // Handlers
+  const handleToggleStatus = async (product) => {
+    try {
+      await toggleActive({ id: product.id, active: !product.isActive }).unwrap();
+      toast.success(product.isActive ? t("products.productDeactivated") : t("products.productActivated"));
+    } catch (err) {
+      toast.error(t("common.failed"));
+    }
+  };
+
+  const handleAction = async (action, product) => {
+    try {
+      if (action === 'delete') {
+        await deleteProduct(product.id).unwrap();
+        toast.success(t("products.productMovedToTrash"));
+      } else if (action === 'recover') {
+        await recoverProduct(product.id).unwrap();
+        toast.success(t("products.productRecovered"));
+      } else if (action === 'permanentDelete') {
+        await permanentDeleteProduct(product.id).unwrap();
+        toast.success(t("products.productPermanentlyDeleted"));
+      } else if (action === 'publish') {
+         await publishDraft(product.id).unwrap();
+         toast.success(t("products.productPublished"));
       }
-    }
-    return result;
-  }, [products, selectedCategory, selectedStockFilter]);
-
-  const tableData = useMemo(
-    () =>
-      filteredProducts.map((p) => ({
-        name: p.name ?? p.title ?? "-",
-        sku: p.sku ?? "-",
-        categoryName: p.category?.name ?? "-",
-        price:
-          typeof p.price === "number"
-            ? `$${p.price.toFixed(2)}`
-            : p.price ?? "-",
-        stock: (
-          <span className={`font-semibold ${
-            (p.stock ?? 0) <= 5 
-              ? "text-red-600 dark:text-red-400" 
-              : "text-black dark:text-white"
-          }`}>
-            {p.stock ?? 0}
-            {(p.stock ?? 0) <= 5 && (
-              <span className="ml-1 text-xs">⚠️</span>
-            )}
-          </span>
-        ),
-        status: activeTab === "trash" 
-          ? t("products.trashed") 
-          : activeTab === "drafts" 
-          ? t("products.draft") 
-          : (p.isActive ? t("common.active") : t("common.disabled")),
-        actions: (
-          <div className="flex items-center gap-2 justify-end">
-            {activeTab === "trash" ? (
-              // Trash tab actions
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-                  onClick={() => navigate(`/products/${p.id}`)}
-                  title={t("common.view")}
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setRecoverModal({ isOpen: true, product: p })}
-                  disabled={isRecovering}
-                  className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"
-                  title={t("products.recover")}
-                >
-                  <RotateCcw className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setPermanentDeleteModal({ isOpen: true, product: p })}
-                  disabled={isPermanentlyDeleting}
-                  className="bg-red-600/10 hover:bg-red-600/20 text-red-600 dark:text-red-400"
-                  title={t("products.deletePermanently")}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </>
-            ) : activeTab === "drafts" ? (
-              // Drafts tab actions
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-                  onClick={() => navigate(`/products/${p.id}`)}
-                  title={t("common.view")}
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
-                  onClick={() => navigate(`/products/${p.id}/edit`)}
-                  title={t("common.edit")}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setPublishModal({ isOpen: true, product: p })}
-                  disabled={isPublishing}
-                  className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"
-                  title={t("products.publish")}
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setDeleteModal({ isOpen: true, product: p })}
-                  disabled={isDeleting}
-                  className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
-                  title={t("products.moveToTrash")}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </>
-            ) : (
-              // Published tab actions
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-                  onClick={() => navigate(`/products/${p.id}`)}
-                  title={t("common.view")}
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400"
-                  onClick={() => setRestockModal({ isOpen: true, product: p })}
-                  title={t("products.restock")}
-                >
-                  <Package className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setToggleModal({ isOpen: true, product: p })}
-                  disabled={isToggling}
-                  className={`${p.isActive
-                    ? "bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
-                    : "bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"
-                    }`}
-                  title={p.isActive ? t("common.disable") : t("common.activate")}
-                >
-                  <Power className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
-                  onClick={() => navigate(`/products/${p.id}/edit`)}
-                  title={t("common.edit")}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setDeleteModal({ isOpen: true, product: p })}
-                  disabled={isDeleting}
-                  className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
-                  title={t("products.moveToTrash")}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </>
-            )}
-          </div>
-        ),
-      })),
-    [filteredProducts, activeTab, isDeleting, isToggling, isRecovering, isPublishing, isPermanentlyDeleting, navigate, t]
-  );
-
-  const handleDelete = async () => {
-    if (!deleteModal.product) return;
-    const res = await deleteProduct(deleteModal.product.id);
-    if (res?.data) {
-      toast.success(t("products.productMovedToTrash"));
-      setDeleteModal({ isOpen: false, product: null });
-    } else {
-      toast.error(res?.error?.data?.message || t("common.failed"));
+      closeModal();
+    } catch (err) {
+      toast.error(t("common.failed"));
     }
   };
 
-  const handleRecover = async () => {
-    if (!recoverModal.product) return;
-    const res = await recoverProduct(recoverModal.product.id);
-    if (res?.data) {
-      toast.success(t("products.productRecovered"));
-      setRecoverModal({ isOpen: false, product: null });
-    } else {
-      toast.error(res?.error?.data?.message || t("products.recoverProduct"));
-    }
-  };
-
-  const handlePublish = async () => {
-    if (!publishModal.product) return;
-    const res = await publishDraft(publishModal.product.id);
-    if (res?.data) {
-      toast.success(t("products.productPublished"));
-      setPublishModal({ isOpen: false, product: null });
-    } else {
-      toast.error(res?.error?.data?.message || t("products.publishProduct"));
-    }
-  };
-
-  const handleToggle = async () => {
-    if (!toggleModal.product) return;
-    const res = await toggleActive({ id: toggleModal.product.id });
-    if (res?.data) {
-      toast.success(t("products.productStateUpdated"));
-      setToggleModal({ isOpen: false, product: null });
-    } else {
-      toast.error(res?.error?.data?.message || t("products.productStateUpdated"));
-    }
-  };
-
-  const handlePermanentDelete = async () => {
-    if (!permanentDeleteModal.product) return;
-    const res = await permanentDeleteProduct(permanentDeleteModal.product.id);
-    if (res?.data) {
-      toast.success(t("products.productPermanentlyDeleted"));
-      setPermanentDeleteModal({ isOpen: false, product: null });
-    } else {
-      toast.error(res?.error?.data?.message || t("products.deletePermanently"));
-    }
-  };
-
-  const handleExportToPDF = () => {
-    exportProductsToPDF(filteredProducts, "Products");
-  };
+  // Render Helpers
+  const renderPrice = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount || 0);
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-medium">{t("products.title")}</h3>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExportToPDF}
-            className="flex items-center gap-2"
-            disabled={filteredProducts.length === 0}
-          >
-            <Download className="h-4 w-4" />
-            {t("products.exportToPdf")}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate("/products/bulk-upload")}
-            className="flex items-center gap-2"
-          >
-            <Upload className="h-4 w-4" />
-            {t("products.bulkUpload")}
-          </Button>
-          <FlashSell products={filteredProducts} categoryOptions={categoryOptions} />
-          <Button size="sm" onClick={() => navigate("/products/create")}>
-            {t("products.addProduct")}
-          </Button>
+    <div className="min-h-screen bg-[#f7f8f9] dark:bg-[#0b0f14] p-4 lg:p-8 space-y-6">
+      
+      {/* --- Header --- */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t("products.title")}</h1>
+           <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+              <span className="cursor-pointer hover:text-purple-600" onClick={() => setActiveTab('published')}>Public</span>
+              <span>•</span>
+              <span className="cursor-pointer hover:text-purple-600" onClick={() => setActiveTab('drafts')}>Drafts</span>
+              <span>•</span>
+              <span className="cursor-pointer hover:text-purple-600" onClick={() => setActiveTab('trash')}>Trash</span>
+           </div>
+        </div>
+        <div className="flex items-center gap-3">
+           <Button variant="outline" onClick={() => exportProductsToPDF(processedData, "Products")} className="bg-white dark:bg-[#1a1f26] border-gray-200 dark:border-gray-800">
+              <Download className="w-4 h-4 mr-2" />
+              {t("common.export")}
+           </Button>
+           <Button className="bg-[#7c3aed] hover:bg-[#6d28d9] text-white" onClick={() => navigate("/products/create")}>
+              <Plus className="w-4 h-4 mr-2" />
+              {t("products.addProduct")}
+           </Button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="mb-4 flex gap-2 border-b border-gray-100 dark:border-gray-800">
-        <button
-          onClick={() => setActiveTab("published")}
-          className={`px-4 py-2 font-medium text-sm transition-colors ${
-            activeTab === "published"
-              ? "border-b-2 border-blue-500 text-blue-600 dark:text-blue-400"
-              : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
-          }`}
-        >
-          {t("products.published")} ({publishedProducts.length})
-        </button>
-        <button
-          onClick={() => setActiveTab("drafts")}
-          className={`px-4 py-2 font-medium text-sm transition-colors ${
-            activeTab === "drafts"
-              ? "border-b-2 border-yellow-500 text-yellow-600 dark:text-yellow-400"
-              : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
-          }`}
-        >
-          {t("products.drafts")} ({draftProducts.length})
-        </button>
-        <button
-          onClick={() => setActiveTab("trash")}
-          className={`px-4 py-2 font-medium text-sm transition-colors ${
-            activeTab === "trash"
-              ? "border-b-2 border-red-500 text-red-600 dark:text-red-400"
-              : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
-          }`}
-        >
-          {t("products.trash")} ({trashedProducts.length})
-        </button>
+      {/* --- Toolbar --- */}
+      <div className="bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+         
+         {/* Search */}
+         <div className="relative w-full sm:max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input 
+              type="text" 
+              placeholder="Search product..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+            />
+         </div>
+
+         {/* Filters */}
+         <div className="flex items-center gap-3 w-full sm:w-auto">
+            <Button variant="outline" className="flex-1 sm:flex-none border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300">
+               <ListFilter className="w-4 h-4 mr-2" />
+               Filter
+            </Button>
+            <DropdownMenu>
+               <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="flex-1 sm:flex-none border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300">
+                     Sort by: Date
+                     <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
+                  </Button>
+               </DropdownMenuTrigger>
+               <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setSortConfig({ key: 'createdAt', direction: 'desc' })}>Newest First</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortConfig({ key: 'createdAt', direction: 'asc' })}>Oldest First</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortConfig({ key: 'price', direction: 'desc' })}>Price: High to Low</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortConfig({ key: 'price', direction: 'asc' })}>Price: Low to High</DropdownMenuItem>
+               </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="outline" className="border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300">
+               <LayoutGrid className="w-4 h-4 mr-2" />
+               Column
+            </Button>
+         </div>
       </div>
 
-      {/* Filter Section */}
-      <div className="mb-4 flex items-center gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-black/70 dark:text-white/70">
-            {t("products.filterByCategory")}:
-          </label>
-          <div className="min-w-[200px]">
-            <Dropdown
-              name={t("products.category")}
-              options={filterCategoryOptions}
-              setSelectedOption={setSelectedCategory}
-              className="py-2"
-            >
-              {selectedCategory?.label || (
-                <span className="text-black/50 dark:text-white/50">{t("products.allCategories")}</span>
-              )}
-            </Dropdown>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-black/70 dark:text-white/70">
-            {t("products.filterByStock")}:
-          </label>
-          <div className="min-w-[160px]">
-            <Dropdown
-              name={t("products.stock")}
-              options={stockFilterOptions}
-              setSelectedOption={setSelectedStockFilter}
-              className="py-2"
-            >
-              {selectedStockFilter?.label || (
-                <span className="text-black/50 dark:text-white/50">{t("products.allStock")}</span>
-              )}
-            </Dropdown>
-          </div>
-        </div>
-        {(selectedCategory || selectedStockFilter) && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setSelectedCategory(null);
-              setSelectedStockFilter(null);
-            }}
-            className="flex items-center gap-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-          >
-            <X className="h-4 w-4" />
-            {t("products.clearFilter")}
-          </Button>
-        )}
-        {(selectedCategory || selectedStockFilter) && (
-          <span className="text-sm text-black/60 dark:text-white/60">
-            {t("products.showingOf", { count: filteredProducts.length, total: products.length })}
-          </span>
-        )}
+      {/* --- Table --- */}
+      <div className="bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
+         <div className="overflow-x-auto">
+            <Table>
+               <TableHeader className="bg-gray-50/50 dark:bg-white/5">
+                  <TableRow>
+                     <TableHead className="w-[40px] pl-4"><Checkbox /></TableHead>
+                     <TableHead className="font-semibold text-gray-900 dark:text-white">Code</TableHead>
+                     <TableHead className="font-semibold text-gray-900 dark:text-white">Product</TableHead>
+                     <TableHead className="font-semibold text-gray-900 dark:text-white">Category</TableHead>
+                     <TableHead className="font-semibold text-gray-900 dark:text-white">Unit</TableHead>
+                     <TableHead className="font-semibold text-gray-900 dark:text-white">Quantity</TableHead>
+                     <TableHead className="font-semibold text-gray-900 dark:text-white">Selling Price</TableHead>
+                     <TableHead className="font-semibold text-gray-900 dark:text-white">Purchase Price</TableHead>
+                     {activeTab === 'published' && <TableHead className="font-semibold text-gray-900 dark:text-white text-center">Status</TableHead>}
+                     <TableHead className="text-right font-semibold text-gray-900 dark:text-white pr-4">Action</TableHead>
+                  </TableRow>
+               </TableHeader>
+               <TableBody>
+                  {isLoading ? (
+                     [...Array(5)].map((_, i) => (
+                        <TableRow key={i}>
+                           <TableCell colSpan={10} className="h-16 animate-pulse bg-gray-50/50 dark:bg-white/5" />
+                        </TableRow>
+                     ))
+                  ) : paginatedData.length === 0 ? (
+                     <TableRow>
+                        <TableCell colSpan={10} className="h-32 text-center text-gray-500">No products found</TableCell>
+                     </TableRow>
+                  ) : (
+                     paginatedData.map((product) => (
+                        <TableRow key={product.id} className="group hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                           <TableCell className="pl-4"><Checkbox /></TableCell>
+                           <TableCell className="font-medium text-gray-600 dark:text-gray-300">{product.sku || '—'}</TableCell>
+                           <TableCell>
+                              <div className="flex items-center gap-3">
+                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-white/10 flex items-center justify-center overflow-hidden border border-gray-200 dark:border-gray-700">
+                                    {product.images?.[0] ? (
+                                       <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                       <span className="text-xs font-bold text-gray-400">IMG</span>
+                                    )}
+                                 </div>
+                                 <span className="font-semibold text-gray-900 dark:text-white text-sm">{product.name}</span>
+                              </div>
+                           </TableCell>
+                           <TableCell className="text-gray-600 dark:text-gray-400">{product.category?.name || '—'}</TableCell>
+                           <TableCell className="text-gray-600 dark:text-gray-400">{product.unit || 'Piece'}</TableCell>
+                           <TableCell>
+                              <span className={`font-semibold ${
+                                 (product.stock || 0) <= 5 ? "text-red-600" : "text-gray-900 dark:text-white"
+                              }`}>
+                                 {product.stock || 0}
+                              </span>
+                           </TableCell>
+                           <TableCell className="font-medium text-gray-900 dark:text-white">{renderPrice(product.price)}</TableCell>
+                           <TableCell className="text-gray-600 dark:text-gray-400">{renderPrice(product.costPrice || product.price * 0.8)}</TableCell>
+                           
+                           {activeTab === 'published' && (
+                              <TableCell className="text-center">
+                                 <div className="flex justify-center">
+                                    <Switch 
+                                       checked={product.isActive} 
+                                       onCheckedChange={() => handleToggleStatus(product)}
+                                       className="data-[state=checked]:bg-emerald-500" 
+                                    />
+                                 </div>
+                              </TableCell>
+                           )}
+
+                           <TableCell className="text-right pr-4">
+                              <div className="flex items-center justify-end gap-2">
+                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100" onClick={() => navigate(`/products/${product.id}/edit`)}>
+                                    <Edit className="w-4 h-4" />
+                                 </Button>
+                                 {activeTab === 'trash' ? (
+                                    <>
+                                       <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600 bg-green-50 dark:bg-green-900/20 hover:bg-green-100" onClick={() => setModalState({ type: 'recover', product })}>
+                                          <RotateCcw className="w-4 h-4" />
+                                       </Button>
+                                       <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 bg-red-50 dark:bg-red-900/20 hover:bg-red-100" onClick={() => setModalState({ type: 'permanentDelete', product })}>
+                                          <Trash2 className="w-4 h-4" />
+                                       </Button>
+                                    </>
+                                 ) : (
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" onClick={() => setModalState({ type: 'delete', product })}>
+                                       <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                 )}
+                              </div>
+                           </TableCell>
+                        </TableRow>
+                     ))
+                  )}
+               </TableBody>
+            </Table>
+         </div>
+
+         {/* Pagination */}
+         <div className="p-4 border-t border-gray-100 dark:border-gray-800">
+            <TablePaginate
+               total={processedData.length}
+               pageSize={pageSize}
+               setPageSize={setPageSize}
+               currentPage={currentPage}
+               setCurrentPage={setCurrentPage}
+            />
+         </div>
       </div>
 
-      <ReusableTable
-        data={tableData}
-        headers={headers}
-        total={filteredProducts.length}
-        isLoading={isLoading}
-        py="py-2"
-      />
-
-      {/* Delete Modal */}
-      <DeleteModal
-        isOpen={deleteModal.isOpen}
-        onClose={() => setDeleteModal({ isOpen: false, product: null })}
-        onConfirm={handleDelete}
-        title={t("products.moveToTrash")}
-        description={t("products.moveToTrashDesc")}
-        itemName={deleteModal.product?.name || deleteModal.product?.title}
-        isLoading={isDeleting}
-      />
-
-      {/* Recover Modal */}
-      <ConfirmModal
-        isOpen={recoverModal.isOpen}
-        onClose={() => setRecoverModal({ isOpen: false, product: null })}
-        onConfirm={handleRecover}
-        title={t("products.recoverProduct")}
-        description={t("products.recoverProductDesc")}
-        itemName={recoverModal.product?.name || recoverModal.product?.title}
-        isLoading={isRecovering}
-        type="success"
-        confirmText={t("products.recover")}
-      />
-
-      {/* Publish Modal */}
-      <ConfirmModal
-        isOpen={publishModal.isOpen}
-        onClose={() => setPublishModal({ isOpen: false, product: null })}
-        onConfirm={handlePublish}
-        title={t("products.publishProduct")}
-        description={t("products.publishProductDesc")}
-        itemName={publishModal.product?.name || publishModal.product?.title}
-        isLoading={isPublishing}
-        type="success"
-        confirmText={t("products.publish")}
-      />
-
-      {/* Restock Modal */}
-      <RestockModal
-        isOpen={restockModal.isOpen}
-        onClose={() => setRestockModal({ isOpen: false, product: null })}
-        product={restockModal.product}
-      />
-
-      {/* Toggle Active Modal */}
-      <ConfirmModal
-        isOpen={toggleModal.isOpen}
-        onClose={() => setToggleModal({ isOpen: false, product: null })}
-        onConfirm={handleToggle}
-        title={toggleModal.product?.isActive ? t("products.disableProduct") : t("products.activateProduct")}
-        description={
-          toggleModal.product?.isActive ? t("products.disableProductDesc") : t("products.activateProductDesc")
-        }
-        itemName={toggleModal.product?.name || toggleModal.product?.title}
-        isLoading={isToggling}
-        type={toggleModal.product?.isActive ? "warning" : "success"}
-        confirmText={toggleModal.product?.isActive ? t("common.disable") : t("common.activate")}
-      />
-
-      {/* Permanent Delete Modal */}
-      <ConfirmModal
-        isOpen={permanentDeleteModal.isOpen}
-        onClose={() => setPermanentDeleteModal({ isOpen: false, product: null })}
-        onConfirm={handlePermanentDelete}
-        title={t("products.permanentDeleteProduct")}
-        description={t("products.permanentDeleteProductDesc")}
-        itemName={permanentDeleteModal.product?.name || permanentDeleteModal.product?.title}
-        isLoading={isPermanentlyDeleting}
-        type="danger"
-        confirmText={t("products.deletePermanently")}
-      />
+      {/* --- Modals --- */}
+      {modalState.type === 'delete' && (
+         <DeleteModal
+            isOpen={true}
+            onClose={closeModal}
+            onConfirm={() => handleAction('delete', modalState.product)}
+            title={t("products.moveToTrash")}
+            description={t("products.moveToTrashDesc")}
+            itemName={modalState.product?.name}
+            isLoading={isDeleting}
+         />
+      )}
+      {modalState.type === 'recover' && (
+         <ConfirmModal
+            isOpen={true}
+            onClose={closeModal}
+            onConfirm={() => handleAction('recover', modalState.product)}
+            title={t("products.recoverProduct")}
+            description={t("products.recoverProductDesc")}
+            itemName={modalState.product?.name}
+            isLoading={isRecovering}
+            type="success"
+            confirmText="Recover"
+         />
+      )}
+      {modalState.type === 'permanentDelete' && (
+         <ConfirmModal
+            isOpen={true}
+            onClose={closeModal}
+            onConfirm={() => handleAction('permanentDelete', modalState.product)}
+            title="Permanent Delete"
+            description="This action cannot be undone."
+            itemName={modalState.product?.name}
+            isLoading={isPermanentlyDeleting}
+            type="danger"
+            confirmText="Delete Permanently"
+         />
+      )}
     </div>
   );
 };

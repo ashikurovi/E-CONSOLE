@@ -96,7 +96,7 @@ const CheckStatus = () => {
               setSearchValue("");
               setShouldFetch(false);
             }}
-            className="border border-black/5 dark:border-white/10 py-2.5 px-4 bg-white/50 dark:bg-black/20 w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded backdrop-blur-sm"
+            className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90 rounded"
           >
             <option value="consignment">{t("steadfast.consignmentId")}</option>
             <option value="invoice">{t("steadfast.invoiceIdOption")}</option>
@@ -119,14 +119,13 @@ const CheckStatus = () => {
               setShouldFetch(false);
             }}
             className="flex-1"
-            inputClassName="!bg-white/50 dark:!bg-black/20 !border-black/5 dark:!border-white/10 backdrop-blur-sm focus:!bg-white/70 dark:focus:!bg-black/40 transition-all duration-300"
           />
           <PrimaryButton
             onClick={handleSearch}
             isLoading={isLoading}
-            className="px-8 !bg-black/80 dark:!bg-white/90 !text-white dark:!text-black backdrop-blur-md shadow-lg border border-white/20 hover:!bg-black dark:hover:!bg-white transition-all duration-300 flex items-center justify-center gap-2"
+            className="px-6"
           >
-            <Search className="h-4 w-4" />
+            <Search className="h-4 w-4 mr-2" />
             {t("steadfast.search")}
           </PrimaryButton>
         </div>

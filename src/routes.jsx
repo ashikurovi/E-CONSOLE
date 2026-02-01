@@ -32,6 +32,7 @@ import CreateProductPage from "./pages/products/create";
 import BulkUploadPage from "./pages/products/bulk-upload";
 import ProductViewPage from "./pages/products/_id";
 import ProductEditPage from "./pages/products/_id/edit";
+import InventoryPage from "./pages/inventory";
 import FlashSellPage from "./pages/flash-sell";
 import CustomersPage from "./pages/customers";
 import CreateCustomerPage from "./pages/customers/create";
@@ -39,7 +40,11 @@ import OrdersPage from "./pages/orders";
 import CreateOrderPage from "./pages/orders/create";
 import OrderTrackPage from "./pages/orders/track";
 import OrderViewPage from "./pages/orders/_id";
+
 import OrderEditPage from "./pages/orders/_id/edit";
+import InvoicesPage from "./pages/invoices";
+import CreateInvoicePage from "./pages/invoices/create";
+import SaleInvoiceDetailsPage from "./pages/invoices/[id]/details";
 import FraudPage from "./pages/fraud";
 import BannerPage from "./pages/banner";
 import CreateBannerPage from "./pages/banner/create";
@@ -175,6 +180,14 @@ export const routes = createBrowserRouter([
         ),
       },
       {
+        path: "/inventory",
+        element: (
+          <PermissionRoute permission={FeaturePermission.PRODUCTS}>
+            <InventoryPage />
+          </PermissionRoute>
+        ),
+      },
+      {
         path: "/flash-sell",
         element: (
           <PermissionRoute permission={FeaturePermission.PRODUCTS}>
@@ -203,6 +216,30 @@ export const routes = createBrowserRouter([
         element: (
           <PermissionRoute permission={FeaturePermission.ORDERS}>
             <OrdersPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/invoices",
+        element: (
+          <PermissionRoute permission={FeaturePermission.ORDERS}>
+            <InvoicesPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/invoices/create",
+        element: (
+          <PermissionRoute permission={FeaturePermission.ORDERS}>
+            <CreateInvoicePage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/invoices/:id",
+        element: (
+          <PermissionRoute permission={FeaturePermission.ORDERS}>
+            <SaleInvoiceDetailsPage />
           </PermissionRoute>
         ),
       },
