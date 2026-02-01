@@ -8,17 +8,12 @@ import {
 } from "@/features/dashboard/dashboardApiSlice";
 import {
   Sparkles,
-  FileText,
-  Languages,
   Download,
-  ChevronDown,
-  ChevronUp,
   Volume2,
   Square,
   Briefcase,
   CheckSquare,
   Hourglass,
-  Calendar,
   TrendingUp,
   MoreHorizontal,
   ArrowUpRight,
