@@ -91,6 +91,7 @@ import PathaoPage from "./pages/pathao";
 import RedXPage from "./pages/redx";
 import UpgradePlanPage from "./pages/upgrade-plan";
 import NotificationsPage from "./pages/notifications";
+import StatisticsPage from "./pages/statistics";
 
 export const routes = createBrowserRouter([
   {
@@ -116,6 +117,10 @@ export const routes = createBrowserRouter([
       {
         path: "/ai-sales-direction",
         element: <AiSalesDirectionPage />,
+      },
+      {
+        path: "/statistics",
+        element: <StatisticsPage />,
       },
       {
         path: "/categories",

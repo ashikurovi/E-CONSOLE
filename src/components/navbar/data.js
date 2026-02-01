@@ -57,6 +57,13 @@ export const navSections = [
         link: "/ai-sales-direction",
         icon: Target,
       },
+      {
+        id: 1.9,
+        title: "Statistics",
+        tKey: "nav.statistics",
+        link: "/statistics",
+        icon: Star,
+      },
     ],
   },
   {
