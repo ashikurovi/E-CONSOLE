@@ -16,7 +16,6 @@ const PERMISSION_GROUPS = {
     { value: FeaturePermission.ORDERS_ITEM, label: "Order Items" },
     { value: FeaturePermission.CATEGORY, label: "Category" },
     { value: FeaturePermission.CUSTOMERS, label: "Customers" },
-    { value: FeaturePermission.INVENTORY, label: "Inventory" },
   ],
   "Management": [
     { value: FeaturePermission.MANAGE_USERS, label: "Manage Users" },
