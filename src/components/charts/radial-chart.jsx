@@ -20,13 +20,17 @@ export default function RadialChartComponent({
   name = "Total Amount",
   className = "",
 }) {
-  const isDark = typeof document !== "undefined" && document.documentElement?.classList?.contains("dark");
+  const isDark =
+    typeof document !== "undefined" &&
+    document.documentElement?.classList?.contains("dark");
   const first = chartData?.[0] ?? { paid: 0, unpaid: 0 };
   const paid = Number(first.paid) || 0;
   const unpaid = Number(first.unpaid) || 0;
 
-  const paidColor = chartConfig?.paid?.color || (isDark ? "#10b981" : "#059669");
-  const unpaidColor = chartConfig?.unpaid?.color || (isDark ? "#f59e0b" : "#d97706");
+  const paidColor =
+    chartConfig?.paid?.color || (isDark ? "#10b981" : "#059669");
+  const unpaidColor =
+    chartConfig?.unpaid?.color || (isDark ? "#f59e0b" : "#d97706");
 
   const series = useMemo(() => [paid, unpaid], [paid, unpaid]);
   const labels = useMemo(
@@ -34,7 +38,7 @@ export default function RadialChartComponent({
       chartConfig?.paid?.label || "Paid",
       chartConfig?.unpaid?.label || "Unpaid",
     ],
-    [chartConfig]
+    [chartConfig],
   );
 
   const options = useMemo(
@@ -102,7 +106,7 @@ export default function RadialChartComponent({
         lineCap: "round",
       },
     }),
-    [labels, paidColor, unpaidColor, name, total, isDark]
+    [labels, paidColor, unpaidColor, name, total, isDark],
   );
 
   return (
