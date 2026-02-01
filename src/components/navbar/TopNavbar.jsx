@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-
 // components
 import LanguageSwitcher from "@/components/language/LanguageSwitcher";
 import ThemeToggle from "@/components/theme/ThemeToggle";
@@ -54,38 +53,32 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
   } = useGlobalSearch(searchTerm, companyId);
 
   // Fetch all types of notifications
-  const {
-    data: allNotifications = [],
-  } = useGetAllNotificationsQuery({ companyId }, { skip: !companyId });
+  const { data: allNotifications = [] } = useGetAllNotificationsQuery(
+    { companyId },
+    { skip: !companyId },
+  );
 
-  const {
-    data: orderNotifications = [],
-  } = useGetOrderCreatedNotificationsQuery(companyId, {
-    skip: !companyId,
-  });
+  const { data: orderNotifications = [] } =
+    useGetOrderCreatedNotificationsQuery(companyId, {
+      skip: !companyId,
+    });
 
   const {
     data: orderStatusNotifications = [],
     isLoading: isLoadingOrderStatus,
-
   } = useGetOrderStatusNotificationsQuery(companyId, {
     skip: !companyId,
   });
 
-  const {
-    data: newCustomerNotifications = [],
-    isLoading: isLoadingCustomers,
+  const { data: newCustomerNotifications = [], isLoading: isLoadingCustomers } =
+    useGetNewCustomerNotificationsQuery(companyId, {
+      skip: !companyId,
+    });
 
-  } = useGetNewCustomerNotificationsQuery(companyId, {
-    skip: !companyId,
-  });
-
-  const {
-    data: lowStockNotifications = [],
-    isLoading: isLoadingStock,
-  } = useGetLowStockNotificationsQuery(companyId, {
-    skip: !companyId,
-  });
+  const { data: lowStockNotifications = [], isLoading: isLoadingStock } =
+    useGetLowStockNotificationsQuery(companyId, {
+      skip: !companyId,
+    });
 
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
@@ -109,155 +102,211 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
     return acc;
   }, []);
 
-  
   // Transform API notifications to match UI format
-  const notifications = uniqueNotifications.map((notification) => {
-    // Determine icon and color based on notification type (matching backend enum)
-    let icon = Bell;
-    let iconColor = "text-gray-500";
-    let title = notification.subject || notification.title || t("notifications.notification");
-    
-    switch(notification.type) {
-      // Order notifications
-      case "order_created":
-      case "ORDER_CREATED":
-        icon = ShoppingCart;
-        iconColor = "text-blue-500";
-        title = notification.subject || notification.title || t("notifications.newOrderCreated");
-        break;
-      case "order_confirmed":
-      case "ORDER_CONFIRMED":
-        icon = CheckCircle;
-        iconColor = "text-blue-600";
-        title = notification.subject || notification.title || t("notifications.orderConfirmed");
-        break;
-      case "order_processing":
-      case "ORDER_PROCESSING":
-        icon = Package;
-        iconColor = "text-yellow-500";
-        title = notification.subject || notification.title || t("notifications.orderProcessing");
-        break;
-      case "order_shipped":
-      case "ORDER_SHIPPED":
-        icon = Truck;
-        iconColor = "text-purple-500";
-        title = notification.subject || notification.title || t("notifications.orderShipped");
-        break;
-      case "order_delivered":
-      case "ORDER_DELIVERED":
-        icon = CheckCircle;
-        iconColor = "text-green-500";
-        title = notification.subject || notification.title || t("notifications.orderDelivered");
-        break;
-      case "order_cancelled":
-      case "ORDER_CANCELLED":
-        icon = AlertCircle;
-        iconColor = "text-red-500";
-        title = notification.subject || notification.title || t("notifications.orderCancelled");
-        break;
-      case "order_refunded":
-      case "ORDER_REFUNDED":
-        icon = AlertCircle;
-        iconColor = "text-orange-600";
-        title = notification.subject || notification.title || t("notifications.orderRefunded");
-        break;
-      
-      // Payment notifications
-      case "payment_received":
-      case "PAYMENT_RECEIVED":
-        icon = CheckCircle;
-        iconColor = "text-green-600";
-        title = notification.subject || notification.title || t("notifications.paymentReceived");
-        break;
-      case "payment_failed":
-      case "PAYMENT_FAILED":
-        icon = AlertCircle;
-        iconColor = "text-red-600";
-        title = notification.subject || notification.title || t("notifications.paymentFailed");
-        break;
-      
-      // Customer notifications
-      case "new_customer":
-      case "NEW_CUSTOMER":
-        icon = User;
-        iconColor = "text-indigo-500";
-        title = notification.subject || notification.title || t("notifications.newCustomer");
-        break;
-      case "customer_updated":
-      case "CUSTOMER_UPDATED":
-        icon = User;
-        iconColor = "text-blue-400";
-        title = notification.subject || notification.title || t("notifications.customerUpdated");
-        break;
-      
-      // Stock notifications
-      case "low_stock":
-      case "LOW_STOCK":
-        icon = AlertCircle;
-        iconColor = "text-orange-500";
-        title = notification.subject || notification.title || t("notifications.lowStockAlert");
-        break;
-      case "out_of_stock":
-      case "OUT_OF_STOCK":
-        icon = AlertCircle;
-        iconColor = "text-red-500";
-        title = notification.subject || notification.title || t("notifications.outOfStock");
-        break;
-      
-      // Product notifications
-      case "product_added":
-      case "PRODUCT_ADDED":
-        icon = Package;
-        iconColor = "text-green-500";
-        title = notification.subject || notification.title || t("notifications.productAdded");
-        break;
-      case "product_updated":
-      case "PRODUCT_UPDATED":
-        icon = Package;
-        iconColor = "text-blue-500";
-        title = notification.subject || notification.title || t("notifications.productUpdated");
-        break;
-      
-      // Broadcast notifications
-      case "broadcast_email":
-      case "BROADCAST_EMAIL":
-        icon = Bell;
-        iconColor = "text-indigo-500";
-        title = notification.subject || notification.title || t("notifications.emailBroadcast");
-        break;
-      case "broadcast_sms":
-      case "BROADCAST_SMS":
-        icon = Bell;
-        iconColor = "text-teal-500";
-        title = notification.subject || notification.title || t("notifications.smsBroadcast");
-        break;
-      
-      default:
-        icon = Bell;
-        iconColor = "text-gray-500";
-        title = notification.subject || notification.title || t("notifications.notification");
-    }
-    
-    return {
-      id: notification.id || notification._id,
-      type: notification.type || "general",
-      title: title,
-      message: notification.message || `Notification message`,
-      time: notification.createdAt 
-        ? moment(notification.createdAt).fromNow()
-        : "Just now",
-      icon: icon,
-      iconColor: iconColor,
-      read: notification.isRead || false,
-      orderId: notification.orderId,
-    };
-  }).sort((a, b) => {
-    // Sort by read status (unread first) and then by time
-    if (a.read === b.read) return 0;
-    return a.read ? 1 : -1;
-  });
+  const notifications = uniqueNotifications
+    .map((notification) => {
+      // Determine icon and color based on notification type (matching backend enum)
+      let icon = Bell;
+      let iconColor = "text-gray-500";
+      let title =
+        notification.subject ||
+        notification.title ||
+        t("notifications.notification");
 
+      switch (notification.type) {
+        // Order notifications
+        case "order_created":
+        case "ORDER_CREATED":
+          icon = ShoppingCart;
+          iconColor = "text-blue-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.newOrderCreated");
+          break;
+        case "order_confirmed":
+        case "ORDER_CONFIRMED":
+          icon = CheckCircle;
+          iconColor = "text-blue-600";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.orderConfirmed");
+          break;
+        case "order_processing":
+        case "ORDER_PROCESSING":
+          icon = Package;
+          iconColor = "text-yellow-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.orderProcessing");
+          break;
+        case "order_shipped":
+        case "ORDER_SHIPPED":
+          icon = Truck;
+          iconColor = "text-purple-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.orderShipped");
+          break;
+        case "order_delivered":
+        case "ORDER_DELIVERED":
+          icon = CheckCircle;
+          iconColor = "text-green-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.orderDelivered");
+          break;
+        case "order_cancelled":
+        case "ORDER_CANCELLED":
+          icon = AlertCircle;
+          iconColor = "text-red-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.orderCancelled");
+          break;
+        case "order_refunded":
+        case "ORDER_REFUNDED":
+          icon = AlertCircle;
+          iconColor = "text-orange-600";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.orderRefunded");
+          break;
 
+        // Payment notifications
+        case "payment_received":
+        case "PAYMENT_RECEIVED":
+          icon = CheckCircle;
+          iconColor = "text-green-600";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.paymentReceived");
+          break;
+        case "payment_failed":
+        case "PAYMENT_FAILED":
+          icon = AlertCircle;
+          iconColor = "text-red-600";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.paymentFailed");
+          break;
+
+        // Customer notifications
+        case "new_customer":
+        case "NEW_CUSTOMER":
+          icon = User;
+          iconColor = "text-indigo-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.newCustomer");
+          break;
+        case "customer_updated":
+        case "CUSTOMER_UPDATED":
+          icon = User;
+          iconColor = "text-blue-400";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.customerUpdated");
+          break;
+
+        // Stock notifications
+        case "low_stock":
+        case "LOW_STOCK":
+          icon = AlertCircle;
+          iconColor = "text-orange-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.lowStockAlert");
+          break;
+        case "out_of_stock":
+        case "OUT_OF_STOCK":
+          icon = AlertCircle;
+          iconColor = "text-red-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.outOfStock");
+          break;
+
+        // Product notifications
+        case "product_added":
+        case "PRODUCT_ADDED":
+          icon = Package;
+          iconColor = "text-green-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.productAdded");
+          break;
+        case "product_updated":
+        case "PRODUCT_UPDATED":
+          icon = Package;
+          iconColor = "text-blue-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.productUpdated");
+          break;
+
+        // Broadcast notifications
+        case "broadcast_email":
+        case "BROADCAST_EMAIL":
+          icon = Bell;
+          iconColor = "text-indigo-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.emailBroadcast");
+          break;
+        case "broadcast_sms":
+        case "BROADCAST_SMS":
+          icon = Bell;
+          iconColor = "text-teal-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.smsBroadcast");
+          break;
+
+        default:
+          icon = Bell;
+          iconColor = "text-gray-500";
+          title =
+            notification.subject ||
+            notification.title ||
+            t("notifications.notification");
+      }
+
+      return {
+        id: notification.id || notification._id,
+        type: notification.type || "general",
+        title: title,
+        message: notification.message || `Notification message`,
+        time: notification.createdAt
+          ? moment(notification.createdAt).fromNow()
+          : "Just now",
+        icon: icon,
+        iconColor: iconColor,
+        read: notification.isRead || false,
+        orderId: notification.orderId,
+      };
+    })
+    .sort((a, b) => {
+      // Sort by read status (unread first) and then by time
+      if (a.read === b.read) return 0;
+      return a.read ? 1 : -1;
+    });
 
   const newNotificationCount = notifications.filter((n) => !n.read).length;
 
@@ -316,14 +365,14 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
           ref={searchContainerRef}
         >
           <div className="relative w-full group">
-             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-             <input 
-                type="text"
-                placeholder={t("search.placeholder")}
-                value={searchTerm}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="w-full bg-gray-100/50 dark:bg-white/5 border border-transparent focus:border-blue-500/20 focus:bg-white dark:focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 rounded-xl pl-10 pr-4 py-2 text-sm outline-none transition-all duration-300"
-             />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+            <input
+              type="text"
+              placeholder={t("search.placeholder")}
+              value={searchTerm}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="w-full bg-gray-100/50 dark:bg-white/5 border border-transparent focus:border-blue-500/20 focus:bg-white dark:focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 rounded-xl pl-10 pr-4 py-2 text-sm outline-none transition-all duration-300"
+            />
           </div>
 
           {/* Real-time Search Results Dropdown */}
@@ -348,8 +397,10 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
 
                 {isSearchLoading ? (
                   <div className="text-center py-12">
-                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3 opacity-50"></div>
-                     <p className="text-sm text-gray-500">{t("search.searching")}</p>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3 opacity-50"></div>
+                    <p className="text-sm text-gray-500">
+                      {t("search.searching")}
+                    </p>
                   </div>
                 ) : totalResults === 0 ? (
                   <div className="text-center py-12">
@@ -422,7 +473,9 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                                     {p.name ?? p.title ?? "-"}
                                   </p>
                                   <p className="text-xs text-gray-500 mt-0.5">
-                                    SKU: {p.sku || "-"} <span className="mx-1">•</span> Stock: {p.stock || 0}
+                                    SKU: {p.sku || "-"}{" "}
+                                    <span className="mx-1">•</span> Stock:{" "}
+                                    {p.stock || 0}
                                   </p>
                                 </div>
                                 <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -439,7 +492,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                     {results.customers.length > 0 && (
                       <div>
                         <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-                           {t("search.customers")}
+                          {t("search.customers")}
                         </h4>
                         <div className="grid gap-2">
                           {results.customers.slice(0, 5).map((c) => (
@@ -453,19 +506,19 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                               }}
                               className="p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors group"
                             >
-                               <div className="flex items-center gap-3">
-                                 <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 text-xs font-bold">
-                                   {c.name?.charAt(0) || "U"}
-                                 </div>
-                                  <div>
-                                    <p className="font-medium text-sm text-gray-900 dark:text-gray-100 group-hover:text-blue-500 transition-colors">
-                                      {c.name ?? "-"}
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-0.5">
-                                      {c.email || "-"}
-                                    </p>
-                                  </div>
-                               </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 text-xs font-bold">
+                                  {c.name?.charAt(0) || "U"}
+                                </div>
+                                <div>
+                                  <p className="font-medium text-sm text-gray-900 dark:text-gray-100 group-hover:text-blue-500 transition-colors">
+                                    {c.name ?? "-"}
+                                  </p>
+                                  <p className="text-xs text-gray-500 mt-0.5">
+                                    {c.email || "-"}
+                                  </p>
+                                </div>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -480,7 +533,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-3 lg:gap-4 ml-auto">
-           {/* Mobile Search Toggle */}
+          {/* Mobile Search Toggle */}
           <div className="lg:hidden">
             <IconButton
               icon={Search}
@@ -490,14 +543,14 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
           </div>
 
           <div className="hidden sm:flex items-center gap-2">
-             <ThemeToggle
-                variant="compact"
-                className="!bg-gray-100/50 dark:!bg-white/5 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-200 dark:hover:!bg-white/10 border-0"
-              />
-              <LanguageSwitcher
-                variant="compact"
-                 className="!bg-gray-100/50 dark:!bg-white/5 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-200 dark:hover:!bg-white/10 border-0"
-              />
+            <ThemeToggle
+              variant="compact"
+              className="!bg-gray-100/50 dark:!bg-white/5 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-200 dark:hover:!bg-white/10 border-0"
+            />
+            <LanguageSwitcher
+              variant="compact"
+              className="!bg-gray-100/50 dark:!bg-white/5 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-200 dark:hover:!bg-white/10 border-0"
+            />
           </div>
 
           <div className="h-6 w-px bg-gray-200 dark:bg-white/10 mx-1 hidden sm:block"></div>
@@ -522,7 +575,9 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
           {/* Profile */}
           <Link to="/settings" className="flex items-center gap-3 pl-2">
             <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 ring-2 ring-white dark:ring-white/10">
-              <span className="text-sm font-bold">{user?.name?.charAt(0) || "U"}</span>
+              <span className="text-sm font-bold">
+                {user?.name?.charAt(0) || "U"}
+              </span>
             </div>
             {/* <div className="hidden lg:block text-left">
                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-none">{user?.name || "User"}</p>
@@ -531,7 +586,6 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
           </Link>
         </div>
       </div>
-
     </nav>
   );
 };
