@@ -39,7 +39,6 @@ const AVAILABLE_FEATURES = [
     "CATEGORY",
     "CUSTOMERS",
     "REPORTS",
-    "INVENTORY",
     "SETTINGS",
     "STAFF",
     "SMS_CONFIGURATION",
@@ -149,7 +148,7 @@ const PackageEditForm = ({ pkg, onClose }) => {
             price: parseFloat(data.price),
             discountPrice: data.discountPrice ? parseFloat(data.discountPrice) : null,
             isFeatured,
-            features: validFeatures,
+            features,
             ...(themeId && { themeId: parseInt(themeId) }),
         };
 

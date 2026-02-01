@@ -40,7 +40,6 @@ const AVAILABLE_FEATURES = [
     "CATEGORY",
     "CUSTOMERS",
     "REPORTS",
-    "INVENTORY",
     "SETTINGS",
     "STAFF",
     "SMS_CONFIGURATION",

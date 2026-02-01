@@ -120,7 +120,6 @@ export const apiSlice = createApi({
     "auth",
     "categories",
     "products",
-    "inventory",
     "users",
     "orders",
     "ordersitem",
