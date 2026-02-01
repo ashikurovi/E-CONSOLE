@@ -25,7 +25,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCreateSaleInvoiceMutation } from "@/features/invoice/saleInvoiceApiSlice";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
 
 const CreateInvoicePage = () => {
