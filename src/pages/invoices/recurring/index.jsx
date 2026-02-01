@@ -1,6 +1,4 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { format } from "date-fns";
+import { useState } from "react";
 import { 
   Plus, 
   Search, 
@@ -10,21 +8,14 @@ import {
   ChevronDown, 
   RefreshCw,
   CheckCircle2,
-  Clock,
   AlertCircle,
-  XCircle,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  LayoutGrid
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-
-/**
- * RecurringInvoicesPage Component
- * High-fidelity dashboard for managing recurring subscription invoices.
- */
 export default function RecurringInvoicesPage() {
-  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
 
   const summaryCards = [
@@ -184,7 +175,7 @@ export default function RecurringInvoicesPage() {
            <div className="flex items-center gap-1">
               <Button variant="outline" className="h-8 px-3 rounded-lg text-[10px] font-black bg-indigo-600 text-white border-none">1</Button>
               <Button variant="outline" className="h-8 px-3 rounded-lg text-[10px] font-black text-gray-400 border-none hover:bg-gray-50 dark:hover:bg-white/5">2</Button>
-              <Button variant="outline" className="h-8 px-3 rounded-lg text-[10px] font-black text-gray-400 border-none hover:bg-gray-50 dark:hover:bg-white/5">3</option>
+              <Button variant="outline" className="h-8 px-3 rounded-lg text-[10px] font-black text-gray-400 border-none hover:bg-gray-50 dark:hover:bg-white/5">3</Button>
               <span className="text-gray-400 mx-1">...</span>
               <Button variant="outline" className="h-8 px-3 rounded-lg text-[10px] font-black text-gray-400 border-none hover:bg-gray-50 dark:hover:bg-white/5">15</Button>
            </div>
