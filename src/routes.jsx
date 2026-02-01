@@ -240,7 +240,7 @@ export const routes = createBrowserRouter([
       {
         path: "/fraud",
         element: (
-          <PermissionRoute permission={FeaturePermission.FRAUD_CHECKER}>
+          <PermissionRoute permission={FeaturePermission.FRUAD_CHECKER}>
             <FraudPage />
           </PermissionRoute>
         ),
@@ -456,7 +456,7 @@ export const routes = createBrowserRouter([
       {
         path: "/steadfast",
         element: (
-          <PermissionRoute permission={FeaturePermission.STEADFAST}>
+          <PermissionRoute permission={FeaturePermission.STEARDFAST}>
             <SteadfastPage />
           </PermissionRoute>
         ),

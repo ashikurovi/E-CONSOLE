@@ -77,7 +77,7 @@ export const navSections = [
         title: "Steadfast Courier",
         tKey: "nav.steadfastCourier",
         link: "/steadfast",
-        permission: FeaturePermission.STEADFAST,
+        permission: FeaturePermission.STEARDFAST,
         icon: Truck,
       },
       {

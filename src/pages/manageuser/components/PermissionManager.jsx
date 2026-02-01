@@ -41,7 +41,7 @@ const PERMISSION_GROUPS = {
     { value: FeaturePermission.SMS_NOTIFICATIONS, label: "SMS Notifications" },
   ],
   "Shipping": [
-    { value: FeaturePermission.STEADFAST, label: "Steadfast Courier" },
+    { value: FeaturePermission.STEARDFAST, label: "Steadfast Courier" },
     { value: FeaturePermission.PATHAO, label: "Pathao Courier" },
     { value: FeaturePermission.REDX, label: "RedX Courier" },
   ],
