@@ -81,6 +81,14 @@ export const navSections = [
         icon: FileText,
       },
       {
+        id: 7.0,
+        title: "Credit Notes",
+        tKey: "nav.creditNotes",
+        link: "/credit-notes",
+        permission: FeaturePermission.ORDERS,
+        icon: FileText,
+      },
+      {
         id: 7.5,
         title: "Steadfast Courier",
         tKey: "nav.steadfastCourier",
