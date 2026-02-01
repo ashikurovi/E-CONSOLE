@@ -108,7 +108,7 @@ export default function BannersOffersPage() {
             <RefreshCw className="w-3.5 h-3.5 text-blue-500 cursor-pointer" />
           </div>
           <div className="bg-gray-50 dark:bg-white/5 py-3 px-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm text-sm font-bold text-[#0b121e] dark:text-white">
-             {format(new Date(), "September 28, 2023 12:35 PM")}
+             {format(new Date(), "MMMM dd, yyyy hh:mm a")}
           </div>
         </div>
       </div>
