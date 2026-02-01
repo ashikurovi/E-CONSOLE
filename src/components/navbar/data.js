@@ -73,6 +73,14 @@ export const navSections = [
         icon: ShoppingCart,
       },
       {
+        id: 6.5,
+        title: "Invoices",
+        tKey: "nav.invoices",
+        link: "/invoices",
+        permission: FeaturePermission.ORDERS,
+        icon: FileText,
+      },
+      {
         id: 7.5,
         title: "Steadfast Courier",
         tKey: "nav.steadfastCourier",

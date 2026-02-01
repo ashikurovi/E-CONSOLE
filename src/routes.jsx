@@ -40,7 +40,9 @@ import OrdersPage from "./pages/orders";
 import CreateOrderPage from "./pages/orders/create";
 import OrderTrackPage from "./pages/orders/track";
 import OrderViewPage from "./pages/orders/_id";
+import OrderViewPage from "./pages/orders/_id";
 import OrderEditPage from "./pages/orders/_id/edit";
+import InvoicesPage from "./pages/invoices";
 import FraudPage from "./pages/fraud";
 import BannerPage from "./pages/banner";
 import CreateBannerPage from "./pages/banner/create";
@@ -212,6 +214,14 @@ export const routes = createBrowserRouter([
         element: (
           <PermissionRoute permission={FeaturePermission.ORDERS}>
             <OrdersPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/invoices",
+        element: (
+          <PermissionRoute permission={FeaturePermission.ORDERS}>
+            <InvoicesPage />
           </PermissionRoute>
         ),
       },
