@@ -18,7 +18,7 @@ import { useGetThemesQuery } from "@/features/theme/themeApiSlice";
 
 const FEATURE_DISPLAY_NAMES = {
     PATHAO: "Pathao Courier",
-    STEADFAST: "Steadfast Courier",
+    STEARDFAST: "Steadfast Courier",
     REDX: "RedX Courier",
 };
 
@@ -28,13 +28,14 @@ const getFeatureDisplayName = (feature) =>
 const AVAILABLE_FEATURES = [
     "PRODUCTS",
     "ORDERS",
-    "ORDER_ITEMS",
-    "STEADFAST",
+    "STEARDFAST",
     "PATHAO",
     "REDX",
     "NOTIFICATIONS",
     "EMAIL_NOTIFICATIONS",
     "WHATSAPP_NOTIFICATIONS",
+    "SMS_NOTIFICATIONS",
+    "ORDERS_ITEM",
     "CATEGORY",
     "CUSTOMERS",
     "REPORTS",
@@ -50,7 +51,7 @@ const AVAILABLE_FEATURES = [
     "PROMOCODES",
     "HELP",
     "BANNERS",
-    "FRAUD_CHECKER",
+    "FRUAD_CHECKER",
     "MANAGE_USERS",
     "DASHBOARD",
     "REVENUE",
@@ -58,11 +59,7 @@ const AVAILABLE_FEATURES = [
     "REPEAT_PURCHASE_RATE",
     "AVERAGE_ORDER_VALUE",
     "STATS",
-    "PRIVACY_POLICY",
-    "TERMS_CONDITIONS",
-    "REFUND_POLICY",
     "LOG_ACTIVITY",
-    "ACTIVITY_LOGS",
 ];
 
 const schema = yup.object().shape({
