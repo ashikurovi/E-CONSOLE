@@ -50,6 +50,12 @@ export default {
           4: "hsl(var(--chart-4))",
           5: "hsl(var(--chart-5))",
         },
+        nexus: {
+          primary: "#5347CE",
+          secondary: "#887CFD",
+          blue: "#4896FE",
+          teal: "#16C8C7",
+        },
       },
       keyframes: {
         "accordion-down": {
