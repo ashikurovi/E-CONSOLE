@@ -12,10 +12,50 @@ export const dashboardApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res) => res?.data ?? {},
       providesTags: [{ type: "dashboard", id: "STATS" }],
     }),
+    getAiReport: builder.query({
+      query: (params) => ({ url: "/dashboard/ai-report", method: "GET", params }),
+      transformResponse: (res) => res?.data ?? {},
+      providesTags: [{ type: "dashboard", id: "AI_REPORT" }],
+    }),
+    translateReport: builder.mutation({
+      query: (body) => ({
+        url: "/dashboard/ai-report/translate",
+        method: "POST",
+        body,
+      }),
+      transformResponse: (res) => res?.data ?? {},
+    }),
+    getAiLiveMessages: builder.query({
+      query: (params) => ({ url: "/dashboard/ai-messages", method: "GET", params }),
+      transformResponse: (res) => res?.data ?? {},
+      providesTags: [{ type: "dashboard", id: "AI_LIVE" }],
+    }),
+    getAiSalesDirection: builder.query({
+      query: (params) => ({ url: "/dashboard/ai-sales-direction", method: "GET", params }),
+      transformResponse: (res) => res?.data ?? {},
+      providesTags: [{ type: "dashboard", id: "AI_SALES" }],
+    }),
+    suggestDescription: builder.mutation({
+      query: ({ body, params }) => ({
+        url: "/dashboard/ai-suggest-description",
+        method: "POST",
+        body: body || {},
+        params,
+      }),
+      transformResponse: (res) => res?.data ?? {},
+    }),
   }),
 });
 
-export const { useGetDashboardQuery, useGetStatsQuery } = dashboardApiSlice;
+export const {
+  useGetDashboardQuery,
+  useGetStatsQuery,
+  useGetAiReportQuery,
+  useGetAiLiveMessagesQuery,
+  useGetAiSalesDirectionQuery,
+  useSuggestDescriptionMutation,
+  useTranslateReportMutation,
+} = dashboardApiSlice;
 
 
 

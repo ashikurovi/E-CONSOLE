@@ -994,6 +994,9 @@
     "pending": "অপেক্ষমাণ",
     "inProgress": "চলমান",
     "resolved": "সমাধান হয়েছে",
+    "closed": "বন্ধ",
+    "approveToReply": "এই টিকেটে দেখতে এবং উত্তর দিতে স্ট্যাটাস ইন প্রোগ্রেস বা রিজলভড এ পরিবর্তন করুন।",
+    "closedNoReply": "এই টিকেট বন্ধ। উত্তর দেওয়া নিষ্ক্রিয়।",
     "validation": {
       "emailRequired": "ইমেইল প্রয়োজন",
       "emailInvalid": "অনুগ্রহ করে একটি বৈধ ইমেইল ঠিকানা লিখুন",
@@ -1001,6 +1004,42 @@
       "issueMin": "সমস্যার বিবরণ কমপক্ষে ১০ অক্ষর হতে হবে",
       "issueMax": "সমস্যার বিবরণ ৫০০ অক্ষরের বেশি হতে পারবে না"
     }
+  },
+  "aiReport": {
+    "subtitle": "আপনার স্টোরের জন্য AI-উৎপন্ন দৈনিক অন্তর্দৃষ্টি।",
+    "noData": "কোন রিপোর্ট ডেটা উপলব্ধ নেই।",
+    "generatedAt": "উৎপন্ন",
+    "translateToBengali": "বাংলায় অনুবাদ করুন",
+    "translateToMinglish": "মিংলিশে অনুবাদ করুন (ইংরেজি অক্ষরে বাংলা)",
+    "translateToEnglish": "ইংরেজিতে অনুবাদ করুন",
+    "toBengali": "বাংলা",
+    "toMinglish": "Minglish",
+    "toEnglish": "English",
+    "translatedToBengali": "বাংলায় অনুবাদ হয়েছে",
+    "translatedToMinglish": "মিংলিশে অনুবাদ হয়েছে",
+    "translatedToEnglish": "ইংরেজিতে অনুবাদ হয়েছে",
+    "translateFailed": "অনুবাদ ব্যর্থ",
+    "download": "ডাউনলোড",
+    "downloadReport": "রিপোর্ট ডাউনলোড করুন",
+    "downloadSuccess": "রিপোর্ট ডাউনলোড হয়েছে",
+    "downloadFailed": "ডাউনলোড ব্যর্থ",
+    "downloadAsPdf": "PDF হিসাবে ডাউনলোড করুন",
+    "separateReport": "সম্পূর্ণ রিপোর্ট দেখুন",
+    "listenEnglish": "শুনুন (ইংরেজি)",
+    "listenBengali": "শুনুন (বাংলা)",
+    "listeningEnglish": "ইংরেজিতে শোনা হচ্ছে",
+    "listeningBengali": "বাংলায় শোনা হচ্ছে",
+    "stop": "বন্ধ করুন",
+    "stopListening": "শোনা বন্ধ করুন",
+    "speakNotSupported": "আপনার ব্রাউজারে টেক্সট-টু-স্পিচ সমর্থিত নয়।",
+    "speakFailed": "কথা চালানো যায়নি।"
+  },
+  "aiDescription": {
+    "english": "ইংরেজি",
+    "bangla": "বাংলা (বাংলা লিপি)",
+    "minglish": "মিংলিশ (ইংরেজি অক্ষরে বাংলা)",
+    "generating": "উৎপন্ন হচ্ছে...",
+    "generateWithAI": "AI দিয়ে তৈরি করুন"
   },
   "fraud": {
     "title": "জালিয়াতি পরীক্ষক",

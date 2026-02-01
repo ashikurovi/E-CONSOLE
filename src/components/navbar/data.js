@@ -14,6 +14,10 @@ import {
   Shield,
   Server,
   LifeBuoy,
+  Sparkles,
+  MessageSquare,
+  Target,
+  Star,
 } from "lucide-react";
 import { FeaturePermission } from "@/constants/feature-permission";
 
@@ -31,6 +35,27 @@ export const navSections = [
         tKey: "nav.dashboard",
         link: "/",
         icon: LayoutDashboard,
+      },
+      {
+        id: 1.6,
+        title: "AI Daily Report",
+        tKey: "nav.aiDailyReport",
+        link: "/ai-report",
+        icon: Sparkles,
+      },
+      {
+        id: 1.7,
+        title: "AI Live Feed",
+        tKey: "nav.aiLiveFeed",
+        link: "/ai-live-feed",
+        icon: MessageSquare,
+      },
+      {
+        id: 1.8,
+        title: "AI Sales Direction",
+        tKey: "nav.aiSalesDirection",
+        link: "/ai-sales-direction",
+        icon: Target,
       },
     ],
   },
@@ -124,6 +149,14 @@ export const navSections = [
         link: "/customers",
         permission: FeaturePermission.CUSTOMERS,
         icon: Users,
+      },
+      {
+        id: 9.5,
+        title: "Reviews",
+        tKey: "nav.reviews",
+        link: "/reviews",
+        permission: FeaturePermission.CUSTOMERS,
+        icon: Star,
       },
     ],
   },

@@ -63,6 +63,19 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         { type: "orders", id: "STATS" },
       ],
     }),
+    recordPartialPayment: builder.mutation({
+      query: ({ id, body, params }) => ({
+        url: `/orders/${id}/partial-payment`,
+        method: "PATCH",
+        body,
+        params,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "orders", id },
+        { type: "orders", id: "LIST" },
+        { type: "orders", id: "STATS" },
+      ],
+    }),
     processOrder: builder.mutation({
       query: ({ id, params }) => ({ url: `/orders/${id}/process`, method: "PATCH", params }),
       invalidatesTags: (result, error, arg) => [
@@ -144,6 +157,7 @@ export const {
   useLazyTrackOrderUnifiedQuery,
   useCreateOrderMutation,
   useCompleteOrderMutation,
+  useRecordPartialPaymentMutation,
   useProcessOrderMutation,
   useDeliverOrderMutation,
   useShipOrderMutation,

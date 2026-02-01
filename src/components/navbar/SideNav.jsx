@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 import { useTranslation } from "react-i18next";
 import { navSections } from "./data";
 import { hasPermission } from "@/constants/feature-permission";
+import { userLoggedOut } from "@/features/auth/authSlice";
 import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
 import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
 
@@ -17,21 +19,6 @@ const BagIcon = (props) => (
     {...props}
   >
     <path d="M16 6a4 4 0 10-8 0H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-3zm-6 0a2 2 0 114 0H10z"></path>
-  </svg>
-);
-
-// Custom Menu Icon Component
-const MenuIcon = (props) => (
-  <svg
-    viewBox="0 0 24 24"
-    width="22"
-    height="22"
-    stroke="currentColor"
-    fill="none"
-    strokeWidth="2"
-    {...props}
-  >
-    <path d="M4 6h16M4 12h16M4 18h16"></path>
   </svg>
 );
 
@@ -59,7 +46,7 @@ const getFilteredNav = (user) => {
     .filter((section) => section.items.length > 0);
 };
 
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 /**
  * Collapsible Section Component
@@ -188,10 +175,17 @@ function Item({ to, label, tKey, Icon, badge, isCollapsed, t }) {
  */
 export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Fetch user data
   const { data: user } = useGetCurrentUserQuery();
+
+  const handleLogout = () => {
+    dispatch(userLoggedOut());
+    navigate("/login");
+  };
 
   // Pre-fetch categories (optional, keeping existing logic)
   useGetCategoriesQuery();
@@ -228,25 +222,34 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
           className={`flex items-center ${isCollapsed ? "justify-center" : "justify-between"} px-6 h-24 border-b border-white/5`}
         >
           {isCollapsed ? (
-            <Link
-              to="/"
-              className="flex items-center justify-center transform transition-transform hover:scale-105"
-            >
-              {user?.companyLogo ? (
-                <img
-                  src={user.companyLogo}
-                  alt={user?.companyName || "Logo"}
-                  className="w-10 h-10 rounded-xl object-cover shadow-sm ring-1 ring-white/10"
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                  }}
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-xl bg-white text-black grid place-items-center shadow-sm">
-                  <BagIcon width="20" height="20" />
-                </div>
-              )}
-            </Link>
+            <div className="flex flex-col items-center gap-2 w-full">
+              <Link
+                to="/"
+                className="flex items-center justify-center transform transition-transform hover:scale-105"
+              >
+                {user?.companyLogo ? (
+                  <img
+                    src={user.companyLogo}
+                    alt={user?.companyName || "Logo"}
+                    className="w-10 h-10 rounded-xl object-cover shadow-sm ring-1 ring-white/10"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-xl bg-white text-black grid place-items-center shadow-sm">
+                    <BagIcon width="20" height="20" />
+                  </div>
+                )}
+              </Link>
+              <button
+                onClick={toggleSidebar}
+                title={t("common.expandSidebar")}
+                className="text-gray-500 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-all"
+              >
+                <PanelLeftOpen className="w-5 h-5" />
+              </button>
+            </div>
           ) : (
             <>
               <Link
@@ -281,7 +284,7 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
                 title={t("common.collapseSidebar")}
                 className="text-gray-500 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-all"
               >
-                <MenuIcon width="20" height="20" />
+                <PanelLeftClose className="w-5 h-5" />
               </button>
             </>
           )}
@@ -303,10 +306,23 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
           </nav>
         </div>
 
-        {/* Footer / User Profile Snippet (Optional - can add here if needed) */}
-        {/* <div className="p-4 border-t border-gray-100 dark:border-gray-800/50">
-            ...
-        </div> */}
+        {/* Logout Button */}
+        <div className="p-2 border-t border-white/5">
+          <button
+            onClick={handleLogout}
+            className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-zinc-400 hover:text-white hover:bg-white/5 transition-all ${
+              isCollapsed ? "justify-center" : ""
+            }`}
+            title={isCollapsed ? t("common.logout") : ""}
+          >
+            <LogOut className="w-5 h-5 flex-shrink-0" />
+            {!isCollapsed && (
+              <span className="text-[13px] font-medium tracking-wide">
+                {t("common.logout")}
+              </span>
+            )}
+          </button>
+        </div>
       </aside>
     </>
   );

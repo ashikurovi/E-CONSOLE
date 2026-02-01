@@ -1,19 +1,74 @@
-import React, { useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useGetHelpQuery } from "@/features/help/helpApiSlice";
+import {
+  useGetSuperadminHelpByIdQuery,
+  useAddSuperadminHelpReplyMutation,
+  useUpdateSuperadminHelpMutation,
+} from "@/features/superadmin/superadminApiSlice";
+import { useHelpSocket } from "@/hooks/useHelpSocket";
+import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
+import { ArrowLeft, Send, MessageSquare } from "lucide-react";
 
 const SuperAdminSupportDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const numericId = useMemo(() => Number(id), [id]);
+  const numericId = Number(id);
+  const superadminUser = useSelector((state) => state.superadminAuth.user);
 
-  const { data: tickets = [], isLoading } = useGetHelpQuery();
+  const [replyText, setReplyText] = useState("");
 
-  const ticket = useMemo(
-    () => tickets.find((t) => String(t.id) === String(numericId)),
-    [tickets, numericId]
+  const { data: ticket, isLoading, refetch } = useGetSuperadminHelpByIdQuery(
+    id,
+    { skip: !id }
   );
+  const [addReply, { isLoading: isReplying }] =
+    useAddSuperadminHelpReplyMutation();
+  const [updateHelp, { isLoading: isUpdating }] =
+    useUpdateSuperadminHelpMutation();
+
+  const handleNewReply = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  useHelpSocket(id, {
+    onReply: handleNewReply,
+    currentUserName: superadminUser?.name || "Support",
+    playSound: true,
+  });
+
+  const handleReply = async (e) => {
+    e.preventDefault();
+    if (!replyText.trim() || !ticket?.id || !superadminUser?.name) return;
+    try {
+      await addReply({
+        id: ticket.id,
+        body: {
+          message: replyText.trim(),
+          author: superadminUser.name,
+        },
+      }).unwrap();
+      setReplyText("");
+      refetch();
+    } catch (err) {
+      console.error("Failed to add reply:", err);
+    }
+  };
+
+  const handleStatusChange = async (newStatus) => {
+    if (!ticket?.id) return;
+    try {
+      await updateHelp({
+        id: ticket.id,
+        body: { status: newStatus },
+      }).unwrap();
+      refetch();
+    } catch (err) {
+      console.error("Failed to update status:", err);
+    }
+  };
+
+  const replies = Array.isArray(ticket?.replies) ? ticket.replies : [];
 
   return (
     <div className="space-y-6">
@@ -21,15 +76,17 @@ const SuperAdminSupportDetailPage = () => {
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold">Support ticket detail</h1>
           <p className="text-sm text-black/60 dark:text-white/60">
-            Review the full context of a single support request.
+            Review the full context and reply to this support request.
           </p>
         </div>
         <Button
           variant="outline"
           size="sm"
           onClick={() => navigate("/superadmin/support")}
+          className="flex items-center gap-2"
         >
-          Back to list
+          <ArrowLeft className="w-4 h-4" />
+          Back
         </Button>
       </div>
 
@@ -62,23 +119,22 @@ const SuperAdminSupportDetailPage = () => {
                   <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
                     Email
                   </label>
-                  <p className="font-medium break-all">
-                    {ticket.email ?? "-"}
-                  </p>
+                  <p className="font-medium break-all">{ticket.email ?? "-"}</p>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
                     Status
                   </label>
-                  <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                    ticket.status === 'resolved' 
-                      ? "bg-green-500/10 text-green-600 dark:text-green-400" 
-                      : ticket.status === 'closed'
-                      ? "bg-gray-500/10 text-gray-600 dark:text-gray-400"
-                      : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
-                  }`}>
-                    {ticket.status?.replace("_", " ") ?? "-"}
-                  </span>
+                  <select
+                    value={ticket.status ?? "pending"}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    disabled={isUpdating}
+                    className="border rounded px-2 py-1 text-xs bg-transparent dark:bg-white/5"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="in_progress">In progress</option>
+                    <option value="resolved">Resolved</option>
+                  </select>
                 </div>
                 {ticket.companyId && (
                   <div>
@@ -105,35 +161,56 @@ const SuperAdminSupportDetailPage = () => {
               </div>
             </div>
 
-            {/* Timeline Section */}
+            {/* Replies Section */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
+                <MessageSquare className="w-4 h-4" />
                 <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-                  Timeline
+                  Replies ({replies.length})
                 </h3>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
-                    Created At
-                  </label>
-                  <p className="text-xs font-medium">
-                    {ticket.createdAt
-                      ? new Date(ticket.createdAt).toLocaleString()
-                      : "-"}
-                  </p>
+
+              {replies.length > 0 && (
+                <div className="space-y-3">
+                  {replies.map((r, idx) => (
+                    <div
+                      key={idx}
+                      className="border border-gray-100 dark:border-gray-800 rounded-lg p-4 bg-white/50 dark:bg-white/5"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-primary">
+                          {r.author}
+                        </span>
+                        <span className="text-xs text-black/50 dark:text-white/50">
+                          {r.createdAt
+                            ? new Date(r.createdAt).toLocaleString()
+                            : "-"}
+                        </span>
+                      </div>
+                      <p className="text-sm whitespace-pre-wrap">{r.message}</p>
+                    </div>
+                  ))}
                 </div>
-                {ticket.updatedAt && (
-                  <div>
-                    <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
-                      Last Updated
-                    </label>
-                    <p className="text-xs font-medium">
-                      {new Date(ticket.updatedAt).toLocaleString()}
-                    </p>
-                  </div>
-                )}
-              </div>
+              )}
+
+              <form onSubmit={handleReply} className="space-y-3">
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Type your reply..."
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  disabled={isReplying}
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={isReplying || !replyText.trim()}
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  {isReplying ? "Sending..." : "Send Reply"}
+                </Button>
+              </form>
             </div>
           </div>
         )}
@@ -143,12 +220,3 @@ const SuperAdminSupportDetailPage = () => {
 };
 
 export default SuperAdminSupportDetailPage;
-
-
-
-
-
-
-
-
-

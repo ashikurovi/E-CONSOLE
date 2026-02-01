@@ -20,7 +20,7 @@ const superadminBaseQuery = fetchBaseQuery({
 export const superadminApiSlice = createApi({
   reducerPath: "superadminApi",
   baseQuery: superadminBaseQuery,
-  tagTypes: ["superadmin"],
+  tagTypes: ["superadmin", "superadminHelp"],
   endpoints: (builder) => ({
     // List all superadmins
     getSuperadmins: builder.query({
@@ -66,6 +66,42 @@ export const superadminApiSlice = createApi({
       query: (id) => ({ url: `/superadmin/${id}`, method: "DELETE" }),
       invalidatesTags: [{ type: "superadmin", id: "LIST" }],
     }),
+
+    // Superadmin Help/Support
+    getSuperadminHelp: builder.query({
+      query: () => ({ url: "/superadmin-support", method: "GET" }),
+      transformResponse: (res) => (Array.isArray(res) ? res : []),
+      providesTags: [{ type: "superadminHelp", id: "LIST" }],
+    }),
+    getSuperadminHelpById: builder.query({
+      query: (id) => ({ url: `/superadmin-support/${id}`, method: "GET" }),
+      providesTags: (result, error, id) => [
+        { type: "superadminHelp", id },
+        { type: "superadminHelp", id: "LIST" },
+      ],
+    }),
+    addSuperadminHelpReply: builder.mutation({
+      query: ({ id, body }) => ({
+        url: `/superadmin-support/${id}/reply`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "superadminHelp", id },
+        { type: "superadminHelp", id: "LIST" },
+      ],
+    }),
+    updateSuperadminHelp: builder.mutation({
+      query: ({ id, body }) => ({
+        url: `/superadmin-support/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "superadminHelp", id },
+        { type: "superadminHelp", id: "LIST" },
+      ],
+    }),
   }),
 });
 
@@ -75,4 +111,8 @@ export const {
   useCreateSuperadminMutation,
   useUpdateSuperadminMutation,
   useDeleteSuperadminMutation,
+  useGetSuperadminHelpQuery,
+  useGetSuperadminHelpByIdQuery,
+  useAddSuperadminHelpReplyMutation,
+  useUpdateSuperadminHelpMutation,
 } = superadminApiSlice;
