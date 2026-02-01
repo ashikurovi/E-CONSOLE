@@ -13,20 +13,11 @@ import {
   Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCreateSaleInvoiceMutation } from "@/features/invoice/saleInvoiceApiSlice";
 import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
+import { Settings } from "lucide-react";
 
 const CreateInvoicePage = () => {
   const navigate = useNavigate();
@@ -137,29 +128,31 @@ const CreateInvoicePage = () => {
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Invoice Details</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label>Invoice Number</Label>
-                  <Input 
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Invoice Number</label>
+                  <input 
                     value={invoiceData.invoiceNumber} 
-                    className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-gray-800" 
+                    className="flex h-10 w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:bg-black/20 dark:border-gray-800" 
                     readOnly
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Reference Number</Label>
-                  <Input 
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Reference Number</label>
+                  <input 
                     placeholder="Enter Reference Number" 
                     value={invoiceData.referenceNumber}
-                    className="border-gray-200 dark:border-gray-800"
+                    className="flex h-10 w-full rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-800"
+                    onChange={(e) => setInvoiceData({...invoiceData, referenceNumber: e.target.value})}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Invoice Date</Label>
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Invoice Date</label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 font-bold" />
-                    <Input 
+                    <input 
                       type="date" 
                       value={invoiceData.invoiceDate}
-                      className="pl-10 border-gray-200 dark:border-gray-800"
+                      className="flex h-10 w-full rounded-md border border-gray-200 bg-transparent pl-10 pr-3 py-2 text-sm dark:border-gray-800"
+                      onChange={(e) => setInvoiceData({...invoiceData, invoiceDate: e.target.value})}
                     />
                   </div>
                 </div>
@@ -176,30 +169,28 @@ const CreateInvoicePage = () => {
                     checked={invoiceData.recurring} 
                     onCheckedChange={(val) => setInvoiceData({...invoiceData, recurring: val})}
                   />
-                  <Label htmlFor="recurring">Recurring</Label>
+                  <label htmlFor="recurring" className="text-sm font-medium leading-none">Recurring</label>
                 </div>
                 {invoiceData.recurring && (
                   <div className="flex gap-4 animate-in fade-in slide-in-from-left-2 duration-300">
-                    <Select defaultValue="Monthly">
-                      <SelectTrigger className="w-[140px] border-gray-200 dark:border-gray-800">
-                        <SelectValue placeholder="Interval" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Weekly">Weekly</SelectItem>
-                        <SelectItem value="Monthly">Monthly</SelectItem>
-                        <SelectItem value="Yearly">Yearly</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select defaultValue="1 Month">
-                      <SelectTrigger className="w-[140px] border-gray-200 dark:border-gray-800">
-                        <SelectValue placeholder="Duration" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1 Month">1 Month</SelectItem>
-                        <SelectItem value="3 Months">3 Months</SelectItem>
-                        <SelectItem value="6 Months">6 Months</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <select 
+                      className="flex h-10 w-[140px] rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-800"
+                      value={invoiceData.recurringInterval}
+                      onChange={(e) => setInvoiceData({...invoiceData, recurringInterval: e.target.value})}
+                    >
+                      <option value="Weekly">Weekly</option>
+                      <option value="Monthly">Monthly</option>
+                      <option value="Yearly">Yearly</option>
+                    </select>
+                    <select 
+                      className="flex h-10 w-[140px] rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-800"
+                      value={invoiceData.recurringDuration}
+                      onChange={(e) => setInvoiceData({...invoiceData, recurringDuration: e.target.value})}
+                    >
+                      <option value="1 Month">1 Month</option>
+                      <option value="3 Months">3 Months</option>
+                      <option value="6 Months">6 Months</option>
+                    </select>
                   </div>
                 )}
               </div>
@@ -213,30 +204,30 @@ const CreateInvoicePage = () => {
                   <span className="text-xl font-bold dark:text-white">Kanakku</span>
                </div>
                <div className="w-full space-y-4">
-                  <Select defaultValue="status">
-                    <SelectTrigger className="w-full border-gray-200 dark:border-gray-800">
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="status">Select Status</SelectItem>
-                      <SelectItem value="paid">Paid</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select defaultValue="currency">
-                    <SelectTrigger className="w-full border-gray-200 dark:border-gray-800">
-                      <SelectValue placeholder="Currency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="currency">Currency</SelectItem>
-                      <SelectItem value="usd">USD</SelectItem>
-                      <SelectItem value="bdt">BDT</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <select 
+                    defaultValue="status" 
+                    className="w-full h-10 px-3 rounded-md border border-gray-200 dark:border-gray-800 bg-transparent text-sm"
+                  >
+                    <option value="status">Select Status</option>
+                    <option value="paid">Paid</option>
+                    <option value="pending">Pending</option>
+                  </select>
+                  <select 
+                    defaultValue="currency" 
+                    className="w-full h-10 px-3 rounded-md border border-gray-200 dark:border-gray-800 bg-transparent text-sm"
+                  >
+                    <option value="currency">Currency</option>
+                    <option value="usd">USD</option>
+                    <option value="bdt">BDT</option>
+                  </select>
                   <div className="flex items-center justify-between pt-2">
                     <div className="flex items-center space-x-2">
-                      <Switch id="tax" checked={invoiceData.enableTax} />
-                      <Label htmlFor="tax" className="text-xs">Enable tax</Label>
+                      <Switch 
+                        id="tax" 
+                        checked={invoiceData.enableTax} 
+                        onCheckedChange={(val) => setInvoiceData({...invoiceData, enableTax: val})} 
+                      />
+                      <label htmlFor="tax" className="text-xs">Enable tax</label>
                     </div>
                     <Settings className="w-4 h-4 text-gray-400" />
                   </div>
@@ -251,15 +242,11 @@ const CreateInvoicePage = () => {
             <div className="space-y-4">
               <h3 className="font-bold text-gray-900 dark:text-white underline decoration-[#7c3aed] decoration-2 underline-offset-8 mb-6">Bill From</h3>
               <div className="space-y-2">
-                <Label className="text-xs text-gray-500">Billed By</Label>
-                <Select>
-                  <SelectTrigger className="w-full border-gray-200 dark:border-gray-800">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="self">My Company</SelectItem>
-                  </SelectContent>
-                </Select>
+                <label className="text-xs text-gray-500 font-medium">Billed By</label>
+                <select className="w-full h-10 px-3 rounded-md border border-gray-200 dark:border-gray-800 bg-transparent text-sm">
+                  <option value="">Select</option>
+                  <option value="self">My Company</option>
+                </select>
               </div>
             </div>
             <div className="space-y-4">
@@ -271,15 +258,11 @@ const CreateInvoicePage = () => {
                 </Button>
               </div>
               <div className="space-y-2">
-                <Label className="text-xs text-gray-500">Customer Name</Label>
-                <Select>
-                  <SelectTrigger className="w-full border-gray-200 dark:border-gray-800">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="cust1">John Doe</SelectItem>
-                  </SelectContent>
-                </Select>
+                <label className="text-xs text-gray-500 font-medium">Customer Name</label>
+                <select className="w-full h-10 px-3 rounded-md border border-gray-200 dark:border-gray-800 bg-transparent text-sm">
+                  <option value="">Select</option>
+                  <option value="cust1">John Doe</option>
+                </select>
               </div>
             </div>
           </div>
@@ -293,28 +276,24 @@ const CreateInvoicePage = () => {
             <div className="space-y-4">
                <div className="flex items-center gap-6">
                   <span className="text-sm font-medium">Item Type</span>
-                  <RadioGroup defaultValue="product" className="flex items-center gap-4">
+                  <div className="flex items-center gap-4">
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="product" id="product" />
-                      <Label htmlFor="product" className="text-xs">Product</Label>
+                      <input type="radio" name="itemType" value="product" id="product" defaultChecked className="w-4 h-4 accent-[#7c3aed]" />
+                      <label htmlFor="product" className="text-xs font-medium">Product</label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="service" id="service" />
-                      <Label htmlFor="service" className="text-xs">Service</Label>
+                      <input type="radio" name="itemType" value="service" id="service" className="w-4 h-4 accent-[#7c3aed]" />
+                      <label htmlFor="service" className="text-xs font-medium">Service</label>
                     </div>
-                  </RadioGroup>
+                  </div>
                </div>
                
                <div className="p-4 bg-gray-50/50 dark:bg-black/10 rounded-xl border border-gray-100 dark:border-gray-800 lg:w-1/3">
-                  <Label className="text-xs text-gray-500 mb-1 block">Products/Services</Label>
-                  <Select>
-                    <SelectTrigger className="w-full border-transparent bg-transparent p-0 h-8 focus:ring-0">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="p1">Nike Jordon</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <label className="text-xs text-gray-500 mb-1 block font-medium">Products/Services</label>
+                  <select className="w-full h-8 bg-transparent border-none focus:ring-0 text-sm">
+                    <option value="">Select</option>
+                    <option value="p1">Nike Jordon</option>
+                  </select>
                </div>
             </div>
 
@@ -337,10 +316,10 @@ const CreateInvoicePage = () => {
                     {items.map((item) => (
                       <tr key={item.id} className="group hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
                         <td className="py-4 px-4">
-                          <Input 
+                          <input 
                             value={item.name} 
                             placeholder="Enter Product Name" 
-                            className="bg-transparent border-gray-200 dark:border-gray-800"
+                            className="flex h-10 w-full rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-800"
                             onChange={(e) => {
                               const newItems = items.map(i => i.id === item.id ? {...i, name: e.target.value} : i);
                               setItems(newItems);
@@ -348,42 +327,83 @@ const CreateInvoicePage = () => {
                           />
                         </td>
                         <td className="py-4 px-4 w-[100px]">
-                          <Input 
+                          <input 
                             type="number" 
                             value={item.quantity} 
-                            className="bg-transparent border-gray-200 dark:border-gray-800 text-center"
+                            className="flex h-10 w-full rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-800 text-center"
+                            onChange={(e) => {
+                              const newItems = items.map(i => i.id === item.id ? {...i, quantity: parseInt(e.target.value) || 0} : i);
+                              setItems(newItems);
+                            }}
                           />
                         </td>
                         <td className="py-4 px-4 w-[120px]">
-                          <Input value={item.unit} className="bg-transparent border-gray-200 dark:border-gray-800" />
+                          <input 
+                            value={item.unit} 
+                            className="flex h-10 w-full rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-800" 
+                            onChange={(e) => {
+                              const newItems = items.map(i => i.id === item.id ? {...i, unit: e.target.value} : i);
+                              setItems(newItems);
+                            }}
+                          />
                         </td>
                         <td className="py-4 px-4 w-[150px]">
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">$</span>
-                            <Input value={item.rate.toFixed(2)} className="pl-6 bg-transparent border-gray-200 dark:border-gray-800" />
+                            <input 
+                              type="number"
+                              value={item.rate} 
+                              className="flex h-10 w-full rounded-md border border-gray-200 bg-transparent pl-6 pr-3 py-2 text-sm dark:border-gray-800" 
+                              onChange={(e) => {
+                                const newItems = items.map(i => i.id === item.id ? {...i, rate: parseFloat(e.target.value) || 0} : i);
+                                setItems(newItems);
+                              }}
+                            />
                           </div>
                         </td>
                         <td className="py-4 px-4">
                           <div className="flex gap-2">
-                             <Input value={item.discount} className="bg-transparent border-gray-200 dark:border-gray-800 text-center" />
-                             <Select defaultValue="%">
-                               <SelectTrigger className="w-[60px] border-gray-200 dark:border-gray-800">
-                                 <SelectValue />
-                               </SelectTrigger>
-                               <SelectContent>
-                                 <SelectItem value="%">%</SelectItem>
-                                 <SelectItem value="fixed">$</SelectItem>
-                               </SelectContent>
-                             </Select>
+                             <input 
+                               type="number"
+                               value={item.discount} 
+                               className="flex h-10 w-full rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-800 text-center" 
+                               onChange={(e) => {
+                                 const newItems = items.map(i => i.id === item.id ? {...i, discount: parseFloat(e.target.value) || 0} : i);
+                                 setItems(newItems);
+                               }}
+                             />
+                             <select 
+                               className="w-[60px] h-10 rounded-md border border-gray-200 bg-transparent text-sm dark:border-gray-800"
+                               value={item.discountType}
+                               onChange={(e) => {
+                                 const newItems = items.map(i => i.id === item.id ? {...i, discountType: e.target.value} : i);
+                                 setItems(newItems);
+                               }}
+                             >
+                               <option value="%">%</option>
+                               <option value="fixed">$</option>
+                             </select>
                           </div>
                         </td>
                         <td className="py-4 px-4 w-[80px]">
-                          <Input value={item.tax} className="bg-transparent border-gray-200 dark:border-gray-800 text-center" />
+                          <input 
+                            type="number"
+                            value={item.tax} 
+                            className="flex h-10 w-full rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-800 text-center" 
+                            onChange={(e) => {
+                              const newItems = items.map(i => i.id === item.id ? {...i, tax: parseFloat(e.target.value) || 0} : i);
+                              setItems(newItems);
+                            }}
+                          />
                         </td>
                         <td className="py-4 px-4 w-[150px]">
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">$</span>
-                            <Input value={item.amount.toFixed(2)} className="pl-6 bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-gray-800" readOnly />
+                            <input 
+                              value={item.amount.toFixed(2)} 
+                              className="flex h-10 w-full rounded-md border border-gray-200 bg-gray-50 px-6 py-2 text-sm dark:bg-black/20 dark:border-gray-800" 
+                              readOnly 
+                            />
                           </div>
                         </td>
                         <td className="py-4 px-4 text-right">
@@ -416,28 +436,32 @@ const CreateInvoicePage = () => {
           {/* Bottom Section: Notes & Summary */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             <div className="space-y-8">
-               <div className="space-y-4">
-                  <h3 className="font-bold text-gray-900 dark:text-white underline decoration-[#7c3aed] decoration-2 underline-offset-8 mb-6">Extra Information</h3>
-                  <div className="flex flex-wrap gap-2">
-                    <Button variant="secondary" size="sm" className="bg-[#7c3aed] text-white hover:bg-[#6d28d9]">Add Notes</Button>
-                    <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-800">Add Terms & Conditions</Button>
-                    <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-800">Add Bank Details</Button>
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-gray-900 dark:text-white underline decoration-[#7c3aed] decoration-2 underline-offset-8 mb-6">Extra Information</h3>
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="secondary" size="sm" className="bg-[#7c3aed] text-white hover:bg-[#6d28d9]">Add Notes</Button>
+                      <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-800">Add Terms & Conditions</Button>
+                      <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-800">Add Bank Details</Button>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs text-gray-500 font-medium">Additional Notes</label>
+                      <textarea 
+                        className="w-full h-32 p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-transparent resize-none focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/20"
+                        placeholder="Add any additional information..."
+                        value={invoiceData.notes}
+                        onChange={(e) => setInvoiceData({...invoiceData, notes: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs text-gray-500 font-medium">Terms & Conditions</label>
+                      <textarea 
+                        className="w-full h-32 p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-transparent resize-none focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/20"
+                        placeholder="Add terms and conditions..."
+                        value={invoiceData.terms}
+                        onChange={(e) => setInvoiceData({...invoiceData, terms: e.target.value})}
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs text-gray-500">Additional Notes</Label>
-                    <textarea 
-                      className="w-full h-32 p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-transparent resize-none focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/20"
-                      placeholder="Add any additional information..."
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs text-gray-500">Terms & Conditions</Label>
-                    <textarea 
-                      className="w-full h-32 p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-transparent resize-none focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/20"
-                      placeholder="Add terms and conditions..."
-                    />
-                  </div>
-               </div>
             </div>
 
             <div className="space-y-6">
@@ -462,17 +486,21 @@ const CreateInvoicePage = () => {
                     <div className="flex items-center gap-4">
                       <span className="text-sm font-medium">Discount</span>
                       <div className="flex bg-white dark:bg-[#1a1f26] border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden h-8">
-                        <Input className="w-12 h-full border-none focus:ring-0 text-center text-xs p-0" defaultValue="0" />
+                        <input 
+                          type="number"
+                          className="w-12 h-full border-none focus:ring-0 text-center text-xs p-0 bg-transparent" 
+                          value={invoiceData.discountTotal} 
+                          onChange={(e) => setInvoiceData({...invoiceData, discountTotal: parseFloat(e.target.value) || 0})}
+                        />
                         <div className="w-px h-full bg-gray-200 dark:bg-gray-800" />
-                        <Select defaultValue="%">
-                           <SelectTrigger className="w-12 h-full border-none focus:ring-0 text-xs p-0 px-2">
-                             <SelectValue />
-                           </SelectTrigger>
-                           <SelectContent>
-                             <SelectItem value="%">%</SelectItem>
-                             <SelectItem value="fixed">$</SelectItem>
-                           </SelectContent>
-                        </Select>
+                        <select 
+                          className="w-12 h-full border-none focus:ring-0 text-xs p-0 px-2 bg-transparent"
+                          value={invoiceData.discountType}
+                          onChange={(e) => setInvoiceData({...invoiceData, discountType: e.target.value})}
+                        >
+                          <option value="%">%</option>
+                          <option value="fixed">$</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -497,21 +525,24 @@ const CreateInvoicePage = () => {
                   </div>
                </div>
 
-               <div className="space-y-4">
-                  <Select defaultValue="sig">
-                    <SelectTrigger className="w-full border-gray-200 dark:border-gray-800">
-                      <SelectValue placeholder="Select Signature" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="sig">Select Signature</SelectItem>
-                      <SelectItem value="adrian">Adrian</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="space-y-4">
+                  <select 
+                    className="w-full h-10 px-3 rounded-md border border-gray-200 dark:border-gray-800 bg-transparent text-sm"
+                    value={invoiceData.signatureName}
+                    onChange={(e) => setInvoiceData({...invoiceData, signatureName: e.target.value})}
+                  >
+                    <option value="adrian">Adrian</option>
+                    <option value="other">Other</option>
+                  </select>
                   <div className="text-center py-2 text-xs text-gray-400 font-bold">OR</div>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label className="text-xs text-gray-500">Signature Name</Label>
-                      <Input defaultValue="Adrian" className="border-gray-200 dark:border-gray-800" />
+                      <label className="text-xs text-gray-500 font-medium">Signature Name</label>
+                      <input 
+                        value={invoiceData.signatureName} 
+                        className="flex h-10 w-full rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-800" 
+                        onChange={(e) => setInvoiceData({...invoiceData, signatureName: e.target.value})}
+                      />
                     </div>
                     <div className="w-full h-24 border border-dashed border-gray-200 dark:border-gray-800 rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-50/30">
                        <Upload className="w-4 h-4 text-gray-400" />
