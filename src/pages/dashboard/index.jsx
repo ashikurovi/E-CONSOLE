@@ -583,7 +583,7 @@ const DashboardPage = () => {
             link="/quotations"
           /> */}
         </div>
-{/*  */}
+        {/*  */}
         {/* Center: Revenue Chart */}
         <GlassCard className="xl:col-span-2 p-5 sm:p-8 flex flex-col min-h-[500px]">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
@@ -729,40 +729,40 @@ const DashboardPage = () => {
                       key={i}
                       className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors"
                     >
-                  <td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                    {inv.id || inv.orderId}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-                          inv.customer,
-                        )}&background=random&color=fff`}
-                        alt={inv.customer}
-                        className="w-8 h-8 rounded-full object-cover shadow-sm"
-                      />
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">
-                        {inv.customer}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                    {inv.date}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-white whitespace-nowrap">
-                    {inv.amount || inv.total}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                    {inv.paid || "$0.00"}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap">
-                    {inv.mode || "Check"}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                    {inv.due || "-"}
-                  </td>
-                </tr>
-              ))}
+                      <td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                        {inv.id || inv.orderId}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                              inv.customer,
+                            )}&background=random&color=fff`}
+                            alt={inv.customer}
+                            className="w-8 h-8 rounded-full object-cover shadow-sm"
+                          />
+                          <span className="text-sm font-bold text-gray-900 dark:text-white">
+                            {inv.customer}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                        {inv.date}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-white whitespace-nowrap">
+                        {inv.amount || inv.total}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                        {inv.paid || "$0.00"}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                        {inv.mode || "Check"}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                        {inv.due || "-"}
+                      </td>
+                    </tr>
+                  ))}
             </tbody>
           </table>
         </div>

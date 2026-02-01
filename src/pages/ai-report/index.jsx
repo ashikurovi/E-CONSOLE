@@ -6,12 +6,53 @@ import {
   useGetDashboardQuery,
   useTranslateReportMutation,
 } from "@/features/dashboard/dashboardApiSlice";
-import { Sparkles, FileText, Languages, Download, ChevronDown, ChevronUp, Volume2, Square } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Sparkles,
+  FileText,
+  Languages,
+  Download,
+  ChevronDown,
+  ChevronUp,
+  Volume2,
+  Square,
+} from "lucide-react";
 import LineChartComponent from "@/components/charts/line-chart";
 import RadialChartComponent from "@/components/charts/radial-chart";
 import { jsPDF } from "jspdf";
 import toast from "react-hot-toast";
+
+// --- Sub-Components (Inline for consistent design) ---
+
+const GlassCard = ({ children, className = "" }) => (
+  <div
+    className={`bg-white dark:bg-zinc-900/80 backdrop-blur-2xl border border-gray-100 dark:border-white/10 shadow-[0_2px_20px_rgb(0,0,0,0.04)] dark:shadow-[0_2px_20px_rgb(0,0,0,0.2)] rounded-3xl transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] ${className}`}
+  >
+    {children}
+  </div>
+);
+
+const SectionHeader = ({ title, subtitle, icon: Icon, action }) => (
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
+    <div className="flex items-start gap-3 sm:gap-4">
+      {Icon && (
+        <div className="p-2.5 sm:p-3 bg-violet-50 dark:bg-violet-500/10 rounded-2xl text-violet-600 dark:text-violet-400">
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+        </div>
+      )}
+      <div>
+        <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight">
+          {title}
+        </h3>
+        {subtitle && (
+          <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
+            {subtitle}
+          </p>
+        )}
+      </div>
+    </div>
+    {action && <div>{action}</div>}
+  </div>
+);
 
 const AiReportPage = () => {
   const { t, i18n } = useTranslation();
@@ -25,24 +66,23 @@ const AiReportPage = () => {
 
   const { data, isLoading, isError } = useGetAiReportQuery(
     { companyId: authUser?.companyId },
-    { skip: !authUser?.companyId }
+    { skip: !authUser?.companyId },
   );
 
   const { data: dashboardData } = useGetDashboardQuery(
     { companyId: authUser?.companyId },
-    { skip: !authUser?.companyId }
+    { skip: !authUser?.companyId },
   );
 
-  const [translateReport, { isLoading: isTranslating }] = useTranslateReportMutation();
+  const [translateReport, { isLoading: isTranslating }] =
+    useTranslateReportMutation();
 
   const reportText = data?.report ?? (typeof data === "string" ? data : null);
   const generatedAt = data?.generatedAt;
   const hasReport = reportText && reportText.trim().length > 0;
 
   const displayText =
-    reportLang === "original"
-      ? reportText
-      : translatedText ?? reportText;
+    reportLang === "original" ? reportText : (translatedText ?? reportText);
 
   const paragraphs = displayText
     ? displayText
@@ -55,7 +95,10 @@ const AiReportPage = () => {
     if (!reportText?.trim()) return;
     try {
       const res = await translateReport({
-        text: reportLang === "original" ? reportText : translatedText ?? reportText,
+        text:
+          reportLang === "original"
+            ? reportText
+            : (translatedText ?? reportText),
         targetLang,
       }).unwrap();
       setTranslatedText(res?.translatedText ?? reportText);
@@ -74,7 +117,10 @@ const AiReportPage = () => {
 
   const getTextForLang = (targetLang) => {
     if (targetLang === "en") {
-      if (reportLang === "en" || reportLang === "original") return reportLang === "en" ? (translatedText ?? reportText) : reportText;
+      if (reportLang === "en" || reportLang === "original")
+        return reportLang === "en"
+          ? (translatedText ?? reportText)
+          : reportText;
       return null;
     }
     if (targetLang === "bn") {
@@ -87,14 +133,20 @@ const AiReportPage = () => {
   const handleSpeak = async (targetLang) => {
     if (!reportText?.trim()) return;
     if (typeof window === "undefined" || !window.speechSynthesis) {
-      toast.error(t("aiReport.speakNotSupported") || "Text-to-speech is not supported in your browser.");
+      toast.error(
+        t("aiReport.speakNotSupported") ||
+          "Text-to-speech is not supported in your browser.",
+      );
       return;
     }
     let textToSpeak = getTextForLang(targetLang);
     if (!textToSpeak) {
       try {
         const res = await translateReport({
-          text: reportLang === "original" ? reportText : translatedText ?? reportText,
+          text:
+            reportLang === "original"
+              ? reportText
+              : (translatedText ?? reportText),
           targetLang,
         }).unwrap();
         textToSpeak = res?.translatedText ?? reportText;
@@ -129,8 +181,8 @@ const AiReportPage = () => {
     setSpeakLang(targetLang);
     toast.success(
       targetLang === "bn"
-        ? (t("aiReport.listeningBengali") || "Listening in Bangla")
-        : (t("aiReport.listeningEnglish") || "Listening in English")
+        ? t("aiReport.listeningBengali") || "Listening in Bangla"
+        : t("aiReport.listeningEnglish") || "Listening in English",
     );
   };
 
@@ -154,7 +206,11 @@ const AiReportPage = () => {
   const handleDownloadReport = () => {
     if (!displayText) return;
     try {
-      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
       const pageWidth = doc.internal.pageSize.getWidth();
       const margin = 20;
       const maxWidth = pageWidth - margin * 2;
@@ -169,7 +225,7 @@ const AiReportPage = () => {
       doc.text(
         `${t("aiReport.generatedAt") || "Generated"}: ${generatedAt ? new Date(generatedAt).toLocaleString() : new Date().toLocaleString()}`,
         margin,
-        28
+        28,
       );
 
       doc.setFontSize(11);
@@ -195,11 +251,16 @@ const AiReportPage = () => {
   };
 
   const lineChartData = dashboardData?.lineChartData || [];
-  const radialChartData = dashboardData?.radialChartData || [{ paid: 0, unpaid: 0 }];
+  const radialChartData = dashboardData?.radialChartData || [
+    { paid: 0, unpaid: 0 },
+  ];
   const paidPercentage = radialChartData[0]?.paid || 0;
 
   const lineChartConfig = {
-    desktop: { label: t("dashboard.incomeGrowth"), color: "hsl(var(--chart-1))" },
+    desktop: {
+      label: t("dashboard.incomeGrowth"),
+      color: "hsl(var(--chart-1))",
+    },
   };
   const radialChartConfig = {
     paid: { label: t("dashboard.paid"), color: "hsl(var(--chart-2))" },
@@ -207,18 +268,17 @@ const AiReportPage = () => {
   };
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <Sparkles className="w-8 h-8 text-primary" />
-        <div>
-          <h2 className="text-xl font-semibold">
-            {t("nav.aiDailyReport") || "AI Daily Report"}
-          </h2>
-          <p className="text-sm text-black/60 dark:text-white/60">
-            {t("aiReport.subtitle") || "AI-generated daily insights for your store."}
-          </p>
-        </div>
-      </div>
+    <div className="space-y-4 md:space-y-8 min-h-screen bg-[#F8F9FC] dark:bg-black/10 p-3 sm:p-4 lg:p-10 font-sans text-slate-900 dark:text-slate-100">
+      <GlassCard className="p-4 sm:p-8">
+        <SectionHeader
+          title={t("nav.aiDailyReport") || "AI Daily Report"}
+          subtitle={
+            t("aiReport.subtitle") ||
+            "AI-generated daily insights for your store."
+          }
+          icon={Sparkles}
+        />
+      </GlassCard>
 
       {isLoading && (
         <div className="py-12 text-center text-black/60 dark:text-white/60">
@@ -235,17 +295,21 @@ const AiReportPage = () => {
       {!isLoading && !isError && (
         <>
           {/* Charts Section */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
-            <div className="xl:col-span-2 bg-white dark:bg-zinc-900/50 border border-gray-100 dark:border-white/5 rounded-xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-8">
+            <GlassCard className="xl:col-span-2 p-4 sm:p-8">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
                 {t("dashboard.revenue_analytics") || "Revenue Analytics"}
               </h3>
               <div className="h-[280px] w-full">
-                <LineChartComponent chartData={lineChartData} chartConfig={lineChartConfig} />
+                <LineChartComponent
+                  chartData={lineChartData}
+                  chartConfig={lineChartConfig}
+                />
               </div>
-            </div>
-            <div className="bg-white dark:bg-zinc-900/50 border border-gray-100 dark:border-white/5 rounded-xl p-6 shadow-sm flex flex-col">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            </GlassCard>
+
+            <GlassCard className="p-4 sm:p-8 flex flex-col">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
                 {t("dashboard.order_status") || "Order Status"}
               </h3>
               <div className="flex-1 min-h-[240px] flex items-center justify-center">
@@ -256,138 +320,161 @@ const AiReportPage = () => {
                   name={t("dashboard.paidOrders") || "Paid Orders"}
                 />
               </div>
-            </div>
+            </GlassCard>
           </div>
 
           {/* Report Section */}
           {hasReport && (
-            <>
-              <div className="flex flex-wrap items-center gap-2 mb-4">
+            <GlassCard className="p-4 sm:p-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 {generatedAt && (
-                  <p className="text-xs text-black/50 dark:text-white/50">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                     {t("aiReport.generatedAt") || "Generated"} —{" "}
                     {new Date(generatedAt).toLocaleString()}
                   </p>
                 )}
-                <div className="flex flex-wrap gap-2 ml-auto">
+                <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => handleTranslate("bn")}
                     disabled={isTranslating || reportLang === "bn"}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title={t("aiReport.translateToBengali") || "Translate to Bengali"}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-xs font-bold bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-1 sm:flex-none"
+                    title={
+                      t("aiReport.translateToBengali") || "Translate to Bengali"
+                    }
                   >
                     <Languages className="h-4 w-4" />
-                    {t("aiReport.toBengali") || "বাংলা"}
+                    <span className="truncate">
+                      {t("aiReport.toBengali") || "বাংলা"}
+                    </span>
                   </button>
                   <button
                     onClick={() => handleTranslate("bn-Latn")}
                     disabled={isTranslating || reportLang === "bn-Latn"}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title={t("aiReport.translateToMinglish") || "Translate to Minglish"}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-xs font-bold bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-1 sm:flex-none"
+                    title={
+                      t("aiReport.translateToMinglish") ||
+                      "Translate to Minglish"
+                    }
                   >
                     <Languages className="h-4 w-4" />
-                    {t("aiReport.toMinglish") || "Minglish"}
+                    <span className="truncate">
+                      {t("aiReport.toMinglish") || "Minglish"}
+                    </span>
                   </button>
                   <button
                     onClick={() => handleTranslate("en")}
                     disabled={isTranslating || reportLang === "en"}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title={t("aiReport.translateToEnglish") || "Translate to English"}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-xs font-bold bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-1 sm:flex-none"
+                    title={
+                      t("aiReport.translateToEnglish") || "Translate to English"
+                    }
                   >
                     <Languages className="h-4 w-4" />
-                    {t("aiReport.toEnglish") || "English"}
+                    <span className="truncate">
+                      {t("aiReport.toEnglish") || "English"}
+                    </span>
                   </button>
                   {isSpeaking ? (
                     <button
                       onClick={handleStopSpeak}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                      className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-xs font-bold bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-all flex-1 sm:flex-none"
                       title={t("aiReport.stopListening") || "Stop"}
                     >
                       <Square className="h-4 w-4" />
-                      {t("aiReport.stop") || "Stop"}
+                      <span className="truncate">
+                        {t("aiReport.stop") || "Stop"}
+                      </span>
                     </button>
                   ) : (
                     <>
                       <button
                         onClick={() => handleSpeak("en")}
                         disabled={isTranslating}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 hover:bg-sky-200 dark:hover:bg-sky-900/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        title={t("aiReport.listenEnglish") || "Listen in English"}
+                        className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-xs font-bold bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-1 sm:flex-none"
+                        title={
+                          t("aiReport.listenEnglish") || "Listen in English"
+                        }
                       >
                         <Volume2 className="h-4 w-4" />
-                        {t("aiReport.listenEnglish") || "Listen (EN)"}
+                        <span className="truncate">
+                          {t("aiReport.listenEnglish") || "Listen (EN)"}
+                        </span>
                       </button>
                       <button
                         onClick={() => handleSpeak("bn")}
                         disabled={isTranslating}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        title={t("aiReport.listenBengali") || "Listen in Bangla"}
+                        className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-1 sm:flex-none"
+                        title={
+                          t("aiReport.listenBengali") || "Listen in Bangla"
+                        }
                       >
                         <Volume2 className="h-4 w-4" />
-                        {t("aiReport.listenBengali") || "Listen (বাংলা)"}
+                        <span className="truncate">
+                          {t("aiReport.listenBengali") || "Listen (বাংলা)"}
+                        </span>
                       </button>
                     </>
                   )}
                   <button
                     onClick={handleDownloadReport}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-colors"
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-xs font-bold bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all flex-1 sm:flex-none"
                     title={t("aiReport.downloadReport") || "Download Report"}
                   >
                     <Download className="h-4 w-4" />
-                    {t("aiReport.download") || "Download"}
+                    <span className="truncate">
+                      {t("aiReport.download") || "Download"}
+                    </span>
                   </button>
                 </div>
               </div>
 
-              <Card className="overflow-hidden border border-violet-200/50 dark:border-violet-800/50 shadow-sm hover:shadow-md transition-all duration-200">
-                <CardContent className="p-6 bg-gradient-to-br from-violet-50/50 to-transparent dark:from-violet-900/10 dark:to-transparent">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 p-3 rounded-xl bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400">
-                      <FileText className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1 min-w-0 space-y-4">
-                      {paragraphs.length > 0 ? (
-                        paragraphs.map((para, idx) => (
-                          <p
-                            key={idx}
-                            className="text-sm leading-relaxed text-gray-800 dark:text-gray-200"
-                          >
-                            {para.trim()}
-                          </p>
-                        ))
-                      ) : (
-                        <p className="text-sm leading-relaxed text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
-                          {displayText}
-                        </p>
-                      )}
-                    </div>
+              <div className="overflow-hidden border border-violet-100 dark:border-violet-500/10 rounded-2xl bg-gradient-to-br from-violet-50/50 to-transparent dark:from-violet-500/5 dark:to-transparent p-4 sm:p-8">
+                <div className="flex items-start gap-4 sm:gap-6">
+                  <div className="hidden sm:block flex-shrink-0 p-3 sm:p-4 rounded-2xl bg-white dark:bg-white/5 text-violet-600 dark:text-violet-400 shadow-sm">
+                    <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                    {paragraphs.length > 0 ? (
+                      paragraphs.map((para, idx) => (
+                        <p
+                          key={idx}
+                          className="text-sm sm:text-base leading-relaxed text-gray-700 dark:text-gray-300 font-medium"
+                        >
+                          {para.trim()}
+                        </p>
+                      ))
+                    ) : (
+                      <p className="text-sm sm:text-base leading-relaxed text-gray-700 dark:text-gray-300 font-medium whitespace-pre-wrap">
+                        {displayText}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
 
               {/* Separate Report Section (Expandable) */}
-              <div className="mt-6">
+              <div className="mt-6 sm:mt-8">
                 <button
                   onClick={() => setShowSeparateReport(!showSeparateReport)}
-                  className="flex items-center gap-2 w-full py-3 px-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left"
+                  className="flex items-center gap-3 w-full py-3 sm:py-4 px-4 sm:px-6 rounded-2xl border border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-all text-left group"
                 >
                   {showSeparateReport ? (
-                    <ChevronUp className="h-5 w-5 text-gray-500" />
+                    <ChevronUp className="h-5 w-5 text-gray-400 group-hover:text-gray-600" />
                   ) : (
-                    <ChevronDown className="h-5 w-5 text-gray-500" />
+                    <ChevronDown className="h-5 w-5 text-gray-400 group-hover:text-gray-600" />
                   )}
-                  <span className="font-medium text-gray-800 dark:text-gray-200">
+                  <span className="font-bold text-sm sm:text-base text-gray-700 dark:text-gray-200">
                     {t("aiReport.separateReport") || "View Full Report"}
                   </span>
                 </button>
                 {showSeparateReport && (
-                  <div className="mt-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-                    <pre className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-sans leading-relaxed overflow-x-auto">
+                  <div className="mt-4 p-4 sm:p-6 rounded-2xl border border-gray-100 dark:border-white/5 bg-gray-50/30 dark:bg-white/5">
+                    <pre className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap font-mono leading-relaxed overflow-x-auto">
                       {displayText}
                     </pre>
                     <button
                       onClick={handleDownloadReport}
-                      className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 transition-colors"
+                      className="mt-6 flex items-center gap-2 px-6 py-3 rounded-xl bg-violet-600 text-white text-sm font-bold shadow-lg shadow-violet-500/20 hover:bg-violet-700 transition-all transform hover:-translate-y-0.5"
                     >
                       <Download className="h-4 w-4" />
                       {t("aiReport.downloadAsPdf") || "Download as PDF"}
@@ -395,7 +482,7 @@ const AiReportPage = () => {
                   </div>
                 )}
               </div>
-            </>
+            </GlassCard>
           )}
 
           {!hasReport && (
