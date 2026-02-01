@@ -148,7 +148,7 @@ const PackageEditForm = ({ pkg, onClose }) => {
             price: parseFloat(data.price),
             discountPrice: data.discountPrice ? parseFloat(data.discountPrice) : null,
             isFeatured,
-            features,
+            features: validFeatures,
             ...(themeId && { themeId: parseInt(themeId) }),
         };
 
