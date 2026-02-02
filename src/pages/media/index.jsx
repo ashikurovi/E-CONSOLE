@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   Globe,
   Grid,
-  Menu,
+  Menu, // Use Menu as list view icon if LayoutList is unavailable, or stick to Grid/Menu logic
   ChevronDown,
   Search,
   Upload,
@@ -14,6 +14,15 @@ import {
   Plus,
   Loader2,
   Sparkles,
+  Filter,
+  LayoutGrid,
+  LayoutList,
+  MoreVertical,
+  Eye,
+  Edit2,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../components/ui/button";
@@ -25,6 +34,14 @@ import {
   DialogDescription,
   DialogFooter,
 } from "../../components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu";
 
 /**
  * Media Library Page
@@ -33,6 +50,7 @@ import {
 export default function MediaPage() {
   const { t } = useTranslation();
   const [viewMode, setViewMode] = useState("grid");
+  const [sortBy, setSortBy] = useState("newest");
 
   // --- Upload Modal State ---
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -41,6 +59,7 @@ export default function MediaPage() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [zoom, setZoom] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0); // Simulated processing progress
   const [generatedUrl, setGeneratedUrl] = useState(null);
   const canvasRef = useRef(null);
   const imageRef = useRef(null);
@@ -51,6 +70,7 @@ export default function MediaPage() {
       id: 1,
       title: "The Japan Cup",
       count: 34,
+      date: "2024-03-15",
       images: [
         "https://images.unsplash.com/photo-1551887196-72e32bfc7bf3?w=800&q=80",
         "https://images.unsplash.com/photo-1552880816-c146d6251249?w=800&q=80",
@@ -61,6 +81,7 @@ export default function MediaPage() {
       id: 2,
       title: "Galactic Gallop Classic",
       count: 14,
+      date: "2024-02-28",
       images: [
         "https://images.unsplash.com/photo-1534068590799-09895a701e3e?w=800&q=80",
         "https://images.unsplash.com/photo-1566897587198-d703b0c952b9?w=800&q=80",
@@ -71,6 +92,7 @@ export default function MediaPage() {
       id: 3,
       title: "Enchanted Equine Extravaganza",
       count: 56,
+      date: "2024-01-10",
       images: [
         "https://images.unsplash.com/photo-1547035970-d2932152a553?w=800&q=80",
         "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?w=800&q=80",
@@ -81,6 +103,7 @@ export default function MediaPage() {
       id: 4,
       title: "Celestial Sprint Showcase",
       count: 53,
+      date: "2023-12-05",
       images: [
         "https://images.unsplash.com/photo-1535585102741-1e66953a1f1e?w=800&q=80",
         "https://images.unsplash.com/photo-1605218427368-35b0185e3362?w=800&q=80",
@@ -99,6 +122,7 @@ export default function MediaPage() {
       setGeneratedUrl(null);
       setZoom(1);
       setIsProcessing(false);
+      setProgress(0);
     }, 300);
   };
 
@@ -116,6 +140,7 @@ export default function MediaPage() {
   // Handle Crop & Generate (Simulated)
   const handleCropAndGenerate = async () => {
     setIsProcessing(true);
+    setProgress(10);
 
     // 1. Simulate Cropping (Draw to Canvas)
     if (imageRef.current && canvasRef.current) {
@@ -147,15 +172,28 @@ export default function MediaPage() {
       // Draw
       ctx.drawImage(img, sx, sy, cropSize, cropSize, 0, 0, size, size);
     }
+    
+    // Simulate progress
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 90) {
+          clearInterval(interval);
+          return 90;
+        }
+        return prev + 10;
+      });
+    }, 200);
 
     // 2. Simulate Network Request
     setTimeout(() => {
+      clearInterval(interval);
+      setProgress(100);
       const mockId = Math.random().toString(36).substring(7);
       const mockUrl = `https://cdn.squadcart.com/media/uploads/img_${mockId}_optimized.jpg`;
       setGeneratedUrl(mockUrl);
       setUploadStep("result");
       setIsProcessing(false);
-    }, 1500);
+    }, 2000);
   };
 
   // Copy to Clipboard
@@ -167,134 +205,231 @@ export default function MediaPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0b0f14] font-sans">
+    <div className="min-h-screen bg-[#F8F9FC] dark:bg-[#0b0f14] font-sans">
       {/* --- PREMIUM HEADER --- */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#0b0f14]/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 px-6 lg:px-10 py-4 transition-all duration-300">
-        <div className="flex items-center justify-between">
-          {/* Left: Global Dropdown */}
-          <div className="flex items-center gap-1 group cursor-pointer">
-            <Globe className="w-5 h-5 text-[#5347CE]" />
-            <span className="text-base font-bold text-[#5347CE]">Global</span>
-            <ChevronDown className="w-4 h-4 text-[#5347CE] transition-transform group-hover:rotate-180" />
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0b0f14]/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800 px-6 lg:px-10 py-5 transition-all duration-300">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          
+          {/* Left: Title & Global Scope */}
+          <div className="flex items-center gap-4">
+             <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
+               Media Library
+             </h1>
+             <div className="w-px h-6 bg-gray-200 dark:bg-gray-800 hidden md:block"></div>
+             <div className="flex items-center gap-2 group cursor-pointer bg-gray-100/50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 px-3 py-1.5 rounded-full transition-colors border border-transparent hover:border-indigo-500/20">
+               <Globe className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+               <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Global System</span>
+               <ChevronDown className="w-3.5 h-3.5 text-gray-400 transition-transform group-hover:rotate-180" />
+             </div>
           </div>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            {/* Search */}
+            <div className="hidden lg:flex items-center bg-white dark:bg-white/5 rounded-full px-4 py-2.5 border border-gray-200 dark:border-gray-800 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500/50 transition-all w-64">
+              <Search className="w-4 h-4 text-gray-400 mr-2.5" />
+              <input
+                type="text"
+                placeholder="Search collections..."
+                className="bg-transparent border-none outline-none text-sm font-medium w-full text-gray-700 dark:text-gray-200 placeholder-gray-400"
+              />
+            </div>
+            
+            {/* View Toggle */}
+            <div className="flex items-center p-1 bg-gray-100/80 dark:bg-white/5 rounded-full border border-gray-200/50 dark:border-gray-800">
+              <button 
+                onClick={() => setViewMode("grid")}
+                className={`p-2 rounded-full transition-all duration-200 ${viewMode === "grid" ? "bg-white dark:bg-gray-800 text-indigo-600 shadow-sm" : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"}`}
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => setViewMode("list")}
+                className={`p-2 rounded-full transition-all duration-200 ${viewMode === "list" ? "bg-white dark:bg-gray-800 text-indigo-600 shadow-sm" : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"}`}
+              >
+                <LayoutList className="w-4 h-4" />
+              </button>
+            </div>
+
             {/* Upload Button */}
             <Button
               onClick={() => setIsUploadOpen(true)}
-              className="hidden sm:flex bg-gradient-to-r from-[#5347CE] to-[#16C8C7] hover:opacity-90 text-white rounded-full px-6 shadow-lg shadow-[#5347CE]/20 transition-all duration-300 transform hover:scale-105"
+              className="bg-[#5347CE] hover:bg-[#463cb8] text-white rounded-full px-6 py-5 shadow-lg shadow-indigo-500/25 transition-all duration-300 transform hover:-translate-y-0.5"
             >
               <Plus className="w-4 h-4 mr-2" />
               Upload Media
             </Button>
-
-            <div className="hidden md:flex items-center bg-gray-100 dark:bg-white/5 rounded-full px-4 py-2 border border-transparent focus-within:border-[#5347CE]/20 transition-all">
-              <Search className="w-4 h-4 text-gray-400 mr-2" />
-              <input
-                type="text"
-                placeholder="Search albums..."
-                className="bg-transparent border-none outline-none text-sm font-medium w-32 lg:w-48 text-gray-700 dark:text-gray-200"
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 text-[#5347CE] border border-[#5347CE]/20 bg-[#5347CE]/5 transition-colors">
-                <Grid className="w-5 h-5" />
-              </button>
-              <button className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 text-gray-400 dark:text-gray-500 transition-colors">
-                <Menu className="w-5 h-5" />
-              </button>
-            </div>
           </div>
+        </div>
+        
+        {/* Sub-Header: Filters & Sort (Mobile friendly) */}
+        <div className="mt-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+                 <Button variant="outline" size="sm" className="hidden sm:flex rounded-full border-gray-200 dark:border-gray-800 dark:bg-transparent dark:text-gray-300 dark:hover:bg-white/5">
+                     <Filter className="w-4 h-4 mr-2 text-gray-500" />
+                     All Formats
+                 </Button>
+                 <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                    Showing <span className="text-gray-900 dark:text-white">4</span> albums
+                 </div>
+            </div>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                    Sort by: <span className="text-indigo-600 dark:text-indigo-400">{sortBy === 'newest' ? 'Newest First' : 'Name'}</span>
+                    <ChevronDown className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel>Sort Options</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setSortBy("newest")}>
+                    Newest First
+                    {sortBy === "newest" && <Check className="w-3.5 h-3.5 ml-auto text-indigo-600" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("name")}>
+                    Name (A-Z)
+                    {sortBy === "name" && <Check className="w-3.5 h-3.5 ml-auto text-indigo-600" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("size")}>
+                    Size
+                    {sortBy === "size" && <Check className="w-3.5 h-3.5 ml-auto text-indigo-600" />}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
         </div>
       </header>
 
       {/* --- CONTENT GRID --- */}
-      <main className="p-6 lg:p-10">
+      <main className="p-6 lg:p-10 max-w-[1600px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {albums.map((album) => (
             <motion.div
               key={album.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -5 }}
-              className="group cursor-pointer"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ y: -8 }}
+              className="group relative"
             >
-              {/* Collage Thumbnail */}
-              <div className="aspect-[4/3] rounded-[24px] overflow-hidden bg-white dark:bg-white/5 p-1 flex gap-1 shadow-sm group-hover:shadow-2xl shadow-[#5347CE]/10 transition-all duration-500 border border-gray-100 dark:border-white/5">
-                {/* Left Column (2 Stacked) */}
-                <div className="flex flex-col gap-1 w-1/2">
-                  <div className="h-1/2 w-full rounded-[16px] overflow-hidden">
-                    <img
-                      src={album.images[0]}
-                      alt=""
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  </div>
-                  <div className="h-1/2 w-full rounded-[16px] overflow-hidden relative">
-                    <img
-                      src={album.images[1]}
-                      alt=""
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  </div>
+              {/* Card Container */}
+              <div className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-2 shadow-sm border border-gray-100 dark:border-gray-800 group-hover:shadow-2xl group-hover:shadow-indigo-500/10 transition-all duration-500">
+                
+                {/* Collage Thumbnail */}
+                <div className="relative aspect-[4/3] rounded-[20px] overflow-hidden bg-gray-100 dark:bg-white/5 flex gap-0.5">
+                   
+                    {/* Hover Overlay with Actions */}
+                    <div className="absolute inset-0 z-20 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+                        <motion.button 
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="bg-white text-gray-900 p-2.5 rounded-full shadow-lg"
+                        >
+                            <Eye className="w-5 h-5" />
+                        </motion.button>
+                        <motion.button 
+                             whileHover={{ scale: 1.1 }}
+                             whileTap={{ scale: 0.95 }}
+                             className="bg-white text-indigo-600 p-2.5 rounded-full shadow-lg"
+                        >
+                            <Edit2 className="w-5 h-5" />
+                        </motion.button>
+                        <motion.button 
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="bg-white text-red-500 p-2.5 rounded-full shadow-lg"
+                        >
+                            <Trash2 className="w-5 h-5" />
+                        </motion.button>
+                    </div>
+
+                    {/* Image Collage */}
+                    <div className="flex flex-col gap-0.5 w-7/12 h-full">
+                       <img src={album.images[0]} className="w-full h-full object-cover rounded-l-[16px]" alt="" />
+                    </div>
+                    <div className="flex flex-col gap-0.5 w-5/12 h-full">
+                       <div className="h-1/2 w-full"><img src={album.images[1]} className="w-full h-full object-cover rounded-tr-[16px]" alt="" /></div>
+                       <div className="h-1/2 w-full relative">
+                           <img src={album.images[2]} className="w-full h-full object-cover rounded-br-[16px]" alt="" />
+                           {/* Count Badge overlay on last image */}
+                           <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-br-[16px]">
+                               <span className="text-white font-bold text-lg">+{album.count}</span>
+                           </div>
+                       </div>
+                    </div>
                 </div>
 
-                {/* Right Column (1 Large) */}
-                <div className="w-1/2 rounded-[16px] overflow-hidden">
-                  <img
-                    src={album.images[2]}
-                    alt=""
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                </div>
-              </div>
-
-              {/* Album Details */}
-              <div className="mt-4 px-1">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-base font-bold text-gray-900 dark:text-white group-hover:text-[#5347CE] transition-colors">
+                {/* Album Details */}
+                <div className="p-4">
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors line-clamp-1">
                       {album.title}
                     </h3>
-                    <p className="text-sm font-medium text-gray-400 mt-0.5">
-                      {album.count} Photos
-                    </p>
+                  </div>
+                  <div className="flex items-center justify-between">
+                     <p className="text-sm font-medium text-gray-400 dark:text-gray-500">
+                        {album.count} items
+                     </p>
+                     <span className="text-xs text-gray-300 dark:text-gray-600 bg-gray-50 dark:bg-white/5 px-2 py-1 rounded-md border border-gray-100 dark:border-gray-800">
+                        {album.date}
+                     </span>
                   </div>
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
+        
+        {/* --- PAGINATION --- */}
+        <div className="mt-12 flex items-center justify-center gap-2">
+            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-indigo-600">
+                <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <div className="flex items-center gap-1">
+                 {[1, 2, 3].map(page => (
+                     <button
+                        key={page}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
+                            page === 1 
+                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' 
+                            : 'bg-white dark:bg-white/5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10'
+                        }`}
+                     >
+                         {page}
+                     </button>
+                 ))}
+                 <span className="text-gray-400 px-1">...</span>
+                 <button className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold bg-white dark:bg-white/5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10">
+                     12
+                 </button>
+            </div>
+            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-indigo-600">
+                <ChevronRight className="w-4 h-4" />
+            </Button>
+        </div>
       </main>
 
       {/* --- UPLOAD & CROP MODAL --- */}
       <Dialog open={isUploadOpen} onOpenChange={handleCloseModal}>
-        <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden bg-white dark:bg-[#1a1f26] border-gray-100 dark:border-gray-800 rounded-3xl">
+        <DialogContent className="sm:max-w-[650px] p-0 overflow-hidden bg-white dark:bg-[#1a1f26] border-gray-100 dark:border-gray-800 rounded-[32px] shadow-2xl">
           {/* Header */}
-          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
-            <DialogTitle className="text-lg font-bold flex items-center gap-2">
-              {uploadStep === "select" && (
-                <>
-                  <Upload className="w-5 h-5 text-[#5347CE]" /> Upload Media
-                </>
-              )}
-              {uploadStep === "crop" && (
-                <>
-                  <Crop className="w-5 h-5 text-[#5347CE]" /> Edit & Crop
-                </>
-              )}
-              {uploadStep === "result" && (
-                <>
-                  <Sparkles className="w-5 h-5 text-[#5347CE]" /> Ready to Use
-                </>
-              )}
-            </DialogTitle>
+          <div className="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/80 dark:bg-white/5 backdrop-blur-sm">
+            <div>
+                 <DialogTitle className="text-xl font-bold flex items-center gap-2.5 text-gray-900 dark:text-white">
+                    {uploadStep === "select" && <><Upload className="w-5 h-5 text-indigo-600" /> Upload Media</>}
+                    {uploadStep === "crop" && <><Crop className="w-5 h-5 text-indigo-600" /> Edit & Crop</>}
+                    {uploadStep === "result" && <><Sparkles className="w-5 h-5 text-indigo-600" /> Processed Successfully</>}
+                </DialogTitle>
+                <DialogDescription className="text-gray-500 dark:text-gray-400 mt-1">
+                    {uploadStep === "select" && "Add new images to your collection"}
+                    {uploadStep === "crop" && "Adjust your image before saving"}
+                    {uploadStep === "result" && "Your media is ready to use"}
+                </DialogDescription>
+            </div>
           </div>
 
           {/* Body */}
-          <div className="p-6">
+          <div className="p-8">
             <AnimatePresence mode="wait">
               {/* Step 1: Select File */}
               {uploadStep === "select" && (
@@ -302,7 +437,7 @@ export default function MediaPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-10 bg-gray-50 dark:bg-black/20 hover:bg-[#5347CE]/5 dark:hover:bg-[#5347CE]/10 hover:border-[#5347CE]/30 transition-all cursor-pointer group"
+                  className="relative"
                 >
                   <input
                     type="file"
@@ -313,17 +448,23 @@ export default function MediaPage() {
                   />
                   <label
                     htmlFor="file-upload"
-                    className="flex flex-col items-center cursor-pointer w-full h-full"
+                    className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-[24px] h-64 bg-gray-50 dark:bg-black/20 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 hover:border-indigo-400 dark:hover:border-indigo-500/50 transition-all cursor-pointer group relative overflow-hidden"
                   >
-                    <div className="w-16 h-16 rounded-full bg-[#5347CE]/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <ImageIcon className="w-8 h-8 text-[#5347CE]" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    
+                    <div className="relative z-10 flex flex-col items-center">
+                        <div className="w-20 h-20 rounded-full bg-white dark:bg-white/10 shadow-sm flex items-center justify-center mb-5 group-hover:scale-110 group-hover:shadow-md transition-all">
+                            <div className="w-16 h-16 rounded-full bg-indigo-50 dark:bg-indigo-500/20 flex items-center justify-center">
+                                <ImageIcon className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+                            </div>
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                        Click or Drag to Upload
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Supports high-res JPG, PNG, WEBP up to 20MB
+                        </p>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
-                      Drag & Drop or Click to Upload
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Support for JPG, PNG, WEBP
-                    </p>
                   </label>
                 </motion.div>
               )}
@@ -337,7 +478,7 @@ export default function MediaPage() {
                   className="space-y-6"
                 >
                   {/* Crop Area */}
-                  <div className="relative w-full aspect-square bg-black/5 dark:bg-black/50 rounded-xl overflow-hidden flex items-center justify-center border border-gray-100 dark:border-gray-800">
+                  <div className="relative w-full aspect-[4/3] bg-black/5 dark:bg-black/50 rounded-2xl overflow-hidden flex items-center justify-center border border-gray-100 dark:border-gray-800">
                     {/* Grid Overlay */}
                     <div className="absolute inset-0 pointer-events-none z-10 grid grid-cols-3 grid-rows-3 opacity-30">
                       {[...Array(9)].map((_, i) => (
@@ -363,42 +504,68 @@ export default function MediaPage() {
                   </div>
 
                   {/* Controls */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm font-medium text-gray-500">
-                      <span>Zoom</span>
-                      <span>{Math.round(zoom * 100)}%</span>
-                    </div>
-                    <input
+                  <div className="bg-gray-50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+                     <div className="flex items-center justify-between mb-2">
+                         <span className="text-xs font-bold uppercase text-gray-400 tracking-wider">Zoom Level</span>
+                         <span className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/20 px-2 py-0.5 rounded-md">{Math.round(zoom * 100)}%</span>
+                     </div>
+                     <input
                       type="range"
                       min="1"
                       max="3"
                       step="0.1"
                       value={zoom}
                       onChange={(e) => setZoom(parseFloat(e.target.value))}
-                      className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#5347CE]"
+                      className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                     />
                   </div>
 
-                  <div className="flex justify-end gap-3 pt-2">
+                  <div className="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800 mt-6">
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       onClick={() => setUploadStep("select")}
+                      className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                     >
                       Cancel
                     </Button>
                     <Button
                       onClick={handleCropAndGenerate}
                       disabled={isProcessing}
-                      className="bg-gradient-to-r from-[#5347CE] to-[#16C8C7] hover:opacity-90 text-white min-w-[120px]"
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[140px] shadow-lg shadow-indigo-500/20"
                     >
                       {isProcessing ? (
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        <>
+                           <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                           Running AI...
+                        </>
                       ) : (
-                        <Crop className="w-4 h-4 mr-2" />
+                        <>
+                           <Crop className="w-4 h-4 mr-2" />
+                           Crop & Save
+                        </>
                       )}
-                      {isProcessing ? "Processing..." : "Crop & Save"}
                     </Button>
                   </div>
+                  
+                  {/* Processing Progress Bar */}
+                  {isProcessing && (
+                      <div className="absolute inset-0 bg-white/90 dark:bg-[#1a1f26]/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center rounded-[32px]">
+                          <div className="w-64 space-y-4">
+                              <div className="flex justify-between text-sm font-medium">
+                                  <span>Optimizing...</span>
+                                  <span>{progress}%</span>
+                              </div>
+                              <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                                  <motion.div 
+                                      className="h-full bg-indigo-600 rounded-full"
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${progress}%` }}
+                                      transition={{ duration: 0.2 }}
+                                  />
+                              </div>
+                          </div>
+                      </div>
+                  )}
                 </motion.div>
               )}
 
@@ -407,45 +574,48 @@ export default function MediaPage() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col items-center text-center space-y-6 py-4"
+                  className="flex flex-col items-center text-center space-y-8 py-6"
                 >
-                  <div className="w-20 h-20 rounded-full bg-[#16C8C7]/10 flex items-center justify-center">
-                    <Check className="w-10 h-10 text-[#16C8C7]" />
+                  <div className="relative">
+                       <div className="absolute inset-0 bg-green-500/20 blur-xl rounded-full"></div>
+                       <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-green-400 to-emerald-600 flex items-center justify-center shadow-lg relative z-10">
+                            <Check className="w-12 h-12 text-white" />
+                       </div>
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                      Image Generated Successfully!
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                       Upload Complete
                     </h3>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm max-w-xs mx-auto">
-                      Your image has been cropped, optimized, and is ready to
-                      use.
+                    <p className="text-gray-500 dark:text-gray-400 text-sm max-w-sm mx-auto">
+                      Your image has been optimized, tagged, and added to the <span className="font-semibold text-gray-900 dark:text-gray-300">Global</span> collection.
                     </p>
                   </div>
 
-                  <div className="w-full bg-gray-50 dark:bg-black/30 p-4 rounded-xl border border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                  <div className="w-full bg-gray-50 dark:bg-black/30 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center gap-4">
                     <div className="flex-1 text-left overflow-hidden">
-                      <p className="text-xs text-gray-400 font-bold uppercase mb-1">
-                        Generated URL
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1.5">
+                        CDN ACCESS URL
                       </p>
-                      <p className="text-sm font-medium text-[#16C8C7] truncate">
+                      <p className="text-sm font-mono font-medium text-indigo-600 dark:text-indigo-400 truncate">
                         {generatedUrl}
                       </p>
                     </div>
                     <Button
                       size="icon"
-                      variant="secondary"
+                      variant="outline"
                       onClick={handleCopyUrl}
+                      className="shrink-0 h-10 w-10 rounded-xl"
                     >
                       <Copy className="w-4 h-4" />
                     </Button>
                   </div>
 
                   <Button
-                    className="w-full bg-gray-900 dark:bg-white dark:text-black text-white"
+                    className="w-full bg-gray-900 dark:bg-white dark:text-black text-white h-12 text-base rounded-xl hover:scale-[1.02] transition-transform"
                     onClick={handleCloseModal}
                   >
-                    Done
+                    Return to Library
                   </Button>
                 </motion.div>
               )}
