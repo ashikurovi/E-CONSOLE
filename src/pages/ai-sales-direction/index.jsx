@@ -61,7 +61,7 @@ const CircularStrategyMap = ({ directions }) => {
   ];
 
   return (
-    <div className="relative w-[900px] h-[900px] mx-auto flex items-center justify-center select-none scale-75 xl:scale-100 transition-transform">
+    <div className="relative w-[900px] h-[900px] mx-auto flex items-center justify-center select-none scale-50 md:scale-65 lg:scale-75 transition-transform origin-center">
       <svg className="absolute inset-0 w-full h-full overflow-visible pointer-events-none">
         
         {/* Main Orange Ring */}
