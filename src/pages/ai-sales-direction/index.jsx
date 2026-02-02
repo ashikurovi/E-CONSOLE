@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import {
@@ -302,8 +302,33 @@ const TimelineItem = ({
 const CircularStrategyMap = ({ directions, getDisplayDirection }) => {
   const total = directions.length;
   const center = 400;
-  const radiusMain = 160;
-  const radiusOuter = 280; // Increased from 260 to 280 for more space
+  
+  // Responsive layout configuration
+  const [layoutConfig, setLayoutConfig] = useState({
+    radiusMain: 160,
+    radiusOuter: 280,
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1536) {
+        // 2xl screens
+        setLayoutConfig({ radiusMain: 200, radiusOuter: 380 });
+      } else if (window.innerWidth >= 1280) {
+        // xl screens
+        setLayoutConfig({ radiusMain: 180, radiusOuter: 340 });
+      } else {
+        // lg screens
+        setLayoutConfig({ radiusMain: 160, radiusOuter: 280 });
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const { radiusMain, radiusOuter } = layoutConfig;
 
   const getPos = (angleDeg, r) => {
     const angleRad = (angleDeg * Math.PI) / 180;
@@ -671,7 +696,7 @@ const CircularStrategyMap = ({ directions, getDisplayDirection }) => {
                     className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r ${config.gradient} text-white text-xs font-black uppercase tracking-widest mb-4 shadow-lg ${isRight ? "" : "ml-auto"}`}
                   >
                     <Zap className="w-3 h-3 fill-current" />
-                    Phase{" "}
+                    Phase fsdfsd{" "}
                     {["I", "II", "III", "IV", "V", "VI"][index] || index + 1}
                   </div>
 
@@ -1032,3 +1057,4 @@ const AiSalesDirectionPage = () => {
 };
 
 export default AiSalesDirectionPage;
+

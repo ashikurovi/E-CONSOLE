@@ -101,13 +101,13 @@ const SaleInvoiceDetailsPage = () => {
                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#7c3aed] to-[#3b82f6] flex items-center justify-center text-white shadow-lg">
                    <div className="w-2 h-2 rounded-full bg-white" />
                 </div>
-                <span className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Kanakku</span>
+                <span className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">SquadCart</span>
              </div>
              
              <div className="absolute top-0 left-0 p-12">
                 <h1 className="text-4xl font-black text-gray-800 dark:text-white uppercase tracking-tight">Invoice</h1>
-                <p className="text-gray-900 dark:text-gray-300 font-bold mt-2">Dreams Technologies Pvt Ltd.,</p>
-                <p className="text-sm text-gray-500">15 Hodges Mews, HP12 3JL, United Kingdom</p>
+                <p className="text-gray-900 dark:text-gray-300 font-bold mt-2">SquadCart Inc.</p>
+                <p className="text-sm text-gray-500">123 Commerce St, Tech City, TC 90210</p>
              </div>
 
              {/* Status Stamp */}
@@ -314,14 +314,14 @@ const SaleInvoiceDetailsPage = () => {
           <div className="relative h-24 bg-gray-50/50 dark:bg-black/20 border-t border-gray-100 dark:border-gray-800 overflow-hidden px-12 flex items-center justify-between">
               <div className="absolute right-0 top-0 h-full w-[40%] bg-gradient-to-l from-[#7c3aed]/5 to-transparent" />
               <div className="space-y-1 relative z-10">
-                 <p className="text-xs font-black text-gray-900 dark:text-white uppercase">Dreams Technologies Pvt Ltd.,</p>
-                 <p className="text-[10px] text-gray-400">15 Hodges Mews, High Wycombe HP12 3JL, United Kingdom</p>
+                 <p className="text-xs font-black text-gray-900 dark:text-white uppercase">SquadCart Inc.</p>
+                 <p className="text-[10px] text-gray-400">123 Commerce St, Tech City, TC 90210</p>
               </div>
               <div className="flex items-center gap-2 relative z-10">
                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#7c3aed] to-[#3b82f6] flex items-center justify-center text-white scale-75">
                     <div className="w-1.5 h-1.5 rounded-full bg-white" />
                  </div>
-                 <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">Kanakku</span>
+                 <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">SquadCart</span>
               </div>
           </div>
         </div>
