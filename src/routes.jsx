@@ -46,6 +46,7 @@ import OrderEditPage from "./pages/orders/_id/edit";
 import InvoicesPage from "./pages/invoices";
 import CreateInvoicePage from "./pages/invoices/create";
 import SaleInvoiceDetailsPage from "./pages/invoices/[id]/details";
+import SaleInvoiceEditPage from "./pages/invoices/[id]/edit";
 import CreditNotesPage from "./pages/credit-notes";
 import CreateCreditNotePage from "./pages/credit-notes/create";
 import CreditNoteDetailsPage from "./pages/credit-notes/_id";
@@ -265,6 +266,14 @@ export const routes = createBrowserRouter([
         element: (
           <PermissionRoute permission={FeaturePermission.ORDERS}>
             <CreateInvoicePage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/invoices/:id/edit",
+        element: (
+          <PermissionRoute permission={FeaturePermission.ORDERS}>
+            <SaleInvoiceEditPage />
           </PermissionRoute>
         ),
       },
