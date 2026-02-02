@@ -305,17 +305,33 @@ const AiSalesDirectionPage = () => {
         { skip: !authUser?.companyId }
     );
 
-    const apiDirections = data?.directions || [];
+    const apiDirections = Array.isArray(data?.directions) ? data.directions : [];
     
-    // Mock data for the screenshot look if no API data
+    // Mock data for the screenshot look if no API data or partial data
     const mockDirections = [
-        { action: "Conduct extensive field studies to understand how your users think" },
-        { action: "Create a well-polished interface prototype that breathes with the user." },
-        { action: "Converting the prototype into a more refined final product." },
-        { action: "Usability testing lets us measure the final product against goals." }
+        { title: "Analysis", action: "Conduct extensive field studies to understand how your users think." },
+        { title: "Design", action: "Create a well-polished interface prototype that breathes with the user." },
+        { title: "Implementation", action: "Converting the prototype into a more refined final product." },
+        { title: "Deployment", action: "Usability testing lets us measure the final product against goals." }
     ];
 
-    const displayDirections = apiDirections.length > 0 ? apiDirections.slice(0,4) : mockDirections;
+    // Ensure we always have 4 items for the design
+    const displayDirections = [...mockDirections];
+    
+    // Overlay available API data
+    if (apiDirections.length > 0) {
+        apiDirections.forEach((dir, index) => {
+            if (index < 4) {
+                displayDirections[index] = {
+                    ...displayDirections[index], // Keep default title if missing
+                    ...dir,
+                    // If API returns mainly 'action', use that. 
+                    // If it returns 'message' (common in errors), use that as action to show the error.
+                    action: dir.action || dir.message || dir.description || mockDirections[index].action
+                };
+            }
+        });
+    }
 
     return (
         <div className="min-h-screen bg-white dark:bg-[#0d1117] flex items-center justify-center p-10 overflow-hidden">
