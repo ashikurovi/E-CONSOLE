@@ -1,15 +1,10 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useState } from "react";
 import { format } from "date-fns";
 import { 
   PlusCircle, 
   Search, 
   RefreshCw, 
-  Clock, 
-  ChevronRight,
-  ChevronLeft,
-  ChevronsRight,
-  Settings
+  ChevronsRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -20,7 +15,6 @@ import { motion } from "framer-motion";
  * A premium dashboard for managing third-party integrations and app connections.
  */
 export default function ConnectedAppsPage() {
-  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -51,7 +45,13 @@ export default function ConnectedAppsPage() {
       
       {/* --- HEADER --- */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10">
-        <h1 className="text-4xl font-extrabold text-[#0b121e] dark:text-white tracking-tight">Connected Apps</h1>
+        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
+          <h1 className="text-4xl font-extrabold text-[#0b121e] dark:text-white tracking-tight">Connected Apps</h1>
+          <Button className="bg-[#0ac9a3] hover:bg-[#09b692] text-white rounded-full px-6 h-10 font-bold shadow-lg shadow-teal-500/10 flex items-center gap-2.5 text-xs">
+            <PlusCircle className="w-4 h-4" />
+            Add New Application
+          </Button>
+        </div>
         
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2.5 text-xs font-bold text-[#0b121e]/60 dark:text-white/40">
@@ -64,41 +64,35 @@ export default function ConnectedAppsPage() {
         </div>
       </div>
 
-      {/* --- TOOLBAR --- */}
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-8 mb-10">
-        <Button className="bg-[#0ac9a3] hover:bg-[#09b692] text-white rounded-full px-8 h-12 font-bold shadow-lg shadow-teal-500/10 flex items-center gap-2.5">
-          <PlusCircle className="w-5 h-5" />
-          Add New Application
-        </Button>
+      {/* --- CATEGORY FILTERS & SEARCH --- */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-10">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+          <span>Applications:</span>
+          {categories.map((cat) => (
+            <button 
+              key={cat.label}
+              onClick={() => setActiveTab(cat.label)}
+              className={`transition-colors whitespace-nowrap ${
+                activeTab === cat.label 
+                ? "text-blue-600 dark:text-blue-400" 
+                : "hover:text-[#0b121e] dark:hover:text-white"
+              }`}
+            >
+              {cat.label} <span className="opacity-40 ml-0.5">({cat.count})</span>
+            </button>
+          ))}
+        </div>
 
-        <div className="relative w-full xl:max-w-sm">
-          <Search className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
+        <div className="relative w-full md:max-w-xs">
+          <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
           <input 
             type="text"
             placeholder="Search Application"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-12 pl-8 pr-14 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/5 focus:ring-2 focus:ring-blue-500/10 outline-none text-sm font-medium"
+            className="w-full h-11 pl-6 pr-12 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/5 focus:ring-2 focus:ring-blue-500/10 outline-none text-xs font-medium"
           />
         </div>
-      </div>
-
-      {/* --- CATEGORY FILTERS --- */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-4 mb-10 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-        <span>Applications:</span>
-        {categories.map((cat) => (
-          <button 
-            key={cat.label}
-            onClick={() => setActiveTab(cat.label)}
-            className={`transition-colors whitespace-nowrap ${
-              activeTab === cat.label 
-              ? "text-blue-600 dark:text-blue-400" 
-              : "hover:text-[#0b121e] dark:hover:text-white"
-            }`}
-          >
-            {cat.label} <span className="opacity-40 ml-0.5">({cat.count})</span>
-          </button>
-        ))}
       </div>
 
       {/* --- APP GRID --- */}
