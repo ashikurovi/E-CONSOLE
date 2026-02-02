@@ -44,19 +44,31 @@ export default function ConnectedAppsPage() {
     <div className="p-6 lg:p-10 bg-white dark:bg-[#0b0f14] min-h-screen font-sans">
       
       {/* --- HEADER --- */}
+      {/* Contains the page title, global search bar, and refresh/date information */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10">
-        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
-          <h1 className="text-4xl font-extrabold text-[#0b121e] dark:text-white tracking-tight">Connected Apps</h1>
-          <Button className="bg-[#0ac9a3] hover:bg-[#09b692] text-white rounded-full px-6 h-10 font-bold shadow-lg shadow-teal-500/10 flex items-center gap-2.5 text-xs">
-            <PlusCircle className="w-4 h-4" />
-            Add New Application
-          </Button>
+        <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-12 flex-1">
+          <h1 className="text-4xl font-extrabold text-[#0b121e] dark:text-white tracking-tight">
+            Connected Apps
+          </h1>
+          
+          {/* SEARCH FIELD - Positioned in header next to title for prominent access */}
+          <div className="relative w-full md:max-w-xs">
+            <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
+            <input 
+              type="text"
+              placeholder="Search Application"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-11 pl-6 pr-12 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/5 focus:ring-2 focus:ring-blue-500/10 outline-none text-xs font-medium"
+            />
+          </div>
         </div>
         
+        {/* INFO SECTION: Shows last refresh time and current date */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2.5 text-xs font-bold text-[#0b121e]/60 dark:text-white/40">
             <span>Data Refreshed</span>
-            <RefreshCw className="w-3.5 h-3.5 text-blue-500 cursor-pointer" />
+            <RefreshCw className="w-3.5 h-3.5 text-blue-500 cursor-pointer hover:rotate-180 transition-all" />
           </div>
           <div className="bg-gray-50 dark:bg-white/5 py-3 px-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm text-sm font-bold text-[#0b121e] dark:text-white">
             {format(new Date(), "MMMM dd, yyyy hh:mm a")}
@@ -64,17 +76,18 @@ export default function ConnectedAppsPage() {
         </div>
       </div>
 
-      {/* --- CATEGORY FILTERS & SEARCH --- */}
+      {/* --- CATEGORY FILTERS & PRIMARY ACTION --- */}
+      {/* Contains application category tabs and the "Add New Application" button */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-10">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-          <span>Applications:</span>
+          <span className="text-[#0b121e] dark:text-white font-black">Applications:</span>
           {categories.map((cat) => (
             <button 
               key={cat.label}
               onClick={() => setActiveTab(cat.label)}
               className={`transition-colors whitespace-nowrap ${
                 activeTab === cat.label 
-                ? "text-blue-600 dark:text-blue-400" 
+                ? "text-blue-600 dark:text-blue-400 font-black border-b-2 border-blue-600" 
                 : "hover:text-[#0b121e] dark:hover:text-white"
               }`}
             >
@@ -83,16 +96,11 @@ export default function ConnectedAppsPage() {
           ))}
         </div>
 
-        <div className="relative w-full md:max-w-xs">
-          <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
-          <input 
-            type="text"
-            placeholder="Search Application"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-11 pl-6 pr-12 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/5 focus:ring-2 focus:ring-blue-500/10 outline-none text-xs font-medium"
-          />
-        </div>
+        {/* PRIMARY ACTION: Add New Application Button */}
+        <Button className="bg-[#0ac9a3] hover:bg-[#09b692] text-white rounded-full px-8 h-12 font-bold shadow-lg shadow-teal-500/10 flex items-center gap-2.5 transition-all transform hover:scale-105 active:scale-95">
+          <PlusCircle className="w-5 h-5" />
+          Add New Application
+        </Button>
       </div>
 
       {/* --- APP GRID --- */}
