@@ -140,7 +140,7 @@ export const navSections = [
       {
         id: 6.51,
         title: "Invoice List",
-        tKey: "nav.invoiceList",
+        tKey: "Invoice List",
         link: "/invoices",
         permission: FeaturePermission.ORDERS,
         icon: FileText,
@@ -148,7 +148,7 @@ export const navSections = [
       {
         id: 6.52,
         title: "Recurring Invoices",
-        tKey: "nav.recurringInvoices",
+        tKey: "Recurring Invoices",
         link: "/recurring-invoices",
         permission: FeaturePermission.ORDERS,
         icon: FileText,
