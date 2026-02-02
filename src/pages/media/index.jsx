@@ -23,9 +23,12 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
+  RotateCcw, // For Restore
+  AlertTriangle, // For Trash Warning
+  Trash,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "../../components/ui/button";
+import { Button } from "@/components/ui/button"; // Adjusted path to be safe/standard, or keep relative if it works
 import {
   Dialog,
   DialogContent,
@@ -51,6 +54,9 @@ export default function MediaPage() {
   const { t } = useTranslation();
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("newest");
+  
+  // --- New: Trash Feature State ---
+  const [currentTab, setCurrentTab] = useState("library"); // 'library' or 'trash'
 
   // --- Upload Modal State ---
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -73,8 +79,9 @@ export default function MediaPage() {
   // --- Toast State ---
   const [showCopyToast, setShowCopyToast] = useState(false);
 
-  // Mock Image Data
-  const [images] = useState([
+  // Mock Image Data - Extended with 'status' and 'deletedAt'
+  // status: 'active' | 'trash'
+  const [images, setImages] = useState([
     {
       id: 1,
       title: "Mountain Landscape",
@@ -82,6 +89,8 @@ export default function MediaPage() {
       size: "2.4 MB",
       date: "2024-03-15",
       url: "https://images.unsplash.com/photo-1551887196-72e32bfc7bf3?w=800&q=80",
+      status: 'active',
+      deletedAt: null 
     },
     {
       id: 2,
@@ -90,7 +99,12 @@ export default function MediaPage() {
       size: "4.1 MB",
       date: "2024-02-28",
       url: "https://images.unsplash.com/photo-1552880816-c146d6251249?w=800&q=80",
+      status: 'active',
+      deletedAt: null
     },
+    // ... we can keep the rest or minimal set for demo, but user expects existing content.
+    // I will try to preserve existing mock data length but updated structure for all if possible 
+    // or just map over them on init? Better to re-declare for clarity.
     {
       id: 3,
       title: "Urban Architecture",
@@ -98,6 +112,8 @@ export default function MediaPage() {
       size: "1.8 MB",
       date: "2024-01-10",
       url: "https://images.unsplash.com/photo-1629814234771-419b4c02222a?w=800&q=80",
+      status: 'active',
+      deletedAt: null
     },
     {
       id: 4,
@@ -106,6 +122,8 @@ export default function MediaPage() {
       size: "3.2 MB",
       date: "2023-12-05",
       url: "https://images.unsplash.com/photo-1534068590799-09895a701e3e?w=800&q=80",
+      status: 'active',
+      deletedAt: null
     },
     {
       id: 5,
@@ -114,6 +132,8 @@ export default function MediaPage() {
       size: "5.5 MB",
       date: "2023-11-20",
       url: "https://images.unsplash.com/photo-1566897587198-d703b0c952b9?w=800&q=80",
+      status: 'active',
+      deletedAt: null
     },
     {
       id: 6,
@@ -122,6 +142,8 @@ export default function MediaPage() {
       size: "2.1 MB",
       date: "2023-10-15",
       url: "https://images.unsplash.com/photo-1537206140889-705b45281577?w=800&q=80",
+      status: 'active',
+      deletedAt: null
     },
     {
       id: 7,
@@ -130,6 +152,8 @@ export default function MediaPage() {
       size: "6.7 MB",
       date: "2023-09-01",
       url: "https://images.unsplash.com/photo-1547035970-d2932152a553?w=800&q=80",
+      status: 'active',
+      deletedAt: null
     },
     {
       id: 8,
@@ -138,6 +162,8 @@ export default function MediaPage() {
       size: "1.5 MB",
       date: "2023-08-12",
       url: "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?w=800&q=80",
+      status: 'active',
+      deletedAt: null
     },
     {
       id: 9,
@@ -146,6 +172,8 @@ export default function MediaPage() {
       size: "2.8 MB",
       date: "2023-07-30",
       url: "https://images.unsplash.com/photo-1588056233519-5d259e836104?w=800&q=80",
+      status: 'active',
+      deletedAt: null
     },
     {
       id: 10,
@@ -154,6 +182,8 @@ export default function MediaPage() {
       size: "3.9 MB",
       date: "2023-07-15",
       url: "https://images.unsplash.com/photo-1535585102741-1e66953a1f1e?w=800&q=80",
+      status: 'active',
+      deletedAt: null
     },
     {
       id: 11,
@@ -162,6 +192,8 @@ export default function MediaPage() {
       size: "1.2 MB",
       date: "2023-06-20",
       url: "https://images.unsplash.com/photo-1605218427368-35b0185e3362?w=800&q=80",
+      status: 'active',
+      deletedAt: null
     },
     {
       id: 12,
@@ -170,8 +202,78 @@ export default function MediaPage() {
       size: "4.5 MB",
       date: "2023-06-05",
       url: "https://images.unsplash.com/photo-1553285991-4c74211f269c?w=800&q=80",
+      status: 'active',
+      deletedAt: null
     },
   ]);
+
+  // --- TRASH LOGIC ---
+
+  // Auto-delete legacy trash items (older than 7 days)
+  useEffect(() => {
+    // Run cleanup on mount
+    const cleanupExpiredTrash = () => {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        setImages(prev => prev.filter(img => {
+            // Keep if active OR (if trash, must be newer than 7 days)
+            if (img.status === 'trash' && img.deletedAt) {
+                const deleteDate = new Date(img.deletedAt);
+                // Return false to filter out if older than 7 days
+                return deleteDate > sevenDaysAgo;
+            }
+            return true;
+        }));
+    };
+    
+    cleanupExpiredTrash();
+    // In a real app, this might poll or run on focus
+  }, []); // Run once on mount
+
+  // Move to Trash (Soft Delete)
+  const handleMoveToTrash = (id) => {
+    setImages(prev => prev.map(img => 
+        img.id === id 
+            ? { ...img, status: 'trash', deletedAt: new Date().toISOString() } 
+            : img
+    ));
+    // Close modal if open
+    if (viewImage?.id === id) setViewImage(null);
+  };
+
+  // Restore from Trash
+  const handleRestore = (id) => {
+    setImages(prev => prev.map(img => 
+        img.id === id 
+            ? { ...img, status: 'active', deletedAt: null } 
+            : img
+    ));
+  };
+
+  // Permanent Delete
+  const handlePermanentDelete = (id) => {
+     setImages(prev => prev.filter(img => img.id !== id));
+  };
+
+  // Get Filtered Images based on Tab
+  const displayImages = images.filter(img => {
+      if (currentTab === 'trash') return img.status === 'trash';
+      return img.status === 'active' || !img.status; // Default to active if status undefined
+  });
+
+  // Calculate Days Remaining for Trash Items
+  const getDaysRemaining = (deletedAt) => {
+      if (!deletedAt) return 7;
+      const deleteDate = new Date(deletedAt);
+      const expiryDate = new Date(deleteDate);
+      expiryDate.setDate(deleteDate.getDate() + 7);
+      
+      const now = new Date();
+      const diffTime = expiryDate - now;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays > 0 ? diffDays : 0;
+  };
 
   // Reset state when modal closes
   const handleCloseModal = () => {
@@ -266,6 +368,17 @@ export default function MediaPage() {
     }
   };
 
+  // Empty State for Trash
+  const TrashEmptyState = () => (
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="w-24 h-24 bg-gray-100 dark:bg-[#1a1f26] rounded-full flex items-center justify-center mb-6">
+            <Trash2 className="w-10 h-10 text-gray-400" />
+        </div>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Trash is Empty</h3>
+        <p className="text-gray-500 max-w-sm">Items you delete will show up here. They will be permanently removed after 7 days.</p>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-[#F8F9FC] dark:bg-[#0b0f14] font-sans">
       {/* --- TOAST NOTIFICATION --- */}
@@ -296,12 +409,37 @@ export default function MediaPage() {
 
           {/* Right: Actions */}
           <div className="flex items-center gap-3">
+            {/* Library / Trash Toggle */}
+            <div className="flex items-center gap-1 bg-gray-100/80 dark:bg-white/5 p-1 rounded-full border border-gray-200/50 dark:border-gray-800 mr-2">
+                 <button 
+                    onClick={() => setCurrentTab('library')}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                        currentTab === 'library' 
+                        ? "bg-white dark:bg-gray-800 text-indigo-600 shadow-sm" 
+                        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                    }`}
+                 >
+                     Library
+                 </button>
+                 <button 
+                    onClick={() => setCurrentTab('trash')}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${
+                        currentTab === 'trash'
+                        ? "bg-white dark:bg-gray-800 text-red-500 shadow-sm"
+                        : "text-gray-500 dark:text-gray-400 hover:text-red-500/80"
+                    }`}
+                 >
+                     <Trash2 className="w-4 h-4" />
+                     Trash
+                 </button>
+            </div>
+
             {/* Search */}
             <div className="hidden lg:flex items-center bg-white dark:bg-white/5 rounded-full px-4 py-2.5 border border-gray-200 dark:border-gray-800 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500/50 transition-all w-64">
               <Search className="w-4 h-4 text-gray-400 mr-2.5" />
               <input
                 type="text"
-                placeholder="Search media..."
+                placeholder={currentTab === 'trash' ? "Search trash..." : "Search media..."}
                 className="bg-transparent border-none outline-none text-sm font-medium w-full text-gray-700 dark:text-gray-200 placeholder-gray-400"
               />
             </div>
@@ -341,9 +479,17 @@ export default function MediaPage() {
                      All Formats
                  </Button>
                  <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                    Showing <span className="text-gray-900 dark:text-white">{images.length}</span> items
+                    Showing <span className="text-gray-900 dark:text-white">{displayImages.length}</span> items
                  </div>
             </div>
+            
+            {/* Trash Auto-Delete Warnings */}
+            {currentTab === 'trash' && (
+                <div className="hidden sm:flex items-center text-xs font-semibold text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-1.5 rounded-full border border-amber-100 dark:border-amber-900/30">
+                    <AlertTriangle className="w-3.5 h-3.5 mr-1.5" />
+                    Items are automatically deleted after 7 days
+                </div>
+            )}
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -378,7 +524,12 @@ export default function MediaPage() {
         {/* VIEW: GRID */}
         {viewMode === "grid" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-            {images.map((image) => (
+            {displayImages.length === 0 && currentTab === 'trash' ? (
+                <div className="col-span-full">
+                    <TrashEmptyState />
+                </div>
+            ) : (
+             displayImages.map((image) => (
               <motion.div
                 key={image.id}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -388,13 +539,22 @@ export default function MediaPage() {
                 onClick={() => setViewImage(image)}
               >
                 {/* Card Container */}
-                <div className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-2 shadow-sm border border-gray-100 dark:border-gray-800 group-hover:shadow-2xl group-hover:shadow-indigo-500/10 transition-all duration-500 h-full flex flex-col cursor-pointer">
+                <div className={`bg-white dark:bg-[#1a1f26] rounded-[24px] p-2 shadow-sm border ${currentTab === 'trash' ? 'border-red-100 dark:border-red-900/20' : 'border-gray-100 dark:border-gray-800'} group-hover:shadow-2xl group-hover:shadow-indigo-500/10 transition-all duration-500 h-full flex flex-col cursor-pointer`}>
                   
                   {/* Image Thumbnail */}
                   <div className="relative aspect-square rounded-[20px] overflow-hidden bg-gray-100 dark:bg-white/5">
                     
-                      {/* Hover Overlay - Only for darkening */}
+                      {/* Hover Overlay */}
                       <div className="absolute inset-0 z-20 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+
+                      {/* Days Remaining Badge (Trash Only) */}
+                      {currentTab === 'trash' && (
+                          <div className="absolute top-3 left-3 z-30 flex gap-2">
+                             <div className="bg-red-500/90 backdrop-blur-md text-white px-2 py-1 rounded-md text-[10px] font-bold shadow-sm flex items-center">
+                                <span className="mr-1">{getDaysRemaining(image.deletedAt)} days left</span>
+                             </div>
+                          </div>
+                      )}
 
                       {/* Three Dot Menu */}
                       <div className="absolute top-3 right-3 z-30 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -408,31 +568,59 @@ export default function MediaPage() {
                                   </button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-48 rounded-xl">
-                                  <DropdownMenuItem onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleCopyUrl(image.url);
-                                  }}>
-                                      <Copy className="w-4 h-4 mr-2" />
-                                      Copy URL
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedFile(null);
-                                      setPreviewUrl(image.url);
-                                      setUploadStep("crop");
-                                      setIsUploadOpen(true);
-                                  }}>
-                                      <Crop className="w-4 h-4 mr-2" />
-                                      Crop Image
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem 
-                                      className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
-                                      onClick={(e) => e.stopPropagation()}
-                                  >
-                                      <Trash2 className="w-4 h-4 mr-2" />
-                                      Delete
-                                  </DropdownMenuItem>
+                                  {currentTab === 'library' ? (
+                                    <>
+                                        <DropdownMenuItem onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleCopyUrl(image.url);
+                                        }}>
+                                            <Copy className="w-4 h-4 mr-2" />
+                                            Copy URL
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedFile(null);
+                                            setPreviewUrl(image.url);
+                                            setUploadStep("crop");
+                                            setIsUploadOpen(true);
+                                        }}>
+                                            <Crop className="w-4 h-4 mr-2" />
+                                            Crop Image
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem 
+                                            className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleMoveToTrash(image.id);
+                                            }}
+                                        >
+                                            <Trash2 className="w-4 h-4 mr-2" />
+                                            Move to Trash
+                                        </DropdownMenuItem>
+                                    </>
+                                  ) : (
+                                    <>
+                                         <DropdownMenuItem onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRestore(image.id);
+                                        }}>
+                                            <RotateCcw className="w-4 h-4 mr-2 text-green-600" />
+                                            Restore
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem 
+                                            className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handlePermanentDelete(image.id);
+                                            }}
+                                        >
+                                            <Trash2 className="w-4 h-4 mr-2" />
+                                            Delete Permanently
+                                        </DropdownMenuItem>
+                                    </>
+                                  )}
                               </DropdownMenuContent>
                           </DropdownMenu>
                       </div>
@@ -463,19 +651,22 @@ export default function MediaPage() {
                   </div>
                 </div>
               </motion.div>
-            ))}
+            )))}
           </div>
         )}
 
         {/* VIEW: LIST */}
         {viewMode === "list" && (
           <div className="flex flex-col gap-3">
-             {images.map((image) => (
+             {displayImages.length === 0 && currentTab === 'trash' ? (
+                <TrashEmptyState />
+             ) : (
+             displayImages.map((image) => (
                 <motion.div
                    key={image.id}
                    initial={{ opacity: 0, x: -10 }}
                    animate={{ opacity: 1, x: 0 }}
-                   className="group bg-white dark:bg-[#1a1f26] rounded-[20px] p-2 pr-4 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-lg hover:shadow-indigo-500/5 transition-all flex items-center gap-4 cursor-pointer"
+                   className={`group bg-white dark:bg-[#1a1f26] rounded-[20px] p-2 pr-4 shadow-sm border ${currentTab === 'trash' ? 'border-red-100 dark:border-red-900/20' : 'border-gray-100 dark:border-gray-800'} hover:shadow-lg hover:shadow-indigo-500/5 transition-all flex items-center gap-4 cursor-pointer`}
                    onClick={() => setViewImage(image)}
                 >
                    {/* Thumbnail */}
@@ -485,6 +676,11 @@ export default function MediaPage() {
                           className="w-full h-full object-cover" 
                           alt={image.title} 
                       />
+                      {currentTab === 'trash' && (
+                          <div className="absolute inset-0 bg-red-500/20 flex items-center justify-center">
+                              <Trash2 className="w-6 h-6 text-white drop-shadow-md" />
+                          </div>
+                      )}
                    </div>
 
                    {/* Info */}
@@ -494,6 +690,11 @@ export default function MediaPage() {
                       </h3>
                       <p className="text-sm text-gray-400">
                           {image.date} • {image.size}
+                          {currentTab === 'trash' && (
+                              <span className="ml-2 text-red-500 font-medium text-xs">
+                                  ({getDaysRemaining(image.deletedAt)} days remaining)
+                              </span>
+                          )}
                       </p>
                    </div>
 
@@ -519,36 +720,64 @@ export default function MediaPage() {
                               </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-48 rounded-xl">
-                              <DropdownMenuItem onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCopyUrl(image.url);
-                              }}>
-                                  <Copy className="w-4 h-4 mr-2" />
-                                  Copy URL
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedFile(null);
-                                  setPreviewUrl(image.url);
-                                  setUploadStep("crop");
-                                  setIsUploadOpen(true);
-                              }}>
-                                  <Crop className="w-4 h-4 mr-2" />
-                                  Crop Image
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem 
-                                  className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
-                                  onClick={(e) => e.stopPropagation()}
-                              >
-                                  <Trash2 className="w-4 h-4 mr-2" />
-                                  Delete
-                              </DropdownMenuItem>
+                              {currentTab === 'library' ? (
+                                <>
+                                    <DropdownMenuItem onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCopyUrl(image.url);
+                                    }}>
+                                        <Copy className="w-4 h-4 mr-2" />
+                                        Copy URL
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedFile(null);
+                                        setPreviewUrl(image.url);
+                                        setUploadStep("crop");
+                                        setIsUploadOpen(true);
+                                    }}>
+                                        <Crop className="w-4 h-4 mr-2" />
+                                        Crop Image
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem 
+                                        className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleMoveToTrash(image.id);
+                                        }}
+                                    >
+                                        <Trash2 className="w-4 h-4 mr-2" />
+                                        Move to Trash
+                                    </DropdownMenuItem>
+                                </>
+                              ) : (
+                                <>
+                                    <DropdownMenuItem onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRestore(image.id);
+                                    }}>
+                                        <RotateCcw className="w-4 h-4 mr-2 text-green-600" />
+                                        Restore
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem 
+                                        className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePermanentDelete(image.id);
+                                        }}
+                                    >
+                                        <Trash2 className="w-4 h-4 mr-2" />
+                                        Delete Permanently
+                                    </DropdownMenuItem>
+                                </>
+                              )}
                           </DropdownMenuContent>
                       </DropdownMenu>
                    </div>
                 </motion.div>
-             ))}
+             )))}
           </div>
         )}
         
@@ -621,9 +850,36 @@ export default function MediaPage() {
                                 <Crop className="w-4 h-4 mr-2" /> Edit / Crop
                             </DropdownMenuItem>
                             <DropdownMenuSeparator className="bg-gray-800" />
-                            <DropdownMenuItem className="text-red-400 focus:text-red-400 focus:bg-red-900/20 cursor-pointer">
-                                <Trash2 className="w-4 h-4 mr-2" /> Delete
-                            </DropdownMenuItem>
+                            
+                            {currentTab === 'library' ? (
+                                <DropdownMenuItem 
+                                    className="text-red-400 focus:text-red-400 focus:bg-red-900/20 cursor-pointer"
+                                    onClick={() => handleMoveToTrash(viewImage.id)}
+                                >
+                                    <Trash2 className="w-4 h-4 mr-2" /> Move to Trash
+                                </DropdownMenuItem>
+                            ) : (
+                                <>
+                                    <DropdownMenuItem 
+                                        className="text-green-400 focus:text-green-400 focus:bg-green-900/20 cursor-pointer"
+                                        onClick={() => {
+                                            handleRestore(viewImage.id);
+                                            setViewImage(null);
+                                        }}
+                                    >
+                                        <RotateCcw className="w-4 h-4 mr-2" /> Restore
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem 
+                                        className="text-red-400 focus:text-red-400 focus:bg-red-900/20 cursor-pointer"
+                                        onClick={() => {
+                                            handlePermanentDelete(viewImage.id);
+                                            setViewImage(null);
+                                        }}
+                                    >
+                                        <Trash2 className="w-4 h-4 mr-2" /> Delete Permanently
+                                    </DropdownMenuItem>
+                                </>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
 
