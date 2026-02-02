@@ -1,10 +1,25 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Pencil } from "lucide-react";
-import { useGetProductQuery } from "@/features/product/productApiSlice";
 import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { 
+  ArrowLeft, 
+  Pencil, 
+  Package, 
+  DollarSign, 
+  ShoppingCart, 
+  Tag, 
+  Layers, 
+  AlertTriangle,
+  CheckCircle2,
+  Box,
+  BarChart3
+} from "lucide-react";
+import { useGetProductQuery } from "@/features/product/productApiSlice";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 const ProductViewPage = () => {
   const { t } = useTranslation();
@@ -13,11 +28,14 @@ const ProductViewPage = () => {
   const { user } = useSelector((state) => state.auth);
   const { data: product, isLoading } = useGetProductQuery(parseInt(id));
 
+  const renderPrice = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount || 0);
+
   if (isLoading) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
-        <div className="flex items-center justify-center py-12">
-          <p className="text-black/60 dark:text-white/60">{t("products.loadingProductDetails")}</p>
+      <div className="flex items-center justify-center min-h-screen bg-[#f8f9fa] dark:bg-[#0b0f14]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-500 dark:text-gray-400 font-medium animate-pulse">{t("products.loadingProductDetails")}</p>
         </div>
       </div>
     );
@@ -25,338 +43,268 @@ const ProductViewPage = () => {
 
   if (!product) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/products")}
-            className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white"
-          >
-            <ArrowLeft className="h-4 w-4" />
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#f8f9fa] dark:bg-[#0b0f14] p-6">
+        <div className="text-center max-w-md">
+          <Box className="w-24 h-24 text-gray-300 dark:text-gray-700 mx-auto mb-6" />
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t("products.productNotFound")}</h1>
+          <p className="text-gray-500 dark:text-gray-400 mb-8">{t("products.productNotFoundDesc")}</p>
+          <Button onClick={() => navigate("/products")} className="rounded-xl px-8 h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold">
+            <ArrowLeft className="mr-2 h-5 w-5" />
+            Back to Products
           </Button>
-          <div>
-            <h1 className="text-2xl font-semibold">{t("products.productNotFound")}</h1>
-            <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-              {t("products.productNotFoundDesc")}
-            </p>
-          </div>
         </div>
       </div>
     );
   }
 
-  const primaryImage = product.images?.find((img) => img.isPrimary) || product.images?.[0];
-  const otherImages = product.images?.filter((img) => !img.isPrimary) || [];
+  const cleanThumbnail = product.thumbnail?.replace(/`/g, "").trim();
+  const primaryImage = product.images?.find((img) => img.isPrimary) || product.images?.[0] || { url: cleanThumbnail };
+  const otherImages = product.images?.filter((img) => img.id !== primaryImage?.id) || [];
+  
+  // Calculate stock status color/text
+  const isLowStock = (product.stock || 0) <= 5;
+  const isOutOfStock = (product.stock || 0) === 0;
+  
+  const stats = [
+    {
+      label: "Stock Level",
+      value: product.stock || 0,
+      subValue: isOutOfStock ? "Out of Stock" : isLowStock ? "Low Stock" : "In Stock",
+      icon: Package,
+      color: isOutOfStock ? "text-red-600" : isLowStock ? "text-orange-600" : "text-emerald-600",
+      bg: isOutOfStock ? "bg-red-50 dark:bg-red-900/20" : isLowStock ? "bg-orange-50 dark:bg-orange-900/20" : "bg-emerald-50 dark:bg-emerald-900/20",
+    },
+    {
+      label: "Total Sold",
+      value: product.sold || 0,
+      subValue: "Lifetime Sales",
+      icon: ShoppingCart,
+      color: "text-blue-600",
+      bg: "bg-blue-50 dark:bg-blue-900/20",
+    },
+    {
+      label: "Total Revenue",
+      value: renderPrice(product.totalIncome),
+      subValue: "Gross Income",
+      icon: DollarSign,
+      color: "text-violet-600",
+      bg: "bg-violet-50 dark:bg-violet-900/20",
+    },
+  ];
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
+    <div className="min-h-screen bg-[#f8f9fa] dark:bg-[#0b0f14] p-6 lg:p-10 font-sans">
+      
+      {/* Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10"
+      >
+        <div className="space-y-2">
+          <Button 
+            variant="ghost" 
             onClick={() => navigate("/products")}
-            className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white"
+            className="pl-0 hover:bg-transparent text-gray-500 hover:text-indigo-600 transition-colors mb-2"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Inventory
           </Button>
-          <div>
-            <h1 className="text-2xl font-semibold">{t("products.productDetails")}</h1>
-            <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-              {t("products.viewProductInfo")}
-            </p>
+          <h1 className="text-4xl font-black tracking-tight text-gray-900 dark:text-white">
+            Product <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400">Details</span>
+          </h1>
+          <div className="flex items-center gap-3 text-sm font-medium text-gray-500 dark:text-gray-400">
+             <span className="flex items-center gap-1">
+                <Tag className="w-4 h-4" /> {product.category?.name || "Uncategorized"}
+             </span>
+             <span>•</span>
+             <span className="uppercase tracking-wider">SKU: {product.sku || "N/A"}</span>
           </div>
         </div>
-        <Button
-          variant="outline"
-          onClick={() => navigate(`/products/${id}/edit`)}
-          className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-        >
-          <Pencil className="h-4 w-4 mr-2" />
-          {t("products.editProduct")}
-        </Button>
+
+        <div className="flex gap-3">
+          <Button
+            onClick={() => navigate(`/products/${id}/edit`)}
+            className="h-12 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all duration-300 transform hover:-translate-y-1"
+          >
+            <Pencil className="mr-2 h-4 w-4" />
+            Edit Product
+          </Button>
+        </div>
+      </motion.div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        {stats.map((stat, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.1 }}
+            className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden"
+          >
+             <div className="flex justify-between items-start mb-4">
+                <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
+                   <stat.icon className="w-6 h-6" />
+                </div>
+                {/* Decorative background icon */}
+                <stat.icon className={`absolute -bottom-4 -right-4 w-24 h-24 opacity-5 ${stat.color}`} />
+             </div>
+             <div>
+                <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{stat.value}</h3>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.subValue}</p>
+             </div>
+          </motion.div>
+        ))}
       </div>
 
-      <div className="space-y-6">
-        {/* Basic Information Section */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-            <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              {t("products.basicInformation")}
-            </h3>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70">{t("common.name")}</label>
-              <p className="text-base text-black dark:text-white mt-1">{product.name || product.title || "-"}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+         
+         {/* Left Column: Images */}
+         <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="lg:col-span-5 space-y-6"
+         >
+            <div className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-2 border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+               <div className="aspect-square rounded-[20px] overflow-hidden bg-gray-100 dark:bg-black/20 relative group">
+                  {primaryImage?.url ? (
+                     <img 
+                        src={primaryImage.url} 
+                        alt={product.name} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                     />
+                  ) : (
+                     <div className="w-full h-full flex items-center justify-center text-gray-300">
+                        <Box className="w-20 h-20" />
+                     </div>
+                  )}
+                  {product.discountPrice && (
+                     <div className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                        Sale
+                     </div>
+                  )}
+               </div>
             </div>
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70">{t("products.sku")}</label>
-              <p className="text-base text-black dark:text-white mt-1">{product.sku || "-"}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70">{t("products.category")}</label>
-              <p className="text-base text-black dark:text-white mt-1">
-                {product.category?.name || "-"}
-              </p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70">{t("common.status")}</label>
-              <p className="text-base text-black dark:text-white mt-1">
-                <span
-                  className={`px-2 py-1 rounded text-sm ${
-                    product.status === 'published' && product.isActive
-                      ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-                      : product.status === 'draft'
-                      ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
-                      : product.status === 'trashed'
-                      ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
-                      : "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400"
-                  }`}
-                >
-                  {product.status === 'draft' ? t("products.draft") : 
-                   product.status === 'trashed' ? t("products.trashed") : 
-                   product.isActive ? t("common.active") : t("common.disabled")}
-                </span>
-              </p>
-            </div>
-          </div>
 
-          {/* Description */}
-          {product.description && (
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                {t("products.description")}
-              </label>
-              <p className="text-base text-black dark:text-white mt-1 whitespace-pre-wrap">
-                {product.description}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Pricing Section */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-            <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              {t("products.pricing")}
-            </h3>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70">{t("products.price")}</label>
-              <p className="text-base text-black dark:text-white mt-1">
-                {typeof product.price === "number"
-                  ? `$${product.price.toFixed(2)}`
-                  : product.price || "-"}
-              </p>
-            </div>
-            {product.discountPrice && (
-              <div>
-                <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                  {t("products.discountPrice")}
-                </label>
-                <p className="text-base text-green-600 dark:text-green-400 mt-1 font-semibold">
-                  ${typeof product.discountPrice === "number"
-                    ? product.discountPrice.toFixed(2)
-                    : product.discountPrice}
-                </p>
-              </div>
+            {/* Thumbnails */}
+            {otherImages.length > 0 && (
+               <div className="grid grid-cols-4 gap-4">
+                  {otherImages.map((img, idx) => (
+                     <div key={idx} className="aspect-square rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] p-1 cursor-pointer hover:border-indigo-500 transition-colors">
+                        <img 
+                           src={img.url} 
+                           alt={`Product ${idx}`} 
+                           className="w-full h-full object-cover rounded-xl"
+                        />
+                     </div>
+                  ))}
+               </div>
             )}
-          </div>
-        </div>
+         </motion.div>
 
-        {/* Inventory Section */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
-            <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              {t("products.inventory")}
-            </h3>
-          </div>
-          <div className="border border-gray-100 dark:border-gray-800 rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-black/5 dark:bg-white/5">
-                <tr>
-                  <th className="px-4 py-3 text-left font-medium">{t("products.metric")}</th>
-                  <th className="px-4 py-3 text-left font-medium">{t("products.value")}</th>
-                  <th className="px-4 py-3 text-left font-medium">{t("common.status")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-t border-gray-100 dark:border-gray-800">
-                  <td className="px-4 py-3 font-medium text-black/70 dark:text-white/70">{t("products.currentStock")}</td>
-                  <td className={`px-4 py-3 font-semibold ${
-                    (product.stock ?? 0) <= 5 
-                      ? "text-red-600 dark:text-red-400" 
-                      : "text-black dark:text-white"
-                  }`}>
-                    {product.stock ?? 0} {t("products.units")}
-                  </td>
-                  <td className="px-4 py-3">
-                    {(product.stock ?? 0) <= 5 ? (
-                      <span className="px-2 py-1 text-xs bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400 rounded">
-                        {t("products.lowStock")}
-                      </span>
-                    ) : (
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 rounded">
-                        {t("products.inStock")}
-                      </span>
-                    )}
-                  </td>
-                </tr>
-                <tr className="border-t border-gray-100 dark:border-gray-800">
-                  <td className="px-4 py-3 font-medium text-black/70 dark:text-white/70">{t("products.sold")}</td>
-                  <td className="px-4 py-3 text-black dark:text-white">{product.sold ?? 0} {t("products.units")}</td>
-                  <td className="px-4 py-3">-</td>
-                </tr>
-                <tr className="border-t border-gray-100 dark:border-gray-800">
-                  <td className="px-4 py-3 font-medium text-black/70 dark:text-white/70">{t("products.totalIncome")}</td>
-                  <td className="px-4 py-3 font-semibold text-green-600 dark:text-green-400">
-                    ${typeof product.totalIncome === "number"
-                      ? product.totalIncome.toFixed(2)
-                      : (product.totalIncome ?? "0.00")}
-                  </td>
-                  <td className="px-4 py-3">-</td>
-                </tr>
-                <tr className="border-t border-gray-100 dark:border-gray-800">
-                  <td className="px-4 py-3 font-medium text-black/70 dark:text-white/70">{t("products.stockStatus")}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`px-2 py-1 rounded text-sm ${
-                        product.isLowStock
-                          ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
-                          : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-                      }`}
-                    >
-                      {product.isLowStock ? t("products.lowStock") : t("products.inStock")}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">-</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+         {/* Right Column: Details */}
+         <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="lg:col-span-7 space-y-8"
+         >
+            {/* Main Info Card */}
+            <div className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-8 border border-gray-100 dark:border-gray-800 shadow-sm">
+               <div className="flex justify-between items-start mb-6">
+                  <div>
+                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{product.name}</h2>
+                     <div className="flex items-center gap-3">
+                        <Badge variant="secondary" className={`
+                           ${product.isActive ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-gray-100 text-gray-700"}
+                           px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider
+                        `}>
+                           {product.isActive ? "Active" : "Inactive"}
+                        </Badge>
+                        <Badge variant="outline" className="border-gray-200 dark:border-gray-700 text-gray-500">
+                           {product.status}
+                        </Badge>
+                     </div>
+                  </div>
+                  <div className="text-right">
+                     <p className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">
+                        {renderPrice(product.discountPrice || product.price)}
+                     </p>
+                     {product.discountPrice && (
+                        <p className="text-gray-400 line-through font-medium text-lg">
+                           {renderPrice(product.price)}
+                        </p>
+                     )}
+                  </div>
+               </div>
 
-        {/* Images & Media Section */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-            <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              {t("products.imagesAndMedia")}
-            </h3>
-          </div>
+               <Separator className="my-6 bg-gray-100 dark:bg-gray-800" />
 
-          {/* Thumbnail */}
-          {product.thumbnail && (
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
-                {t("products.thumbnail")}
-              </label>
-              <div className="border border-black/5 dark:border-gray-800 rounded-md overflow-hidden">
-                <img
-                  src={product.thumbnail}
-                  alt={t("products.productThumbnailAlt")}
-                  className="w-full h-64 object-cover"
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                  }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Primary Image */}
-          {primaryImage && (
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
-                {t("products.primaryImage")}
-              </label>
-              <div className="border border-black/5 dark:border-gray-800 rounded-md overflow-hidden">
-                <img
-                  src={primaryImage.url}
-                  alt={primaryImage.alt || t("products.primaryProductImageAlt")}
-                  className="w-full h-64 object-cover"
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                  }}
-                />
-                {primaryImage.alt && (
-                  <p className="p-2 text-xs text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5">
-                    {primaryImage.alt}
+               <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                     <Layers className="w-5 h-5 text-indigo-500" />
+                     Description
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                     {product.description || "No description available for this product."}
                   </p>
-                )}
-              </div>
+               </div>
             </div>
-          )}
 
-          {/* Other Images */}
-          {otherImages.length > 0 && (
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
-                {t("products.additionalImages")} ({otherImages.length})
-              </label>
-              <div className="grid grid-cols-2 gap-4">
-                {otherImages.map((img, index) => (
-                  <div
-                    key={index}
-                    className="border border-black/5 dark:border-gray-800 rounded-md overflow-hidden"
-                  >
-                    <img
-                      src={img.url}
-                      alt={img.alt || `${t("products.productImageAlt")} ${index + 1}`}
-                      className="w-full h-48 object-cover"
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                      }}
-                    />
-                    {img.alt && (
-                      <p className="p-2 text-xs text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5">
-                        {img.alt}
-                      </p>
-                    )}
+            {/* Inventory & Details Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               {/* Inventory Card */}
+               <div className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                     <Box className="w-5 h-5 text-indigo-500" />
+                     Inventory Details
+                  </h3>
+                  <div className="space-y-4">
+                     <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-black/20 rounded-xl">
+                        <span className="text-gray-500 font-medium">Stock Status</span>
+                        <span className={`font-bold ${isOutOfStock ? "text-red-600" : isLowStock ? "text-orange-600" : "text-emerald-600"}`}>
+                           {isOutOfStock ? "Out of Stock" : isLowStock ? "Low Stock" : "In Stock"}
+                        </span>
+                     </div>
+                     <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-black/20 rounded-xl">
+                        <span className="text-gray-500 font-medium">Quantity</span>
+                        <span className="font-bold text-gray-900 dark:text-white">{product.stock || 0} units</span>
+                     </div>
+                     <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-black/20 rounded-xl">
+                        <span className="text-gray-500 font-medium">Low Stock Limit</span>
+                        <span className="font-bold text-gray-900 dark:text-white">5 units</span>
+                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+               </div>
 
-          {/* All Images (if no primary/secondary distinction) */}
-          {product.images && product.images.length > 0 && !primaryImage && (
-            <div>
-              <label className="text-sm font-medium text-black/70 dark:text-white/70 mb-2 block">
-                {t("products.productImages")} ({product.images.length})
-              </label>
-              <div className="grid grid-cols-2 gap-4">
-                {product.images.map((img, index) => (
-                  <div
-                    key={index}
-                    className="border border-black/5 dark:border-gray-800 rounded-md overflow-hidden"
-                  >
-                    <img
-                      src={img.url}
-                      alt={img.alt || `${t("products.productImageAlt")} ${index + 1}`}
-                      className="w-full h-48 object-cover"
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                      }}
-                    />
-                    {img.alt && (
-                      <p className="p-2 text-xs text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5">
-                        {img.alt}
-                      </p>
-                    )}
-                    {img.isPrimary && (
-                      <p className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
-                        {t("products.primary")}
-                      </p>
-                    )}
+               {/* Pricing Card */}
+               <div className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                     <Tag className="w-5 h-5 text-indigo-500" />
+                     Pricing Info
+                  </h3>
+                  <div className="space-y-4">
+                     <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-black/20 rounded-xl">
+                        <span className="text-gray-500 font-medium">Regular Price</span>
+                        <span className="font-bold text-gray-900 dark:text-white">{renderPrice(product.price)}</span>
+                     </div>
+                     <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-black/20 rounded-xl">
+                        <span className="text-gray-500 font-medium">Discount Price</span>
+                        <span className="font-bold text-gray-900 dark:text-white">{product.discountPrice ? renderPrice(product.discountPrice) : "—"}</span>
+                     </div>
+                     <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-black/20 rounded-xl">
+                        <span className="text-gray-500 font-medium">Profit Margin</span>
+                        <span className="font-bold text-emerald-600">
+                           {product.costPrice ? `${Math.round(((product.price - product.costPrice) / product.price) * 100)}%` : "—"}
+                        </span>
+                     </div>
                   </div>
-                ))}
-              </div>
+               </div>
             </div>
-          )}
-        </div>
+
+         </motion.div>
       </div>
     </div>
   );

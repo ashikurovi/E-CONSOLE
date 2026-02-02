@@ -54,14 +54,14 @@ const DescriptionInputWithAI = ({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <label className="text-sm font-medium text-black/80 dark:text-white/80">{label}</label>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 rounded-lg border border-gray-200 dark:border-gray-700 p-0.5">
+          <div className="flex items-center gap-1 rounded-xl border border-gray-200 dark:border-gray-700 p-1 bg-gray-50/50 dark:bg-black/20">
             <button
               type="button"
               onClick={() => setDescriptionLang("en")}
-              className={`px-2 py-1 text-xs rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 ${
                 descriptionLang === "en"
-                  ? "bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300"
-                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 shadow-sm"
+                  : "text-gray-500 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-gray-800"
               }`}
               title={t("aiDescription.english") || "English"}
             >
@@ -70,10 +70,10 @@ const DescriptionInputWithAI = ({
             <button
               type="button"
               onClick={() => setDescriptionLang("bn")}
-              className={`px-2 py-1 text-xs rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 ${
                 descriptionLang === "bn"
-                  ? "bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300"
-                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 shadow-sm"
+                  : "text-gray-500 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-gray-800"
               }`}
               title={t("aiDescription.bangla") || "Bangla"}
             >
@@ -82,10 +82,10 @@ const DescriptionInputWithAI = ({
             <button
               type="button"
               onClick={() => setDescriptionLang("bn-Latn")}
-              className={`px-2 py-1 text-xs rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 ${
                 descriptionLang === "bn-Latn"
-                  ? "bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300"
-                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 shadow-sm"
+                  : "text-gray-500 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-gray-800"
               }`}
               title={t("aiDescription.minglish") || "Minglish (Bangla in English letters)"}
             >
@@ -98,9 +98,9 @@ const DescriptionInputWithAI = ({
             size="sm"
             onClick={handleAiSuggest}
             disabled={isSuggesting}
-            className="text-xs gap-1"
+            className="text-xs gap-2 h-9 px-4 rounded-xl border-indigo-200 text-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/20 dark:border-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 hover:border-indigo-300 transition-all duration-200 font-bold"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className={`w-3.5 h-3.5 ${isSuggesting ? "animate-spin" : ""}`} />
             {isSuggesting ? t("aiDescription.generating") || "Generating..." : t("aiDescription.generateWithAI") || "Generate with AI"}
           </Button>
         </div>
@@ -110,7 +110,7 @@ const DescriptionInputWithAI = ({
         onChange={onChange}
         placeholder={placeholder}
         rows={rows}
-        className={`w-full px-4 py-3 rounded-lg border bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 ${
+        className={`w-full px-4 py-3.5 rounded-xl border bg-gray-50/50 dark:bg-black/20 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all duration-200 placeholder:font-normal text-gray-900 dark:text-white ${
           error ? "border-red-500" : "border-gray-200 dark:border-gray-700"
         }`}
       />

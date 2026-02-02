@@ -16,18 +16,23 @@ const Dropdown = ({
   setSelectedOption,
   primary = false,
   className,
+  triggerClassName,
 }) => {
   return (
     <DropdownMenu className={(e) => e.stopPropagation()}>
       <DropdownMenuTrigger
-        className="outline-none"
+        className="outline-none w-full"
         onClick={(e) => e.stopPropagation()}
       >
         <div
-          className={`py-1.5 pl-4 pr-2.5  text-sm border flbx gap-2 select-none  ${primary
-            ? "border-white/75 text-white"
-            : "border-black/15 dark:border-white/20 text-black dark:text-white/75"
-            } ${className} w-full`}
+          className={
+            triggerClassName ||
+            `py-1.5 pl-4 pr-2.5 text-sm border flex items-center justify-between gap-2 select-none rounded-lg ${
+              primary
+                ? "border-white/75 text-white"
+                : "border-black/15 dark:border-white/20 text-black dark:text-white/75"
+            } ${className} w-full`
+          }
         >
           {children}
           <span className="hidden dark:block">{svgArrowDownWhite}</span>

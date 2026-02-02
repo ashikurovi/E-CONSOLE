@@ -62,14 +62,14 @@ const FileUpload = ({
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
       {label && (
-        <label className="text-black/50 dark:text-white/50 text-sm ml-1">
+        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">
           {label}
         </label>
       )}
       
-      <div className="space-y-2">
+      <div className="space-y-3">
         {/* File Input */}
-        <div className="relative">
+        <div className="relative group">
           <input
             type="file"
             accept={accept}
@@ -81,10 +81,12 @@ const FileUpload = ({
           />
           <label
             htmlFor={`file-upload-${name}`}
-            className="flex items-center gap-2 cursor-pointer border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus-within:border-green-300/50 dark:focus-within:border-green-300/50 dark:text-white/90 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            className="flex items-center gap-3 cursor-pointer border-2 border-dashed border-gray-200 dark:border-gray-700 py-4 px-5 bg-gray-50/50 dark:bg-black/20 w-full rounded-xl outline-none group-focus-within:border-indigo-500 group-focus-within:ring-4 group-focus-within:ring-indigo-500/10 dark:text-white hover:border-indigo-400 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-all duration-200"
           >
-            <Upload className="h-4 w-4 text-black/50 dark:text-white/50" />
-            <span className="text-black/70 dark:text-white/70 flex-1">
+            <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-indigo-500">
+              <Upload className="h-5 w-5" />
+            </div>
+            <span className="text-gray-600 dark:text-gray-300 font-medium text-sm flex-1">
               {fileName || placeholder}
             </span>
           </label>
@@ -92,40 +94,29 @@ const FileUpload = ({
 
         {/* Preview */}
         {preview && (
-          <div className="relative border border-black/5 dark:border-gray-800 rounded-md overflow-hidden">
-            <div className="relative">
+          <div className="relative border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm group">
+            <div className="relative aspect-video bg-gray-100 dark:bg-black/40">
               <img
                 src={preview}
                 alt="Preview"
-                className="w-full h-48 object-cover"
+                className="w-full h-full object-contain"
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
                 onClick={handleRemove}
-                className="absolute top-2 right-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 h-8 w-8"
+                className="absolute top-3 right-3 bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 h-8 w-8 rounded-lg shadow-sm backdrop-blur-sm transition-all duration-200"
                 title="Remove image"
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
             {fileName && (
-              <div className="p-2 bg-black/5 dark:bg-white/5 text-xs text-black/70 dark:text-white/70">
+              <div className="p-3 bg-gray-50/50 dark:bg-white/5 text-xs font-medium text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-gray-800">
                 {fileName}
               </div>
             )}
-          </div>
-        )}
-
-        {!preview && (
-          <div className="flex items-center justify-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-md p-8 text-center">
-            <div className="flex flex-col items-center gap-2">
-              <ImageIcon className="h-12 w-12 text-black/30 dark:text-white/30" />
-              <p className="text-sm text-black/50 dark:text-white/50">
-                No image selected
-              </p>
-            </div>
           </div>
         )}
       </div>

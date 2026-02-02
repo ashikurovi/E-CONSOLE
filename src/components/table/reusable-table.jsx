@@ -248,7 +248,9 @@ export default function ReusableTable({
                               isLast ? "text-center" : "text-left"
                             }`}
                           >
-                            {item[header.field] ?? "—"}
+                            {header.render
+                              ? header.render(item)
+                              : item[header.field] ?? "—"}
                           </TableCell>
                         );
                       })}
