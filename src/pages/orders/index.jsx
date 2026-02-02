@@ -1,46 +1,19 @@
-import React, { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import ReusableTable from "@/components/table/reusable-table";
-import { Button } from "@/components/ui/button";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Truck,
-  Package,
-  XCircle,
-  RotateCcw,
   FileText,
-  Trash2,
-  ClipboardCheck,
-  Eye,
-  Clock,
-  CheckCircle,
-  DollarSign,
-  CreditCard,
-  MapPin,
-  Copy,
-  Printer,
-  ScanBarcode,
-  Banknote,
+  MessageSquare,
+  Search,
+  Filter,
+  ArrowUpDown,
+  MoreHorizontal,
+  Download,
+  Calendar,
+  ChevronRight,
+  Plus
 } from "lucide-react";
-import {
-  useGetOrdersQuery,
-  useGetOrderStatsQuery,
-  useProcessOrderMutation,
-  useDeliverOrderMutation,
-  useShipOrderMutation,
-  useCancelOrderMutation,
-  useRefundOrderMutation,
-  useDeleteOrderMutation,
-  useBarcodeScanMutation,
-  useRecordPartialPaymentMutation,
-} from "@/features/order/orderApiSlice";
-import { Link, useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -48,14 +21,23 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import DeleteModal from "@/components/modals/DeleteModal";
+import { Button } from "@/components/ui/button";
+import {
+  useGetOrdersQuery,
+  useProcessOrderMutation,
+  useDeliverOrderMutation,
+  useShipOrderMutation,
+  useDeleteOrderMutation,
+  useGetOrderStatsQuery,
+  useBarcodeScanMutation,
+} from "@/features/order/orderApiSlice";
+import { useRecordPartialPaymentMutation } from "@/features/payment/paymentApiSlice";
+import { useNavigate } from "react-router-dom";
+import DeleteModal from "@/components/modal/delete-modal";
 import TextField from "@/components/input/TextField";
 import { Switch } from "@/components/ui/switch";
-import { generateOrderInvoice } from "@/utils/orderInvoice";
-import { generateParcelSlip } from "@/utils/parcelSlip";
 import { useSelector } from "react-redux";
-import Dropdown from "@/components/dropdown/dropdown";
-import StatCard from "@/components/cards/stat-card";
+import OrderStatCard from "./components/OrderStatCard";
 
 const OrdersPage = () => {
   const { t } = useTranslation();
@@ -70,8 +52,6 @@ const OrdersPage = () => {
   const [processOrder, { isLoading: isProcessing }] = useProcessOrderMutation();
   const [deliverOrder, { isLoading: isDelivering }] = useDeliverOrderMutation();
   const [shipOrder, { isLoading: isShipping }] = useShipOrderMutation();
-  const [cancelOrder, { isLoading: isCancelling }] = useCancelOrderMutation();
-  const [refundOrder, { isLoading: isRefunding }] = useRefundOrderMutation();
   const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
   const [barcodeScan, { isLoading: isBarcodeScanning }] =
     useBarcodeScanMutation();
@@ -107,42 +87,22 @@ const OrdersPage = () => {
     partialAmount: "",
     partialPaymentRef: "",
   });
-  const [statusFilter, setStatusFilter] = useState(null);
-  const [paymentFilter, setPaymentFilter] = useState(null);
+  const [activeTab, setActiveTab] = useState("All");
 
-  const statusFilterOptions = useMemo(
-    () => [
-      { label: t("orders.filterAllStatus"), value: null },
-      { label: t("orders.filterPending"), value: "pending" },
-      { label: t("orders.filterProcessing"), value: "processing" },
-      { label: t("orders.filterPaid"), value: "paid" },
-      { label: t("orders.filterShipped"), value: "shipped" },
-      { label: t("orders.filterDelivered"), value: "delivered" },
-      { label: t("orders.filterCancelled"), value: "cancelled" },
-      { label: t("orders.filterRefunded"), value: "refunded" },
-    ],
-    [t],
-  );
-
-  const paymentFilterOptions = useMemo(
-    () => [
-      { label: t("orders.filterAllPayment"), value: null },
-      { label: t("orders.paid"), value: "paid" },
-      { label: t("orders.unpaid"), value: "unpaid" },
-    ],
-    [t],
-  );
+  const tabs = ["All", "Unfulfilled", "Unpaid", "Open", "Closed"];
 
   const filteredOrders = useMemo(() => {
     let result = orders;
-    if (statusFilter?.value) {
-      result = result.filter(
-        (o) => (o.status?.toLowerCase() || "") === statusFilter.value,
-      );
-    }
-    if (paymentFilter?.value) {
-      const isPaid = paymentFilter.value === "paid";
-      result = result.filter((o) => o.isPaid === isPaid);
+
+    // Tab filtering
+    if (activeTab === "Unfulfilled") {
+      result = result.filter((o) => (o.status?.toLowerCase() || "") === "pending" || (o.status?.toLowerCase() || "") === "processing");
+    } else if (activeTab === "Unpaid") {
+      result = result.filter((o) => !o.isPaid);
+    } else if (activeTab === "Open") {
+      result = result.filter((o) => !["delivered", "cancelled", "refunded"].includes((o.status?.toLowerCase() || "")));
+    } else if (activeTab === "Closed") {
+      result = result.filter((o) => ["delivered", "cancelled", "refunded"].includes((o.status?.toLowerCase() || "")));
     }
     // Sort by createdAt descending so newest orders appear at top
     return [...result].sort((a, b) => {
@@ -150,477 +110,72 @@ const OrdersPage = () => {
       const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       return dateB - dateA;
     });
-  }, [orders, statusFilter, paymentFilter]);
+  }, [orders, activeTab]);
 
   const headers = useMemo(
     () => [
       { header: t("orders.id"), field: "id" },
+      { header: t("orders.created"), field: "createdAt" },
       { header: t("orders.customer"), field: "customer" },
-      { header: t("common.status"), field: "status" },
       { header: t("orders.paid"), field: "paid" },
       { header: t("orders.total"), field: "total" },
-      { header: t("orders.trackingId"), field: "trackingId" },
-      { header: t("orders.created"), field: "createdAt" },
+      { header: t("orders.delivery") || "Delivery", field: "delivery" },
+      { header: t("orders.items") || "Items", field: "items" },
+      { header: t("common.status") || "Fulfilment", field: "status" },
       { header: t("common.actions"), field: "actions" },
     ],
     [t],
   );
 
-  const copyToClipboard = useCallback(
-    (text) => {
-      if (!text) return;
-      navigator.clipboard.writeText(text).then(
-        () => toast.success(t("common.copied")),
-        () => toast.error(t("common.copyFailed")),
-      );
-    },
-    [t],
-  );
 
-  const getStatusLabel = (status) => {
-    const s = (status || "").toLowerCase();
-    const map = {
-      pending: t("orders.filterPending"),
-      processing: t("orders.filterProcessing"),
-      paid: t("orders.filterPaid"),
-      shipped: t("orders.filterShipped"),
-      delivered: t("orders.filterDelivered"),
-      cancelled: t("orders.filterCancelled"),
-      refunded: t("orders.filterRefunded"),
-      completed: t("orders.filterPaid"),
-    };
-    return map[s] ?? (status || "-");
-  };
 
-  const getRowClassNameByStatus = (item) => {
-    const s = (item?.status || "").toLowerCase();
-    const map = {
-      pending:
-        "bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-950/60",
-      processing:
-        "bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-950/60",
-      paid: "bg-green-50 dark:bg-green-950/40 hover:bg-green-100 dark:hover:bg-green-950/60",
-      shipped:
-        "bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 dark:hover:bg-orange-950/60",
-      delivered:
-        "bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-950/60",
-      cancelled:
-        "bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50",
-      refunded:
-        "bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-800/70",
-      completed:
-        "bg-green-50 dark:bg-green-950/40 hover:bg-green-100 dark:hover:bg-green-950/60",
-    };
-    return map[s] ?? "";
-  };
+
 
   const tableData = useMemo(
     () =>
       filteredOrders.map((o) => ({
-        id: o.id,
-        customer: o.customer?.name ?? o.customerName ?? "-",
-        status: getStatusLabel(o.status),
-        _rawStatus: (o.status || "").toLowerCase(),
-        paid: o.isPaid ? t("orders.yes") : t("orders.no"),
-        total:
-          typeof o.totalAmount === "number"
-            ? `$${Number(o.totalAmount).toFixed(2)}`
-            : (o.totalAmount ?? "-"),
-        trackingId: o.shippingTrackingId ? (
-          <div className="flex items-center gap-2">
-            <span
-              className="font-mono text-sm truncate max-w-[120px]"
-              title={o.shippingTrackingId}
-            >
-              {o.shippingTrackingId}
-            </span>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 shrink-0 text-muted-foreground hover:text-foreground"
-                    onClick={() => copyToClipboard(o.shippingTrackingId)}
-                  >
-                    <Copy className="h-3.5 w-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{t("common.copy")}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+        id: <span className="font-bold text-gray-900 dark:text-gray-100 italic">#{o.id}</span>,
+        createdAt: o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : "-",
+        customer: <span className="font-medium text-gray-700 dark:text-gray-300">{o.customer?.name ?? o.customerName ?? "-"}</span>,
+        paid: (
+          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border ${o.isPaid ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${o.isPaid ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+            {o.isPaid ? 'Success' : 'Pending'}
           </div>
-        ) : (
-          "-"
         ),
-        createdAt: o.createdAt ? new Date(o.createdAt).toLocaleString() : "-",
-        actions: (() => {
-          const status = o.status?.toLowerCase() || "";
-          const isProcessing = status === "processing";
-          const isCompleted = status === "completed" || status === "paid";
-          const isDelivered = status === "delivered";
-          const isShipped = status === "shipped";
-          const isCancelled = status === "cancelled";
-          const isRefunded = status === "refunded";
-
-          // Processing: show Ship only. Deliver only when shipped.
-          const showShipDeliver =
-            (isProcessing || isCompleted) &&
-            !isShipped &&
-            !isDelivered &&
-            !isCancelled &&
-            !isRefunded;
-          // Shipped: hide Ship. Show Deliver only.
-          const showDeliverWhenShipped =
-            isShipped && !isDelivered && !isCancelled && !isRefunded;
-          // Delivered: only View, Invoice, Delete
-          const showOnlyViewInvoiceDelete = isDelivered;
-          // Pending: show Process, Cancel. Shipped: show Cancel.
-          const showProcessCancel =
-            !isProcessing &&
-            !isCompleted &&
-            !isShipped &&
-            !isDelivered &&
-            !isCancelled &&
-            !isRefunded;
-          const showCancelWhenShipped =
-            isShipped && !isDelivered && !isCancelled && !isRefunded;
-
-          return (
-            <TooltipProvider>
-              <div className="flex items-center gap-2 justify-end">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
-                      onClick={() => navigate(`/orders/${o.id}`)}
-                      title={t("common.view")}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{t("orders.viewOrder")}</p>
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
-                      onClick={() => {
-                        try {
-                          generateOrderInvoice(o);
-                          toast.success(t("orders.invoiceGenerated"));
-                        } catch (error) {
-                          toast.error(t("orders.invoiceFailed"));
-                          console.error("Invoice generation error:", error);
-                        }
-                      }}
-                    >
-                      <FileText className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{t("orders.generateInvoice")}</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                {!isCancelled &&
-                  !isRefunded &&
-                  Number(o.paidAmount ?? 0) < Number(o.totalAmount ?? 0) && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-                          onClick={() => {
-                            setPartialPaymentModal({ isOpen: true, order: o });
-                            setPartialPaymentForm({
-                              partialAmount: "",
-                              partialPaymentRef: "",
-                            });
-                          }}
-                          disabled={isRecordingPartial}
-                        >
-                          <Banknote className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{t("orders.recordPayment") || "Partial Payment"}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-
-                {o.shippingTrackingId && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400"
-                        onClick={() =>
-                          navigate(
-                            `/orders/track?trackingId=${encodeURIComponent(o.shippingTrackingId)}`,
-                          )
-                        }
-                        title={t("orders.trackOrder")}
-                      >
-                        <MapPin className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{t("orders.trackOrder")}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-
-                {isShipped && o.shippingTrackingId && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="bg-slate-500/10 hover:bg-slate-500/20 text-slate-600 dark:text-slate-400"
-                        onClick={async () => {
-                          try {
-                            // Company domain from auth/me API: customDomain (if active) or subdomain
-                            let companyDomain =
-                              import.meta.env.VITE_APP_URL ||
-                              import.meta.env.VITE_TRACKING_PAGE_URL;
-                            if (
-                              authUser?.customDomain &&
-                              authUser?.customDomainStatus === "active"
-                            ) {
-                              companyDomain = `https://${authUser.customDomain.replace(/^https?:\/\//, "")}`;
-                            } else if (authUser?.subdomain) {
-                              const base =
-                                import.meta.env.VITE_APP_BASE_DOMAIN ||
-                                "squadcart.com";
-                              companyDomain = `https://${authUser.subdomain}.${base}`;
-                            }
-                            await generateParcelSlip(o, {
-                              companyName: authUser?.companyName,
-                              companyLogo: authUser?.companyLogo,
-                              trackingPageUrl: companyDomain,
-                            });
-                            toast.success(t("orders.parcelSlipGenerated"));
-                          } catch (error) {
-                            toast.error(t("orders.parcelSlipFailed"));
-                            console.error("Parcel slip error:", error);
-                          }
-                        }}
-                        title={t("orders.printParcelSlip")}
-                      >
-                        <Printer className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{t("orders.printParcelSlip")}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-
-                {showProcessCancel && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400"
-                        onClick={() =>
-                          setProcessModal({ isOpen: true, order: o })
-                        }
-                        disabled={isProcessing}
-                      >
-                        <ClipboardCheck className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{t("orders.markProcessing")}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-
-                {showShipDeliver && (
-                  <>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400"
-                          onClick={() => {
-                            setShipModal({ isOpen: true, order: o });
-                            setShipForm({
-                              trackingId: o.shippingTrackingId || "",
-                              provider: o.shippingProvider || "",
-                            });
-                          }}
-                          disabled={isShipping}
-                        >
-                          <Truck className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{t("orders.markShipped")}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-                          onClick={() => {
-                            setDeliverModal({ isOpen: true, order: o });
-                            setDeliverForm({ comment: "", markAsPaid: true });
-                          }}
-                          disabled={isDelivering}
-                        >
-                          <Package className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{t("orders.markDelivered")}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </>
-                )}
-
-                {showDeliverWhenShipped && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-                        onClick={() => {
-                          setDeliverModal({ isOpen: true, order: o });
-                          setDeliverForm({ comment: "", markAsPaid: true });
-                        }}
-                        disabled={isDelivering}
-                      >
-                        <Package className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{t("orders.markDelivered")}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-
-                {(showProcessCancel || showCancelWhenShipped) && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
-                        onClick={async () => {
-                          if (!confirm("Cancel this order?")) return;
-                          const res = await cancelOrder({ id: o.id });
-                          if (res?.data)
-                            toast.success(t("orders.orderCancelled"));
-                          else
-                            toast.error(
-                              res?.error?.data?.message || t("common.failed"),
-                            );
-                        }}
-                        disabled={isCancelling}
-                      >
-                        <XCircle className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{t("orders.cancelOrder")}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-
-                {isCancelled && !isRefunded && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400"
-                        onClick={async () => {
-                          if (!confirm("Refund this order?")) return;
-                          const res = await refundOrder({ id: o.id });
-                          if (res?.data)
-                            toast.success(t("orders.orderRefunded"));
-                          else
-                            toast.error(
-                              res?.error?.data?.message || t("common.failed"),
-                            );
-                        }}
-                        disabled={isRefunding}
-                      >
-                        <RotateCcw className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{t("orders.refundOrder")}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-
-                {(showOnlyViewInvoiceDelete || isRefunded) && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
-                        onClick={() =>
-                          setDeleteModal({ isOpen: true, order: o })
-                        }
-                        disabled={isDeleting}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{t("orders.deleteOrder")}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-              </div>
-            </TooltipProvider>
-          );
-        })(),
+        total: (
+          <span className="font-bold text-gray-900 dark:text-gray-100">
+             ৳{Number(o.totalAmount || 0).toLocaleString()}
+          </span>
+        ),
+        delivery: <span className="text-gray-400 font-medium">N/A</span>,
+        items: <span className="text-gray-600 dark:text-gray-400 font-medium">{o.items?.length || 0} items</span>,
+        status: (
+          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border ${['delivered', 'paid', 'completed'].includes(o.status?.toLowerCase()) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${['delivered', 'paid', 'completed'].includes(o.status?.toLowerCase()) ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+            {['delivered', 'paid', 'completed'].includes(o.status?.toLowerCase()) ? 'Fulfilled' : 'Unfulfilled'}
+          </div>
+        ),
+        actions: (
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => navigate(`/orders/${o.id}`)}
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+            >
+              <FileText className="w-5 h-5" />
+            </button>
+            <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+              <MessageSquare className="w-5 h-5" />
+            </button>
+          </div>
+        ),
       })),
     [
       filteredOrders,
-      processOrder,
-      deliverOrder,
-      shipOrder,
-      cancelOrder,
-      refundOrder,
-      deleteOrder,
-      isProcessing,
-      isDelivering,
-      isShipping,
-      isCancelling,
-      isRefunding,
-      isDeleting,
-      isRecordingPartial,
-      copyToClipboard,
-      t,
       navigate,
-      authUser,
     ],
   );
 
-  const getRowClassName = (item) =>
-    getRowClassNameByStatus({ status: item?._rawStatus });
 
   const handleProcess = async () => {
     if (!processModal.order) return;
@@ -718,117 +273,121 @@ const OrdersPage = () => {
     }
   };
 
-  const formatAmount = (val) => {
-    const num = Number(val);
-    return isNaN(num) ? "0" : num.toFixed(2);
-  };
+  // Mock data for sparklines
+  const sparklineData = [
+    { value: 10 }, { value: 25 }, { value: 15 }, { value: 30 }, 
+    { value: 22 }, { value: 45 }, { value: 35 }, { value: 55 }
+  ];
 
-  const statsCards = [
-    {
-      title: t("orders.statsTotal"),
-      value: stats.total ?? 0,
-      icon: Package,
-      tone: "default",
-    },
-    {
-      title: t("orders.statsPending"),
-      value: stats.pending ?? 0,
-      icon: Clock,
-      tone: "blue",
-    },
-    {
-      title: t("orders.statsProcessing"),
-      value: stats.processing ?? 0,
-      icon: ClipboardCheck,
-      tone: "blue",
-    },
-    {
-      title: t("orders.statsShipped"),
-      value: stats.shipped ?? 0,
-      icon: Truck,
-      tone: "blue",
-    },
-    {
-      title: t("orders.statsDelivered"),
-      value: stats.delivered ?? 0,
-      icon: CheckCircle,
-      tone: "green",
-    },
-    {
-      title: t("orders.statsRevenue"),
-      value: `৳${formatAmount(stats.totalRevenue)}`,
-      icon: DollarSign,
-      tone: "green",
-    },
-    {
-      title: t("orders.statsUnpaid"),
-      value: stats.unpaidCount ?? 0,
-      icon: CreditCard,
-      tone: "red",
-    },
+  const orderStats = [
+    { title: "Total Orders", value: stats.totalOrders || 0, delta: "+25.2%", tone: "green" },
+    { title: "Order items over time", value: stats.unpaidCount || 0, delta: "+18.2%", tone: "green" },
+    { title: "Returns Orders", value: "0", delta: "-1.2%", tone: "red" },
+    { title: "Fulfilled orders over time", value: stats.delivered || 0, delta: "+12.2%", tone: "green" },
   ];
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-4">
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-6">
-        {statsCards.map((s, i) => (
-          <StatCard
+    <div className="min-h-screen bg-[#fafafa] dark:bg-neutral-950 p-6 space-y-8">
+      {/* Top Search Bar */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="relative w-full max-w-md group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
+          <input 
+            type="text" 
+            placeholder="Search or type command..." 
+            className="w-full h-11 pl-12 pr-12 rounded-2xl border border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 outline-none focus:ring-2 focus:ring-purple-500/10 transition-all text-sm font-medium"
+          />
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded border border-gray-100 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-800 text-[10px] font-bold text-gray-400">
+            ⌘ /
+          </div>
+        </div>
+      </div>
+
+      {/* Main Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-4">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Orders</h1>
+          <Button variant="outline" className="h-10 px-4 rounded-xl border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-sm font-semibold flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            Jan 1 - Jan 30, 2024
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="h-10 rounded-xl border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-sm font-semibold">
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </Button>
+          <Button variant="outline" className="h-10 rounded-xl border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-sm font-semibold">
+            More actions
+            <ChevronRight className="w-4 h-4 ml-2 rotate-90" />
+          </Button>
+          <Button onClick={() => navigate("/orders/create")} className="h-10 rounded-xl bg-[#5347CE] hover:bg-[#4338ca] text-white text-sm font-bold px-6">
+            Create order
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {orderStats.map((stat, i) => (
+          <OrderStatCard 
             key={i}
-            title={s.title}
-            value={s.value}
-            icon={s.icon}
-            tone={s.tone}
+            title={stat.title}
+            value={stat.value}
+            delta={stat.delta}
+            tone={stat.tone}
+            chartData={sparklineData}
           />
         ))}
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-        <h2 className="text-xl font-semibold">{t("orders.title")}</h2>
-        <div className="flex flex-wrap items-center gap-3">
-          <Dropdown
-            name={t("orders.filterByStatus")}
-            options={statusFilterOptions}
-            setSelectedOption={setStatusFilter}
-          >
-            {statusFilter?.label ?? t("orders.filterAllStatus")}
-          </Dropdown>
-          <Dropdown
-            name={t("orders.filterByPayment")}
-            options={paymentFilterOptions}
-            setSelectedOption={setPaymentFilter}
-          >
-            {paymentFilter?.label ?? t("orders.filterAllPayment")}
-          </Dropdown>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => navigate("/orders/track")}
-          >
-            <MapPin className="h-4 w-4 mr-2" />
-            {t("orders.trackOrder")}
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setBarcodeScanModal({ isOpen: true, value: "" })}
-          >
-            <ScanBarcode className="h-4 w-4 mr-2" />
-            {t("orders.scanBarcode")}
-          </Button>
-          <Button size="sm" onClick={() => navigate("/orders/create")}>
-            {t("orders.createOrder")}
-          </Button>
+      {/* Table Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center p-1 bg-gray-100/50 dark:bg-neutral-900/50 rounded-2xl w-fit">
+            {tabs.map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === tab ? 'bg-white dark:bg-neutral-800 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+              >
+                {tab}
+              </button>
+            ))}
+            <button className="px-4 py-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 flex items-center gap-1.5 text-sm font-bold">
+              <Plus className="w-4 h-4" />
+              Add
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-white dark:hover:bg-neutral-900 border border-transparent hover:border-gray-100 dark:hover:border-neutral-800">
+              <Search className="w-4 h-4 text-gray-500" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-white dark:hover:bg-neutral-900 border border-transparent hover:border-gray-100 dark:hover:border-neutral-800">
+              <Filter className="w-4 h-4 text-gray-500" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-white dark:hover:bg-neutral-900 border border-transparent hover:border-gray-100 dark:hover:border-neutral-800">
+              <ArrowUpDown className="w-4 h-4 text-gray-500" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-white dark:hover:bg-neutral-900 border border-transparent hover:border-gray-100 dark:hover:border-neutral-800">
+              <MoreHorizontal className="w-4 h-4 text-gray-500" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-neutral-900/40 rounded-[24px] border border-gray-100 dark:border-neutral-800 overflow-hidden">
+          <ReusableTable
+            data={tableData}
+            headers={headers}
+            total={filteredOrders.length}
+            isLoading={isLoading}
+            searchable={false}
+            py="py-4"
+          />
         </div>
       </div>
-      <ReusableTable
-        data={tableData}
-        headers={headers}
-        total={filteredOrders.length}
-        isLoading={isLoading}
-        py="py-2"
-        getRowClassName={getRowClassName}
-      />
 
       {/* Process Confirmation Modal */}
       <Dialog
