@@ -1,6 +1,7 @@
-import React from "react";
+import { useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { routes } from "./routes";
 
 // hooks
@@ -19,7 +20,16 @@ import "./assets/styles/typography.css";
 import "./assets/styles/layout.css";
 
 const App = () => {
+  const { i18n } = useTranslation();
   const { isLoading, authChecked } = useAuth();
+
+  // Synchronize HTML lang attribute with current application language
+  // This allows CSS selectors like html[lang="bn"] to apply specific styles (e.g., fonts)
+  useEffect(() => {
+    if (i18n.language) {
+      document.documentElement.lang = i18n.language;
+    }
+  }, [i18n.language]);
   
   // Enable real-time storage sync across tabs
   useStorageSync();

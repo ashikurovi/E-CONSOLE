@@ -1,10 +1,45 @@
 @import url("https://fonts.googleapis.com/css2?family=Bai+Jamjuree:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap");
 @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
 
-* {
+/* --- Bangla Font (Hind Siliguri) - Conditional Rules --- */
+
+/* Automatically apply Hind Siliguri to the entire app when Bangla is selected */
+html[lang="bn"] * {
+  font-family: "Hind Siliguri", sans-serif !important;
+}
+
+/* Specific Font Weight Classes for Hind Siliguri */
+.hind-siliguri-light {
+  font-family: "Hind Siliguri", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.hind-siliguri-regular {
   font-family: "Hind Siliguri", sans-serif;
   font-weight: 400;
+  font-style: normal;
 }
+
+.hind-siliguri-medium {
+  font-family: "Hind Siliguri", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.hind-siliguri-semibold {
+  font-family: "Hind Siliguri", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.hind-siliguri-bold {
+  font-family: "Hind Siliguri", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* --- Default Global Font --- */
 * {
   font-family: "Bai Jamjuree", sans-serif;
   font-weight: 400;
