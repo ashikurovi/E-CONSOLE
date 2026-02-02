@@ -64,6 +64,9 @@ export default function MediaPage() {
   const canvasRef = useRef(null);
   const imageRef = useRef(null);
 
+  // --- Image View State ---
+  const [viewImage, setViewImage] = useState(null);
+
   // Mock Image Data
   const [images] = useState([
     {
@@ -267,12 +270,6 @@ export default function MediaPage() {
              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
                Media Library
              </h1>
-             <div className="w-px h-6 bg-gray-200 dark:bg-gray-800 hidden md:block"></div>
-             <div className="flex items-center gap-2 group cursor-pointer bg-gray-100/50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 px-3 py-1.5 rounded-full transition-colors border border-transparent hover:border-indigo-500/20">
-               <Globe className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-               <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Global System</span>
-               <ChevronDown className="w-3.5 h-3.5 text-gray-400 transition-transform group-hover:rotate-180" />
-             </div>
           </div>
 
           {/* Right: Actions */}
@@ -363,39 +360,39 @@ export default function MediaPage() {
               animate={{ opacity: 1, scale: 1 }}
               whileHover={{ y: -8 }}
               className="group relative"
+              onClick={() => setViewImage(image)}
             >
               {/* Card Container */}
-              <div className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-2 shadow-sm border border-gray-100 dark:border-gray-800 group-hover:shadow-2xl group-hover:shadow-indigo-500/10 transition-all duration-500 h-full flex flex-col">
+              <div className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-2 shadow-sm border border-gray-100 dark:border-gray-800 group-hover:shadow-2xl group-hover:shadow-indigo-500/10 transition-all duration-500 h-full flex flex-col cursor-pointer">
                 
                 {/* Image Thumbnail */}
                 <div className="relative aspect-square rounded-[20px] overflow-hidden bg-gray-100 dark:bg-white/5">
                    
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 z-20 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                        <Button 
-                            className="bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 rounded-full px-6"
-                        >
-                            View Details
-                        </Button>
-                    </div>
+                    {/* Hover Overlay - Only for darkening, no button */}
+                    <div className="absolute inset-0 z-20 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
 
                     {/* Three Dot Menu */}
                     <div className="absolute top-3 right-3 z-30 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <button className="h-8 w-8 bg-white/90 backdrop-blur-sm dark:bg-black/60 rounded-full flex items-center justify-center text-gray-700 dark:text-white shadow-lg hover:scale-105 transition-transform">
+                                <button 
+                                    className="h-8 w-8 bg-white/90 backdrop-blur-sm dark:bg-black/60 rounded-full flex items-center justify-center text-gray-700 dark:text-white shadow-lg hover:scale-105 transition-transform"
+                                    onClick={(e) => e.stopPropagation()} // Prevent card click
+                                >
                                     <MoreVertical className="w-4 h-4" />
                                 </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48 rounded-xl">
-                                <DropdownMenuItem onClick={() => {
+                                <DropdownMenuItem onClick={(e) => {
+                                    e.stopPropagation();
                                     navigator.clipboard.writeText(image.url);
                                     // Toast logic would go here
                                 }}>
                                     <Copy className="w-4 h-4 mr-2" />
                                     Copy URL
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => {
+                                <DropdownMenuItem onClick={(e) => {
+                                    e.stopPropagation();
                                     setSelectedFile(null); // Reset file
                                     setPreviewUrl(image.url);
                                     setUploadStep("crop");
@@ -405,7 +402,10 @@ export default function MediaPage() {
                                     Crop Image
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20">
+                                <DropdownMenuItem 
+                                    className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
                                     <Trash2 className="w-4 h-4 mr-2" />
                                     Delete
                                 </DropdownMenuItem>
@@ -470,6 +470,29 @@ export default function MediaPage() {
             </Button>
         </div>
       </main>
+
+      {/* --- IMAGE VIEW MODAL --- */}
+      <Dialog open={!!viewImage} onOpenChange={(open) => !open && setViewImage(null)}>
+        <DialogContent className="sm:max-w-[900px] p-0 overflow-hidden bg-black/95 border-none shadow-2xl">
+            <div className="relative w-full h-[80vh] flex items-center justify-center">
+                 {/* Close Button defined by DialogContent usually, but specific custom one here if needed */}
+                 
+                 {viewImage && (
+                     <img 
+                        src={viewImage.url} 
+                        alt={viewImage.title} 
+                        className="max-w-full max-h-full object-contain"
+                     />
+                 )}
+            </div>
+            {viewImage && (
+                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent text-white">
+                    <h2 className="text-xl font-bold">{viewImage.title}</h2>
+                    <p className="text-sm text-gray-300">{viewImage.size} • {viewImage.type} • {viewImage.date}</p>
+                </div>
+            )}
+        </DialogContent>
+      </Dialog>
 
       {/* --- UPLOAD & CROP MODAL --- */}
       <Dialog open={isUploadOpen} onOpenChange={handleCloseModal}>
