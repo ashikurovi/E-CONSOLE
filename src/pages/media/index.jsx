@@ -67,6 +67,9 @@ export default function MediaPage() {
   // --- Image View State ---
   const [viewImage, setViewImage] = useState(null);
 
+  // --- Toast State ---
+  const [showCopyToast, setShowCopyToast] = useState(false);
+
   // Mock Image Data
   const [images] = useState([
     {
@@ -251,16 +254,33 @@ export default function MediaPage() {
     }, 2000);
   };
 
-  // Copy to Clipboard
-  const handleCopyUrl = () => {
-    if (generatedUrl) {
-      navigator.clipboard.writeText(generatedUrl);
-      // Optional: Toast notification could be added here
+  // Copy to Clipboard with Toast feedback
+  const handleCopyUrl = (text) => {
+    const textToCopy = text || generatedUrl;
+    if (textToCopy) {
+      navigator.clipboard.writeText(textToCopy);
+      setShowCopyToast(true);
+      setTimeout(() => setShowCopyToast(false), 2000);
     }
   };
 
   return (
     <div className="min-h-screen bg-[#F8F9FC] dark:bg-[#0b0f14] font-sans">
+      {/* --- TOAST NOTIFICATION --- */}
+      <AnimatePresence>
+        {showCopyToast && (
+            <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-[60] bg-gray-900 text-white dark:bg-white dark:text-black px-6 py-3 rounded-full shadow-2xl flex items-center gap-3"
+            >
+                <Check className="w-4 h-4 text-green-500" />
+                <span className="text-sm font-semibold">Copied to clipboard</span>
+            </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* --- PREMIUM HEADER --- */}
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0b0f14]/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800 px-6 lg:px-10 py-5 transition-all duration-300">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -350,97 +370,185 @@ export default function MediaPage() {
         </div>
       </header>
 
-      {/* --- CONTENT GRID --- */}
+      {/* --- CONTENT GRID / LIST --- */}
       <main className="p-6 lg:p-10 max-w-[1920px] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-          {images.map((image) => (
-            <motion.div
-              key={image.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              whileHover={{ y: -8 }}
-              className="group relative"
-              onClick={() => setViewImage(image)}
-            >
-              {/* Card Container */}
-              <div className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-2 shadow-sm border border-gray-100 dark:border-gray-800 group-hover:shadow-2xl group-hover:shadow-indigo-500/10 transition-all duration-500 h-full flex flex-col cursor-pointer">
-                
-                {/* Image Thumbnail */}
-                <div className="relative aspect-square rounded-[20px] overflow-hidden bg-gray-100 dark:bg-white/5">
-                   
-                    {/* Hover Overlay - Only for darkening, no button */}
-                    <div className="absolute inset-0 z-20 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+        
+        {/* VIEW: GRID */}
+        {viewMode === "grid" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+            {images.map((image) => (
+              <motion.div
+                key={image.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ y: -8 }}
+                className="group relative"
+                onClick={() => setViewImage(image)}
+              >
+                {/* Card Container */}
+                <div className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-2 shadow-sm border border-gray-100 dark:border-gray-800 group-hover:shadow-2xl group-hover:shadow-indigo-500/10 transition-all duration-500 h-full flex flex-col cursor-pointer">
+                  
+                  {/* Image Thumbnail */}
+                  <div className="relative aspect-square rounded-[20px] overflow-hidden bg-gray-100 dark:bg-white/5">
+                    
+                      {/* Hover Overlay - Only for darkening */}
+                      <div className="absolute inset-0 z-20 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
 
-                    {/* Three Dot Menu */}
-                    <div className="absolute top-3 right-3 z-30 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <button 
-                                    className="h-8 w-8 bg-white/90 backdrop-blur-sm dark:bg-black/60 rounded-full flex items-center justify-center text-gray-700 dark:text-white shadow-lg hover:scale-105 transition-transform"
-                                    onClick={(e) => e.stopPropagation()} // Prevent card click
-                                >
-                                    <MoreVertical className="w-4 h-4" />
-                                </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48 rounded-xl">
-                                <DropdownMenuItem onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigator.clipboard.writeText(image.url);
-                                    // Toast logic would go here
-                                }}>
-                                    <Copy className="w-4 h-4 mr-2" />
-                                    Copy URL
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedFile(null); // Reset file
-                                    setPreviewUrl(image.url);
-                                    setUploadStep("crop");
-                                    setIsUploadOpen(true);
-                                }}>
-                                    <Crop className="w-4 h-4 mr-2" />
-                                    Crop Image
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem 
-                                    className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    <Trash2 className="w-4 h-4 mr-2" />
-                                    Delete
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                      {/* Three Dot Menu */}
+                      <div className="absolute top-3 right-3 z-30 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                  <button 
+                                      className="h-8 w-8 bg-white/90 backdrop-blur-sm dark:bg-black/60 rounded-full flex items-center justify-center text-gray-700 dark:text-white shadow-lg hover:scale-105 transition-transform"
+                                      onClick={(e) => e.stopPropagation()}
+                                  >
+                                      <MoreVertical className="w-4 h-4" />
+                                  </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                                  <DropdownMenuItem onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleCopyUrl(image.url);
+                                  }}>
+                                      <Copy className="w-4 h-4 mr-2" />
+                                      Copy URL
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedFile(null);
+                                      setPreviewUrl(image.url);
+                                      setUploadStep("crop");
+                                      setIsUploadOpen(true);
+                                  }}>
+                                      <Crop className="w-4 h-4 mr-2" />
+                                      Crop Image
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem 
+                                      className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
+                                      onClick={(e) => e.stopPropagation()}
+                                  >
+                                      <Trash2 className="w-4 h-4 mr-2" />
+                                      Delete
+                                  </DropdownMenuItem>
+                              </DropdownMenuContent>
+                          </DropdownMenu>
+                      </div>
+
+                      {/* Image */}
+                      <img 
+                          src={image.url} 
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                          alt={image.title} 
+                      />
+                  </div>
+
+                  {/* Details */}
+                  <div className="p-3">
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors line-clamp-1" title={image.title}>
+                        {image.title}
+                      </h3>
                     </div>
-
-                    {/* Image */}
-                    <img 
-                        src={image.url} 
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                        alt={image.title} 
-                    />
-                </div>
-
-                {/* Details */}
-                <div className="p-3">
-                  <div className="flex justify-between items-start mb-1">
-                    <h3 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors line-clamp-1" title={image.title}>
-                      {image.title}
-                    </h3>
-                  </div>
-                  <div className="flex items-center justify-between">
-                     <p className="text-xs font-medium text-gray-400 dark:text-gray-500">
-                        {image.size}
-                     </p>
-                     <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-white/5 px-1.5 py-0.5 rounded uppercase border border-gray-100 dark:border-gray-800">
-                        {image.type}
-                     </span>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-medium text-gray-400 dark:text-gray-500">
+                          {image.size}
+                      </p>
+                      <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-white/5 px-1.5 py-0.5 rounded uppercase border border-gray-100 dark:border-gray-800">
+                          {image.type}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {/* VIEW: LIST */}
+        {viewMode === "list" && (
+          <div className="flex flex-col gap-3">
+             {images.map((image) => (
+                <motion.div
+                   key={image.id}
+                   initial={{ opacity: 0, x: -10 }}
+                   animate={{ opacity: 1, x: 0 }}
+                   className="group bg-white dark:bg-[#1a1f26] rounded-[20px] p-2 pr-4 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-lg hover:shadow-indigo-500/5 transition-all flex items-center gap-4 cursor-pointer"
+                   onClick={() => setViewImage(image)}
+                >
+                   {/* Thumbnail */}
+                   <div className="w-16 h-16 rounded-[14px] overflow-hidden bg-gray-100 dark:bg-white/5 shrink-0 relative">
+                      <img 
+                          src={image.url} 
+                          className="w-full h-full object-cover" 
+                          alt={image.title} 
+                      />
+                   </div>
+
+                   {/* Info */}
+                   <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-bold text-gray-900 dark:text-white truncate group-hover:text-indigo-600 transition-colors">
+                          {image.title}
+                      </h3>
+                      <p className="text-sm text-gray-400">
+                          {image.date} • {image.size}
+                      </p>
+                   </div>
+
+                   {/* Type Badge */}
+                   <span className="hidden sm:inline-block text-xs font-bold text-gray-500 bg-gray-50 dark:bg-white/5 px-2 py-1 rounded-md uppercase border border-gray-100 dark:border-gray-800">
+                      {image.type}
+                   </span>
+                   
+                   {/* Actions */}
+                   <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="icon" className="hidden sm:flex text-gray-400 hover:text-indigo-600 rounded-full">
+                          <Eye className="w-4 h-4" />
+                      </Button>
+                      <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-full"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                  <MoreVertical className="w-4 h-4" />
+                              </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                              <DropdownMenuItem onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCopyUrl(image.url);
+                              }}>
+                                  <Copy className="w-4 h-4 mr-2" />
+                                  Copy URL
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedFile(null);
+                                  setPreviewUrl(image.url);
+                                  setUploadStep("crop");
+                                  setIsUploadOpen(true);
+                              }}>
+                                  <Crop className="w-4 h-4 mr-2" />
+                                  Crop Image
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                  className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
+                                  onClick={(e) => e.stopPropagation()}
+                              >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Delete
+                              </DropdownMenuItem>
+                          </DropdownMenuContent>
+                      </DropdownMenu>
+                   </div>
+                </motion.div>
+             ))}
+          </div>
+        )}
         
         {/* --- PAGINATION --- */}
         <div className="mt-12 flex items-center justify-center gap-2">
@@ -473,24 +581,90 @@ export default function MediaPage() {
 
       {/* --- IMAGE VIEW MODAL --- */}
       <Dialog open={!!viewImage} onOpenChange={(open) => !open && setViewImage(null)}>
-        <DialogContent className="sm:max-w-[900px] p-0 overflow-hidden bg-black/95 border-none shadow-2xl">
-            <div className="relative w-full h-[80vh] flex items-center justify-center">
-                 {/* Close Button defined by DialogContent usually, but specific custom one here if needed */}
-                 
+        <DialogContent className="max-w-[95vw] md:max-w-[85vw] h-[90vh] md:h-[85vh] p-0 overflow-hidden bg-black/95 border-none shadow-2xl flex flex-col">
+            
+            {/* Top Toolbar */}
+            <div className="flex items-center justify-between px-6 py-4 bg-black/40 backdrop-blur-md border-b border-white/10 z-50 absolute top-0 left-0 right-0">
+                <div className="flex items-center gap-3">
+                   <h2 className="text-white font-bold text-lg truncate max-w-[200px] md:max-w-md">
+                       {viewImage?.title}
+                   </h2>
+                   <span className="hidden md:inline-flex px-2 py-0.5 rounded text-xs font-bold bg-white/10 text-gray-300 border border-white/5 uppercase">
+                       {viewImage?.type}
+                   </span>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleCopyUrl(viewImage?.url)}
+                        className="text-gray-300 hover:text-white hover:bg-white/10 gap-2"
+                    >
+                        <Copy className="w-4 h-4" />
+                        <span className="hidden sm:inline">Copy URL</span>
+                    </Button>
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => {
+                            setViewImage(null);
+                            setSelectedFile(null);
+                            setPreviewUrl(viewImage?.url);
+                            setUploadStep("crop");
+                            setIsUploadOpen(true);
+                        }}
+                        className="text-gray-300 hover:text-white hover:bg-white/10 gap-2"
+                    >
+                        <Crop className="w-4 h-4" />
+                        <span className="hidden sm:inline">Edit</span>
+                    </Button>
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-red-400 hover:text-red-300 hover:bg-red-900/20 gap-2"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                        <span className="hidden sm:inline">Delete</span>
+                    </Button>
+                    <div className="w-px h-6 bg-white/10 mx-2"></div>
+                    <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => setViewImage(null)}
+                        className="text-gray-400 hover:text-white rounded-full hover:bg-white/10"
+                    >
+                        <Check className="w-5 h-5 rotate-45" /> {/* Using Check rotated as Close, or better use X if available */}
+                    </Button>
+                </div>
+            </div>
+
+            {/* Main Image Area */}
+            <div className="flex-1 relative flex items-center justify-center bg-[#0b0f14] p-4 md:p-10 pt-20">
                  {viewImage && (
                      <img 
                         src={viewImage.url} 
                         alt={viewImage.title} 
-                        className="max-w-full max-h-full object-contain"
+                        className="max-w-full max-h-full object-contain shadow-2xl drop-shadow-2xl"
                      />
                  )}
             </div>
-            {viewImage && (
-                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent text-white">
-                    <h2 className="text-xl font-bold">{viewImage.title}</h2>
-                    <p className="text-sm text-gray-300">{viewImage.size} • {viewImage.type} • {viewImage.date}</p>
+            
+            {/* Bottom Metadata Bar */}
+            <div className="px-6 py-4 bg-black/40 backdrop-blur-md border-t border-white/10 flex flex-wrap gap-6 items-center justify-center md:justify-start text-xs font-medium text-gray-400">
+                <div className="flex items-center gap-2">
+                    <span className="uppercase tracking-wider text-gray-500">File Size</span>
+                    <span className="text-gray-200">{viewImage?.size}</span>
                 </div>
-            )}
+                <div className="flex items-center gap-2">
+                    <span className="uppercase tracking-wider text-gray-500">Dimensions</span>
+                    <span className="text-gray-200">1920 x 1080</span> {/* Mock data */}
+                </div>
+                <div className="flex items-center gap-2">
+                    <span className="uppercase tracking-wider text-gray-500">Date Added</span>
+                    <span className="text-gray-200">{viewImage?.date}</span>
+                </div>
+            </div>
         </DialogContent>
       </Dialog>
 
