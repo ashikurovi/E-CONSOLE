@@ -6,13 +6,24 @@ import * as yup from "yup";
 import toast from "react-hot-toast";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  ImageIcon,
+  X,
+  Save,
+  Info,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import TextField from "@/components/input/TextField";
-import FileUpload from "@/components/input/FileUpload";
 import Dropdown from "@/components/dropdown/dropdown";
-import { useUpdateCategoryMutation, useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
+import {
+  useUpdateCategoryMutation,
+  useGetCategoriesQuery,
+} from "@/features/category/categoryApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
 import { useSelector } from "react-redux";
+import { Switch } from "@/components/ui/switch";
 
 const categoryEditSchema = yup.object().shape({
   name: yup
@@ -28,37 +39,51 @@ const CategoryEditPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-  const { data: categories = [] } = useGetCategoriesQuery({ companyId: user?.companyId });
+  const { data: categories = [] } = useGetCategoriesQuery({
+    companyId: user?.companyId,
+  });
   const category = categories.find((c) => c.id === parseInt(id));
-  const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
+  const [updateCategory, { isLoading: isUpdating }] =
+    useUpdateCategoryMutation();
   const [selectedParent, setSelectedParent] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const { uploadImage, isUploading } = useImageUpload();
 
   const parentOptions = useMemo(
-    () => categories.filter((c) => c.id !== parseInt(id)).map((cat) => ({ label: cat.name, value: cat.id })),
-    [categories, id]
+    () =>
+      categories
+        .filter((c) => c.id !== parseInt(id))
+        .map((cat) => ({ label: cat.name, value: cat.id })),
+    [categories, id],
   );
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(categoryEditSchema),
     mode: "onChange",
     defaultValues: {
-      name: category?.name ?? "",
-      isActive: category?.isActive ?? false,
+      name: "",
+      isActive: false,
     },
   });
 
+  // Load category data
   useEffect(() => {
-    if (category?.parent?.id) {
-      const found = parentOptions.find((p) => p.value === category.parent.id);
-      setSelectedParent(found || null);
+    if (category) {
+      setValue("name", category.name);
+      setValue("isActive", category.isActive);
+
+      if (category.parent?.id) {
+        const found = parentOptions.find((p) => p.value === category.parent.id);
+        setSelectedParent(found || null);
+      }
     }
-  }, [category, parentOptions]);
+  }, [category, parentOptions, setValue]);
 
   const onSubmit = async (data) => {
     if (!category) return;
@@ -82,7 +107,11 @@ const CategoryEditPage = () => {
     const params = {
       companyId: user?.companyId,
     };
-    const res = await updateCategory({ id: category.id, body: payload, params });
+    const res = await updateCategory({
+      id: category.id,
+      body: payload,
+      params,
+    });
     if (res?.data) {
       toast.success("Category updated");
       navigate("/categories");
@@ -91,125 +120,274 @@ const CategoryEditPage = () => {
     }
   };
 
+  const isActive = watch("isActive");
+
   if (!category) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/categories")}
-            className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white"
-          >
-            <ArrowLeft className="h-4 w-4" />
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            Category Not Found
+          </h1>
+          <Button onClick={() => navigate("/categories")} className="mt-4">
+            Go Back
           </Button>
-          <div>
-            <h1 className="text-2xl font-semibold">Category Not Found</h1>
-            <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-              The category you're looking for doesn't exist
-            </p>
-          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate("/categories")}
-          className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-semibold">{t("createEdit.editCategory")}</h1>
-          <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            {t("createEdit.updateCategory")}
-          </p>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+      {/* ============= STATIC HEADER ============= */}
+      <div className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/categories")}
+              className="hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+            </Button>
+            <div>
+              <div className="text-xs text-slate-500 font-medium">
+                Back to categories
+              </div>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+                {t("createEdit.editCategory")}
+              </h1>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/categories")}
+              className="hidden sm:flex"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmit(onSubmit)}
+              disabled={isUpdating || isUploading}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[120px] shadow-lg shadow-indigo-500/20"
+            >
+              {isUpdating || isUploading ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                  Saving...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Save className="w-4 h-4" />
+                  Save Changes
+                </span>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-            <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              {t("forms.basicInfo")}
-            </h3>
-          </div>
-          <TextField
-            label={`${t("forms.categoryName")} *`}
-            placeholder={t("forms.categoryName")}
-            register={register}
-            name="name"
-            error={errors.name?.message}
-          />
-        </div>
+      <div className="max-w-[1600px] mx-auto p-6 pt-8">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="grid grid-cols-12 gap-8"
+        >
+          {/* ============= LEFT COLUMN (8 cols) ============= */}
+          <div className="col-span-12 lg:col-span-8 space-y-8">
+            {/* 1. CATEGORY IMAGE */}
+            <div className="grid grid-cols-12 gap-6">
+              <div className="col-span-12 lg:col-span-4">
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-50">
+                  Category Image
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                  Upload a representative image for this category. Recommended
+                  size 800x800.
+                </p>
+              </div>
+              <div className="col-span-12 lg:col-span-8">
+                <div className="w-full h-64 bg-white dark:bg-slate-800/50 rounded-2xl border-2 border-dashed border-indigo-200 dark:border-slate-700 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-indigo-50/50 transition-colors group relative overflow-hidden shadow-sm">
+                  {!selectedFile && !category.photo ? (
+                    <>
+                      <div className="w-16 h-16 mb-4 bg-indigo-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform duration-300">
+                        <ImageIcon className="w-8 h-8" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-indigo-600 mb-1">
+                        Upload Image
+                      </h3>
+                      <p className="text-sm text-slate-400">
+                        Drag and drop or click to upload
+                      </p>
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 w-full h-full group">
+                      <img
+                        src={
+                          selectedFile
+                            ? URL.createObjectURL(selectedFile)
+                            : category.photo
+                        }
+                        alt="Category"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <p className="text-white font-medium bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm">
+                          Click to change
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        setSelectedFile(e.target.files[0]);
+                      }
+                    }}
+                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                  />
+                  {(selectedFile || category.photo) && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedFile(null);
+                        // Note: We can't easily clear the existing photo without API support for delete,
+                        // but this clears the *newly selected* file.
+                        // If user wants to remove existing photo, we might need a specific 'remove' action if API supports it.
+                        // For now, this just resets the selection.
+                      }}
+                      className="absolute top-4 right-4 p-2 bg-white text-slate-400 hover:text-red-500 rounded-full shadow-lg hover:shadow-xl transition-all z-20"
+                      title="Remove selection"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-            <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              {t("forms.categoryImage")}
-            </h3>
-          </div>
-          <FileUpload
-            placeholder={t("forms.choosePhoto")}
-            label={t("forms.categoryPhoto")}
-            register={register}
-            name="photo"
-            accept="image/*"
-            onChange={setSelectedFile}
-            value={category?.photo}
-          />
-        </div>
+            {/* 2. CATEGORY DETAILS */}
+            <div className="grid grid-cols-12 gap-6 pt-8 border-t border-slate-200 dark:border-slate-800">
+              <div className="col-span-12 lg:col-span-4">
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
+                  Category Details
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                  Basic information about the category.
+                </p>
+              </div>
+              <div className="col-span-12 lg:col-span-8 space-y-6">
+                {/* Name Input */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Category Name <span className="text-red-500">*</span>
+                  </label>
+                  <TextField
+                    placeholder="e.g., Electronics, Summer Collection"
+                    register={register}
+                    name="name"
+                    error={errors.name?.message}
+                    className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-            <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              {t("forms.categoryHierarchy")}
-            </h3>
-          </div>
-          <Dropdown
-            name={t("forms.parentCategory")}
-            options={parentOptions}
-            setSelectedOption={setSelectedParent}
-            className="py-2"
-          >
-            {selectedParent?.label || (
-              <span className="text-black/50 dark:text-white/50">{t("forms.selectParent")}</span>
-            )}
-          </Dropdown>
-        </div>
+                {/* Parent Category */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Parent Category
+                  </label>
+                  <Dropdown
+                    name={t("forms.parentCategory")}
+                    options={parentOptions}
+                    setSelectedOption={setSelectedParent}
+                    className="w-full"
+                  >
+                    <div className="flex items-center justify-between w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-indigo-500 transition-colors">
+                      <span
+                        className={
+                          selectedParent
+                            ? "text-slate-900 dark:text-white"
+                            : "text-slate-400"
+                        }
+                      >
+                        {selectedParent?.label ||
+                          "Select a parent category (optional)"}
+                      </span>
+                    </div>
+                  </Dropdown>
+                  <p className="text-xs text-slate-500">
+                    Select a parent category to make this a sub-category.
+                  </p>
+                </div>
+              </div>
+            </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-            <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              {t("common.status")}
-            </h3>
+            {/* 3. STATUS & VISIBILITY */}
+            <div className="grid grid-cols-12 gap-6 pt-8 border-t border-slate-200 dark:border-slate-800">
+              <div className="col-span-12 lg:col-span-4">
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-50">
+                  Status & Visibility
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                  Control the visibility of this category in your store.
+                </p>
+              </div>
+              <div className="col-span-12 lg:col-span-8">
+                <div className="p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-between group hover:border-indigo-500/50 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`p-3 rounded-xl ${isActive ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500"}`}
+                    >
+                      {isActive ? (
+                        <CheckCircle2 className="w-6 h-6" />
+                      ) : (
+                        <AlertCircle className="w-6 h-6" />
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-slate-900 dark:text-white">
+                        {isActive ? "Active" : "Inactive"}
+                      </h4>
+                      <p className="text-sm text-slate-500">
+                        {isActive
+                          ? "This category is visible to customers."
+                          : "This category is hidden from the store."}
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={isActive}
+                    onCheckedChange={(checked) => setValue("isActive", checked)}
+                    className="data-[state=checked]:bg-emerald-500"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-          <label className="flex items-center gap-2">
-            <input type="checkbox" {...register("isActive")} />
-            <span>{t("common.active")}</span>
-          </label>
-        </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-          <Button
-            variant="ghost"
-            type="button"
-            onClick={() => navigate("/categories")}
-            className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700"
-          >
-            {t("common.cancel")}
-          </Button>
-          <Button type="submit" disabled={isUpdating || isUploading} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-            {isUpdating || isUploading ? t("common.processing") : t("common.update")}
-          </Button>
-        </div>
-      </form>
+          {/* ============= RIGHT COLUMN / SIDEBAR (Optional - kept empty or for future use) ============= */}
+          <div className="col-span-12 lg:col-span-4 space-y-6">
+            {/* You could put summary or other widgets here if needed, but the design requested was mainly the form style */}
+            {/* For now we leave it empty or add a help card */}
+            <div className="bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-500/20">
+              <h4 className="font-bold text-indigo-900 dark:text-indigo-100 mb-2 flex items-center gap-2">
+                <Info className="w-5 h-5" />
+                Tips
+              </h4>
+              <ul className="text-sm text-indigo-800 dark:text-indigo-200 space-y-2 list-disc list-inside">
+                <li>Use high-quality images for better visual appeal.</li>
+                <li>Keep category names clear and concise.</li>
+                <li>
+                  Organize sub-categories logically for better navigation.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
