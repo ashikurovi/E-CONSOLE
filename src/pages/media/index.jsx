@@ -64,51 +64,103 @@ export default function MediaPage() {
   const canvasRef = useRef(null);
   const imageRef = useRef(null);
 
-  // Mock Album Data
-  const [albums] = useState([
+  // Mock Image Data
+  const [images] = useState([
     {
       id: 1,
-      title: "The Japan Cup",
-      count: 34,
+      title: "Mountain Landscape",
+      type: "JPG",
+      size: "2.4 MB",
       date: "2024-03-15",
-      images: [
-        "https://images.unsplash.com/photo-1551887196-72e32bfc7bf3?w=800&q=80",
-        "https://images.unsplash.com/photo-1552880816-c146d6251249?w=800&q=80",
-        "https://images.unsplash.com/photo-1629814234771-419b4c02222a?w=800&q=80",
-      ],
+      url: "https://images.unsplash.com/photo-1551887196-72e32bfc7bf3?w=800&q=80",
     },
     {
       id: 2,
-      title: "Galactic Gallop Classic",
-      count: 14,
+      title: "Abstract Waves",
+      type: "PNG",
+      size: "4.1 MB",
       date: "2024-02-28",
-      images: [
-        "https://images.unsplash.com/photo-1534068590799-09895a701e3e?w=800&q=80",
-        "https://images.unsplash.com/photo-1566897587198-d703b0c952b9?w=800&q=80",
-        "https://images.unsplash.com/photo-1537206140889-705b45281577?w=800&q=80",
-      ],
+      url: "https://images.unsplash.com/photo-1552880816-c146d6251249?w=800&q=80",
     },
     {
       id: 3,
-      title: "Enchanted Equine Extravaganza",
-      count: 56,
+      title: "Urban Architecture",
+      type: "WEBP",
+      size: "1.8 MB",
       date: "2024-01-10",
-      images: [
-        "https://images.unsplash.com/photo-1547035970-d2932152a553?w=800&q=80",
-        "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?w=800&q=80",
-        "https://images.unsplash.com/photo-1588056233519-5d259e836104?w=800&q=80",
-      ],
+      url: "https://images.unsplash.com/photo-1629814234771-419b4c02222a?w=800&q=80",
     },
     {
       id: 4,
-      title: "Celestial Sprint Showcase",
-      count: 53,
+      title: "Neon City",
+      type: "JPG",
+      size: "3.2 MB",
       date: "2023-12-05",
-      images: [
-        "https://images.unsplash.com/photo-1535585102741-1e66953a1f1e?w=800&q=80",
-        "https://images.unsplash.com/photo-1605218427368-35b0185e3362?w=800&q=80",
-        "https://images.unsplash.com/photo-1553285991-4c74211f269c?w=800&q=80",
-      ],
+      url: "https://images.unsplash.com/photo-1534068590799-09895a701e3e?w=800&q=80",
+    },
+    {
+      id: 5,
+      title: "Forest Mist",
+      type: "JPG",
+      size: "5.5 MB",
+      date: "2023-11-20",
+      url: "https://images.unsplash.com/photo-1566897587198-d703b0c952b9?w=800&q=80",
+    },
+    {
+      id: 6,
+      title: "Desert Dunes",
+      type: "JPG",
+      size: "2.1 MB",
+      date: "2023-10-15",
+      url: "https://images.unsplash.com/photo-1537206140889-705b45281577?w=800&q=80",
+    },
+    {
+      id: 7,
+      title: "Ocean Blue",
+      type: "PNG",
+      size: "6.7 MB",
+      date: "2023-09-01",
+      url: "https://images.unsplash.com/photo-1547035970-d2932152a553?w=800&q=80",
+    },
+    {
+      id: 8,
+      title: "Minimalist Interior",
+      type: "WEBP",
+      size: "1.5 MB",
+      date: "2023-08-12",
+      url: "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?w=800&q=80",
+    },
+    {
+      id: 9,
+      title: "Coffee Break",
+      type: "JPG",
+      size: "2.8 MB",
+      date: "2023-07-30",
+      url: "https://images.unsplash.com/photo-1588056233519-5d259e836104?w=800&q=80",
+    },
+    {
+      id: 10,
+      title: "Workspace Setup",
+      type: "JPG",
+      size: "3.9 MB",
+      date: "2023-07-15",
+      url: "https://images.unsplash.com/photo-1535585102741-1e66953a1f1e?w=800&q=80",
+    },
+    {
+      id: 11,
+      title: "Code Screen",
+      type: "PNG",
+      size: "1.2 MB",
+      date: "2023-06-20",
+      url: "https://images.unsplash.com/photo-1605218427368-35b0185e3362?w=800&q=80",
+    },
+    {
+      id: 12,
+      title: "Creative Studio",
+      type: "JPG",
+      size: "4.5 MB",
+      date: "2023-06-05",
+      url: "https://images.unsplash.com/photo-1553285991-4c74211f269c?w=800&q=80",
     },
   ]);
 
@@ -230,7 +282,7 @@ export default function MediaPage() {
               <Search className="w-4 h-4 text-gray-400 mr-2.5" />
               <input
                 type="text"
-                placeholder="Search collections..."
+                placeholder="Search media..."
                 className="bg-transparent border-none outline-none text-sm font-medium w-full text-gray-700 dark:text-gray-200 placeholder-gray-400"
               />
             </div>
@@ -270,7 +322,7 @@ export default function MediaPage() {
                      All Formats
                  </Button>
                  <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                    Showing <span className="text-gray-900 dark:text-white">4</span> albums
+                    Showing <span className="text-gray-900 dark:text-white">{images.length}</span> items
                  </div>
             </div>
             
@@ -304,19 +356,19 @@ export default function MediaPage() {
       {/* --- CONTENT GRID --- */}
       <main className="p-6 lg:p-10 max-w-[1920px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-          {albums.map((album) => (
+          {images.map((image) => (
             <motion.div
-              key={album.id}
+              key={image.id}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               whileHover={{ y: -8 }}
               className="group relative"
             >
               {/* Card Container */}
-              <div className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-2 shadow-sm border border-gray-100 dark:border-gray-800 group-hover:shadow-2xl group-hover:shadow-indigo-500/10 transition-all duration-500">
+              <div className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-2 shadow-sm border border-gray-100 dark:border-gray-800 group-hover:shadow-2xl group-hover:shadow-indigo-500/10 transition-all duration-500 h-full flex flex-col">
                 
-                {/* Collage Thumbnail */}
-                <div className="relative aspect-[4/3] rounded-[20px] overflow-hidden bg-gray-100 dark:bg-white/5 flex gap-0.5">
+                {/* Image Thumbnail */}
+                <div className="relative aspect-square rounded-[20px] overflow-hidden bg-gray-100 dark:bg-white/5">
                    
                     {/* Hover Overlay with Actions */}
                     <div className="absolute inset-0 z-20 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
@@ -332,7 +384,7 @@ export default function MediaPage() {
                              whileTap={{ scale: 0.95 }}
                              className="bg-white text-indigo-600 p-2.5 rounded-full shadow-lg"
                         >
-                            <Edit2 className="w-5 h-5" />
+                            <Crop className="w-5 h-5" />
                         </motion.button>
                         <motion.button 
                             whileHover={{ scale: 1.1 }}
@@ -343,35 +395,27 @@ export default function MediaPage() {
                         </motion.button>
                     </div>
 
-                    {/* Image Collage */}
-                    <div className="flex flex-col gap-0.5 w-7/12 h-full">
-                       <img src={album.images[0]} className="w-full h-full object-cover rounded-l-[16px]" alt="" />
-                    </div>
-                    <div className="flex flex-col gap-0.5 w-5/12 h-full">
-                       <div className="h-1/2 w-full"><img src={album.images[1]} className="w-full h-full object-cover rounded-tr-[16px]" alt="" /></div>
-                       <div className="h-1/2 w-full relative">
-                           <img src={album.images[2]} className="w-full h-full object-cover rounded-br-[16px]" alt="" />
-                           {/* Count Badge overlay on last image */}
-                           <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-br-[16px]">
-                               <span className="text-white font-bold text-lg">+{album.count}</span>
-                           </div>
-                       </div>
-                    </div>
+                    {/* Image */}
+                    <img 
+                        src={image.url} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                        alt={image.title} 
+                    />
                 </div>
 
-                {/* Album Details */}
-                <div className="p-4">
+                {/* Details */}
+                <div className="p-3">
                   <div className="flex justify-between items-start mb-1">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors line-clamp-1">
-                      {album.title}
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors line-clamp-1" title={image.title}>
+                      {image.title}
                     </h3>
                   </div>
                   <div className="flex items-center justify-between">
-                     <p className="text-sm font-medium text-gray-400 dark:text-gray-500">
-                        {album.count} items
+                     <p className="text-xs font-medium text-gray-400 dark:text-gray-500">
+                        {image.size}
                      </p>
-                     <span className="text-xs text-gray-300 dark:text-gray-600 bg-gray-50 dark:bg-white/5 px-2 py-1 rounded-md border border-gray-100 dark:border-gray-800">
-                        {album.date}
+                     <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-white/5 px-1.5 py-0.5 rounded uppercase border border-gray-100 dark:border-gray-800">
+                        {image.type}
                      </span>
                   </div>
                 </div>
