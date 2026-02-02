@@ -48,6 +48,7 @@ import CreateInvoicePage from "./pages/invoices/create";
 import SaleInvoiceDetailsPage from "./pages/invoices/[id]/details";
 import CreditNotesPage from "./pages/credit-notes";
 import CreateCreditNotePage from "./pages/credit-notes/create";
+import CreditNoteDetailsPage from "./pages/credit-notes/_id";
 import FraudPage from "./pages/fraud";
 import BannerPage from "./pages/banner";
 import CreateBannerPage from "./pages/banner/create";
@@ -296,6 +297,14 @@ export const routes = createBrowserRouter([
         element: (
           <PermissionRoute permission={FeaturePermission.ORDERS}>
             <CreateCreditNotePage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/credit-notes/:id",
+        element: (
+          <PermissionRoute permission={FeaturePermission.ORDERS}>
+            <CreditNoteDetailsPage />
           </PermissionRoute>
         ),
       },
