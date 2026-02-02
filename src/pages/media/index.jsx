@@ -1,327 +1,458 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { 
-  Upload, 
-  Download, 
-  FolderPlus, 
-  Filter, 
-  LayoutGrid, 
-  List, 
-  Search, 
-  MoreVertical,
-  Scissors,
-  Copy,
+import {
+  Globe,
+  Grid,
+  Menu,
+  ChevronDown,
+  Search,
+  Upload,
+  Image as ImageIcon,
+  Crop,
   Check,
-  X,
-  RefreshCw
+  Copy,
+  Plus,
+  Loader2,
+  Sparkles,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "react-hot-toast";
+import { Button } from "../../components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "../../components/ui/dialog";
 
 /**
  * Media Library Page
- * High-fidelity file manager for product images and assets.
+ * Premium Album/Collection View with Upload & Crop
  */
 export default function MediaPage() {
   const { t } = useTranslation();
-  const [viewMode, setViewMode] = useState("grid"); // grid | list
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
-  const [cropArea, setCropArea] = useState({ x: 10, y: 10, width: 80, height: 80 });
+  const [viewMode, setViewMode] = useState("grid");
 
-  // Mock initial data
-  const [files, setFiles] = useState([
-    { id: 1, name: "Lily's Kitchen Puppy", url: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&auto=format&fit=crop", size: "1.2 MB", type: "image/png" },
-    { id: 2, name: "Edgard Cooper Lamb & Beef", url: "https://images.unsplash.com/photo-1589924691995-400dc9ecc109?w=800&auto=format&fit=crop", size: "850 KB", type: "image/jpeg" },
-    { id: 3, name: "Healthy Chuu Snack", url: "https://images.unsplash.com/photo-1591768793355-74d7c80b0e9c?w=800&auto=format&fit=crop", size: "2.1 MB", type: "image/png" },
-    { id: 4, name: "Purina Beneful Hugs", url: "https://images.unsplash.com/photo-1585837505235-ce2115591395?w=800&auto=format&fit=crop", size: "1.5 MB", type: "image/jpeg" },
-    { id: 5, name: "Halo Purely For Pets", url: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&auto=format&fit=crop", size: "3.4 MB", type: "image/png" },
-    { id: 6, name: "Best Grain Free Dry Dog", url: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?w=800&auto=format&fit=crop", size: "920 KB", type: "image/jpeg" },
-    { id: 7, name: "Innovative Pet Food", url: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=800&auto=format&fit=crop", size: "1.8 MB", type: "image/png" },
-    { id: 8, name: "Arden Grange Adult", url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&auto=format&fit=crop", size: "2.6 MB", type: "image/jpeg" },
+  // --- Upload Modal State ---
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [uploadStep, setUploadStep] = useState("select"); // select, crop, result
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [zoom, setZoom] = useState(1);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [generatedUrl, setGeneratedUrl] = useState(null);
+  const canvasRef = useRef(null);
+  const imageRef = useRef(null);
+
+  // Mock Album Data
+  const [albums] = useState([
+    {
+      id: 1,
+      title: "The Japan Cup",
+      count: 34,
+      images: [
+        "https://images.unsplash.com/photo-1551887196-72e32bfc7bf3?w=800&q=80",
+        "https://images.unsplash.com/photo-1552880816-c146d6251249?w=800&q=80",
+        "https://images.unsplash.com/photo-1629814234771-419b4c02222a?w=800&q=80",
+      ],
+    },
+    {
+      id: 2,
+      title: "Galactic Gallop Classic",
+      count: 14,
+      images: [
+        "https://images.unsplash.com/photo-1534068590799-09895a701e3e?w=800&q=80",
+        "https://images.unsplash.com/photo-1566897587198-d703b0c952b9?w=800&q=80",
+        "https://images.unsplash.com/photo-1537206140889-705b45281577?w=800&q=80",
+      ],
+    },
+    {
+      id: 3,
+      title: "Enchanted Equine Extravaganza",
+      count: 56,
+      images: [
+        "https://images.unsplash.com/photo-1547035970-d2932152a553?w=800&q=80",
+        "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?w=800&q=80",
+        "https://images.unsplash.com/photo-1588056233519-5d259e836104?w=800&q=80",
+      ],
+    },
+    {
+      id: 4,
+      title: "Celestial Sprint Showcase",
+      count: 53,
+      images: [
+        "https://images.unsplash.com/photo-1535585102741-1e66953a1f1e?w=800&q=80",
+        "https://images.unsplash.com/photo-1605218427368-35b0185e3362?w=800&q=80",
+        "https://images.unsplash.com/photo-1553285991-4c74211f269c?w=800&q=80",
+      ],
+    },
   ]);
 
-  const handleUpload = (e) => {
-    const file = e.target.files[0];
+  // Reset state when modal closes
+  const handleCloseModal = () => {
+    setIsUploadOpen(false);
+    setTimeout(() => {
+      setUploadStep("select");
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      setGeneratedUrl(null);
+      setZoom(1);
+      setIsProcessing(false);
+    }, 300);
+  };
+
+  // Handle File Selection
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
     if (file) {
-      const newFile = {
-        id: files.length + 1,
-        name: file.name.split('.')[0],
-        url: URL.createObjectURL(file),
-        size: (file.size / 1024 / 1024).toFixed(1) + " MB",
-        type: file.type
-      };
-      setFiles([newFile, ...files]);
-      toast.success("Image uploaded successfully!");
+      setSelectedFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      setUploadStep("crop");
     }
   };
 
-  const copyUrl = (url) => {
-    navigator.clipboard.writeText(url);
-    toast.success("Image URL copied to clipboard!");
+  // Handle Crop & Generate (Simulated)
+  const handleCropAndGenerate = async () => {
+    setIsProcessing(true);
+
+    // 1. Simulate Cropping (Draw to Canvas)
+    if (imageRef.current && canvasRef.current) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+      const img = imageRef.current;
+
+      // Set canvas size (e.g., square crop)
+      const size = 600;
+      canvas.width = size;
+      canvas.height = size;
+
+      // Draw image centered and zoomed
+      // Basic implementation: Source Center -> Destination Center
+      const sWidth = img.naturalWidth;
+      const sHeight = img.naturalHeight;
+      const sMin = Math.min(sWidth, sHeight);
+
+      // Calculate source crop area based on zoom
+      // Zoom 1 = Full shortest side visible
+      // Zoom 2 = Half of shortest side visible
+      const cropSize = sMin / zoom;
+      const sx = (sWidth - cropSize) / 2;
+      const sy = (sHeight - cropSize) / 2;
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, size, size);
+
+      // Draw
+      ctx.drawImage(img, sx, sy, cropSize, cropSize, 0, 0, size, size);
+    }
+
+    // 2. Simulate Network Request
+    setTimeout(() => {
+      const mockId = Math.random().toString(36).substring(7);
+      const mockUrl = `https://cdn.squadcart.com/media/uploads/img_${mockId}_optimized.jpg`;
+      setGeneratedUrl(mockUrl);
+      setUploadStep("result");
+      setIsProcessing(false);
+    }, 1500);
   };
 
-  const openCrop = (file) => {
-    setSelectedImage(file);
-    setIsCropModalOpen(true);
-  };
-
-  const handleCropSave = () => {
-    setIsCropModalOpen(false);
-    toast.success("Image cropped and saved!");
+  // Copy to Clipboard
+  const handleCopyUrl = () => {
+    if (generatedUrl) {
+      navigator.clipboard.writeText(generatedUrl);
+      // Optional: Toast notification could be added here
+    }
   };
 
   return (
-    <div className="p-6 lg:p-10 bg-white dark:bg-[#0b0f14] min-h-screen font-sans">
-      
-      {/* --- HEADER --- */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12">
-        <h1 className="text-4xl font-extrabold text-[#0b121e] dark:text-white tracking-tight">Media Library</h1>
-        
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2.5 text-xs font-bold text-[#0b121e]/60 dark:text-white/40">
-            <span>Last Sync</span>
-            <RefreshCw className="w-3.5 h-3.5 text-blue-500 cursor-pointer" />
+    <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0b0f14] font-sans">
+      {/* --- PREMIUM HEADER --- */}
+      <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#0b0f14]/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 px-6 lg:px-10 py-4 transition-all duration-300">
+        <div className="flex items-center justify-between">
+          {/* Left: Global Dropdown */}
+          <div className="flex items-center gap-1 group cursor-pointer">
+            <Globe className="w-5 h-5 text-[#5347CE]" />
+            <span className="text-base font-bold text-[#5347CE]">Global</span>
+            <ChevronDown className="w-4 h-4 text-[#5347CE] transition-transform group-hover:rotate-180" />
           </div>
-          <div className="bg-gray-50 dark:bg-white/5 py-3 px-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm text-sm font-bold text-[#0b121e] dark:text-white">
-             {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-          </div>
-        </div>
-      </div>
 
-      {/* --- TOOLBAR --- */}
-      <div className="bg-gray-50/50 dark:bg-[#1a1f26]/40 p-3 rounded-[24px] border border-gray-100 dark:border-gray-800 flex flex-col md:flex-row gap-4 items-center justify-between mb-8">
-        <div className="flex items-center gap-2">
-          <label className="cursor-pointer">
-            <input type="file" className="hidden" onChange={handleUpload} accept="image/*" />
-            <div className="bg-white dark:bg-[#0b0f14] border border-gray-200 dark:border-gray-700 h-12 px-6 rounded-2xl flex items-center gap-2 text-sm font-bold hover:shadow-lg transition-all active:scale-95">
-              <Upload className="w-4 h-4 text-blue-500" />
-              Upload
+          {/* Right: Actions */}
+          <div className="flex items-center gap-4">
+            {/* Upload Button */}
+            <Button
+              onClick={() => setIsUploadOpen(true)}
+              className="hidden sm:flex bg-gradient-to-r from-[#5347CE] to-[#16C8C7] hover:opacity-90 text-white rounded-full px-6 shadow-lg shadow-[#5347CE]/20 transition-all duration-300 transform hover:scale-105"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Upload Media
+            </Button>
+
+            <div className="hidden md:flex items-center bg-gray-100 dark:bg-white/5 rounded-full px-4 py-2 border border-transparent focus-within:border-[#5347CE]/20 transition-all">
+              <Search className="w-4 h-4 text-gray-400 mr-2" />
+              <input
+                type="text"
+                placeholder="Search albums..."
+                className="bg-transparent border-none outline-none text-sm font-medium w-32 lg:w-48 text-gray-700 dark:text-gray-200"
+              />
             </div>
-          </label>
-          <Button variant="ghost" className="h-12 px-6 rounded-2xl gap-2 font-bold dark:hover:bg-white/5">
-            <Download className="w-4 h-4 text-gray-400 text-teal-500" />
-            Download
-          </Button>
-          <Button variant="ghost" className="h-12 px-6 rounded-2xl gap-2 font-bold dark:hover:bg-white/5">
-            <FolderPlus className="w-4 h-4 text-orange-500" />
-            Create folder
-          </Button>
-        </div>
 
-        <div className="flex items-center gap-4 w-full md:w-auto">
-          <div className="relative flex-1 md:w-64">
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Search assets..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-12 pl-6 pr-12 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0b0f14] outline-none text-sm font-medium focus:ring-2 focus:ring-blue-500/10" 
-            />
-          </div>
-          <div className="h-12 w-px bg-gray-200 dark:bg-gray-700 hidden md:block" />
-          <div className="flex items-center gap-1 bg-white dark:bg-[#0b0f14] p-1 rounded-xl border border-gray-200 dark:border-gray-700">
-             <button 
-               onClick={() => setViewMode("grid")}
-               className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600" : "text-gray-400 hover:text-gray-600"}`}
-             >
-                <LayoutGrid className="w-4 h-4" />
-             </button>
-             <button 
-               onClick={() => setViewMode("list")}
-               className={`p-2 rounded-lg transition-colors ${viewMode === "list" ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600" : "text-gray-400 hover:text-gray-600"}`}
-             >
-                <List className="w-4 h-4" />
-             </button>
+            <div className="flex items-center gap-2">
+              <button className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 text-[#5347CE] border border-[#5347CE]/20 bg-[#5347CE]/5 transition-colors">
+                <Grid className="w-5 h-5" />
+              </button>
+              <button className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 text-gray-400 dark:text-gray-500 transition-colors">
+                <Menu className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* --- CONTENT --- */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between px-2">
-           <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest">Files</h2>
-           <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-xs font-bold text-gray-400 cursor-pointer hover:text-blue-500 transition-colors">
-                 Sort <Filter className="w-3 h-3" />
+      {/* --- CONTENT GRID --- */}
+      <main className="p-6 lg:p-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {albums.map((album) => (
+            <motion.div
+              key={album.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -5 }}
+              className="group cursor-pointer"
+            >
+              {/* Collage Thumbnail */}
+              <div className="aspect-[4/3] rounded-[24px] overflow-hidden bg-white dark:bg-white/5 p-1 flex gap-1 shadow-sm group-hover:shadow-2xl shadow-[#5347CE]/10 transition-all duration-500 border border-gray-100 dark:border-white/5">
+                {/* Left Column (2 Stacked) */}
+                <div className="flex flex-col gap-1 w-1/2">
+                  <div className="h-1/2 w-full rounded-[16px] overflow-hidden">
+                    <img
+                      src={album.images[0]}
+                      alt=""
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                  </div>
+                  <div className="h-1/2 w-full rounded-[16px] overflow-hidden relative">
+                    <img
+                      src={album.images[1]}
+                      alt=""
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                  </div>
+                </div>
+
+                {/* Right Column (1 Large) */}
+                <div className="w-1/2 rounded-[16px] overflow-hidden">
+                  <img
+                    src={album.images[2]}
+                    alt=""
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                </div>
               </div>
-           </div>
+
+              {/* Album Details */}
+              <div className="mt-4 px-1">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 dark:text-white group-hover:text-[#5347CE] transition-colors">
+                      {album.title}
+                    </h3>
+                    <p className="text-sm font-medium text-gray-400 mt-0.5">
+                      {album.count} Photos
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
+      </main>
 
-        {viewMode === "grid" ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {files.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase())).map((file) => (
-              <motion.div 
-                key={file.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ y: -5 }}
-                className="group relative bg-gray-50/50 dark:bg-[#1a1f26]/20 rounded-[32px] p-4 border border-gray-100 dark:border-gray-800 transition-all cursor-pointer"
-              >
-                <div className="aspect-square rounded-[24px] overflow-hidden bg-white mb-4 relative shadow-sm">
-                   <img src={file.url} alt={file.name} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700" />
-                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); openCrop(file); }}
-                        className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#0b121e] hover:scale-110 active:scale-95 transition-all shadow-xl"
-                        title="Crop Image"
-                      >
-                         <Scissors className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); copyUrl(file.url); }}
-                        className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#0b121e] hover:scale-110 active:scale-95 transition-all shadow-xl"
-                        title="Copy URL"
-                      >
-                         <Copy className="w-4 h-4" />
-                      </button>
-                   </div>
-                </div>
-                <div className="px-2 space-y-1">
-                   <h3 className="text-xs font-black text-[#0b121e] dark:text-white truncate">{file.name}</h3>
-                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{file.size}</p>
-                </div>
-              </motion.div>
-            ))}
+      {/* --- UPLOAD & CROP MODAL --- */}
+      <Dialog open={isUploadOpen} onOpenChange={handleCloseModal}>
+        <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden bg-white dark:bg-[#1a1f26] border-gray-100 dark:border-gray-800 rounded-3xl">
+          {/* Header */}
+          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
+            <DialogTitle className="text-lg font-bold flex items-center gap-2">
+              {uploadStep === "select" && (
+                <>
+                  <Upload className="w-5 h-5 text-[#5347CE]" /> Upload Media
+                </>
+              )}
+              {uploadStep === "crop" && (
+                <>
+                  <Crop className="w-5 h-5 text-[#5347CE]" /> Edit & Crop
+                </>
+              )}
+              {uploadStep === "result" && (
+                <>
+                  <Sparkles className="w-5 h-5 text-[#5347CE]" /> Ready to Use
+                </>
+              )}
+            </DialogTitle>
           </div>
-        ) : (
-          <div className="bg-white dark:bg-[#1a1f26]/40 rounded-[32px] border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm">
-            <table className="w-full">
-               <thead className="bg-gray-50/50 dark:bg-white/5">
-                  <tr className="text-[10px] uppercase font-black text-gray-400 border-b border-gray-100 dark:border-gray-800">
-                     <th className="px-8 py-5 text-left">Name</th>
-                     <th className="px-8 py-5 text-left">Size</th>
-                     <th className="px-8 py-5 text-left">Type</th>
-                     <th className="px-8 py-5 text-right">Actions</th>
-                  </tr>
-               </thead>
-               <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-                  {files.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase())).map((file) => (
-                    <tr key={file.id} className="group hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
-                       <td className="px-8 py-5">
-                          <div className="flex items-center gap-4">
-                             <div className="w-12 h-12 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800">
-                                <img src={file.url} className="w-full h-full object-cover" />
-                             </div>
-                             <span className="text-sm font-bold text-[#0b121e] dark:text-white">{file.name}</span>
-                          </div>
-                       </td>
-                       <td className="px-8 py-5 text-xs font-bold text-gray-400 tracking-widest">{file.size}</td>
-                       <td className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">{file.type.split('/')[1]}</td>
-                       <td className="px-8 py-5 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                             <Button onClick={() => openCrop(file)} variant="ghost" size="icon" className="h-9 w-9 rounded-lg"><Scissors className="w-4 h-4" /></Button>
-                             <Button onClick={() => copyUrl(file.url)} variant="ghost" size="icon" className="h-9 w-9 rounded-lg"><Copy className="w-4 h-4" /></Button>
-                             <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg"><MoreVertical className="w-4 h-4" /></Button>
-                          </div>
-                       </td>
-                    </tr>
-                  ))}
-               </tbody>
-            </table>
-          </div>
-        )}
-      </div>
 
-      {/* --- CROP MODAL --- */}
-      <AnimatePresence>
-        {isCropModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-             <motion.div 
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               exit={{ opacity: 0 }}
-               className="absolute inset-0 bg-[#0b121e]/80 backdrop-blur-md" 
-               onClick={() => setIsCropModalOpen(false)}
-             />
-             <motion.div 
-               initial={{ opacity: 0, scale: 0.9, y: 20 }}
-               animate={{ opacity: 1, scale: 1, y: 0 }}
-               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-               className="relative w-full max-w-2xl bg-white dark:bg-[#1a1f26] rounded-[40px] shadow-2xl p-10 overflow-hidden"
-             >
-                <div className="flex justify-between items-center mb-10">
-                   <div className="space-y-1">
-                      <h2 className="text-2xl font-black text-[#0b121e] dark:text-white tracking-tight">Crop Your Image</h2>
-                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Adjust the selection box to resize</p>
-                   </div>
-                   <button onClick={() => setIsCropModalOpen(false)} className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 hover:text-[#0b121e] dark:hover:text-white transition-colors">
-                      <X className="w-5 h-5" />
-                   </button>
-                </div>
+          {/* Body */}
+          <div className="p-6">
+            <AnimatePresence mode="wait">
+              {/* Step 1: Select File */}
+              {uploadStep === "select" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-10 bg-gray-50 dark:bg-black/20 hover:bg-[#5347CE]/5 dark:hover:bg-[#5347CE]/10 hover:border-[#5347CE]/30 transition-all cursor-pointer group"
+                >
+                  <input
+                    type="file"
+                    className="hidden"
+                    id="file-upload"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                  />
+                  <label
+                    htmlFor="file-upload"
+                    className="flex flex-col items-center cursor-pointer w-full h-full"
+                  >
+                    <div className="w-16 h-16 rounded-full bg-[#5347CE]/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <ImageIcon className="w-8 h-8 text-[#5347CE]" />
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                      Drag & Drop or Click to Upload
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Support for JPG, PNG, WEBP
+                    </p>
+                  </label>
+                </motion.div>
+              )}
 
-                <div className="relative aspect-video bg-gray-100 dark:bg-[#0b0f14] rounded-3xl overflow-hidden mb-12 flex items-center justify-center border-2 border-dashed border-gray-200 dark:border-gray-800">
-                   {selectedImage && (
-                     <>
-                       <img src={selectedImage.url} alt="Crop preview" className="max-h-full max-w-full opacity-40 select-none" />
-                       <div 
-                         className="absolute border-2 border-blue-500 shadow-[0_0_0_9999px_rgba(0,0,0,0.4)] cursor-move"
-                         style={{ 
-                           left: `${cropArea.x}%`, 
-                           top: `${cropArea.y}%`, 
-                           width: `${cropArea.width}%`, 
-                           height: `${cropArea.height}%` 
-                         }}
-                       >
-                          {/* Resizing handles */}
-                          <div className="absolute top-0 left-0 w-3 h-3 bg-blue-500 -translate-x-1/2 -translate-y-1/2 rounded-full" />
-                          <div className="absolute top-0 right-0 w-3 h-3 bg-blue-500 translate-x-1/2 -translate-y-1/2 rounded-full" />
-                          <div className="absolute bottom-0 left-0 w-3 h-3 bg-blue-500 -translate-x-1/2 translate-y-1/2 rounded-full" />
-                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-blue-500 translate-x-1/2 translate-y-1/2 rounded-full" />
-                          {/* Decorative Grid */}
-                          <div className="w-full h-full grid grid-cols-3 grid-rows-3 opacity-30">
-                             {Array.from({ length: 9 }).map((_, i) => <div key={i} className="border-[0.5px] border-white/50" />)}
-                          </div>
-                          
-                          <div className="absolute inset-0 overflow-hidden">
-                             <img 
-                               src={selectedImage.url} 
-                               className="absolute max-w-none" 
-                               style={{ 
-                                 width: `${10000 / cropArea.width}%`,
-                                 height: `${10000 / cropArea.height}%`,
-                                 left: `${-cropArea.x * (100 / cropArea.width)}%`,
-                                 top: `${-cropArea.y * (100 / cropArea.height)}%`,
-                                 clipPath: 'content-box'
-                               }} 
-                             />
-                          </div>
-                       </div>
-                     </>
-                   )}
-                </div>
+              {/* Step 2: Crop & Edit */}
+              {uploadStep === "crop" && previewUrl && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-6"
+                >
+                  {/* Crop Area */}
+                  <div className="relative w-full aspect-square bg-black/5 dark:bg-black/50 rounded-xl overflow-hidden flex items-center justify-center border border-gray-100 dark:border-gray-800">
+                    {/* Grid Overlay */}
+                    <div className="absolute inset-0 pointer-events-none z-10 grid grid-cols-3 grid-rows-3 opacity-30">
+                      {[...Array(9)].map((_, i) => (
+                        <div key={i} className="border border-white/50"></div>
+                      ))}
+                    </div>
 
-                <div className="flex flex-col sm:flex-row gap-4">
-                   <Button 
-                     onClick={() => setIsCropModalOpen(false)}
-                     variant="ghost" 
-                     className="flex-1 h-14 rounded-2xl font-black text-[#0b121e] dark:text-white bg-gray-50 dark:bg-white/5 hover:bg-gray-100"
-                   >
+                    {/* Image */}
+                    <img
+                      ref={imageRef}
+                      src={previewUrl}
+                      alt="Crop Preview"
+                      className="max-w-none transition-transform duration-200"
+                      style={{
+                        transform: `scale(${zoom})`,
+                        maxHeight: "100%",
+                        maxWidth: "100%",
+                      }}
+                    />
+
+                    {/* Hidden Canvas for Processing */}
+                    <canvas ref={canvasRef} className="hidden" />
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm font-medium text-gray-500">
+                      <span>Zoom</span>
+                      <span>{Math.round(zoom * 100)}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="1"
+                      max="3"
+                      step="0.1"
+                      value={zoom}
+                      onChange={(e) => setZoom(parseFloat(e.target.value))}
+                      className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#5347CE]"
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setUploadStep("select")}
+                    >
                       Cancel
-                   </Button>
-                   <Button 
-                     onClick={handleCropSave}
-                     className="flex-1 h-14 rounded-2xl font-black bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2"
-                   >
-                      <Check className="w-5 h-5" />
-                      Save Cropped Image
-                   </Button>
-                </div>
-             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+                    </Button>
+                    <Button
+                      onClick={handleCropAndGenerate}
+                      disabled={isProcessing}
+                      className="bg-gradient-to-r from-[#5347CE] to-[#16C8C7] hover:opacity-90 text-white min-w-[120px]"
+                    >
+                      {isProcessing ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <Crop className="w-4 h-4 mr-2" />
+                      )}
+                      {isProcessing ? "Processing..." : "Crop & Save"}
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
 
-      <footer className="mt-20 pt-8 border-t border-gray-50 dark:border-gray-800 flex justify-between items-center text-[10px] text-gray-400 font-black uppercase tracking-widest">
-         <span>SquadCart Asset Manager v1.0</span>
-         <div className="flex items-center gap-2">
-            <span>Powered by</span>
-            <span className="text-[#0066ff]">Kanakku Engine</span>
-         </div>
-      </footer>
+              {/* Step 3: Result */}
+              {uploadStep === "result" && generatedUrl && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex flex-col items-center text-center space-y-6 py-4"
+                >
+                  <div className="w-20 h-20 rounded-full bg-[#16C8C7]/10 flex items-center justify-center">
+                    <Check className="w-10 h-10 text-[#16C8C7]" />
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      Image Generated Successfully!
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm max-w-xs mx-auto">
+                      Your image has been cropped, optimized, and is ready to
+                      use.
+                    </p>
+                  </div>
+
+                  <div className="w-full bg-gray-50 dark:bg-black/30 p-4 rounded-xl border border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                    <div className="flex-1 text-left overflow-hidden">
+                      <p className="text-xs text-gray-400 font-bold uppercase mb-1">
+                        Generated URL
+                      </p>
+                      <p className="text-sm font-medium text-[#16C8C7] truncate">
+                        {generatedUrl}
+                      </p>
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      onClick={handleCopyUrl}
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  <Button
+                    className="w-full bg-gray-900 dark:bg-white dark:text-black text-white"
+                    onClick={handleCloseModal}
+                  >
+                    Done
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

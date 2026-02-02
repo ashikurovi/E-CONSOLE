@@ -1,242 +1,397 @@
-import React from "react";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { format } from "date-fns";
-import { 
-  RefreshCw, 
-  Clock, 
-  TrendingUp, 
-  TrendingDown, 
-  Plus, 
-  Minus, 
-  MapPin,
-  Circle
+import {
+  Search,
+  Bell,
+  User,
+  Wallet,
+  ShoppingBag,
+  Users,
+  MoreHorizontal,
+  Wifi,
+  MoreVertical,
 } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
 import { motion } from "framer-motion";
+import { useGetStatisticsQuery } from "@/features/dashboard/dashboardApiSlice";
 
 /**
  * StatisticsPage Component
- * A premium dashboard showing income statistics and a stylized world map.
+ * Redesigned to match the "Finexa" reference dashboard.
  */
 export default function StatisticsPage() {
   const { t } = useTranslation();
+  const authUser = useSelector((s) => s?.auth?.user);
+  const { data: statsData } = useGetStatisticsQuery(
+    { companyId: authUser?.companyId },
+    { skip: !authUser?.companyId }
+  );
 
-  const incomeData = [
-    { year: 2022, customers: "3,234", trend: "10%", revenue: "$124k", trendDir: "up" },
-    { year: 2023, customers: "12,345", trend: "35%", revenue: "$32k", trendDir: "up" },
+  // --- MOCK DATA ---
+
+  // Chart Data
+  const chartData = [
+    { name: "Mon", earning: 180, sells: 100, visit: 150 },
+    { name: "Tue", earning: 220, sells: 140, visit: 230 },
+    { name: "Wed", earning: 280, sells: 180, visit: 250 },
+    { name: "Thu", earning: 320, sells: 240, visit: 180 },
+    { name: "Fri", earning: 380, sells: 200, visit: 320 },
+    { name: "Sat", earning: 250, sells: 160, visit: 210 },
+    { name: "Sun", earning: 300, sells: 220, visit: 280 },
   ];
 
-  const cityProgress = [
-    { city: "New York", amount: "$123k", color: "bg-[#0ac9a3]", width: "85%" },
-    { city: "Los Angeles", amount: "$89k", color: "bg-[#0b121e]", width: "70%" },
-    { city: "Houston", amount: "$67k", color: "bg-[#ff5d6d]", width: "60%" },
-    { city: "Dallas", amount: "$23k", color: "bg-[#0ac9a3]", width: "45%" },
-    { city: "Madrid", amount: "$10k", color: "bg-[#0b121e]", width: "30%" },
-    { city: "Chicago", amount: "$5k", color: "bg-[#ff5d6d]", width: "20%" },
+  // Country Stats
+  const countryStats = [
+    { country: "Canada", users: "55,520", flag: "🇨🇦" },
+    { country: "Japan", users: "45,240", flag: "🇯🇵" },
+    { country: "USA", users: "24,320", flag: "🇺🇸" },
+    { country: "New zealand", users: "13,550", flag: "🇳🇿" },
+    { country: "India", users: "11,000", flag: "🇮🇳" },
+    { country: "Germany", users: "9,450", flag: "🇩🇪" },
+    { country: "Denmark", users: "7,325", flag: "🇩🇰" },
   ];
 
-  // Helper for generating dots for the map (pseudo-randomized for a stylized look)
-  const dots = Array.from({ length: 600 }).map((_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: Math.random() * 1.5 + 1
-  }));
+  // Top Client Data
+  const paymentData = [
+    {
+      id: 1,
+      name: "Jerome Bell",
+      email: "jeromebell@gmail.com",
+      contact: "+91 95256 32957",
+      product: "Payment page",
+      amount: "$ 6,956",
+      avatar: "https://i.pravatar.cc/150?u=1",
+    },
+    {
+      id: 2,
+      name: "Dianne Russell",
+      email: "diannerussell@gmail.com",
+      contact: "+91 85246 96352",
+      product: "Payment page",
+      amount: "$ 2,125",
+      avatar: "https://i.pravatar.cc/150?u=2",
+    },
+    {
+      id: 3,
+      name: "Jenny Wilson",
+      email: "jennywilson@gmail.com",
+      contact: "+91 65854 96298",
+      product: "Payment page",
+      amount: "$ 9,382",
+      avatar: "https://i.pravatar.cc/150?u=3",
+    },
+    {
+      id: 4,
+      name: "Ralph Edwards",
+      email: "ralphedwards@gmail.com",
+      contact: "+91 75254 96268",
+      product: "Payment page",
+      amount: "$ 3,790",
+      avatar: "https://i.pravatar.cc/150?u=4",
+    },
+  ];
 
-  const markers = [
-    { x: 25, y: 35, color: "bg-[#0ac9a3]", city: "New York", amount: "$123k", active: true },
-    { x: 38, y: 30, color: "bg-[#ff5d6d]", city: "Chicago", amount: "$45k" },
-    { x: 45, y: 20, color: "bg-[#ff5d6d]" },
-    { x: 50, y: 40, color: "bg-[#0ac9a3]" },
-    { x: 75, y: 45, color: "bg-[#0b121e]" },
-    { x: 18, y: 55, color: "bg-[#0b121e]" },
+  // Map Dots Generation
+  // Using a static seed-like generation for consistency
+  const generateDots = () => {
+    const dots = [];
+    for (let i = 0; i < 400; i++) {
+      dots.push({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() > 0.9 ? 2 : 1.5,
+        opacity: Math.random() * 0.3 + 0.1,
+      });
+    }
+    return dots;
+  };
+  const dots = React.useMemo(() => generateDots(), []);
+
+  // Map Connections (Simulated)
+  const connections = [
+    { x1: 20, y1: 30, x2: 45, y2: 35 }, // NA to Europe
+    { x1: 45, y1: 35, x2: 75, y2: 40 }, // Europe to Asia
+    { x1: 20, y1: 30, x2: 25, y2: 60 }, // NA to SA
+    { x1: 45, y1: 35, x2: 50, y2: 65 }, // Europe to Africa
+    { x1: 75, y1: 40, x2: 80, y2: 70 }, // Asia to Aus
   ];
 
   return (
-    <div className="p-6 lg:p-10 bg-white dark:bg-[#0b0f14] min-h-screen font-sans">
-      
-      {/* --- HEADER --- */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12">
-        <h1 className="text-4xl font-extrabold text-[#0b121e] dark:text-white tracking-tight">Statistics</h1>
-        
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2.5 text-xs font-bold text-[#0b121e]/60 dark:text-white/40">
-            <span>Data Refreshed</span>
-            <RefreshCw className="w-3.5 h-3.5 text-blue-500 cursor-pointer" />
+    <div className="p-4 md:p-8  dark:bg-[#0b0f14] min-h-screen font-sans text-[#1A1A1A] dark:text-white">
+      {/* --- MIDDLE ROW: Charts & Map --- */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+        {/* Statistics Chart */}
+        <div className="bg-white dark:bg-[#1a1f26] rounded-[32px] p-8 shadow-sm">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-xl font-bold">Statistic</h2>
+            <div className="flex items-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#8B5CF6]"></div>
+                <span className="font-medium text-gray-500">Earning</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#F59E0B]"></div>
+                <span className="font-medium text-gray-500">Sells</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#14B8A6]"></div>
+                <span className="font-medium text-gray-500">Visit</span>
+              </div>
+            </div>
           </div>
-          <div className="bg-gray-50 dark:bg-white/5 py-3 px-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm text-sm font-bold text-[#0b121e] dark:text-white">
-            {format(new Date(), "MMMM dd, yyyy hh:mm a")}
+
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} barGap={8}>
+                <CartesianGrid
+                  vertical={false}
+                  stroke="#E5E7EB"
+                  strokeDasharray="0"
+                />
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#9CA3AF", fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#9CA3AF", fontSize: 12 }}
+                  tickFormatter={(value) =>
+                    `${value >= 1000 ? value / 1000 + "k" : value}`
+                  }
+                />
+                <Tooltip
+                  cursor={{ fill: "rgba(0,0,0,0.03)" }}
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "none",
+                    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                  }}
+                />
+                <Bar
+                  dataKey="earning"
+                  fill="#8B5CF6"
+                  radius={[4, 4, 4, 4]}
+                  barSize={8}
+                />
+                <Bar
+                  dataKey="sells"
+                  fill="#F59E0B"
+                  radius={[4, 4, 4, 4]}
+                  barSize={8}
+                />
+                <Bar
+                  dataKey="visit"
+                  fill="#14B8A6"
+                  radius={[4, 4, 4, 4]}
+                  barSize={8}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-10">
-        
-        {/* --- LEFT PANEL: Tables & Stats --- */}
-        <div className="xl:col-span-1 space-y-12">
-          
-          {/* General Income Statistics Table */}
-          <div className="space-y-6">
-            <h2 className="text-lg font-black text-[#0b121e] dark:text-white">General Income Statistics</h2>
-            <div className="w-full">
-              <table className="w-full">
-                <thead>
-                  <tr className="text-[10px] uppercase tracking-widest text-gray-400 font-black border-b border-gray-50 dark:border-gray-800">
-                    <th className="text-left pb-4">Year</th>
-                    <th className="text-left pb-4">Customers</th>
-                    <th className="text-left pb-4">Trend</th>
-                    <th className="text-right pb-4">Revenue</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-                  {incomeData.map((row) => (
-                    <tr key={row.year} className="text-xs font-bold text-[#0b121e] dark:text-white group">
-                      <td className="py-5">{row.year}</td>
-                      <td className="py-5">{row.customers}</td>
-                      <td className="py-5 flex items-center gap-1.5">
-                        {row.trend}
-                        {row.trendDir === "up" ? <TrendingUp className="w-3 h-3 text-emerald-500" /> : <TrendingDown className="w-3 h-3 text-rose-500" />}
-                      </td>
-                      <td className="py-5 text-right">{row.revenue}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {/* Live Statistics Map */}
+        <div className="bg-white dark:bg-[#1a1f26] rounded-[32px] p-8 shadow-sm grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Map Area */}
+          <div className="lg:col-span-2 relative min-h-[300px] bg-[#F8F9FB] dark:bg-black/20 rounded-2xl overflow-hidden flex items-center justify-center">
+            <h2 className="absolute top-6 left-6 text-xl font-bold z-10">
+              Live Statistics
+            </h2>
+
+            {/* Dots Map Background */}
+            <div className="absolute inset-0">
+              {dots.map((dot) => (
+                <div
+                  key={dot.id}
+                  className="absolute rounded-full bg-[#D1D5DB] dark:bg-gray-700"
+                  style={{
+                    left: `${dot.x}%`,
+                    top: `${dot.y}%`,
+                    width: `${dot.size}px`,
+                    height: `${dot.size}px`,
+                    opacity: dot.opacity,
+                  }}
+                />
+              ))}
             </div>
-          </div>
 
-          {/* Total Income Card */}
-          <div className="bg-[#0066ff] rounded-[32px] p-8 text-white shadow-2xl shadow-blue-500/20 relative overflow-hidden group">
-            <div className="flex items-center gap-4 relative z-10">
-              <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
-                <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2L3 7l9 5 9-5-9-5zm0 13l-9-5 9 5 9-5-9 5zm0 5l-9-5 9 5 9-5-9 5z" />
-                </svg>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-3xl font-black tracking-tight">$923k</span>
-                <span className="text-[11px] font-bold text-white/70 uppercase tracking-wider">Total Income</span>
-              </div>
-            </div>
-            {/* Background Decorations */}
-            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform" />
-          </div>
+            {/* Connections & Pulsing Points (SVG Overlay) */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
+              <defs>
+                <linearGradient
+                  id="lineGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="0%"
+                >
+                  <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0" />
+                  <stop offset="50%" stopColor="#8B5CF6" stopOpacity="0.5" />
+                  <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0" />
+                </linearGradient>
+              </defs>
 
-          {/* Income level by city */}
-          <div className="space-y-8">
-            <h2 className="text-lg font-black text-[#0b121e] dark:text-white">Income level by city</h2>
-            <div className="space-y-6">
-              {cityProgress.map((item) => (
-                <div key={item.city} className="space-y-2.5">
-                  <div className="flex justify-between text-[11px] font-black uppercase tracking-wider">
-                    <span className="text-gray-400">{item.city}</span>
-                    <span className="text-[#0b121e] dark:text-white">{item.amount}</span>
-                  </div>
-                  <div className="h-3 bg-gray-50 dark:bg-white/5 rounded-full overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: item.width }}
-                      transition={{ duration: 1.5, ease: "easeOut" }}
-                      className={`h-full ${item.color} rounded-full`} 
+              {/* Connection Lines */}
+              {connections.map((conn, i) => (
+                <motion.path
+                  key={i}
+                  d={`M ${conn.x1}% ${conn.y1}% Q ${(conn.x1 + conn.x2) / 2}% ${conn.y1 - 10}% ${conn.x2}% ${conn.y2}%`}
+                  fill="none"
+                  stroke="url(#lineGradient)"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 4"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{
+                    duration: 2,
+                    delay: i * 0.5,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    repeatDelay: 1,
+                  }}
+                />
+              ))}
+
+              {/* Connection Points */}
+              {[
+                ...new Set(
+                  connections.flatMap((c) => [
+                    { x: c.x1, y: c.y1 },
+                    { x: c.x2, y: c.y2 },
+                  ]),
+                ),
+              ].map((p, i) => (
+                <g key={i}>
+                  <circle cx={`${p.x}%`} cy={`${p.y}%`} r="3" fill="#8B5CF6" />
+                  <circle
+                    cx={`${p.x}%`}
+                    cy={`${p.y}%`}
+                    r="8"
+                    fill="#8B5CF6"
+                    opacity="0.2"
+                  >
+                    <animate
+                      attributeName="r"
+                      values="8;12;8"
+                      dur="2s"
+                      repeatCount="indefinite"
                     />
+                    <animate
+                      attributeName="opacity"
+                      values="0.2;0;0.2"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </circle>
+                </g>
+              ))}
+            </svg>
+
+            {/* Wifi Icon Indicator */}
+            <div className="absolute bottom-6 left-6">
+              <Wifi className="w-6 h-6 text-[#8B5CF6] opacity-50" />
+            </div>
+          </div>
+
+          {/* Country Stats List */}
+          <div className="flex flex-col justify-center space-y-5 lg:pl-4">
+            <div className="text-right mb-2">
+              <span className="text-2xl font-bold">450k</span>
+              <p className="text-xs text-gray-500">Total Live by city</p>
+            </div>
+
+            <div className="space-y-4">
+              {countryStats.map((item) => (
+                <div
+                  key={item.country}
+                  className="flex items-center justify-between text-sm"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-base">{item.flag}</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      {item.country}
+                    </span>
                   </div>
+                  <span className="font-bold text-gray-900 dark:text-white">
+                    {item.users}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
-
         </div>
-
-        {/* --- MAIN PANEL: World Map --- */}
-        <div className="xl:col-span-3 bg-white dark:bg-[#1a1f26]/50 rounded-[40px] border border-gray-50 dark:border-gray-800 p-10 relative shadow-sm overflow-hidden">
-          
-          {/* Dots World Map Background */}
-          <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.1] flex items-center justify-center p-20 pointer-events-none">
-             <div className="w-full h-full relative">
-                {dots.map(dot => (
-                   <div 
-                      key={dot.id}
-                      className="absolute bg-[#0b121e] dark:bg-white rounded-full"
-                      style={{ 
-                         left: `${dot.x}%`, 
-                         top: `${dot.y}%`, 
-                         width: dot.size, 
-                         height: dot.size,
-                         opacity: Math.random() * 0.8 + 0.2
-                      }}
-                   />
-                ))}
-             </div>
-          </div>
-
-          {/* Main Map Visualization Area */}
-          <div className="w-full h-full min-h-[600px] relative flex items-center justify-center">
-             
-             {/* Styling markers over a centered "map" container */}
-             <div className="w-[80%] aspect-[1.8/1] relative">
-                
-                {markers.map((marker, idx) => (
-                   <motion.div
-                     key={idx}
-                     initial={{ scale: 0, opacity: 0 }}
-                     animate={{ scale: 1, opacity: 1 }}
-                     transition={{ delay: 0.1 * idx, type: "spring" }}
-                     className="absolute"
-                     style={{ left: `${marker.x}%`, top: `${marker.y}%`, transform: 'translate(-50%, -50%)' }}
-                   >
-                      <div className="relative group cursor-pointer">
-                         
-                         {/* Pulse Animation for Active */}
-                         <div className={`w-4 h-4 ${marker.color} rounded-full flex items-center justify-center border-2 border-white dark:border-[#1a1f26] relative z-10`}>
-                            <div className="w-1.5 h-1.5 bg-white/40 rounded-full" />
-                         </div>
-                         <div className={`absolute inset-0 ${marker.color} rounded-full animate-ping opacity-20 scale-150`} />
-
-                         {/* Tooltip Popup */}
-                         {marker.city && (
-                            <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-4 p-4 rounded-2xl bg-white dark:bg-[#1a1f26] shadow-2xl border border-gray-100 dark:border-gray-800 min-w-[140px] transition-all duration-300 origin-bottom ${marker.active ? 'opacity-100 scale-100' : 'opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100'}`}>
-                               <div className="flex items-center gap-3">
-                                  <div className={`w-10 h-10 ${marker.color} rounded-xl flex items-center justify-center`}>
-                                     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 2L3 7l1.83 1.02L12 13.19l7.17-5.17L21 7l-9-5zm0 13l-9-5 1.83-1.01L12 12.16l7.17-5.17L21 8l-9 5zm0 5l-9-5 1.83-1.01L12 17.14l7.17-5.17L21 13l-9 5z" />
-                                     </svg>
-                                  </div>
-                                  <div className="flex flex-col">
-                                     <span className="text-[10px] uppercase font-black text-gray-400 tracking-wider leading-none mb-1">{marker.city}</span>
-                                     <span className="text-sm font-black text-[#0b121e] dark:text-white">{marker.amount}</span>
-                                  </div>
-                               </div>
-                               {/* Triangle arrow */}
-                               <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-white dark:border-t-[#1a1f26]" />
-                            </div>
-                         )}
-                      </div>
-                   </motion.div>
-                ))}
-             </div>
-
-             {/* Zoom Controls Overlay */}
-             <div className="absolute bottom-10 right-10 flex flex-col gap-2">
-                <button className="w-10 h-10 bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 rounded-xl shadow-sm flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                   <Plus className="w-4 h-4 text-[#0ac9a3]" />
-                </button>
-                <button className="w-10 h-10 bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 rounded-xl shadow-sm flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                   <Minus className="w-4 h-4 text-[#ff5d6d]" />
-                </button>
-             </div>
-          </div>
-
-        </div>
-
       </div>
 
-      {/* Footer Decoration */}
-      <footer className="mt-20 pt-8 border-t border-gray-50 dark:border-gray-800 flex justify-between items-center text-[10px] text-gray-400 font-black uppercase tracking-widest">
-         <span>SquadCart Intelligence Hub</span>
-         <div className="flex items-center gap-2">
-            <span>Powered by</span>
-            <span className="text-[#0066ff]">Kanakku Engine</span>
-         </div>
-      </footer>
+      {/* --- BOTTOM ROW: Top Client --- */}
+      <div className="bg-white dark:bg-[#1a1f26] rounded-[32px] p-8 shadow-sm">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold">Top Clients</h2>
+          <button className="text-gray-400 hover:text-gray-600">
+            <MoreHorizontal className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100 dark:border-gray-800">
+                <th className="pb-4 pl-4">User Name</th>
+                <th className="pb-4">Contact</th>
+                <th className="pb-4">Product</th>
+                <th className="pb-4 text-right pr-4">Amount</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+              {paymentData.map((item) => (
+                <tr
+                  key={item.id}
+                  className="group hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                >
+                  <td className="py-4 pl-4">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={item.avatar}
+                        alt={item.name}
+                        className="w-10 h-10 rounded-full bg-gray-200"
+                      />
+                      <div>
+                        <p className="font-bold text-[#1A1A1A] dark:text-white text-sm">
+                          {item.name}
+                        </p>
+                        <p className="text-xs text-gray-400">{item.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-4 text-sm font-medium text-gray-500">
+                    {item.contact}
+                  </td>
+                  <td className="py-4 text-sm font-medium text-gray-500">
+                    {item.product}
+                  </td>
+                  <td className="py-4 text-right pr-4 font-bold text-emerald-500">
+                    {item.amount}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
