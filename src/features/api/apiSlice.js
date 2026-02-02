@@ -139,7 +139,6 @@ export const apiSlice = createApi({
     "invoice",
     "reviews",
     "saleInvoice",
-    "manualInvoice",
     "CreditNote",
     "media",
     "banners"
