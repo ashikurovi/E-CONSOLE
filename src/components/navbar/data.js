@@ -75,7 +75,7 @@ export const navSections = [
   },
   {
     id: "orders",
-    title: "Order Management",
+    title: "Order Menagement",
     tKey: "nav.orderManagement",
     icon: ShoppingCart,
     items: [
