@@ -1005,7 +1005,6 @@
     "createdAt": "Created At",
     "updatedAt": "Updated At",
     "noPackage": "No Package",
-    "courierIntegrationSettings": "Courier Integration Settings",
     "orderNotificationSettings": "Order Notification Settings",
     "notificationPreferences": "Notification Preferences",
     "emailForNotifications": "Email for Order Notifications",
