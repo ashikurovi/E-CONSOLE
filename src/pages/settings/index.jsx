@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import { userDetailsFetched } from "@/features/auth/authSlice";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TextField from "@/components/input/TextField";
 import FileUpload from "@/components/input/FileUpload";
 import useImageUpload from "@/hooks/useImageUpload";
 import {
   useUpdateSystemuserMutation,
 } from "@/features/systemuser/systemuserApiSlice";
-import { MapPin, Shield, Package, Building2, CheckCircle, Calendar, Mail, Phone, User, Truck, Key, FileText, CreditCard, Clock, XCircle, Download } from "lucide-react";
+import { Package, Mail, Phone, User, Truck, FileText, CreditCard, Download, Crown, Zap, Shield } from "lucide-react";
 import OrderNotificationSettings from "./components/OrderNotificationSettings";
 import { hasPermission, FeaturePermission } from "@/constants/feature-permission";
 import { generateInvoicePDF } from "@/pages/superadmin/invoice/InvoicePDFGenerator";
@@ -23,16 +22,23 @@ const SettingsPage = () => {
   const authUser = useSelector((state) => state.auth.user);
   const userId = authUser?.userId || authUser?.sub || authUser?.id;
 
-  // Use logged user data directly from Redux (stored from login response)
+  // State
+  const [activeTab, setActiveTab] = useState("profile");
   const user = authUser || null;
-
-  console.log(user);
 
   const [updateSystemuser, { isLoading: isUpdating }] = useUpdateSystemuserMutation();
   const [logoFile, setLogoFile] = useState(null);
   const { uploadImage, isUploading } = useImageUpload();
 
-  // Profile form
+  // Settings Tabs Configuration
+  const settingsTabs = [
+    { id: "profile", label: t("settings.updateProfile"), icon: User },
+    { id: "subscription", label: t("settings.packageInformation"), icon: Crown },
+    { id: "integrations", label: t("settings.courierIntegrationSettings"), icon: Truck },
+    { id: "notifications", label: t("settings.orderNotificationSettings"), icon: Shield },
+  ];
+
+  // Forms Initialization
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       name: "",
@@ -43,30 +49,19 @@ const SettingsPage = () => {
     },
   });
 
-  // Pathao credentials form
   const { register: registerPathao, handleSubmit: handleSubmitPathao, reset: resetPathao } = useForm({
-    defaultValues: {
-      clientId: "",
-      clientSecret: "",
-    },
+    defaultValues: { clientId: "", clientSecret: "" },
   });
 
-  // Steadfast credentials form
   const { register: registerSteadfast, handleSubmit: handleSubmitSteadfast, reset: resetSteadfast } = useForm({
-    defaultValues: {
-      apiKey: "",
-      secretKey: "",
-    },
+    defaultValues: { apiKey: "", secretKey: "" },
   });
 
-  // RedX credentials form
-  const { register: registerRedX, handleSubmit: handleSubmitRedX, reset: resetRedX } = useForm({
-    defaultValues: {
-      token: "",
-      sandbox: true,
-    },
+  const { reset: resetRedX } = useForm({
+    defaultValues: { token: "", sandbox: true },
   });
 
+  // Effects for data synchronization
   useEffect(() => {
     if (user) {
       reset({
@@ -76,32 +71,26 @@ const SettingsPage = () => {
         phone: user.phone || "",
         branchLocation: user.branchLocation || "",
       });
-      setLogoFile(null);
-    }
-  }, [user, reset]);
-
-  // Load credentials from user data or localStorage on mount
-  useEffect(() => {
-    if (user) {
+      
       resetPathao({
-        clientId: user.pathaoConfig?.clientId || localStorage.getItem("pathaoClientId") || import.meta.env.VITE_PATHAO_CLIENT_ID || "",
-        clientSecret: user.pathaoConfig?.clientSecret || localStorage.getItem("pathaoClientSecret") || import.meta.env.VITE_PATHAO_CLIENT_SECRET || "",
+        clientId: user.pathaoConfig?.clientId || localStorage.getItem("pathaoClientId") || "",
+        clientSecret: user.pathaoConfig?.clientSecret || localStorage.getItem("pathaoClientSecret") || "",
       });
 
       resetSteadfast({
-        apiKey: user.steadfastConfig?.apiKey || localStorage.getItem("steadfastApiKey") || import.meta.env.VITE_STEADFAST_API_KEY || "",
-        secretKey: user.steadfastConfig?.secretKey || localStorage.getItem("steadfastSecretKey") || import.meta.env.VITE_STEADFAST_SECRET_KEY || "",
+        apiKey: user.steadfastConfig?.apiKey || localStorage.getItem("steadfastApiKey") || "",
+        secretKey: user.steadfastConfig?.secretKey || localStorage.getItem("steadfastSecretKey") || "",
       });
 
       resetRedX({
-        token: user.redxConfig?.token || localStorage.getItem("redxToken") || import.meta.env.VITE_REDX_TOKEN || "",
+        token: user.redxConfig?.token || localStorage.getItem("redxToken") || "",
         sandbox: user.redxConfig?.sandbox !== false,
       });
     }
-  }, [user, resetPathao, resetSteadfast, resetRedX]);
+  }, [user, reset, resetPathao, resetSteadfast, resetRedX]);
 
-
-  const onSubmit = async (data) => {
+  // Submission Handlers
+  const onProfileSubmit = async (data) => {
     if (!userId) {
       toast.error(t("settings.userIdNotFound"));
       return;
@@ -109,140 +98,45 @@ const SettingsPage = () => {
 
     try {
       let companyLogo = user?.companyLogo || "";
-
-      // If a file is selected, upload it first
       if (logoFile) {
         const uploadedUrl = await uploadImage(logoFile);
-        if (!uploadedUrl) {
-          toast.error(t("settings.failedUploadLogo"));
-          return;
-        }
+        if (!uploadedUrl) return;
         companyLogo = uploadedUrl;
       }
 
-      const payload = {
-        ...data,
-        companyLogo,
-      };
-
+      const payload = { ...data, companyLogo };
       const res = await updateSystemuser({ id: userId, ...payload });
       if (res?.data) {
         toast.success(t("settings.profileUpdated"));
-        setLogoFile(null);
-        
-        // Update Redux state and localStorage immediately
         dispatch(userDetailsFetched(payload));
+        setLogoFile(null);
       } else {
         toast.error(res?.error?.data?.message || t("settings.profileUpdateFailed"));
       }
-    } catch (e) {
+    } catch {
       toast.error(t("settings.somethingWentWrong"));
     }
   };
 
-  const onSubmitPathao = async (data) => {
-    if (!userId) {
-      toast.error(t("settings.userIdNotFound"));
-      return;
-    }
-
+  const onCourierSubmit = (type, configKey) => async (data) => {
+    if (!userId) return toast.error(t("settings.userIdNotFound"));
     try {
-      const payload = {
-        pathaoConfig: {
-          clientId: data.clientId,
-          clientSecret: data.clientSecret,
-        },
-      };
-
+      const payload = { [configKey]: data };
       const res = await updateSystemuser({ id: userId, ...payload });
       if (res?.data) {
-        // Also save to localStorage for backward compatibility
-        localStorage.setItem("pathaoClientId", data.clientId);
-        localStorage.setItem("pathaoClientSecret", data.clientSecret);
-        
-        // Update Redux state and localStorage immediately
+        Object.entries(data).forEach(([key, val]) => localStorage.setItem(`${type}${key.charAt(0).toUpperCase()}${key.slice(1)}`, val));
         dispatch(userDetailsFetched(payload));
-        
-        toast.success(t("pathao.credentialsSaved"));
+        toast.success(t(`${type}.credentialsSaved`));
       } else {
-        toast.error(res?.error?.data?.message || t("pathao.credentialsFailed"));
+        toast.error(res?.error?.data?.message || t(`${type}.credentialsFailed`));
       }
-    } catch (e) {
-      toast.error(t("pathao.credentialsFailed"));
+    } catch {
+      toast.error(t(`${type}.credentialsFailed`));
     }
   };
-
-  const onSubmitSteadfast = async (data) => {
-    if (!userId) {
-      toast.error(t("settings.userIdNotFound"));
-      return;
-    }
-
-    try {
-      const payload = {
-        steadfastConfig: {
-          apiKey: data.apiKey,
-          secretKey: data.secretKey,
-        },
-      };
-
-      const res = await updateSystemuser({ id: userId, ...payload });
-      if (res?.data) {
-        // Also save to localStorage for backward compatibility
-        localStorage.setItem("steadfastApiKey", data.apiKey);
-        localStorage.setItem("steadfastSecretKey", data.secretKey);
-        
-        // Update Redux state and localStorage immediately
-        dispatch(userDetailsFetched(payload));
-        
-        toast.success(t("steadfast.credentialsSaved"));
-      } else {
-        toast.error(res?.error?.data?.message || t("steadfast.credentialsFailed"));
-      }
-    } catch (e) {
-      toast.error(t("steadfast.credentialsFailed"));
-    }
-  };
-
-  const onSubmitRedX = async (data) => {
-    if (!userId) {
-      toast.error(t("settings.userIdNotFound"));
-      return;
-    }
-
-    try {
-      const payload = {
-        redxConfig: {
-          token: data.token,
-          sandbox: data.sandbox === true,
-        },
-      };
-
-      const res = await updateSystemuser({ id: userId, ...payload });
-      if (res?.data) {
-        localStorage.setItem("redxToken", data.token);
-        localStorage.setItem("redxSandbox", data.sandbox ? "true" : "false");
-        dispatch(userDetailsFetched(payload));
-        toast.success(t("redx.credentialsSaved"));
-      } else {
-        toast.error(res?.error?.data?.message || t("redx.credentialsFailed"));
-      }
-    } catch (e) {
-      toast.error(t("redx.credentialsFailed"));
-    }
-  };
-
-  const permissions = user?.permissions || [];
-  const packageInfo = user?.paymentInfo?.packagename || t("settings.noPackage");
-  const country = user?.branchLocation || t("settings.notSet");
-  const displayCompanyId = user?.companyId || t("settings.notSet");
-  const isActive = user?.isActive !== undefined ? user.isActive : true;
-  const createdAt = user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : t("common.na");
-  const updatedAt = user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : t("common.na");
 
   const handleDownloadInvoicePDF = (invoice) => {
     try {
-      // Attach customer information to invoice if not already present
       const invoiceWithCustomer = {
         ...invoice,
         customer: invoice.customer || {
@@ -257,571 +151,292 @@ const SettingsPage = () => {
       };
       generateInvoicePDF(invoiceWithCustomer);
       toast.success(t("settings.invoiceDownloaded"));
-    } catch (error) {
-      console.error("PDF generation error:", error);
+    } catch {
       toast.error(t("settings.invoiceDownloadFailed"));
     }
   };
 
+  // Helper values
+  const isActive = user?.isActive !== undefined ? user.isActive : true;
+  const createdAt = user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : t("common.na");
+  const updatedAt = user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : t("common.na");
+
   return (
-    <div className="space-y-6">
-      {/* User Information Cards */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">{t("settings.accountInformation")}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card className="border border-gray-100 dark:border-gray-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <User className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base font-semibold">{t("settings.name")}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-medium text-black dark:text-white">
-                {user?.name || t("settings.notSet")}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-gray-100 dark:border-gray-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <Mail className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base font-semibold">{t("settings.email")}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-medium text-black dark:text-white break-all">
-                {user?.email || t("settings.notSet")}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-gray-100 dark:border-gray-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <Phone className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base font-semibold">{t("settings.phone")}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-medium text-black dark:text-white">
-                {user?.phone || t("settings.notSet")}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-gray-100 dark:border-gray-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-indigo-500" />
-                <CardTitle className="text-base font-semibold">{t("settings.companyName")}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-medium text-black dark:text-white">
-                {user?.companyName || t("settings.notSet")}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-gray-100 dark:border-gray-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-indigo-500" />
-                <CardTitle className="text-base font-semibold">{t("settings.companyId")}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-medium text-black dark:text-white">
-                {displayCompanyId}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-gray-100 dark:border-gray-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base font-semibold">{t("settings.branchLocation")}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-medium text-black dark:text-white">
-                {country}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-   
-
-      {/* Package Information */}
-      {user?.package && (
+    <div className="max-w-[1200px] mx-auto space-y-8 pb-20">
+      
+      {/* --- PAGE HEADER --- */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-gray-100 dark:border-gray-800 pb-8">
         <div>
-          <h2 className="text-xl font-semibold mb-4">{t("settings.packageInformation")}</h2>
-          <Card className="border border-gray-100 dark:border-gray-800">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Package className="h-5 w-5 text-purple-500" />
-                <CardTitle className="text-lg font-semibold">{t("settings.packageDetails")}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h4 className="font-semibold text-lg">{user.package.name}</h4>
-                  <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-                    {user.package.description}
-                  </p>
-                </div>
-                {user.package.isFeatured && (
-                  <span className="px-3 py-1 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 text-sm font-medium rounded">
-                    {t("settings.featured")}
-                  </span>
-                )}
-              </div>
-              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-100 dark:border-gray-800">
-                <div>
-                  <p className="text-sm text-black/60 dark:text-white/60">{t("settings.price")}</p>
-                  <p className="text-lg font-semibold">৳{parseFloat(user.package.price).toFixed(2)}</p>
-                </div>
-                {user.package.discountPrice && (
-                  <div>
-                    <p className="text-sm text-black/60 dark:text-white/60">{t("settings.discountPrice")}</p>
-                    <p className="text-lg font-semibold text-green-600 dark:text-green-400">
-                      ৳{parseFloat(user.package.discountPrice).toFixed(2)}
-                    </p>
-                  </div>
-                )}
-              </div>
-              {user.package.features && user.package.features.length > 0 && (
-                <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
-                  <p className="text-sm text-black/60 dark:text-white/60 mb-2">{t("settings.features")}:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {user.package.features.map((feature) => (
-                      <span
-                        key={feature}
-                        className="text-xs px-3 py-1.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-md"
-                      >
-                        {feature.replace(/_/g, " ")}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <h1 className="text-3xl font-black text-[#0b121e] dark:text-white tracking-tight leading-none mb-3">
+            {t("nav.settings")}
+          </h1>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            {t("settings.accountInformation")} & Preferences
+          </p>
         </div>
-      )}
-
-   
-
-      {/* Account Status & Dates */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">{t("settings.accountStatus")}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="border border-gray-100 dark:border-gray-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-                <CardTitle className="text-base font-semibold">{t("settings.accountStatus")}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${isActive
-                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
-                }`}>
-                {isActive ? t("settings.active") : t("settings.inactive")}
-              </span>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-gray-100 dark:border-gray-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base font-semibold">{t("settings.createdDate")}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-medium text-black dark:text-white">
-                {createdAt}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-gray-100 dark:border-gray-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base font-semibold">{t("settings.lastUpdated")}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-medium text-black dark:text-white">
-                {updatedAt}
-              </p>
-            </CardContent>
-          </Card>
+        
+        {/* Quick Account Status Badge */}
+        <div className={`px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest flex items-center gap-2 ${
+          isActive 
+          ? "bg-green-500/10 text-green-600 dark:text-green-400" 
+          : "bg-red-500/10 text-red-600 dark:text-red-400"
+        }`}>
+          <div className={`w-2 h-2 rounded-full ${isActive ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
+          {isActive ? t("settings.active") : t("settings.inactive")} Agent
         </div>
       </div>
 
-      {/* Courier Credentials Section */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">{t("settings.courierIntegrationSettings")}</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          
-          {/* Pathao Credentials */}
-          {hasPermission(user, FeaturePermission.PATHAO) && (
-          <Card className="border border-gray-100 dark:border-gray-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <Truck className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base font-semibold">{t("pathao.credentialsTitle")}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmitPathao(onSubmitPathao)} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
-                    {t("pathao.clientId")}
-                  </label>
-                  <input
-                    type="text"
-                    {...registerPathao("clientId")}
-                    className="w-full px-3 py-2 border border-gray-100 dark:border-gray-800 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder={t("pathao.clientIdPlaceholder")}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
-                    {t("pathao.clientSecret")}
-                  </label>
-                  <input
-                    type="password"
-                    {...registerPathao("clientSecret")}
-                    className="w-full px-3 py-2 border border-gray-100 dark:border-gray-800 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder={t("pathao.clientSecretPlaceholder")}
-                  />
-                </div>
-                <div className="pt-2">
-                  <Button type="submit" className="w-full" disabled={isUpdating}>
-                    <Key className="h-4 w-4 mr-2" />
-                    {isUpdating ? t("common.saving") : t("createEdit.savePathaoCredentials")}
-                  </Button>
-                </div>
-                <div className="text-xs text-black/50 dark:text-white/50 mt-2">
-                  {t("pathao.getCredentialsFrom")} <a href="https://merchant.pathao.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{t("pathao.pathaoPortal")}</a>
-                </div>  
-              </form>
-            </CardContent>
-          </Card>
-          )}
-          {/* Steadfast Credentials */}
-          {hasPermission(user, FeaturePermission.STEARDFAST) && (
-          <Card className="border border-gray-100 dark:border-gray-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <Truck className="h-5 w-5 text-green-500" />
-                <CardTitle className="text-base font-semibold">{t("steadfast.credentialsTitle")}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmitSteadfast(onSubmitSteadfast)} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
-                    {t("steadfast.apiKey")}
-                  </label>
-                  <input
-                    type="text"
-                    {...registerSteadfast("apiKey")}
-                    className="w-full px-3 py-2 border border-gray-100 dark:border-gray-800 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder={t("steadfast.apiKeyPlaceholder")}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
-                    {t("steadfast.secretKey")}
-                  </label>
-                  <input
-                    type="password"
-                    {...registerSteadfast("secretKey")}
-                    className="w-full px-3 py-2 border border-gray-100 dark:border-gray-800 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder={t("steadfast.secretKeyPlaceholder")}
-                  />
-                </div>
-                <div className="pt-2">
-                  <Button type="submit" className="w-full" disabled={isUpdating}>
-                    <Key className="h-4 w-4 mr-2" />
-                    {isUpdating ? t("common.saving") : t("createEdit.saveSteadfastCredentials")}
-                  </Button>
-                </div>
-                <div className="text-xs text-black/50 dark:text-white/50 mt-2">
-                  {t("steadfast.getCredentialsFrom")} <a href="https://portal.packzy.com" target="_blank" rel="noopener noreferrer" className="text-green-500 hover:underline">{t("steadfast.steadfastPortal")}</a>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-          )}
-          {/* RedX Credentials */}
-          {hasPermission(user, FeaturePermission.REDX) && (
-          <Card className="border border-black/10 dark:border-white/10">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <Truck className="h-5 w-5 text-red-500" />
-                <CardTitle className="text-base font-semibold">{t("redx.credentialsTitle")}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmitRedX(onSubmitRedX)} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1.5 text-black/70 dark:text-white/70">
-                    {t("redx.apiToken")}
-                  </label>
-                  <input
-                    type="password"
-                    {...registerRedX("token")}
-                    className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
-                    placeholder={t("redx.apiTokenPlaceholder")}
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    {...registerRedX("sandbox")}
-                    id="redx-sandbox"
-                    className="rounded"
-                  />
-                  <label htmlFor="redx-sandbox" className="text-sm text-black/70 dark:text-white/70">
-                    {t("redx.useSandbox")}
-                  </label>
-                </div>
-                <div className="pt-2">
-                  <Button type="submit" className="w-full" disabled={isUpdating}>
-                    <Key className="h-4 w-4 mr-2" />
-                    {isUpdating ? t("common.saving") : t("redx.saveCredentials")}
-                  </Button>
-                </div>
-                <div className="text-xs text-black/50 dark:text-white/50 mt-2">
-                  {t("redx.getCredentialsFrom")} <a href="https://redx.com.bd/developer-api/" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:underline">{t("redx.redxPortal")}</a>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-          )}
-        </div>
-      </div>
-
-
-      {hasPermission(user, FeaturePermission.NOTIFICATIONS) && (
-      <OrderNotificationSettings />
-      )}
-
-      {/* Profile Update Form */}
-      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">{t("settings.updateProfile")}</h2>
-        </div>
-
-        {!user ? (
-          <div className="text-center py-8">
-            <p className="text-black/60 dark:text-white/60">{t("settings.noUserData")}</p>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <TextField placeholder={t("settings.fullName")} register={register} name="name" />
-            <TextField placeholder={t("settings.email")} type="email" register={register} name="email" />
-            <TextField placeholder={t("settings.companyNamePlaceholder")} register={register} name="companyName" />
-            <TextField placeholder={t("settings.phone")} register={register} name="phone" />
-            <TextField placeholder={t("settings.branchLocationPlaceholder")} register={register} name="branchLocation" />
-            <div className="md:col-span-2">
-              <FileUpload
-                placeholder={t("settings.chooseLogoFile")}
-                label={t("settings.companyLogo")}
-                name="companyLogo"
-                accept="image/*"
-                onChange={setLogoFile}
-                value={user?.companyLogo || null}
-              />
-            </div>
-
-            <div className="md:col-span-2 flex justify-end gap-2 mt-2">
-              <Button type="submit" disabled={isUpdating || isUploading}>
-                {isUpdating || isUploading ? t("settings.updating") : t("settings.updateProfile")}
-              </Button>
-            </div>
-          </form>
-        )}
-      </div>
-
-         {/* Invoice Information */}
-         {user?.invoices && user.invoices.length > 0 && (
-        <div>
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            {t("settings.myInvoices")} ({user.invoices.length})
-          </h2>
-          <div className="space-y-4">
-            {user.invoices.map((invoice) => {
-              const getStatusBadge = (status) => {
-                const statusConfig = {
-                  pending: { color: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300", icon: Clock },
-                  paid: { color: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300", icon: CheckCircle },
-                  cancelled: { color: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300", icon: XCircle },
-                };
-                const config = statusConfig[status] || statusConfig.pending;
-                const Icon = config.icon;
-                return (
-                  <span className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium ${config.color}`}>
-                    <Icon className="h-4 w-4" />
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </span>
-                );
-              };
-
+      <div className="flex flex-col lg:flex-row gap-10">
+        
+        {/* --- SIDEBAR NAVIGATION --- */}
+        <div className="w-full lg:w-72 flex-shrink-0">
+          <div className="flex flex-row lg:flex-col gap-1 p-1 bg-gray-50/50 dark:bg-white/5 rounded-2xl overflow-x-auto lg:sticky lg:top-6">
+            {settingsTabs.map((tab) => {
+              const Icon = tab.icon;
+              const isSelected = activeTab === tab.id;
               return (
-                <Card key={invoice.id} className="border border-gray-100 dark:border-gray-800">
-                  <CardContent className="pt-6">
-                    <div className="space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-semibold text-base flex items-center gap-2">
-                            <CreditCard className="h-5 w-5" />
-                            {invoice.invoiceNumber}
-                          </h4>
-                          <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-                            {invoice.transactionId}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          {getStatusBadge(invoice.status)}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDownloadInvoicePDF(invoice)}
-                            className="h-9 px-4 bg-purple-500 hover:bg-purple-600 text-white border-purple-500 flex items-center gap-2"
-                          >
-                            <Download className="h-4 w-4" />
-                            {t("settings.downloadPdf")}
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-3 border-t border-gray-100 dark:border-gray-800">
-                        <div>
-                          <p className="text-xs text-black/60 dark:text-white/60">{t("settings.totalAmount")}</p>
-                          <p className="text-base font-semibold">৳{parseFloat(invoice.totalAmount).toFixed(2)}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-black/60 dark:text-white/60">{t("settings.paidAmount")}</p>
-                          <p className="text-base font-semibold text-green-600 dark:text-green-400">
-                            ৳{parseFloat(invoice.paidAmount).toFixed(2)}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-black/60 dark:text-white/60">{t("settings.dueAmount")}</p>
-                          <p className="text-base font-semibold text-red-600 dark:text-red-400">
-                            ৳{parseFloat(invoice.dueAmount).toFixed(2)}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-black/60 dark:text-white/60">{t("settings.type")}</p>
-                          <p className="text-base font-medium capitalize">{invoice.amountType}</p>
-                        </div>
-                      </div>
-
-                      {/* Bank Payment Info */}
-                      {invoice.bankPayment && (
-                        <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
-                          <p className="text-sm font-semibold text-black/70 dark:text-white/70 mb-3">
-                            {t("settings.bankPaymentDetails")}
-                          </p>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div>
-                              <p className="text-xs text-black/60 dark:text-white/60">{t("settings.bankName")}</p>
-                              <p className="text-sm font-medium">{invoice.bankPayment.bankName}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-black/60 dark:text-white/60">{t("settings.amount")}</p>
-                              <p className="text-sm font-medium">৳{parseFloat(invoice.bankPayment.amount).toFixed(2)}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-black/60 dark:text-white/60">{t("settings.accountLastDigits")}</p>
-                              <p className="text-sm font-medium">{invoice.bankPayment.accLastDigit}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-black/60 dark:text-white/60">{t("settings.paymentStatus")}</p>
-                              <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                                invoice.bankPayment.status === 'verified' 
-                                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                                  : invoice.bankPayment.status === 'rejected'
-                                  ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'
-                                  : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
-                              }`}>
-                                {invoice.bankPayment.status.charAt(0).toUpperCase() + invoice.bankPayment.status.slice(1)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Bkash Payment Info */}
-                      {(invoice.bkashPaymentID || invoice.bkashTrxID) && (
-                        <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
-                          <p className="text-sm font-semibold text-black/70 dark:text-white/70 mb-3">
-                            {t("settings.bkashPaymentDetails")}
-                          </p>
-                          <div className="grid grid-cols-2 gap-4">
-                            {invoice.bkashPaymentID && (
-                              <div>
-                                <p className="text-xs text-black/60 dark:text-white/60">{t("settings.paymentId")}</p>
-                                <p className="text-sm font-medium">{invoice.bkashPaymentID}</p>
-                              </div>
-                            )}
-                            {invoice.bkashTrxID && (
-                              <div>
-                                <p className="text-xs text-black/60 dark:text-white/60">{t("settings.transactionId")}</p>
-                                <p className="text-sm font-medium">{invoice.bkashTrxID}</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Dates */}
-                      <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-xs text-black/60 dark:text-white/60 flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {t("settings.createdAt")}
-                            </p>
-                            <p className="text-sm font-medium">
-                              {new Date(invoice.createdAt).toLocaleString()}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-black/60 dark:text-white/60 flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {t("settings.updatedAt")}
-                            </p>
-                            <p className="text-sm font-medium">
-                              {new Date(invoice.updatedAt).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-3 px-5 py-4 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                    isSelected
+                    ? "bg-white dark:bg-[#2c3036] text-blue-600 dark:text-blue-400 shadow-md shadow-blue-500/5 translate-x-1"
+                    : "text-gray-500 hover:text-[#0b121e] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5"
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${isSelected ? "text-blue-600 dark:text-blue-400" : "opacity-40"}`} />
+                  {tab.label}
+                </button>
               );
             })}
           </div>
         </div>
-      )}
+
+        {/* --- MAIN CONTENT AREA --- */}
+        <div className="flex-1">
+          
+          {/* TAB 1: PROFILE & PERSONAL INFO */}
+          {activeTab === "profile" && (
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              
+              {/* Account Quick Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                 {[
+                   { label: t("settings.name"), value: user?.name, icon: User, color: "text-blue-500 bg-blue-500/10" },
+                   { label: t("settings.email"), value: user?.email, icon: Mail, color: "text-indigo-500 bg-indigo-500/10" },
+                   { label: t("settings.phone"), value: user?.phone, icon: Phone, color: "text-emerald-500 bg-emerald-500/10" }
+                 ].map((card, i) => (
+                   <div key={i} className="bg-white dark:bg-[#1a1f26]/40 border border-gray-100 dark:border-gray-800 p-6 rounded-[24px]">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${card.color}`}>
+                        <card.icon className="w-5 h-5" />
+                      </div>
+                      <p className="text-[11px] font-black tracking-widest text-gray-400 uppercase mb-1">{card.label}</p>
+                      <p className="text-md font-bold text-[#0b121e] dark:text-white truncate">{card.value || "Not Set"}</p>
+                   </div>
+                 ))}
+              </div>
+
+              {/* Profile Update Form */}
+              <div className="bg-white dark:bg-[#1a1f26]/40 border border-gray-100 dark:border-gray-800 p-8 rounded-[32px]">
+                <h3 className="text-lg font-black text-[#0b121e] dark:text-white mb-8">Personal Details</h3>
+                <form onSubmit={handleSubmit(onProfileSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <TextField placeholder={t("settings.fullName")} register={register} name="name" />
+                    <TextField placeholder={t("settings.email")} type="email" register={register} name="email" />
+                    <TextField placeholder={t("settings.companyNamePlaceholder")} register={register} name="companyName" />
+                    <TextField placeholder={t("settings.phone")} register={register} name="phone" />
+                    <div className="md:col-span-2">
+                      <TextField placeholder={t("settings.branchLocationPlaceholder")} register={register} name="branchLocation" />
+                    </div>
+                  </div>
+                  
+                  <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
+                    <FileUpload
+                      placeholder={t("settings.chooseLogoFile")}
+                      label={t("settings.companyLogo")}
+                      name="companyLogo"
+                      accept="image/*"
+                      onChange={setLogoFile}
+                      value={user?.companyLogo || null}
+                    />
+                  </div>
+
+                  <div className="flex justify-end pt-4">
+                    <Button type="submit" className="bg-[#5347CE] hover:bg-[#4338ca] text-white px-10 h-12 rounded-xl font-bold shadow-xl shadow-blue-500/10" disabled={isUpdating || isUploading}>
+                      {isUpdating || isUploading ? t("settings.updating") : t("settings.updateProfile")}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: SUBSCRIPTION & INVOICES */}
+          {activeTab === "subscription" && (
+            <div className="space-y-8 animate-in fade-in duration-500">
+               {/* Active Package Card */}
+               <div className="bg-gradient-to-br from-[#5347CE] to-[#2b228b] rounded-[32px] p-10 text-white relative overflow-hidden shadow-2xl shadow-blue-500/20">
+                  <Package className="absolute right-[-20px] top-[-20px] w-64 h-64 text-white/5 rotate-12" />
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-8">
+                       <Crown className="w-8 h-8 text-yellow-400" />
+                       <span className="text-[13px] font-black tracking-widest uppercase opacity-80">Premium Active Plan</span>
+                    </div>
+                    <h2 className="text-5xl font-black tracking-tight mb-4">{user?.package?.name || "No Active Plan"}</h2>
+                    <p className="text-lg text-white/70 font-medium max-w-xl mb-10 leading-relaxed">
+                       {user?.package?.description || "Activate a package to unlock advanced features and grow your business."}
+                    </p>
+                    
+                    <div className="flex flex-wrap gap-10">
+                       <div>
+                          <p className="text-[11px] font-black uppercase tracking-widest opacity-60 mb-2">Monthly Price</p>
+                          <p className="text-3xl font-black">৳{parseFloat(user?.package?.price || 0).toFixed(0)}</p>
+                       </div>
+                       <div>
+                          <p className="text-[11px] font-black uppercase tracking-widest opacity-60 mb-2">Member Since</p>
+                          <p className="text-3xl font-black">{createdAt}</p>
+                       </div>
+                    </div>
+                  </div>
+               </div>
+
+               {/* Features & Stats */}
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="bg-white dark:bg-[#1a1f26]/40 border border-gray-100 dark:border-gray-800 p-8 rounded-[28px]">
+                    <h4 className="text-sm font-black text-[#0b121e] dark:text-white uppercase tracking-widest mb-6">Inclusive Features</h4>
+                    <div className="flex flex-wrap gap-2">
+                       {user?.package?.features?.map((f, i) => (
+                         <span key={i} className="px-4 py-2 bg-blue-500/5 text-blue-600 dark:text-blue-400 text-xs font-bold rounded-lg border border-blue-500/10">
+                           {f.replace(/_/g, " ")}
+                         </span>
+                       ))}
+                    </div>
+                  </div>
+                  <div className="bg-white dark:bg-[#1a1f26]/40 border border-gray-100 dark:border-gray-800 p-8 rounded-[28px]">
+                     <h4 className="text-sm font-black text-[#0b121e] dark:text-white uppercase tracking-widest mb-6">Account Meta</h4>
+                     <div className="space-y-4">
+                        <div className="flex justify-between items-center text-sm">
+                           <span className="text-gray-500 font-medium">Company ID</span>
+                           <span className="font-bold text-[#0b121e] dark:text-white">{user?.companyId}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                           <span className="text-gray-500 font-medium">Last billing update</span>
+                           <span className="font-bold text-[#0b121e] dark:text-white">{updatedAt}</span>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               {/* Invoices List */}
+               <div className="space-y-6 pt-10">
+                 <h3 className="text-lg font-black text-[#0b121e] dark:text-white flex items-center gap-3">
+                   <FileText className="w-5 h-5 text-gray-400" />
+                   Recent Billing Invoices
+                 </h3>
+                 <div className="space-y-4">
+                    {user?.invoices?.map((inv) => (
+                      <div key={inv.id} className="bg-white dark:bg-[#1a1f26]/40 border border-gray-100 dark:border-gray-800 p-5 rounded-[24px] flex flex-col md:flex-row justify-between items-center gap-6 group hover:border-blue-500/30 transition-all">
+                        <div className="flex items-center gap-5">
+                          <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
+                            <CreditCard className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-black text-[#0b121e] dark:text-white">{inv.invoiceNumber}</p>
+                            <p className="text-[11px] font-bold text-gray-400 tracking-wider">TX: {inv.transactionId}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-10">
+                          <div className="text-right">
+                             <p className="text-[10px] uppercase font-black tracking-widest text-gray-400 mb-1">Total Amount</p>
+                             <p className="text-md font-black">৳{parseFloat(inv.totalAmount).toFixed(0)}</p>
+                          </div>
+                          <div className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter ${
+                            inv.status?.toLowerCase() === 'paid' ? 'bg-green-500/10 text-green-600' : 'bg-orange-500/10 text-orange-600'
+                          }`}>
+                            {inv.status}
+                          </div>
+                          <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoicePDF(inv)} className="h-10 w-10 text-blue-600 hover:bg-blue-600 hover:text-white transition-all rounded-xl">
+                            <Download className="w-5 h-5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                 </div>
+               </div>
+            </div>
+          )}
+
+          {/* TAB 3: COURIER INTEGRATIONS */}
+          {activeTab === "integrations" && (
+            <div className="space-y-8 animate-in slide-in-from-right-4 fade-in duration-500">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Pathao */}
+                  {hasPermission(user, FeaturePermission.PATHAO) && (
+                    <div className="bg-white dark:bg-[#1a1f26]/40 border border-gray-100 dark:border-gray-800 p-8 rounded-[32px]">
+                       <div className="flex items-center gap-4 mb-8">
+                          <div className="w-12 h-12 rounded-2xl bg-blue-500 shadow-lg shadow-blue-500/20 flex items-center justify-center text-white">
+                             <Truck className="w-6 h-6" />
+                          </div>
+                          <div>
+                             <h4 className="font-black text-[#0b121e] dark:text-white">Pathao Logistics</h4>
+                             <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">API Authentication</p>
+                          </div>
+                       </div>
+                       <form onSubmit={handleSubmitPathao(onCourierSubmit("pathao", "pathaoConfig"))} className="space-y-5">
+                          <div className="space-y-1.5">
+                             <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 ml-2">Client ID</label>
+                             <input {...registerPathao("clientId")} className="w-full h-11 px-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/5 outline-none focus:ring-2 focus:ring-blue-500/10 text-xs font-bold" />
+                          </div>
+                          <div className="space-y-1.5">
+                             <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 ml-2">Client Secret</label>
+                             <input type="password" {...registerPathao("clientSecret")} className="w-full h-11 px-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/5 outline-none focus:ring-2 focus:ring-blue-500/10 text-xs font-bold" />
+                          </div>
+                          <Button type="submit" className="w-full h-11 bg-[#0b121e] dark:bg-white text-white dark:text-[#0b121e] font-black text-[11px] uppercase tracking-widest rounded-xl mt-4" disabled={isUpdating}>
+                             {isUpdating ? "Saving..." : "Save Credentials"}
+                          </Button>
+                       </form>
+                    </div>
+                  )}
+
+                  {/* Steadfast */}
+                  {hasPermission(user, FeaturePermission.STEARDFAST) && (
+                    <div className="bg-white dark:bg-[#1a1f26]/40 border border-gray-100 dark:border-gray-800 p-8 rounded-[32px]">
+                        <div className="flex items-center gap-4 mb-8">
+                          <div className="w-12 h-12 rounded-2xl bg-emerald-500 shadow-lg shadow-emerald-500/20 flex items-center justify-center text-white">
+                             <Zap className="w-6 h-6" />
+                          </div>
+                          <div>
+                             <h4 className="font-black text-[#0b121e] dark:text-white">Steadfast Courier</h4>
+                             <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Merchant Access</p>
+                          </div>
+                       </div>
+                       <form onSubmit={handleSubmitSteadfast(onCourierSubmit("steadfast", "steadfastConfig"))} className="space-y-5">
+                          <div className="space-y-1.5">
+                             <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 ml-2">API Key</label>
+                             <input {...registerSteadfast("apiKey")} className="w-full h-11 px-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/5 outline-none focus:ring-2 focus:ring-emerald-500/10 text-xs font-bold" />
+                          </div>
+                          <div className="space-y-1.5">
+                             <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 ml-2">Secret Token</label>
+                             <input type="password" {...registerSteadfast("secretKey")} className="w-full h-11 px-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/5 outline-none focus:ring-2 focus:ring-emerald-500/10 text-xs font-bold" />
+                          </div>
+                          <Button type="submit" className="w-full h-11 bg-[#0b121e] dark:bg-white text-white dark:text-[#0b121e] font-black text-[11px] uppercase tracking-widest rounded-xl mt-4" disabled={isUpdating}>
+                             {isUpdating ? "Saving..." : "Save Credentials"}
+                          </Button>
+                       </form>
+                    </div>
+                  )}
+               </div>
+            </div>
+          )}
+
+          {/* TAB 4: NOTIFICATION SETTINGS */}
+          {activeTab === "notifications" && (
+            <div className="animate-in fade-in duration-500">
+               <OrderNotificationSettings />
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
