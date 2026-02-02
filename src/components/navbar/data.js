@@ -75,7 +75,7 @@ export const navSections = [
   },
   {
     id: "orders",
-    title: "ORDER MANAGEMENT",
+    title: "Order Menagement",
     tKey: "nav.orderManagement",
     icon: ShoppingCart,
     items: [
@@ -87,28 +87,8 @@ export const navSections = [
         permission: FeaturePermission.ORDERS,
         icon: ShoppingCart,
       },
-      {
-        id: 6.5,
-        title: "Invoices",
-        tKey: "nav.invoices",
-        link: "/invoices",
-        permission: FeaturePermission.ORDERS,
-        icon: FileText,
-        children: [
-          {
-            id: 6.51,
-            title: "Invoice List",
-            tKey: "nav.invoiceList",
-            link: "/invoices",
-          },
-          {
-            id: 6.52,
-            title: "Recurring Invoices",
-            tKey: "nav.recurringInvoices",
-            link: "/recurring-invoices",
-          },
-        ],
-      },
+
+
       {
         id: 7.0,
         title: "Credit Notes",
@@ -148,6 +128,30 @@ export const navSections = [
         link: "/fraud",
         permission: FeaturePermission.REPORTS,
         icon: ShieldAlert,
+      },
+    ],
+  },
+  {
+    id: "invoices",
+    title: "Invoice Management",
+    tKey: "Invoice Management",
+    icon: FileText,
+    items: [
+      {
+        id: 6.51,
+        title: "Invoice List",
+        tKey: "nav.invoiceList",
+        link: "/invoices",
+        permission: FeaturePermission.ORDERS,
+        icon: FileText,
+      },
+      {
+        id: 6.52,
+        title: "Recurring Invoices",
+        tKey: "nav.recurringInvoices",
+        link: "/recurring-invoices",
+        permission: FeaturePermission.ORDERS,
+        icon: FileText,
       },
     ],
   },

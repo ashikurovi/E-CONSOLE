@@ -12,7 +12,7 @@ import {
   Download,
   Calendar,
   ChevronRight,
-  Plus
+  Plus,
 } from "lucide-react";
 import {
   Dialog,
@@ -21,6 +21,14 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
   useGetOrdersQuery,
@@ -30,10 +38,10 @@ import {
   useDeleteOrderMutation,
   useGetOrderStatsQuery,
   useBarcodeScanMutation,
+  useRecordPartialPaymentMutation,
 } from "@/features/order/orderApiSlice";
-import { useRecordPartialPaymentMutation } from "@/features/payment/paymentApiSlice";
 import { useNavigate } from "react-router-dom";
-import DeleteModal from "@/components/modal/delete-modal";
+import DeleteModal from "@/components/modals/DeleteModal";
 import TextField from "@/components/input/TextField";
 import { Switch } from "@/components/ui/switch";
 import { useSelector } from "react-redux";
@@ -96,13 +104,26 @@ const OrdersPage = () => {
 
     // Tab filtering
     if (activeTab === "Unfulfilled") {
-      result = result.filter((o) => (o.status?.toLowerCase() || "") === "pending" || (o.status?.toLowerCase() || "") === "processing");
+      result = result.filter(
+        (o) =>
+          (o.status?.toLowerCase() || "") === "pending" ||
+          (o.status?.toLowerCase() || "") === "processing",
+      );
     } else if (activeTab === "Unpaid") {
       result = result.filter((o) => !o.isPaid);
     } else if (activeTab === "Open") {
-      result = result.filter((o) => !["delivered", "cancelled", "refunded"].includes((o.status?.toLowerCase() || "")));
+      result = result.filter(
+        (o) =>
+          !["delivered", "cancelled", "refunded"].includes(
+            o.status?.toLowerCase() || "",
+          ),
+      );
     } else if (activeTab === "Closed") {
-      result = result.filter((o) => ["delivered", "cancelled", "refunded"].includes((o.status?.toLowerCase() || "")));
+      result = result.filter((o) =>
+        ["delivered", "cancelled", "refunded"].includes(
+          o.status?.toLowerCase() || "",
+        ),
+      );
     }
     // Sort by createdAt descending so newest orders appear at top
     return [...result].sort((a, b) => {
@@ -127,55 +148,123 @@ const OrdersPage = () => {
     [t],
   );
 
-
-
-
-
   const tableData = useMemo(
     () =>
       filteredOrders.map((o) => ({
-        id: <span className="font-bold text-gray-900 dark:text-gray-100 italic">#{o.id}</span>,
-        createdAt: o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : "-",
-        customer: <span className="font-medium text-gray-700 dark:text-gray-300">{o.customer?.name ?? o.customerName ?? "-"}</span>,
+        id: (
+          <span className="font-bold text-gray-900 dark:text-gray-100 italic">
+            #{o.id}
+          </span>
+        ),
+        createdAt: o.createdAt
+          ? new Date(o.createdAt).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })
+          : "-",
+        customer: (
+          <span className="font-medium text-gray-700 dark:text-gray-300">
+            {o.customer?.name ?? o.customerName ?? "-"}
+          </span>
+        ),
         paid: (
-          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border ${o.isPaid ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${o.isPaid ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-            {o.isPaid ? 'Success' : 'Pending'}
+          <div
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border ${o.isPaid ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-amber-50 text-amber-600 border-amber-100"}`}
+          >
+            <div
+              className={`w-1.5 h-1.5 rounded-full ${o.isPaid ? "bg-emerald-500" : "bg-amber-500"}`}
+            />
+            {o.isPaid ? "Success" : "Pending"}
           </div>
         ),
         total: (
           <span className="font-bold text-gray-900 dark:text-gray-100">
-             ৳{Number(o.totalAmount || 0).toLocaleString()}
+            ৳{Number(o.totalAmount || 0).toLocaleString()}
           </span>
         ),
         delivery: <span className="text-gray-400 font-medium">N/A</span>,
-        items: <span className="text-gray-600 dark:text-gray-400 font-medium">{o.items?.length || 0} items</span>,
+        items: (
+          <span className="text-gray-600 dark:text-gray-400 font-medium">
+            {o.items?.length || 0} items
+          </span>
+        ),
         status: (
-          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border ${['delivered', 'paid', 'completed'].includes(o.status?.toLowerCase()) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${['delivered', 'paid', 'completed'].includes(o.status?.toLowerCase()) ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-            {['delivered', 'paid', 'completed'].includes(o.status?.toLowerCase()) ? 'Fulfilled' : 'Unfulfilled'}
+          <div
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border ${["delivered", "paid", "completed"].includes(o.status?.toLowerCase()) ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-rose-50 text-rose-600 border-rose-100"}`}
+          >
+            <div
+              className={`w-1.5 h-1.5 rounded-full ${["delivered", "paid", "completed"].includes(o.status?.toLowerCase()) ? "bg-emerald-500" : "bg-rose-500"}`}
+            />
+            {["delivered", "paid", "completed"].includes(
+              o.status?.toLowerCase(),
+            )
+              ? "Fulfilled"
+              : "Unfulfilled"}
           </div>
         ),
         actions: (
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => navigate(`/orders/${o.id}`)}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-            >
-              <FileText className="w-5 h-5" />
-            </button>
-            <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
-              <MessageSquare className="w-5 h-5" />
-            </button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(o.id)}
+              >
+                Copy Order ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate(`/orders/${o.id}`)}>
+                View Details
+              </DropdownMenuItem>
+              {(o.status?.toLowerCase() === "pending" || !o.status) && (
+                <DropdownMenuItem
+                  onClick={() => setProcessModal({ isOpen: true, order: o })}
+                >
+                  Mark as Processing
+                </DropdownMenuItem>
+              )}
+              {o.status?.toLowerCase() === "processing" && (
+                <DropdownMenuItem
+                  onClick={() => setShipModal({ isOpen: true, order: o })}
+                >
+                  Mark as Shipped
+                </DropdownMenuItem>
+              )}
+              {o.status?.toLowerCase() === "shipped" && (
+                <DropdownMenuItem
+                  onClick={() => setDeliverModal({ isOpen: true, order: o })}
+                >
+                  Mark as Delivered
+                </DropdownMenuItem>
+              )}
+              {!o.isPaid && (
+                <DropdownMenuItem
+                  onClick={() =>
+                    setPartialPaymentModal({ isOpen: true, order: o })
+                  }
+                >
+                  Record Payment
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setDeleteModal({ isOpen: true, order: o })}
+                className="text-red-600 focus:text-red-600"
+              >
+                Delete Order
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ),
       })),
-    [
-      filteredOrders,
-      navigate,
-    ],
+    [filteredOrders, navigate],
   );
-
 
   const handleProcess = async () => {
     if (!processModal.order) return;
@@ -275,15 +364,36 @@ const OrdersPage = () => {
 
   // Mock data for sparklines
   const sparklineData = [
-    { value: 10 }, { value: 25 }, { value: 15 }, { value: 30 }, 
-    { value: 22 }, { value: 45 }, { value: 35 }, { value: 55 }
+    { value: 10 },
+    { value: 25 },
+    { value: 15 },
+    { value: 30 },
+    { value: 22 },
+    { value: 45 },
+    { value: 35 },
+    { value: 55 },
   ];
 
   const orderStats = [
-    { title: "Total Orders", value: stats.totalOrders || 0, delta: "+25.2%", tone: "green" },
-    { title: "Order items over time", value: stats.unpaidCount || 0, delta: "+18.2%", tone: "green" },
+    {
+      title: "Total Orders",
+      value: stats.totalOrders || 0,
+      delta: "+25.2%",
+      tone: "green",
+    },
+    {
+      title: "Order items over time",
+      value: stats.unpaidCount || 0,
+      delta: "+18.2%",
+      tone: "green",
+    },
     { title: "Returns Orders", value: "0", delta: "-1.2%", tone: "red" },
-    { title: "Fulfilled orders over time", value: stats.delivered || 0, delta: "+12.2%", tone: "green" },
+    {
+      title: "Fulfilled orders over time",
+      value: stats.delivered || 0,
+      delta: "+12.2%",
+      tone: "green",
+    },
   ];
 
   return (
@@ -292,9 +402,9 @@ const OrdersPage = () => {
       <div className="flex items-center justify-between mb-8">
         <div className="relative w-full max-w-md group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
-          <input 
-            type="text" 
-            placeholder="Search or type command..." 
+          <input
+            type="text"
+            placeholder="Search or type command..."
             className="w-full h-11 pl-12 pr-12 rounded-2xl border border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 outline-none focus:ring-2 focus:ring-purple-500/10 transition-all text-sm font-medium"
           />
           <div className="absolute right-4 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded border border-gray-100 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-800 text-[10px] font-bold text-gray-400">
@@ -306,23 +416,37 @@ const OrdersPage = () => {
       {/* Main Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-4">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Orders</h1>
-          <Button variant="outline" className="h-10 px-4 rounded-xl border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-sm font-semibold flex items-center gap-2">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+            Orders
+          </h1>
+          <Button
+            variant="outline"
+            className="h-10 px-4 rounded-xl border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-sm font-semibold flex items-center gap-2"
+          >
             <Calendar className="w-4 h-4" />
             Jan 1 - Jan 30, 2024
           </Button>
         </div>
 
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="h-10 rounded-xl border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-sm font-semibold">
+          <Button
+            variant="outline"
+            className="h-10 rounded-xl border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-sm font-semibold"
+          >
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
-          <Button variant="outline" className="h-10 rounded-xl border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-sm font-semibold">
+          <Button
+            variant="outline"
+            className="h-10 rounded-xl border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-sm font-semibold"
+          >
             More actions
             <ChevronRight className="w-4 h-4 ml-2 rotate-90" />
           </Button>
-          <Button onClick={() => navigate("/orders/create")} className="h-10 rounded-xl bg-[#5347CE] hover:bg-[#4338ca] text-white text-sm font-bold px-6">
+          <Button
+            onClick={() => navigate("/orders/create")}
+            className="h-10 rounded-xl bg-[#5347CE] hover:bg-[#4338ca] text-white text-sm font-bold px-6"
+          >
             Create order
           </Button>
         </div>
@@ -331,7 +455,7 @@ const OrdersPage = () => {
       {/* Stats Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {orderStats.map((stat, i) => (
-          <OrderStatCard 
+          <OrderStatCard
             key={i}
             title={stat.title}
             value={stat.value}
@@ -346,11 +470,11 @@ const OrdersPage = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center p-1 bg-gray-100/50 dark:bg-neutral-900/50 rounded-2xl w-fit">
-            {tabs.map(tab => (
+            {tabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === tab ? 'bg-white dark:bg-neutral-800 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === tab ? "bg-white dark:bg-neutral-800 shadow-sm text-gray-900 dark:text-white" : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"}`}
               >
                 {tab}
               </button>
@@ -362,16 +486,32 @@ const OrdersPage = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-white dark:hover:bg-neutral-900 border border-transparent hover:border-gray-100 dark:hover:border-neutral-800">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 rounded-xl hover:bg-white dark:hover:bg-neutral-900 border border-transparent hover:border-gray-100 dark:hover:border-neutral-800"
+            >
               <Search className="w-4 h-4 text-gray-500" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-white dark:hover:bg-neutral-900 border border-transparent hover:border-gray-100 dark:hover:border-neutral-800">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 rounded-xl hover:bg-white dark:hover:bg-neutral-900 border border-transparent hover:border-gray-100 dark:hover:border-neutral-800"
+            >
               <Filter className="w-4 h-4 text-gray-500" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-white dark:hover:bg-neutral-900 border border-transparent hover:border-gray-100 dark:hover:border-neutral-800">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 rounded-xl hover:bg-white dark:hover:bg-neutral-900 border border-transparent hover:border-gray-100 dark:hover:border-neutral-800"
+            >
               <ArrowUpDown className="w-4 h-4 text-gray-500" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-white dark:hover:bg-neutral-900 border border-transparent hover:border-gray-100 dark:hover:border-neutral-800">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 rounded-xl hover:bg-white dark:hover:bg-neutral-900 border border-transparent hover:border-gray-100 dark:hover:border-neutral-800"
+            >
               <MoreHorizontal className="w-4 h-4 text-gray-500" />
             </Button>
           </div>
