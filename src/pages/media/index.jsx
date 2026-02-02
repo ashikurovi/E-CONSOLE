@@ -370,29 +370,47 @@ export default function MediaPage() {
                 {/* Image Thumbnail */}
                 <div className="relative aspect-square rounded-[20px] overflow-hidden bg-gray-100 dark:bg-white/5">
                    
-                    {/* Hover Overlay with Actions */}
-                    <div className="absolute inset-0 z-20 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                        <motion.button 
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="bg-white text-gray-900 p-2.5 rounded-full shadow-lg"
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 z-20 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <Button 
+                            className="bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 rounded-full px-6"
                         >
-                            <Eye className="w-5 h-5" />
-                        </motion.button>
-                        <motion.button 
-                             whileHover={{ scale: 1.1 }}
-                             whileTap={{ scale: 0.95 }}
-                             className="bg-white text-indigo-600 p-2.5 rounded-full shadow-lg"
-                        >
-                            <Crop className="w-5 h-5" />
-                        </motion.button>
-                        <motion.button 
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="bg-white text-red-500 p-2.5 rounded-full shadow-lg"
-                        >
-                            <Trash2 className="w-5 h-5" />
-                        </motion.button>
+                            View Details
+                        </Button>
+                    </div>
+
+                    {/* Three Dot Menu */}
+                    <div className="absolute top-3 right-3 z-30 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button className="h-8 w-8 bg-white/90 backdrop-blur-sm dark:bg-black/60 rounded-full flex items-center justify-center text-gray-700 dark:text-white shadow-lg hover:scale-105 transition-transform">
+                                    <MoreVertical className="w-4 h-4" />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                                <DropdownMenuItem onClick={() => {
+                                    navigator.clipboard.writeText(image.url);
+                                    // Toast logic would go here
+                                }}>
+                                    <Copy className="w-4 h-4 mr-2" />
+                                    Copy URL
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {
+                                    setSelectedFile(null); // Reset file
+                                    setPreviewUrl(image.url);
+                                    setUploadStep("crop");
+                                    setIsUploadOpen(true);
+                                }}>
+                                    <Crop className="w-4 h-4 mr-2" />
+                                    Crop Image
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20">
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
 
                     {/* Image */}
