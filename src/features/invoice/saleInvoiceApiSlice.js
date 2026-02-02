@@ -27,9 +27,37 @@ export const saleInvoiceApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: [{ type: "saleInvoice", id: "LIST" }],
     }),
 
+    // Send invoice as PDF to customer email
+    sendInvoiceEmail: builder.mutation({
+      query: ({ id, companyId, pdfBase64 }) => ({
+        url: `/sale-invoices/${id}/send-email`,
+        method: "POST",
+        params: { companyId },
+        body: { pdfBase64 },
+      }),
+    }),
+
+    // Update sale invoice (status, deliveryStatus, fulfillmentStatus)
+    updateSaleInvoice: builder.mutation({
+      query: ({ id, companyId, ...body }) => ({
+        url: `/sale-invoices/${id}`,
+        method: "PATCH",
+        params: { companyId },
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "saleInvoice", id: "LIST" },
+        { type: "saleInvoice", id },
+      ],
+    }),
+
     // Delete sale invoice
     deleteSaleInvoice: builder.mutation({
-      query: (id) => ({ url: `/sale-invoices/${id}`, method: "DELETE" }),
+      query: ({ id, companyId }) => ({
+        url: `/sale-invoices/${id}`,
+        method: "DELETE",
+        params: { companyId },
+      }),
       invalidatesTags: [{ type: "saleInvoice", id: "LIST" }],
     }),
   }),
@@ -39,5 +67,7 @@ export const {
   useGetSaleInvoicesQuery,
   useGetSaleInvoiceQuery,
   useCreateSaleInvoiceMutation,
+  useUpdateSaleInvoiceMutation,
+  useSendInvoiceEmailMutation,
   useDeleteSaleInvoiceMutation,
 } = saleInvoiceApiSlice;
