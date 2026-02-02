@@ -3,16 +3,24 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
+  FileText,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Plus,
+  Eye,
+  Download,
+  Filter,
+  Calendar,
   MoreVertical,
-  Search,
-  Plus
+  Trash2,
+  Search
 } from "lucide-react";
 import { format } from "date-fns";
 import { useGetSaleInvoicesQuery } from "@/features/invoice/saleInvoiceApiSlice";
 import { Button } from "@/components/ui/button";
 import ReusableTable from "@/components/table/reusable-table";
-import InvoiceStatCard from "./components/InvoiceStatCard";
-import ConversionHistoryChart from "./components/ConversionHistoryChart";
+import StatCard from "@/components/cards/stat-card";
 import Dropdown from "@/components/dropdown/dropdown";
 import {
   Tooltip,
@@ -37,6 +45,7 @@ const InvoicesPage = () => {
   // Calculate Stats
   const stats = useMemo(() => {
     const total = saleInvoicesData.length;
+    const totalAmount = saleInvoicesData.reduce((sum, inv) => sum + (Number(inv.totalAmount) || 0), 0);
     
     const paidInvoices = saleInvoicesData.filter(inv => inv.status?.toLowerCase() === 'paid');
     const paidCount = paidInvoices.length;
@@ -44,20 +53,17 @@ const InvoicesPage = () => {
     
     const pendingInvoices = saleInvoicesData.filter(inv => ['pending', 'unpaid', 'processing'].includes(inv.status?.toLowerCase()));
     const pendingCount = pendingInvoices.length;
-    const pendingAmount = pendingInvoices.reduce((sum, inv) => sum + (Number(inv.totalAmount) || 0), 0);
     
-    const scheduledCount = saleInvoicesData.filter(inv => inv.status?.toLowerCase() === 'scheduled').length;
-    const scheduledAmount = saleInvoicesData.filter(inv => inv.status?.toLowerCase() === 'scheduled')
-                             .reduce((sum, inv) => sum + (Number(inv.totalAmount) || 0), 0); // Mock amount logic if needed
+    const overdueInvoices = saleInvoicesData.filter(inv => inv.status?.toLowerCase() === 'overdue'); // Assuming 'overdue' status exists or needs logic
+    const overdueCount = overdueInvoices.length;
 
     return {
       total,
+      totalAmount,
       paidCount,
       paidAmount,
       pendingCount,
-      pendingAmount,
-      scheduledCount,
-      scheduledAmount
+      overdueCount
     };
   }, [saleInvoicesData]);
 
@@ -65,24 +71,19 @@ const InvoicesPage = () => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD', // Changed to USD to match screenshot ($)
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      currency: 'BDT',
+      minimumFractionDigits: 2
     }).format(amount || 0);
   };
 
   // Status Tabs
-  const tabs = ["All", "Draft", "Scheduled", "Paid"];
+  const tabs = ["All", "Paid", "Pending", "Overdue", "Cancelled"];
 
   // Filter Data
   const filteredData = useMemo(() => {
     if (statusFilter === "All") return saleInvoicesData;
-    // Map screenshot tabs to actual statuses
-    const apiStatus = statusFilter === "Draft" ? "pending" : statusFilter.toLowerCase(); 
-    // Adjust logic if needed based on real API values
     return saleInvoicesData.filter(inv => 
-      (inv.status?.toLowerCase() || "").includes(apiStatus) || 
-      (statusFilter === "Draft" && inv.status?.toLowerCase() === "unpaid") // Mapping Unpaid/Draft concepts
+      (inv.status?.toLowerCase() || "") === statusFilter.toLowerCase()
     );
   }, [saleInvoicesData, statusFilter]);
 
@@ -93,131 +94,149 @@ const InvoicesPage = () => {
       invoiceId: (
         <span 
           onClick={() => navigate(`/invoices/${invoice.id}`)}
-          className="font-medium text-gray-500 hover:text-gray-900 cursor-pointer"
+          className="font-medium text-[#5347CE] hover:underline cursor-pointer"
         >
-          {/* Mocking format #AD890 */}
-          # {(invoice.invoiceNumber || invoice.id?.substring(0, 6)).toUpperCase()}
+          {invoice.invoiceNumber || invoice.id?.substring(0, 8)}
         </span>
       ),
-      date: invoice.createdAt ? format(new Date(invoice.createdAt), "d MMMM yyyy") : "-",
+      date: invoice.createdAt ? format(new Date(invoice.createdAt), "MMM d, yyyy") : "-",
       customer: (
         <div className="flex items-center gap-3">
-           {/* Mock Avatar */}
-           <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200">
-              <img 
-                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${invoice.customer?.name || invoice.customerName}`} 
-                alt="avatar"
-                className="w-full h-full object-cover"
-              />
-           </div>
-          <span className="font-medium text-gray-700 dark:text-gray-300">
-            {invoice.customer?.name || invoice.customerName || "Sophia Wagner"}
+          <div className="w-8 h-8 rounded-full bg-[#5347CE]/10 flex items-center justify-center text-[#5347CE] font-bold text-xs">
+            {(invoice.customer?.name || invoice.customerName || "C").charAt(0).toUpperCase()}
+          </div>
+          <span className="font-medium text-gray-900 dark:text-gray-100">
+            {invoice.customer?.name || invoice.customerName || "Unknown Customer"}
           </span>
         </div>
       ),
-      amount: <span className="font-medium text-gray-700">{formatCurrency(invoice.totalAmount)}</span>,
+      amount: <span className="font-semibold">{formatCurrency(invoice.totalAmount)}</span>,
       status: (
-        <span className={`px-4 py-1.5 rounded-lg text-sm font-medium border ${
+        <span className={`px-2.5 py-1 rounded-md text-xs font-bold border ${
           invoice.status?.toLowerCase() === 'paid' 
-            ? 'bg-emerald-50 text-emerald-500 border-emerald-200'
-            : invoice.status?.toLowerCase() === 'scheduled'
-            ? 'bg-red-50 text-red-400 border-red-100' // Using Red for Scheduled as per screenshot (or orange if preferred)
-            : 'bg-blue-50 text-blue-500 border-blue-200' // Unpaid/Draft
+            ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
+            : invoice.status?.toLowerCase() === 'pending'
+            ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800'
+            : invoice.status?.toLowerCase() === 'cancelled'
+            ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
+            : 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
         }`}>
-          {invoice.status ? (invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)) : "Unpaid"}
+          {invoice.status?.toUpperCase() || "PENDING"}
         </span>
       ),
-      paymentType: <span className="text-gray-500">Private</span>, // Mock column
       actions: (
-        <div className="flex items-center justify-end">
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-gray-600">
-                <MoreVertical className="w-4 h-4" />
-            </Button>
+        <div className="flex items-center justify-end gap-2">
+           <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 text-gray-500 hover:text-[#5347CE] hover:bg-[#5347CE]/10"
+                  onClick={() => navigate(`/invoices/${invoice.id}`)}
+                >
+                  <Eye className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>View Details</p>
+              </TooltipContent>
+            </Tooltip>
+           </TooltipProvider>
+
+           <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 text-gray-500 hover:text-green-600 hover:bg-green-50"
+                  // Add download handler here
+                >
+                  <Download className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Download PDF</p>
+              </TooltipContent>
+            </Tooltip>
+           </TooltipProvider>
         </div>
       )
     }));
   }, [filteredData, navigate]);
 
   const headers = [
-    { header: "Number", field: "invoiceId" },
+    { header: "Invoice ID", field: "invoiceId" },
     { header: "Date", field: "date", sortable: true },
     { header: "Customer", field: "customer" },
-    { header: "Status", field: "status" },
     { header: "Amount", field: "amount", sortable: true },
-    { header: "Payment type", field: "paymentType" },
-    { header: "", field: "actions", sortable: false },
+    { header: "Status", field: "status" },
+    { header: "Actions", field: "actions", sortable: false },
   ];
 
-  // Mock Sparkline Data
-  const sparkData1 = [{value: 20}, {value: 40}, {value: 30}, {value: 70}, {value: 40}, {value: 80}, {value: 60}];
-  const sparkData2 = [{value: 30}, {value: 50}, {value: 40}, {value: 60}, {value: 30}, {value: 70}, {value: 90}];
-  const sparkData3 = [{value: 10}, {value: 30}, {value: 20}, {value: 40}, {value: 30}, {value: 60}, {value: 50}];
-  const sparkData4 = [{value: 40}, {value: 20}, {value: 50}, {value: 30}, {value: 60}, {value: 40}, {value: 70}];
-
   return (
-    <div className="p-6 space-y-8 bg-[#FFFBF5]/50 min-h-screen font-sans">
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6 space-y-6">
       
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Invoices breakdown</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Invoices</h1>
+          <p className="text-sm text-gray-500 mt-1">Manage and track your invoices</p>
+        </div>
+        <Button 
+          className="bg-[#5347CE] hover:bg-[#4338ca] text-white px-6 shadow-lg shadow-[#5347CE]/20"
+          onClick={() => navigate("/invoices/create")}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          New Invoice
+        </Button>
       </div>
 
-      {/* Stats Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: 2x2 Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <InvoiceStatCard 
-                 title="All invoices"
-                 value={stats.total} 
-                 comparisonText="Week comparison"
-                 trend="up"
-                 data={sparkData1}
-                 color="#10B981" // Green
-              />
-              <InvoiceStatCard 
-                 title="Scheduled"
-                 value={stats.total} // Using total as placeholder or real scheduled count
-                 comparisonText="Month comparison"
-                 trend="up"
-                 data={sparkData2}
-                 color="#F87171" // Redish
-              />
-              <InvoiceStatCard 
-                 title="Unpaid"
-                 value={formatCurrency(stats.pendingAmount)}
-                 comparisonText="Month comparison"
-                 trend="up"
-                 data={sparkData3}
-                 color="#3B82F6" // Blue
-              />
-               <InvoiceStatCard 
-                 title="Paid"
-                 value={formatCurrency(stats.paidAmount)}
-                 comparisonText="Week comparison"
-                 trend="up"
-                 data={sparkData4}
-                 color="#F59E0B" // Yellow
-              />
-          </div>
-
-          {/* Right: Conversion History */}
-          <div className="w-full">
-              <ConversionHistoryChart />
-          </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title="Total Invoices"
+          value={stats.total}
+          delta="+12%"
+          icon={FileText}
+          tone="violet"
+        />
+        <StatCard
+          title="Total Revenue"
+          value={formatCurrency(stats.totalAmount)}
+          delta="+8.2%"
+          icon={CheckCircle}
+          tone="green"
+        />
+        <StatCard
+          title="Pending Invoices"
+          value={stats.pendingCount}
+          delta="-2%"
+          icon={Clock}
+          tone="default" // Using default (gray/orange) or custom
+        />
+        <StatCard
+          title="Overdue Invoices"
+          value={stats.overdueCount}
+          delta="+4%"
+          icon={AlertCircle}
+          tone="red"
+        />
       </div>
 
-      {/* Filter Toolbar */}
+      {/* Tabs & Filters */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-4">
         {/* Tabs */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-1 bg-gray-50 dark:bg-white/5 p-1 rounded-xl w-full md:w-auto overflow-x-auto">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setStatusFilter(tab)}
-              className={`text-sm font-bold transition-all ${
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                 statusFilter === tab
-                  ? "text-gray-900 dark:text-white border-b-2 border-black dark:border-white pb-1"
-                  : "text-gray-400 hover:text-gray-600"
+                  ? "bg-white dark:bg-[#2c3036] text-[#5347CE] shadow-sm"
+                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               }`}
             >
               {tab}
@@ -226,16 +245,17 @@ const InvoicesPage = () => {
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-3">
-             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                {/* Visual placeholder for search, ReusableTable has its own search but we can hide/customise it */}
-             </div>
-             <Button variant="ghost" className="text-gray-500 font-medium text-sm hover:bg-transparent hover:text-gray-900">
-                 <span className="bg-[#F59E0B] rounded-md p-1 mr-2 text-white"><Search className="w-3 h-3"/></span> 
-                 {/* Just mocking the yellow icon from screenshot if needed, or keeping simple */}
-             </Button>
-             <span className="text-sm text-gray-400">Short: <span className="text-gray-900 font-bold">A-Z</span></span>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" className="h-9 border-gray-200 dark:border-gray-700">
+                    <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                    <span className="text-sm">This Week</span>
+                </Button>
+                <Button variant="outline" size="sm" className="h-9 border-gray-200 dark:border-gray-700">
+                    <Filter className="w-4 h-4 mr-2 text-gray-500" />
+                    <span className="text-sm">Filter</span>
+                </Button>
+            </div>
         </div>
       </div>
 
@@ -244,8 +264,8 @@ const InvoicesPage = () => {
         data={tableData}
         headers={headers}
         isLoading={isLoading}
-        searchable={false} // Hiding default search to match clean screenshots
-        py="py-6" // Taller rows
+        searchPlaceholder="Search invoices..."
+        py="py-4"
       />
     </div>
   );
