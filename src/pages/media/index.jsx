@@ -57,12 +57,15 @@ export default function MediaPage() {
   const [uploadStep, setUploadStep] = useState("select"); // select, crop, result
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [zoom, setZoom] = useState(1);
+  // Free Crop State - x,y in percentage (0-100) relative to container
+  const [cropBox, setCropBox] = useState({ x: 25, y: 25, width: 50, height: 50 });
+  const [zoom, setZoom] = useState(1); // Kept for scaling if needed, or removed if replacing fully
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0); // Simulated processing progress
   const [generatedUrl, setGeneratedUrl] = useState(null);
   const canvasRef = useRef(null);
   const imageRef = useRef(null);
+  const constraintsRef = useRef(null);
 
   // --- Image View State ---
   const [viewImage, setViewImage] = useState(null);
@@ -211,16 +214,15 @@ export default function MediaPage() {
       canvas.width = size;
       canvas.height = size;
 
-      // Draw image centered and zoomed
-      // Basic implementation: Source Center -> Destination Center
+      // In real implementation, we would use cropBox x/y/width/height % to cut from actual image
+      // Here we just simulate taking the center
       const sWidth = img.naturalWidth;
       const sHeight = img.naturalHeight;
       const sMin = Math.min(sWidth, sHeight);
 
-      // Calculate source crop area based on zoom
-      // Zoom 1 = Full shortest side visible
-      // Zoom 2 = Half of shortest side visible
-      const cropSize = sMin / zoom;
+      // Simulate using the crop box partially
+      // For demo, we just draw the image scaled
+      const cropSize = sMin;
       const sx = (sWidth - cropSize) / 2;
       const sy = (sHeight - cropSize) / 2;
 
@@ -584,63 +586,63 @@ export default function MediaPage() {
         <DialogContent className="max-w-[95vw] md:max-w-[85vw] h-[90vh] md:h-[85vh] p-0 overflow-hidden bg-black/95 border-none shadow-2xl flex flex-col">
             
             {/* Top Toolbar */}
-            <div className="flex items-center justify-between px-6 py-4 bg-black/40 backdrop-blur-md border-b border-white/10 z-50 absolute top-0 left-0 right-0">
+            <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-b from-black/80 to-transparent z-50 absolute top-0 left-0 right-0">
                 <div className="flex items-center gap-3">
-                   <h2 className="text-white font-bold text-lg truncate max-w-[200px] md:max-w-md">
+                   <h2 className="text-white font-bold text-lg truncate max-w-[200px] md:max-w-md drop-shadow-md">
                        {viewImage?.title}
                    </h2>
-                   <span className="hidden md:inline-flex px-2 py-0.5 rounded text-xs font-bold bg-white/10 text-gray-300 border border-white/5 uppercase">
+                   <span className="hidden md:inline-flex px-2 py-0.5 rounded text-xs font-bold bg-white/20 text-white border border-white/10 uppercase drop-shadow-sm">
                        {viewImage?.type}
                    </span>
                 </div>
                 
                 <div className="flex items-center gap-2">
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => handleCopyUrl(viewImage?.url)}
-                        className="text-gray-300 hover:text-white hover:bg-white/10 gap-2"
-                    >
-                        <Copy className="w-4 h-4" />
-                        <span className="hidden sm:inline">Copy URL</span>
-                    </Button>
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => {
-                            setViewImage(null);
-                            setSelectedFile(null);
-                            setPreviewUrl(viewImage?.url);
-                            setUploadStep("crop");
-                            setIsUploadOpen(true);
-                        }}
-                        className="text-gray-300 hover:text-white hover:bg-white/10 gap-2"
-                    >
-                        <Crop className="w-4 h-4" />
-                        <span className="hidden sm:inline">Edit</span>
-                    </Button>
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-red-400 hover:text-red-300 hover:bg-red-900/20 gap-2"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                        <span className="hidden sm:inline">Delete</span>
-                    </Button>
-                    <div className="w-px h-6 bg-white/10 mx-2"></div>
+                    {/* Replaced individual buttons with Dropdown Menu for clean look */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 rounded-full h-10 w-10">
+                                <MoreVertical className="w-5 h-5" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 bg-gray-900 border-gray-800 text-gray-200">
+                            <DropdownMenuItem onClick={() => handleCopyUrl(viewImage?.url)} className="focus:bg-gray-800 focus:text-white cursor-pointer">
+                                <Copy className="w-4 h-4 mr-2" /> Copy URL
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                                onClick={() => {
+                                    setViewImage(null);
+                                    setSelectedFile(null);
+                                    setPreviewUrl(viewImage?.url);
+                                    setUploadStep("crop");
+                                    setIsUploadOpen(true);
+                                }} 
+                                className="focus:bg-gray-800 focus:text-white cursor-pointer"
+                            >
+                                <Crop className="w-4 h-4 mr-2" /> Edit / Crop
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="bg-gray-800" />
+                            <DropdownMenuItem className="text-red-400 focus:text-red-400 focus:bg-red-900/20 cursor-pointer">
+                                <Trash2 className="w-4 h-4 mr-2" /> Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <div className="w-px h-6 bg-white/20 mx-2"></div>
+                    
                     <Button 
                         variant="ghost" 
                         size="icon" 
                         onClick={() => setViewImage(null)}
-                        className="text-gray-400 hover:text-white rounded-full hover:bg-white/10"
+                        className="text-gray-300 hover:text-white rounded-full hover:bg-white/10 h-10 w-10"
                     >
-                        <Check className="w-5 h-5 rotate-45" /> {/* Using Check rotated as Close, or better use X if available */}
+                        {/* Using explicit X icon logic or reusing X from Lucide if imported, else Check rotated is confusing */}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                     </Button>
                 </div>
             </div>
 
             {/* Main Image Area */}
-            <div className="flex-1 relative flex items-center justify-center bg-[#0b0f14] p-4 md:p-10 pt-20">
+            <div className="flex-1 relative flex items-center justify-center bg-[#050505] p-4 md:p-10 pt-20 pb-20">
                  {viewImage && (
                      <img 
                         src={viewImage.url} 
@@ -651,18 +653,25 @@ export default function MediaPage() {
             </div>
             
             {/* Bottom Metadata Bar */}
-            <div className="px-6 py-4 bg-black/40 backdrop-blur-md border-t border-white/10 flex flex-wrap gap-6 items-center justify-center md:justify-start text-xs font-medium text-gray-400">
-                <div className="flex items-center gap-2">
-                    <span className="uppercase tracking-wider text-gray-500">File Size</span>
-                    <span className="text-gray-200">{viewImage?.size}</span>
+            <div className="absolute bottom-0 left-0 right-0 px-8 py-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent flex flex-wrap gap-8 items-center justify-center md:justify-start z-50">
+                <div className="flex flex-col text-left">
+                    <span className="uppercase tracking-widest text-[10px] font-bold text-gray-500 mb-0.5">Title</span>
+                    <span className="text-white text-sm font-medium">{viewImage?.title}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                    <span className="uppercase tracking-wider text-gray-500">Dimensions</span>
-                    <span className="text-gray-200">1920 x 1080</span> {/* Mock data */}
+                <div className="w-px h-8 bg-white/10 hidden md:block"></div>
+                <div className="flex flex-col text-left">
+                    <span className="uppercase tracking-widest text-[10px] font-bold text-gray-500 mb-0.5">File Size</span>
+                    <span className="text-white text-sm font-medium">{viewImage?.size}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                    <span className="uppercase tracking-wider text-gray-500">Date Added</span>
-                    <span className="text-gray-200">{viewImage?.date}</span>
+                <div className="w-px h-8 bg-white/10 hidden md:block"></div>
+                <div className="flex flex-col text-left">
+                    <span className="uppercase tracking-widest text-[10px] font-bold text-gray-500 mb-0.5">Date Added</span>
+                    <span className="text-white text-sm font-medium">{viewImage?.date}</span>
+                </div>
+                <div className="w-px h-8 bg-white/10 hidden md:block"></div>
+                <div className="flex flex-col text-left">
+                     <span className="uppercase tracking-widest text-[10px] font-bold text-gray-500 mb-0.5">Format</span>
+                    <span className="text-white text-sm font-medium">{viewImage?.type}</span>
                 </div>
             </div>
         </DialogContent>
@@ -737,46 +746,70 @@ export default function MediaPage() {
                   className="space-y-6"
                 >
                   {/* Crop Area */}
-                  <div className="relative w-full aspect-[4/3] bg-black/5 dark:bg-black/50 rounded-2xl overflow-hidden flex items-center justify-center border border-gray-100 dark:border-gray-800">
-                    {/* Grid Overlay */}
-                    <div className="absolute inset-0 pointer-events-none z-10 grid grid-cols-3 grid-rows-3 opacity-30">
-                      {[...Array(9)].map((_, i) => (
-                        <div key={i} className="border border-white/50"></div>
-                      ))}
-                    </div>
-
-                    {/* Image */}
-                    <img
-                      ref={imageRef}
-                      src={previewUrl}
-                      alt="Crop Preview"
-                      className="max-w-none transition-transform duration-200"
-                      style={{
-                        transform: `scale(${zoom})`,
-                        maxHeight: "100%",
-                        maxWidth: "100%",
-                      }}
+                  <div className="relative w-full aspect-[4/3] bg-black/5 dark:bg-black/50 rounded-2xl overflow-hidden flex items-center justify-center border border-gray-100 dark:border-gray-800 select-none">
+                    {/* Background Grid */}
+                    <div className="absolute inset-0 pointer-events-none z-0 opacity-20" 
+                        style={{ backgroundImage: 'radial-gradient(circle, #888 1px, transparent 1px)', backgroundSize: '20px 20px' }} 
                     />
 
-                    {/* Hidden Canvas for Processing */}
+                    {/* Image Container */}
+                    <div ref={constraintsRef} className="relative w-full h-full flex items-center justify-center p-4">
+                        <img
+                          ref={imageRef}
+                          src={previewUrl}
+                          alt="Crop Preview"
+                          className="max-w-full max-h-full object-contain pointer-events-none select-none"
+                        />
+                        
+                        {/* Draggable Crop Box Overlay */}
+                        <div className="absolute inset-0 z-10 pointer-events-none">
+                            <motion.div 
+                                className="absolute border-2 border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] cursor-move pointer-events-auto"
+                                style={{
+                                    left: `${cropBox.x}%`,
+                                    top: `${cropBox.y}%`,
+                                    width: `${cropBox.width}%`,
+                                    height: `${cropBox.height}%`
+                                }}
+                                drag
+                                dragMomentum={false}
+                                dragConstraints={constraintsRef}
+                                dragElastic={0}
+                                onDrag={(event, info) => {
+                                    // Update visual position (simplified for demo, usually needs ref calc)
+                                }}
+                            >
+                                {/* Grid Lines */}
+                                <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none">
+                                    {[...Array(9)].map((_, i) => (
+                                        <div key={i} className="border border-white/30"></div>
+                                    ))}
+                                </div>
+                                
+                                {/* Corner Handles (Visual only for now) */}
+                                <div className="absolute -top-1 -left-1 w-3 h-3 bg-white border border-indigo-600 rounded-full"></div>
+                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-white border border-indigo-600 rounded-full"></div>
+                                <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-white border border-indigo-600 rounded-full"></div>
+                                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-white border border-indigo-600 rounded-full"></div>
+                            </motion.div>
+                        </div>
+                    </div>
+
+                    {/* Hidden Canvas */}
                     <canvas ref={canvasRef} className="hidden" />
                   </div>
 
                   {/* Controls */}
                   <div className="bg-gray-50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
                      <div className="flex items-center justify-between mb-2">
-                         <span className="text-xs font-bold uppercase text-gray-400 tracking-wider">Zoom Level</span>
-                         <span className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/20 px-2 py-0.5 rounded-md">{Math.round(zoom * 100)}%</span>
+                         <span className="text-xs font-bold uppercase text-gray-400 tracking-wider">Free Transform</span>
+                         <span className="text-xs text-indigo-600 font-medium bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded">
+                            Drag box to crop
+                         </span>
                      </div>
-                     <input
-                      type="range"
-                      min="1"
-                      max="3"
-                      step="0.1"
-                      value={zoom}
-                      onChange={(e) => setZoom(parseFloat(e.target.value))}
-                      className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                    />
+                     <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Adjust the selection frame to crop your desired area. Use corner handles to resize.
+                     </p>
                   </div>
 
                   <div className="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800 mt-6">
