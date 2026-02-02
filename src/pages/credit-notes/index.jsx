@@ -202,21 +202,6 @@ const CreditNotesPage = () => {
       label: "Pending Refunds",
       value: pendingCount,
       trend: `${pendingTrend > 0 ? "+" : ""}${pendingTrend.toFixed(1)}%`,
-      trendDir: pendingTrend >= 0 ? "neutral" : "up", // Less pending is usually better? Or neutral since it's "Action Required"?
-      // Let's keep it consistent: More pending = "neutral" (Action Required), Less pending = "up" (Good)?
-      // Actually, standard is: Increase = up arrow. Whether it's good or bad depends on context.
-      // But here the code uses `trendDir` to color the badge.
-      // Existing code: trendDir === "up" ? green : trendDir === "down" ? red : gray.
-      // For Pending: If pending increases, it might be "bad" (red) or "action required" (gray).
-      // Let's set it dynamically based on value.
-      trendDir:
-        pendingTrend === 0 ? "neutral" : pendingTrend > 0 ? "down" : "up",
-      // If pending increased (down/red), if pending decreased (up/green).
-      // Wait, "down" maps to red in the UI code below?
-      // Check UI: trendDir === "up" ? green : trendDir === "down" ? red.
-      // So if Pending INCREASES, we want RED (down)? Or usually "Growth" is green?
-      // Let's stick to: Increase = Green (up), Decrease = Red (down) strictly for the arrow direction.
-      // But semantically, more pending work is bad.
       // Let's just follow the math: Increase = "up", Decrease = "down".
       trendDir: pendingTrend >= 0 ? "up" : "down",
       icon: Clock,

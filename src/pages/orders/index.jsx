@@ -30,10 +30,10 @@ import {
   useDeleteOrderMutation,
   useGetOrderStatsQuery,
   useBarcodeScanMutation,
+  useRecordPartialPaymentMutation,
 } from "@/features/order/orderApiSlice";
-import { useRecordPartialPaymentMutation } from "@/features/payment/paymentApiSlice";
 import { useNavigate } from "react-router-dom";
-import DeleteModal from "@/components/modal/delete-modal";
+import DeleteModal from "@/components/modals/DeleteModal";
 import TextField from "@/components/input/TextField";
 import { Switch } from "@/components/ui/switch";
 import { useSelector } from "react-redux";
