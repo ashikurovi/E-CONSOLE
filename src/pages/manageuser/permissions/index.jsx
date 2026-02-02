@@ -16,7 +16,6 @@ const PERMISSION_GROUPS = {
     { value: FeaturePermission.ORDERS_ITEM, label: "Order Items" },
     { value: FeaturePermission.CATEGORY, label: "Category" },
     { value: FeaturePermission.CUSTOMERS, label: "Customers" },
-    { value: FeaturePermission.INVENTORY, label: "Inventory" },
   ],
   "Management": [
     { value: FeaturePermission.MANAGE_USERS, label: "Manage Users" },
@@ -36,12 +35,13 @@ const PERMISSION_GROUPS = {
     { value: FeaturePermission.SMS_NOTIFICATIONS, label: "SMS Notifications" },
   ],
   "Shipping": [
-    { value: FeaturePermission.STEADFAST, label: "Steadfast Courier" },
+    { value: FeaturePermission.STEARDFAST, label: "Steadfast Courier" },
     { value: FeaturePermission.PATHAO, label: "Pathao Courier" },
     { value: FeaturePermission.REDX, label: "RedX Courier" },
   ],
   "Reports & Analytics": [
     { value: FeaturePermission.REPORTS, label: "Reports" },
+    { value: FeaturePermission.FRUAD_CHECKER, label: "Fraud Checker" },
     { value: FeaturePermission.REVENUE, label: "Revenue" },
     { value: FeaturePermission.NEW_CUSTOMERS, label: "New Customers" },
     { value: FeaturePermission.REPEAT_PURCHASE_RATE, label: "Repeat Purchase Rate" },
@@ -57,7 +57,6 @@ const PERMISSION_GROUPS = {
   "Configuration": [
     { value: FeaturePermission.SMS_CONFIGURATION, label: "SMS Configuration" },
     { value: FeaturePermission.EMAIL_CONFIGURATION, label: "Email Configuration" },
-    { value: FeaturePermission.FRUAD_CHECKER, label: "Fraud Checker" },
   ],
 };
 

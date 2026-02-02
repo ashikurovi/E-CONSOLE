@@ -12,6 +12,11 @@ export const dashboardApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res) => res?.data ?? {},
       providesTags: [{ type: "dashboard", id: "STATS" }],
     }),
+    getCategoryStats: builder.query({
+      query: (params) => ({ url: "/dashboard/categories-stats", method: "GET", params }),
+      transformResponse: (res) => res?.data ?? {},
+      providesTags: [{ type: "dashboard", id: "CATEGORY_STATS" }],
+    }),
     getAiReport: builder.query({
       query: (params) => ({ url: "/dashboard/ai-report", method: "GET", params }),
       transformResponse: (res) => res?.data ?? {},
@@ -50,6 +55,7 @@ export const dashboardApiSlice = apiSlice.injectEndpoints({
 export const {
   useGetDashboardQuery,
   useGetStatsQuery,
+  useGetCategoryStatsQuery,
   useGetAiReportQuery,
   useGetAiLiveMessagesQuery,
   useGetAiSalesDirectionQuery,

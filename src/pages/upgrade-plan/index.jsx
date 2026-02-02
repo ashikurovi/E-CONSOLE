@@ -208,9 +208,8 @@ const UpgradePlanPage = () => {
       const invoiceAmount = parseFloat(selectedPackage.discountPrice || selectedPackage.price);
       const invoiceRes = await createInvoice({
         customerId: userId,
-        totalAmount: invoiceAmount.toFixed(2),
-        paidAmount: "0.00",
-        dueAmount: invoiceAmount.toFixed(2),
+        totalAmount: Number(invoiceAmount.toFixed(2)),
+        paidAmount: 0,
         amountType: "package",
         status: "pending",
         packageId: selectedPackage.id, // Store package ID in invoice for later upgrade

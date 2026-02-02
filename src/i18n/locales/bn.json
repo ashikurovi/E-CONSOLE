@@ -137,7 +137,12 @@
     "paid": "পেইড",
     "unpaid": "অপেইড",
     "paidOrders": "পেইড অর্ডার",
-    "user": "ব্যবহারকারী"
+    "user": "ব্যবহারকারী",
+    "orderStats": "অর্ডার পরিসংখ্যান",
+    "categoryStats": "ক্যাটাগরি পরিসংখ্যান",
+    "totalCategories": "মোট ক্যাটাগরি",
+    "activeCategories": "সক্রিয় ক্যাটাগরি",
+    "productsWithCategory": "পণ্য"
   },
   "auth": {
     "loggedOut": "সফলভাবে লগআউট হয়েছে"

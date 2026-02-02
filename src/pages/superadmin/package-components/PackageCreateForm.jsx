@@ -19,7 +19,7 @@ import { useGetThemesQuery } from "@/features/theme/themeApiSlice";
 
 const FEATURE_DISPLAY_NAMES = {
     PATHAO: "Pathao Courier",
-    STEADFAST: "Steadfast Courier",
+    STEARDFAST: "Steadfast Courier",
     REDX: "RedX Courier",
 };
 
@@ -29,17 +29,17 @@ const getFeatureDisplayName = (feature) =>
 const AVAILABLE_FEATURES = [
     "PRODUCTS",
     "ORDERS",
-    "ORDER_ITEMS",
-    "STEADFAST",
+    "STEARDFAST",
     "PATHAO",
     "REDX",
     "NOTIFICATIONS",
     "EMAIL_NOTIFICATIONS",
     "WHATSAPP_NOTIFICATIONS",
+    "SMS_NOTIFICATIONS",
+    "ORDERS_ITEM",
     "CATEGORY",
     "CUSTOMERS",
     "REPORTS",
-    "INVENTORY",
     "SETTINGS",
     "STAFF",
     "SMS_CONFIGURATION",
@@ -51,7 +51,7 @@ const AVAILABLE_FEATURES = [
     "PROMOCODES",
     "HELP",
     "BANNERS",
-    "FRAUD_CHECKER",
+    "FRUAD_CHECKER",
     "MANAGE_USERS",
     "DASHBOARD",
     "REVENUE",
@@ -59,11 +59,7 @@ const AVAILABLE_FEATURES = [
     "REPEAT_PURCHASE_RATE",
     "AVERAGE_ORDER_VALUE",
     "STATS",
-    "PRIVACY_POLICY",
-    "TERMS_CONDITIONS",
-    "REFUND_POLICY",
     "LOG_ACTIVITY",
-    "ACTIVITY_LOGS",
 ];
 
 const schema = yup.object().shape({
@@ -124,7 +120,9 @@ const PackageCreateForm = () => {
     };
 
     const onSubmit = async (data) => {
-        if (!features.length) {
+        // Filter to only valid features before submit
+        const validFeatures = features.filter((f) => AVAILABLE_FEATURES.includes(f));
+        if (!validFeatures.length) {
             toast.error("Select at least one feature");
             return;
         }
@@ -135,7 +133,7 @@ const PackageCreateForm = () => {
             price: parseFloat(data.price),
             discountPrice: data.discountPrice ? parseFloat(data.discountPrice) : null,
             isFeatured,
-            features,
+            features: validFeatures,
             ...(themeId && { themeId: parseInt(themeId) }),
         };
 

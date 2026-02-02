@@ -69,8 +69,7 @@ const InvoiceStatusUpdateForm = ({ invoice, onClose }) => {
         const payload = {
             id: invoice.id,
             status: data.status,
-            paidAmount: data.paidAmount ? parseFloat(data.paidAmount).toFixed(2) : "0.00",
-            dueAmount,
+            paidAmount: data.paidAmount ? Number(parseFloat(data.paidAmount).toFixed(2)) : 0,
         };
 
         // Update bank payment status if it exists

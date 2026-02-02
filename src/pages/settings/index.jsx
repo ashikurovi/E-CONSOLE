@@ -521,7 +521,7 @@ const SettingsPage = () => {
           </Card>
           )}
           {/* Steadfast Credentials */}
-          {hasPermission(user, FeaturePermission.STEADFAST) && (
+          {hasPermission(user, FeaturePermission.STEARDFAST) && (
           <Card className="border border-gray-100 dark:border-gray-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">

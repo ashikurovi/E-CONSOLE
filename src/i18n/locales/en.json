@@ -155,11 +155,23 @@
     "mostSellingProducts": "Most Selling Products",
     "weeklyTopCustomers": "Weekly Top Customers",
     "recentOrders": "Recent Orders",
+    "recent_orders": "Recent Orders",
+    "revenue_analytics": "Revenue Analytics",
+    "order_status": "Order Status",
+    "best_selling_products": "Best Selling Products",
+    "top_customers": "Top Customers",
+    "welcome": "Welcome, {{name}}!",
+    "overview_subtitle": "Here's what's happening with your store today",
     "paymentsBreakdown": "Payments Breakdown",
     "paid": "Paid",
     "unpaid": "Unpaid",
     "paidOrders": "Paid Orders",
-    "user": "User"
+    "user": "User",
+    "orderStats": "Order Stats",
+    "categoryStats": "Category Stats",
+    "totalCategories": "Total Categories",
+    "activeCategories": "Active Categories",
+    "productsWithCategory": "Products"
   },
   "auth": {
     "loggedOut": "Logged out successfully"
