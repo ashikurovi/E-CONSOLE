@@ -5,7 +5,15 @@ import { Button } from "@/components/ui/button";
 import { useGetReviewsQuery } from "@/features/reviews/reviewsApiSlice";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Star, MessageSquare } from "lucide-react";
+import {
+  Star,
+  MessageSquare,
+  MessageCircle,
+  AlertCircle,
+  CheckCircle2,
+  TrendingUp,
+} from "lucide-react";
+import { motion } from "framer-motion";
 
 function ReviewsPage() {
   const { t } = useTranslation();
@@ -13,8 +21,56 @@ function ReviewsPage() {
   const authUser = useSelector((state) => state.auth.user);
   const { data: reviews = [], isLoading } = useGetReviewsQuery(
     { companyId: authUser?.companyId },
-    { skip: !authUser?.companyId }
+    { skip: !authUser?.companyId },
   );
+
+  // Calculate Stats
+  const stats = useMemo(() => {
+    const total = reviews.length;
+    const pending = reviews.filter((r) => !r.reply).length;
+    const replied = total - pending;
+    const avgRating =
+      total > 0
+        ? (
+            reviews.reduce((acc, curr) => acc + (curr.rating || 0), 0) / total
+          ).toFixed(1)
+        : "0.0";
+
+    return [
+      {
+        label: t("reviews.totalReviews") || "Total Reviews",
+        value: total,
+        icon: MessageSquare,
+        color: "text-blue-600",
+        bg: "bg-blue-50 dark:bg-blue-900/20",
+        border: "border-blue-200 dark:border-blue-800",
+      },
+      {
+        label: t("reviews.avgRating") || "Average Rating",
+        value: avgRating,
+        icon: Star,
+        color: "text-amber-600",
+        bg: "bg-amber-50 dark:bg-amber-900/20",
+        border: "border-amber-200 dark:border-amber-800",
+      },
+      {
+        label: t("reviews.pendingReplies") || "Pending Replies",
+        value: pending,
+        icon: AlertCircle,
+        color: "text-rose-600",
+        bg: "bg-rose-50 dark:bg-rose-900/20",
+        border: "border-rose-200 dark:border-rose-800",
+      },
+      {
+        label: t("reviews.replied") || "Replied",
+        value: replied,
+        icon: CheckCircle2,
+        color: "text-emerald-600",
+        bg: "bg-emerald-50 dark:bg-emerald-900/20",
+        border: "border-emerald-200 dark:border-emerald-800",
+      },
+    ];
+  }, [reviews, t]);
 
   const headers = useMemo(
     () => [
@@ -23,78 +79,156 @@ function ReviewsPage() {
       { header: t("reviews.customer") || "Customer", field: "customerName" },
       { header: t("reviews.rating") || "Rating", field: "rating" },
       { header: t("reviews.comment") || "Comment", field: "comment" },
-      { header: t("reviews.reply") || "Reply", field: "hasReply" },
+      { header: t("reviews.status") || "Status", field: "status" },
       { header: t("reviews.createdAt") || "Created", field: "createdAt" },
-      { header: t("common.actions") || "Actions", field: "actions", sortable: false },
+      {
+        header: t("common.actions") || "Actions",
+        field: "actions",
+        sortable: false,
+      },
     ],
-    [t]
+    [t],
   );
 
   const tableData = useMemo(
     () =>
       reviews.map((review) => ({
-        id: review.id,
-        productName: review.product?.name ?? "-",
-        customerName: review.user?.name ?? review.user?.email ?? "Guest",
-        rating: (
-          <span className="flex items-center gap-1">
-            <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-            {review.rating}
-          </span>
+        id: (
+          <span className="font-mono text-xs text-gray-500">#{review.id}</span>
         ),
-        comment:
-          review.comment?.length > 80
-            ? `${review.comment.slice(0, 80)}…`
-            : review.comment ?? "-",
-        hasReply: review.reply ? (
-          <span className="text-emerald-600 dark:text-emerald-400 text-xs font-medium">
+        productName: (
+          <div className="font-medium text-gray-900 dark:text-white">
+            {review.product?.name ?? "-"}
+          </div>
+        ),
+        customerName: (
+          <div className="flex flex-col">
+            <span className="font-medium text-sm text-gray-900 dark:text-white">
+              {review.user?.name ?? "Guest"}
+            </span>
+            <span className="text-xs text-gray-500">
+              {review.user?.email ?? ""}
+            </span>
+          </div>
+        ),
+        rating: (
+          <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-md w-fit border border-amber-100 dark:border-amber-800">
+            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+            <span className="text-sm font-bold text-amber-700 dark:text-amber-400">
+              {review.rating}
+            </span>
+          </div>
+        ),
+        comment: (
+          <div
+            className="max-w-[300px] truncate text-sm text-gray-600 dark:text-gray-300"
+            title={review.comment}
+          >
+            {review.comment || "-"}
+          </div>
+        ),
+        status: review.reply ? (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
             {t("reviews.replied") || "Replied"}
           </span>
         ) : (
-          <span className="text-amber-600 dark:text-amber-400 text-xs font-medium">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
             {t("reviews.pending") || "Pending"}
           </span>
         ),
         createdAt: review.createdAt
-          ? new Date(review.createdAt).toLocaleString()
+          ? new Date(review.createdAt).toLocaleDateString()
           : "-",
         actions: (
           <Button
             type="button"
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => navigate(`/reviews/${review.id}`)}
-            className="text-xs"
+            className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-white/10"
           >
-            <MessageSquare className="w-4 h-4 mr-1" />
-            {t("reviews.viewReply") || "View / Reply"}
+            <MessageCircle className="w-4 h-4 text-gray-500" />
+            <span className="sr-only">View</span>
           </Button>
         ),
       })),
-    [reviews, t, navigate]
+    [reviews, t, navigate],
   );
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
-      <div className="flex items-center justify-between mb-4">
+    <div className="min-h-screen bg-[#f8f9fa] dark:bg-[#0b0f14] p-6 lg:p-10 font-sans space-y-8">
+      {/* --- Header --- */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-xl font-semibold">
-            {t("reviews.title") || "Customer Reviews"}
-          </h2>
-          <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            {t("reviews.subtitle") ||
-              "View and reply to customer product reviews from your dashboard."}
+          <h1 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white">
+            {t("reviews.title") || "Product Reviews"}
+          </h1>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
+            {t("reviews.subtitle") || "Manage and reply to customer feedback"}
           </p>
         </div>
       </div>
 
-      <ReusableTable
-        data={tableData}
-        headers={headers}
-        total={reviews.length}
-        isLoading={isLoading}
-        py="py-2"
-      />
+      {/* --- Stats Grid --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.1 }}
+            className={`rounded-2xl p-5 border ${stat.bg} ${stat.border} flex flex-col justify-between h-32 relative overflow-hidden group`}
+          >
+            <div className="flex justify-between items-start z-10">
+              <div>
+                <p
+                  className={`text-xs font-bold uppercase tracking-wider opacity-70 ${stat.color}`}
+                >
+                  {stat.label}
+                </p>
+                <h3 className={`text-3xl font-black mt-2 ${stat.color}`}>
+                  {stat.value}
+                </h3>
+              </div>
+              <div
+                className={`p-2.5 rounded-xl bg-white/50 dark:bg-black/20 backdrop-blur-sm ${stat.color}`}
+              >
+                <stat.icon className="w-5 h-5" />
+              </div>
+            </div>
+
+            {/* Decorative background element */}
+            <stat.icon
+              className={`absolute -bottom-4 -right-4 w-24 h-24 opacity-10 rotate-12 ${stat.color} transition-transform group-hover:scale-110 duration-500`}
+            />
+          </motion.div>
+        ))}
+      </div>
+
+      {/* --- Reviews Table --- */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="rounded-[24px] bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden"
+      >
+        <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-indigo-500" />
+            Recent Reviews
+          </h2>
+          {/* Add filter/export actions here if needed */}
+        </div>
+        <div className="p-2">
+          <ReusableTable
+            data={tableData}
+            headers={headers}
+            total={reviews.length}
+            isLoading={isLoading}
+            py="py-4"
+          />
+        </div>
+      </motion.div>
     </div>
   );
 }
