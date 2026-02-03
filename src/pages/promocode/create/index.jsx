@@ -6,11 +6,23 @@ import * as yup from "yup";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { 
+  ArrowLeft, 
+  Save, 
+  Ticket, 
+  Percent, 
+  CalendarClock, 
+  Layout, 
+  CheckCircle2, 
+  XCircle,
+  Loader2,
+  DollarSign
+} from "lucide-react";
 import TextField from "@/components/input/TextField";
 import Checkbox from "@/components/input/Checkbox";
 import Dropdown from "@/components/dropdown/dropdown";
 import { useCreatePromocodeMutation } from "@/features/promocode/promocodeApiSlice";
+import { motion } from "framer-motion";
 
 function CreatePromocodePage() {
   const { t } = useTranslation();
@@ -80,10 +92,15 @@ function CreatePromocodePage() {
     [t]
   );
   const [discountType, setDiscountType] = useState(null);
-  const { register, handleSubmit, reset, setValue, formState: { errors }, trigger } = useForm({
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors }, trigger } = useForm({
     resolver: yupResolver(promocodeSchema),
+    defaultValues: {
+      isActive: true
+    }
   });
   const [createPromocode, { isLoading: isCreating }] = useCreatePromocodeMutation();
+
+  const isActive = watch("isActive");
 
   const handleDiscountTypeChange = (option) => {
     setDiscountType(option);
@@ -121,151 +138,252 @@ function CreatePromocodePage() {
   };
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate("/promocodes")}
-          className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-semibold">{t("createEdit.createPromocode")}</h1>
-          <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            {t("createEdit.createPromocodeDesc")}
-          </p>
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-            <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              {t("promocodes.codeDetails")}
-            </h3>
-          </div>
-          <TextField
-            label={t("promocodes.promocodeLabel")}
-            placeholder={t("promocodes.promocodePlaceholder")}
-            register={register}
-            name="code"
-            error={errors.code}
-          />
-          <TextField
-            label={t("promocodes.descriptionLabel")}
-            placeholder={t("promocodes.descriptionPlaceholder")}
-            register={register}
-            name="description"
-            error={errors.description}
-          />
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-            <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              {t("promocodes.discountConfiguration")}
-            </h3>
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-black/50 dark:text-white/50 text-sm ml-1">{t("promocodes.discountType")}</label>
-            <Dropdown
-              name={t("promocodes.discountType")}
-              options={discountTypeOptions}
-              setSelectedOption={handleDiscountTypeChange}
-              className="py-2"
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#111318] p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/promocodes")}
+              className="bg-white dark:bg-[#1a1f26] hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-white rounded-xl h-10 w-10 border border-gray-200 dark:border-gray-800 shadow-sm"
             >
-              {discountType?.label || (
-                <span className="text-black/50 dark:text-white/50">Select Type</span>
-              )}
-            </Dropdown>
-            {errors.discountType && (
-              <span className="text-red-500 text-xs ml-1">{errors.discountType.message}</span>
-            )}
-          </div>
-            <TextField
-              label={t("promocodes.discountValue")}
-              placeholder={t("promocodes.discountValuePlaceholder")}
-            register={register}
-            name="discountValue"
-            type="number"
-            step="0.01"
-            error={errors.discountValue}
-          />
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-            <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              Usage Limits
-            </h3>
-          </div>
-          <TextField
-            label="Max Uses"
-            placeholder="100 (optional)"
-            register={register}
-            name="maxUses"
-            type="number"
-            error={errors.maxUses}
-          />
-          <TextField
-            label={t("promocodes.minOrderAmount")}
-            placeholder={t("promocodes.minOrderAmountPlaceholder")}
-            register={register}
-            name="minOrderAmount"
-            type="number"
-            step="0.01"
-            error={errors.minOrderAmount}
-          />
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-            <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              {t("promocodes.validityPeriod")}
-            </h3>
-          </div>
-          <TextField
-            label={t("promocodes.startsAt")}
-            placeholder={t("promocodes.startsAtPlaceholder")}
-            register={register}
-            name="startsAt"
-            type="datetime-local"
-            error={errors.startsAt}
-          />
-          <TextField
-            label={t("promocodes.expiresAt")}
-            placeholder={t("promocodes.expiresAtPlaceholder")}
-            register={register}
-            name="expiresAt"
-            type="datetime-local"
-            error={errors.expiresAt}
-          />
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-            <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-              {t("common.status")}
-            </h3>
-          </div>
-          <div className="flex items-center gap-2">
-            <Checkbox className="bg-black text-white hover:bg-black/90" name="isActive" value={true} setValue={() => { }}>
-              {t("promocodes.activeByDefault")}
-            </Checkbox>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
+                {t("createEdit.createPromocode")}
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {t("createEdit.createPromocodeDesc")}
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-          <Button variant="ghost" type="button" onClick={() => navigate("/promocodes")} className="bg-red-500 hover:bg-red-600 text-white">
-            {t("common.cancel")}
-          </Button>
-          <Button type="submit" disabled={isCreating} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-            {isCreating ? t("common.creating") : t("common.create")}
-          </Button>
-        </div>
-      </form>
+        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
+          {/* Left Column: Main Info */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* General Info Card */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-100/50 dark:shadow-black/20"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                  <Ticket className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {t("promocodes.codeDetails")}
+                </h3>
+              </div>
+              
+              <div className="space-y-6">
+                <TextField
+                  label={t("promocodes.promocodeLabel")}
+                  placeholder={t("promocodes.promocodePlaceholder")}
+                  register={register}
+                  name="code"
+                  error={errors.code}
+                  className="bg-gray-50 dark:bg-black/20 font-mono"
+                />
+                <TextField
+                  label={t("promocodes.descriptionLabel")}
+                  placeholder={t("promocodes.descriptionPlaceholder")}
+                  register={register}
+                  name="description"
+                  error={errors.description}
+                  className="bg-gray-50 dark:bg-black/20"
+                />
+              </div>
+            </motion.div>
+
+            {/* Discount Configuration Card */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-100/50 dark:shadow-black/20"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                  <Percent className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {t("promocodes.discountConfiguration")}
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 ml-1">{t("promocodes.discountType")}</label>
+                  <Dropdown
+                    name={t("promocodes.discountType")}
+                    options={discountTypeOptions}
+                    setSelectedOption={handleDiscountTypeChange}
+                    className="py-2.5 bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-gray-700 rounded-xl"
+                  >
+                    {discountType?.label || (
+                      <span className="text-gray-500 dark:text-gray-400">Select Type</span>
+                    )}
+                  </Dropdown>
+                  {errors.discountType && (
+                    <span className="text-red-500 text-xs ml-1">{errors.discountType.message}</span>
+                  )}
+                </div>
+                
+                <TextField
+                  label={t("promocodes.discountValue")}
+                  placeholder={t("promocodes.discountValuePlaceholder")}
+                  register={register}
+                  name="discountValue"
+                  type="number"
+                  step="0.01"
+                  error={errors.discountValue}
+                  className="bg-gray-50 dark:bg-black/20"
+                  icon={discountType?.value === 'percentage' ? <Percent className="w-4 h-4 text-gray-400" /> : <DollarSign className="w-4 h-4 text-gray-400" />}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <TextField
+                  label={t("promocodes.minOrderAmount")}
+                  placeholder={t("promocodes.minOrderAmountPlaceholder")}
+                  register={register}
+                  name="minOrderAmount"
+                  type="number"
+                  step="0.01"
+                  error={errors.minOrderAmount}
+                  className="bg-gray-50 dark:bg-black/20"
+                  icon={<DollarSign className="w-4 h-4 text-gray-400" />}
+                />
+                <TextField
+                  label="Max Uses"
+                  placeholder="100 (optional)"
+                  register={register}
+                  name="maxUses"
+                  type="number"
+                  error={errors.maxUses}
+                  className="bg-gray-50 dark:bg-black/20"
+                />
+              </div>
+            </motion.div>
+
+            {/* Validity Period Card */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-100/50 dark:shadow-black/20"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 rounded-xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400">
+                  <CalendarClock className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {t("promocodes.validityPeriod")}
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <TextField
+                  label={t("promocodes.startsAt")}
+                  placeholder={t("promocodes.startsAtPlaceholder")}
+                  register={register}
+                  name="startsAt"
+                  type="datetime-local"
+                  error={errors.startsAt}
+                  className="bg-gray-50 dark:bg-black/20"
+                />
+                <TextField
+                  label={t("promocodes.expiresAt")}
+                  placeholder={t("promocodes.expiresAtPlaceholder")}
+                  register={register}
+                  name="expiresAt"
+                  type="datetime-local"
+                  error={errors.expiresAt}
+                  className="bg-gray-50 dark:bg-black/20"
+                />
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Right Column: Settings */}
+          <div className="lg:col-span-1 space-y-8">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-100/50 dark:shadow-black/20 sticky top-6"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  <Layout className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {t("common.status")}
+                </h3>
+              </div>
+
+              <div className="space-y-6">
+                <div className="p-4 rounded-xl bg-gray-50 dark:bg-black/20 flex items-center justify-between cursor-pointer" onClick={() => setValue('isActive', !isActive)}>
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-full ${isActive ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
+                      {isActive ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {isActive ? t("common.active") : t("common.inactive")}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {isActive ? t("promocodes.activeByDefault") : t("promocodes.inactiveByDefault")}
+                      </p>
+                    </div>
+                  </div>
+                  <Checkbox 
+                    className="hidden" 
+                    name="isActive" 
+                    value={isActive} 
+                    setValue={(val) => setValue('isActive', val)} 
+                  />
+                  <div className={`w-5 h-5 rounded border flex items-center justify-center ${isActive ? 'bg-indigo-600 border-indigo-600' : 'border-gray-300 dark:border-gray-600'}`}>
+                    {isActive && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
+                  <Button 
+                    type="submit" 
+                    disabled={isCreating} 
+                    className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 h-11 rounded-xl"
+                  >
+                    {isCreating ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {t("common.creating")}
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        {t("common.create")}
+                      </>
+                    )}
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    type="button" 
+                    onClick={() => navigate("/promocodes")} 
+                    className="w-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 h-11 rounded-xl"
+                  >
+                    {t("common.cancel")}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
