@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -18,11 +18,11 @@ import {
   ShoppingBag,
   Users,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   useGetActivityLogsQuery,
   useGetSystemusersQuery,
 } from "@/features/systemuser/systemuserApiSlice";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -41,15 +41,85 @@ import {
 } from "@/components/ui/dropdown-menu";
 import TablePaginate from "@/components/table/pagination";
 
+// Mock Data
+const MOCK_SYSTEM_USERS = [
+  { id: "1", name: "System Owner", email: "owner@squadcart.com" },
+  { id: "2", name: "Admin User", email: "admin@squadcart.com" },
+  { id: "3", name: "Support Agent", email: "support@squadcart.com" },
+];
+
+const MOCK_LOGS = [
+  {
+    id: "log-1",
+    createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5 mins ago
+    action: "CREATE",
+    entity: "PRODUCT",
+    description: "Created new product 'Wireless Headphones'",
+    performedBy: { name: "System Owner", email: "owner@squadcart.com" },
+    targetUser: null,
+  },
+  {
+    id: "log-2",
+    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 mins ago
+    action: "UPDATE",
+    entity: "ORDER",
+    description: "Updated order #ORD-2024-001 status to 'Shipped'",
+    performedBy: { name: "Admin User", email: "admin@squadcart.com" },
+    targetUser: null,
+  },
+  {
+    id: "log-3",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+    action: "PERMISSION_ASSIGN",
+    entity: "SYSTEM_USER",
+    description: "Assigned 'Manage Orders' permission to Support Agent",
+    performedBy: { name: "System Owner", email: "owner@squadcart.com" },
+    targetUser: { name: "Support Agent", email: "support@squadcart.com" },
+  },
+  {
+    id: "log-4",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(), // 5 hours ago
+    action: "DELETE",
+    entity: "CATEGORY",
+    description: "Deleted category 'Old Electronics'",
+    performedBy: { name: "System Owner", email: "owner@squadcart.com" },
+    targetUser: null,
+  },
+  {
+    id: "log-5",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+    action: "STATUS_CHANGE",
+    entity: "CUSTOMER",
+    description: "Deactivated customer account",
+    performedBy: { name: "Admin User", email: "admin@squadcart.com" },
+    targetUser: { name: "John Doe", email: "john@example.com" },
+  },
+  {
+    id: "log-6",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(), // 1 day 2 hours ago
+    action: "PASSWORD_CHANGE",
+    entity: "SYSTEM_USER",
+    description: "Changed password for security update",
+    performedBy: { name: "Support Agent", email: "support@squadcart.com" },
+    targetUser: null,
+  },
+  {
+    id: "log-7",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // 2 days ago
+    action: "BARCODE_SCAN",
+    entity: "PRODUCT",
+    description: "Scanned product barcode for inventory check",
+    performedBy: { name: "Admin User", email: "admin@squadcart.com" },
+    targetUser: null,
+  },
+];
+
 const ActivityLogsPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  // API Queries
-  const { data: systemUsersData } = useGetSystemusersQuery();
-  const systemUsers = Array.isArray(systemUsersData)
-    ? systemUsersData
-    : systemUsersData?.data || [];
+  // Mock System Users instead of API call
+  const systemUsers = MOCK_SYSTEM_USERS;
 
   // Options
   const ACTION_OPTIONS = useMemo(
@@ -119,16 +189,19 @@ const ActivityLogsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [isLoading, setIsLoading] = useState(true);
+  const [logsData, setLogsData] = useState([]);
 
-  // Data Fetching
-  const { data, isLoading } = useGetActivityLogsQuery({
-    action: selectedAction.value || undefined,
-    entity: selectedEntity.value || undefined,
-    performedByUserId: selectedPerformedBy.value || undefined,
-    targetUserId: selectedTargetUser.value || undefined,
-    limit,
-    offset,
-  });
+  // Mock Data Fetching
+  useEffect(() => {
+    setIsLoading(true);
+    // Simulate API delay
+    const timer = setTimeout(() => {
+      setLogsData(MOCK_LOGS);
+      setIsLoading(false);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [selectedAction, selectedEntity, selectedPerformedBy, selectedTargetUser]);
 
   // Helpers
   const getActionBadge = (action) => {
@@ -173,7 +246,15 @@ const ActivityLogsPage = () => {
 
   // Process Data (Search & Map)
   const processedData = useMemo(() => {
-    let logs = data?.logs || [];
+    let logs = logsData || [];
+
+    // Filter based on dropdowns (Client-side filtering for mock data)
+    if (selectedAction.value) {
+      logs = logs.filter(log => log.action === selectedAction.value);
+    }
+    if (selectedEntity.value) {
+      logs = logs.filter(log => log.entity === selectedEntity.value);
+    }
 
     if (searchTerm) {
       const lower = searchTerm.toLowerCase();
@@ -200,7 +281,7 @@ const ActivityLogsPage = () => {
         : "-",
       raw: log,
     }));
-  }, [data, searchTerm]);
+  }, [logsData, searchTerm, selectedAction, selectedEntity]);
 
   // Pagination (Client-side for the current chunk)
   const paginatedData = useMemo(() => {
@@ -231,7 +312,7 @@ const ActivityLogsPage = () => {
             <ArrowLeft className="h-5 w-5 text-slate-500" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent tracking-tight">
               {t("activityLogs.title")}
             </h1>
             <div className="flex items-center gap-2 mt-2 text-sm text-slate-500">
@@ -511,51 +592,7 @@ const ActivityLogsPage = () => {
             </TableBody>
           </Table>
         </div>
-
-        {/* Client-Side Pagination (for the current chunk) */}
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30">
-          <TablePaginate
-            total={processedData.length}
-            pageSize={pageSize}
-            setPageSize={setPageSize}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-          />
-        </div>
       </motion.div>
-
-      {/* Server-Side Pagination (Load More) */}
-      {data && data.total > limit && (
-        <div className="flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm p-4 rounded-xl border border-slate-200 dark:border-slate-800">
-          <span className="text-sm text-slate-500 dark:text-slate-400">
-            {t("activityLogs.showing", {
-              from: offset + 1,
-              to: Math.min(offset + limit, data.total),
-              total: data.total,
-            })}
-          </span>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setOffset(Math.max(0, offset - limit))}
-              disabled={offset === 0}
-              className="bg-white dark:bg-slate-900"
-            >
-              {t("activityLogs.previous")}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setOffset(offset + limit)}
-              disabled={offset + limit >= data.total}
-              className="bg-white dark:bg-slate-900"
-            >
-              {t("activityLogs.next")}
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
