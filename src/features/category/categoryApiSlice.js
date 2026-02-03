@@ -21,6 +21,13 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
       providesTags: [{ type: "categories", id: "LIST" }],
     }),
 
+    // Get trashed categories
+    getTrashedCategories: builder.query({
+      query: (params) => ({ url: "/categories/trash", method: "GET", params }),
+      transformResponse: (res) => res?.data ?? [],
+      providesTags: [{ type: "categories", id: "TRASH" }],
+    }),
+
     getCategory: builder.query({
       query: (id) => ({ url: `/categories/${id}`, method: "GET" }),
       transformResponse: (res) => res?.data,
@@ -46,7 +53,32 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
         url: `/categories/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: [{ type: "categories", id: "LIST" }],
+      invalidatesTags: [
+        { type: "categories", id: "LIST" },
+        { type: "categories", id: "TRASH" },
+      ],
+    }),
+
+    recoverCategory: builder.mutation({
+      query: (id) => ({
+        url: `/categories/${id}/recover`,
+        method: "PATCH",
+      }),
+      invalidatesTags: [
+        { type: "categories", id: "LIST" },
+        { type: "categories", id: "TRASH" },
+      ],
+    }),
+
+    permanentDeleteCategory: builder.mutation({
+      query: (id) => ({
+        url: `/categories/${id}/permanent`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [
+        { type: "categories", id: "LIST" },
+        { type: "categories", id: "TRASH" },
+      ],
     }),
 
     toggleCategoryActive: builder.mutation({
@@ -73,4 +105,7 @@ export const {
   useUpdateCategoryMutation,
   useDeleteCategoryMutation,
   useToggleCategoryActiveMutation,
+  useGetTrashedCategoriesQuery,
+  useRecoverCategoryMutation,
+  usePermanentDeleteCategoryMutation,
 } = categoryApiSlice;

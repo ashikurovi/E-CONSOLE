@@ -17,6 +17,7 @@ import {
   ProductCategorySection,
   ProductSizeVariantSection,
   ProductVariantSection,
+  ProductVariantImagesSection,
   ProductDescriptionSection,
   ProductShippingSection,
   ProductPricingSection,
@@ -61,10 +62,26 @@ const productSchema = yup.object().shape({
     .typeError("Stock must be a number")
     .min(0, "Stock cannot be negative")
     .integer("Stock must be a whole number"),
-  weight: yup.number().nullable().transform((v, o) => (o === "" ? null : v)).min(0),
-  length: yup.number().nullable().transform((v, o) => (o === "" ? null : v)).min(0),
-  breadth: yup.number().nullable().transform((v, o) => (o === "" ? null : v)).min(0),
-  width: yup.number().nullable().transform((v, o) => (o === "" ? null : v)).min(0),
+  weight: yup
+    .number()
+    .nullable()
+    .transform((v, o) => (o === "" ? null : v))
+    .min(0),
+  length: yup
+    .number()
+    .nullable()
+    .transform((v, o) => (o === "" ? null : v))
+    .min(0),
+  breadth: yup
+    .number()
+    .nullable()
+    .transform((v, o) => (o === "" ? null : v))
+    .min(0),
+  width: yup
+    .number()
+    .nullable()
+    .transform((v, o) => (o === "" ? null : v))
+    .min(0),
 });
 
 function CreateProductPage() {
@@ -88,25 +105,27 @@ function CreateProductPage() {
   const [variants, setVariants] = useState([]);
   const [isAddingVariant, setIsAddingVariant] = useState(false);
   const [newVariantName, setNewVariantName] = useState("");
+  const [newVariantColor, setNewVariantColor] = useState("#6366f1");
 
   const handleAddVariant = useCallback(() => {
     if (newVariantName.trim()) {
       setVariants((prev) => [
         ...prev,
-        { name: newVariantName.trim(), id: Date.now() },
+        { name: newVariantName.trim(), color: newVariantColor, id: Date.now() },
       ]);
       setNewVariantName("");
+      setNewVariantColor("#6366f1");
       setIsAddingVariant(false);
     }
-  }, [newVariantName]);
+  }, [newVariantName, newVariantColor]);
 
   const removeVariant = useCallback((id) => {
     setVariants((prev) => prev.filter((v) => v.id !== id));
   }, []);
 
-  const updateVariantName = useCallback((id, name) => {
+  const updateVariant = useCallback((id, field, value) => {
     setVariants((prev) =>
-      prev.map((v) => (v.id === id ? { ...v, name } : v))
+      prev.map((v) => (v.id === id ? { ...v, [field]: value } : v)),
     );
   }, []);
 
@@ -210,6 +229,44 @@ function CreateProductPage() {
           uploadedImages[0].isPrimary = true;
         }
 
+        // Process variant images
+        const processedVariants = [];
+        if (variants.length > 0) {
+          for (const variant of variants) {
+            const variantImages = [];
+            if (variant.images && variant.images.length > 0) {
+              for (let i = 0; i < variant.images.length; i++) {
+                const img = variant.images[i];
+                if (img.file) {
+                  try {
+                    const url = await uploadImage(img.file);
+                    if (url) {
+                      variantImages.push({
+                        url,
+                        alt: img.alt || `${variant.name} image ${i + 1}`,
+                        isPrimary: img.isPrimary || false,
+                      });
+                    }
+                  } catch (error) {
+                    console.error(`Variant image upload error:`, error);
+                  }
+                } else if (img.url) {
+                  variantImages.push({
+                    url: img.url,
+                    alt: img.alt || `${variant.name} image ${i + 1}`,
+                    isPrimary: img.isPrimary || false,
+                  });
+                }
+              }
+            }
+            processedVariants.push({
+              name: variant.name,
+              color: variant.color,
+              images: variantImages.length > 0 ? variantImages : undefined,
+            });
+          }
+        }
+
         // Build payload
         const payload = {
           name: data.name.trim(),
@@ -224,7 +281,8 @@ function CreateProductPage() {
           status: asDraft ? "draft" : "published",
           stock: data.stock ? parseInt(data.stock) : 0,
           sizes: selectedSizes.length > 0 ? selectedSizes : undefined,
-          variants: variants.length > 0 ? variants.map((v) => ({ name: v.name })) : undefined,
+          variants:
+            processedVariants.length > 0 ? processedVariants : undefined,
           weight: data.weight ? parseFloat(data.weight) : undefined,
           length: data.length ? parseFloat(data.length) : undefined,
           breadth: data.breadth ? parseFloat(data.breadth) : undefined,
@@ -280,7 +338,10 @@ function CreateProductPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
-      <ProductFormHeader title="Add New Product" backLabel="Back to product list" />
+      <ProductFormHeader
+        title="Add New Product"
+        backLabel="Back to product list"
+      />
 
       <div className="max-w-[1600px] mx-auto p-6 pt-8">
         <form
@@ -288,6 +349,7 @@ function CreateProductPage() {
           className="grid grid-cols-12 gap-8"
         >
           <div className="col-span-12 lg:col-span-8 space-y-8">
+            
             <ProductCoverImageSection
               thumbnailFile={thumbnailFile}
               thumbnailUrl={thumbnailUrl}
@@ -319,24 +381,25 @@ function CreateProductPage() {
             />
             <ProductVariantSection
               variants={variants}
-              updateVariantName={updateVariantName}
+              updateVariant={updateVariant}
               removeVariant={removeVariant}
               isAddingVariant={isAddingVariant}
               setIsAddingVariant={setIsAddingVariant}
               newVariantName={newVariantName}
               setNewVariantName={setNewVariantName}
+              newVariantColor={newVariantColor}
+              setNewVariantColor={setNewVariantColor}
               handleAddVariant={handleAddVariant}
+            />
+            <ProductVariantImagesSection
+              variants={variants}
+              updateVariant={updateVariant}
             />
             <ProductDescriptionSection
               control={control}
               errors={errors}
               watchedName={watchedName}
             />
-          </div>
-
-          <div className="col-span-12 lg:col-span-4 space-y-6 sticky top-24 h-fit">
-            <ProductShippingSection register={register} errors={errors} />
-            <ProductPricingSection register={register} errors={errors} />
             <ProductFormActions
               handleSubmit={handleSubmit}
               onSubmit={onSubmit}
@@ -346,6 +409,11 @@ function CreateProductPage() {
               submitLabel="Publish"
               savingLabel="Publishing..."
             />
+          </div>
+
+          <div className="col-span-12 lg:col-span-4 space-y-6 sticky top-24 h-fit">
+            <ProductShippingSection register={register} errors={errors} />
+            <ProductPricingSection register={register} errors={errors} />
           </div>
         </form>
       </div>

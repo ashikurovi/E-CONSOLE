@@ -4,19 +4,21 @@ import { Button } from "@/components/ui/button";
 
 export default function ProductVariantSection({
   variants,
-  updateVariantName,
+  updateVariant,
   removeVariant,
   isAddingVariant,
   setIsAddingVariant,
   newVariantName,
   setNewVariantName,
+  newVariantColor,
+  setNewVariantColor,
   handleAddVariant,
 }) {
   return (
     <div className="grid grid-cols-12 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
       <div className="col-span-12 lg:col-span-4">
         <h3 className="text-base font-bold text-slate-900 dark:text-slate-50">
-          Product Variant
+          Product Name and Color Variant
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
           Add variants like color, material, or style.
@@ -29,15 +31,22 @@ export default function ProductVariantSection({
               key={variant.id}
               className="flex items-center gap-4 p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:border-indigo-300 transition-all duration-200"
             >
-              <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-slate-800 flex items-center justify-center text-indigo-500 shrink-0">
-                <ImageIcon className="w-5 h-5" />
+              <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0 cursor-pointer">
+                <input
+                  type="color"
+                  value={variant.color || "#6366f1"}
+                  onChange={(e) =>
+                    updateVariant(variant.id, "color", e.target.value)
+                  }
+                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] p-0 border-0 cursor-pointer"
+                />
               </div>
               <div className="flex-1">
                 <input
                   type="text"
                   value={variant.name}
                   onChange={(e) =>
-                    updateVariantName(variant.id, e.target.value)
+                    updateVariant(variant.id, "name", e.target.value)
                   }
                   placeholder="Variant Name"
                   className="w-full bg-transparent border-none outline-none font-medium text-slate-900 dark:text-slate-50 placeholder-slate-400 text-sm"
@@ -54,8 +63,13 @@ export default function ProductVariantSection({
           ))}
           {isAddingVariant ? (
             <div className="flex items-center gap-4 p-3 bg-white dark:bg-slate-900 rounded-xl border-2 border-indigo-600 shadow-md">
-              <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-500 shrink-0">
-                <ImageIcon className="w-5 h-5" />
+              <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0 cursor-pointer">
+                <input
+                  type="color"
+                  value={newVariantColor}
+                  onChange={(e) => setNewVariantColor(e.target.value)}
+                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] p-0 border-0 cursor-pointer"
+                />
               </div>
               <input
                 type="text"
