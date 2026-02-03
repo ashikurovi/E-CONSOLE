@@ -449,7 +449,7 @@ const CategoriesPage = () => {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           {/* Tabs */}
           <div className="flex items-center gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
-            {["all", "active", "disabled"].map((tab) => (
+            {["all", "active", "disabled" , "trash"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}

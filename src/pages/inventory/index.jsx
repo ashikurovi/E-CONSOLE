@@ -416,9 +416,6 @@ const InventoryPage = () => {
           <Table>
             <TableHeader className="bg-slate-50/80 dark:bg-slate-800/50 backdrop-blur-sm">
               <TableRow className="hover:bg-transparent border-slate-200 dark:border-slate-800">
-                <TableHead className="w-[50px] pl-6">
-                  <Checkbox className="rounded-md border-slate-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600" />
-                </TableHead>
                 <TableHead className="h-14 font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   Product Details
                 </TableHead>
@@ -471,9 +468,6 @@ const InventoryPage = () => {
                     key={product.id}
                     className="group hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors border-slate-100 dark:border-slate-800/50"
                   >
-                    <TableCell className="pl-6">
-                      <Checkbox className="rounded-md border-slate-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600" />
-                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-4 py-2">
                         <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm group-hover:scale-105 transition-transform duration-300">
@@ -587,7 +581,8 @@ const InventoryPage = () => {
                               }
                               className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 dark:focus:bg-emerald-900/20"
                             >
-                              <ArrowDownCircle className="w-4 h-4 mr-2" /> Stock In
+                              <ArrowDownCircle className="w-4 h-4 mr-2" /> Stock
+                              In
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() =>
@@ -599,13 +594,16 @@ const InventoryPage = () => {
                               }
                               className="text-red-600 focus:text-red-700 focus:bg-red-50 dark:focus:bg-red-900/20"
                             >
-                              <ArrowUpCircle className="w-4 h-4 mr-2" /> Stock Out
+                              <ArrowUpCircle className="w-4 h-4 mr-2" /> Stock
+                              Out
                             </DropdownMenuItem>
 
                             <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800" />
 
                             <DropdownMenuItem
-                              onClick={() => navigate("/manage-users/activity-logs")}
+                              onClick={() =>
+                                navigate("/manage-users/activity-logs")
+                              }
                             >
                               <History className="w-4 h-4 mr-2" /> History
                             </DropdownMenuItem>
