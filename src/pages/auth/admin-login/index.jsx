@@ -1,48 +1,68 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 // components
 import SubmitButton from "@/components/buttons/SubmitButton";
 import TextField from "@/components/input/TextField";
 import Checkbox from "@/components/input/Checkbox";
-import AuthPage from "@/pages/auth";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 
 // hooks and function
 import { useLoginSystemuserMutation } from "@/features/systemuser/systemuserApiSlice";
 import { useSuperadminLoginMutation } from "@/features/superadminAuth/superadminAuthApiSlice";
 import { userLoggedIn } from "@/features/auth/authSlice";
-import { superadminLoggedIn } from "@/features/superadminAuth/superadminAuthSlice";
 import { decodeJWT } from "@/utils/jwt-decoder";
 
 // icons
 import { letter, password } from "@/assets/icons/svgIcons";
-import PasswordField from "@/components/input/PasswordField";
+
+const SLIDER_DATA = [
+  {
+    id: 1,
+    image:
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop",
+    title: "Real-time Analytics",
+    text: "Monitor your business performance with advanced real-time dashboards and insights.",
+  },
+  {
+    id: 2,
+    image:
+      "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2532&auto=format&fit=crop",
+    title: "Inventory Management",
+    text: "Track stock levels, manage orders, and optimize your supply chain efficiently.",
+  },
+  {
+    id: 3,
+    image:
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2670&auto=format&fit=crop",
+    title: "Financial Reports",
+    text: "Generate comprehensive financial reports and gain clarity on your revenue streams.",
+  },
+];
 
 const AdminLoginPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { handleSubmit, register, setValue } = useForm();
+  const { handleSubmit, register } = useForm();
   const [rememberMe, setRememberMe] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
   const [loginSystemuser, { isLoading: loginLoading }] =
     useLoginSystemuserMutation();
   const [superadminLogin, { isLoading: superadminLoading }] =
     useSuperadminLoginMutation();
 
-  const handleFillCredentials = () => {
-    setValue("email", "ashikurovi23@gmail.com");
-    setValue("password", "123456");
-    toast.success("Credentials Auto-filled", {
-      icon: "✨",
-      style: {
-        borderRadius: "10px",
-        background: "#333",
-        color: "#fff",
-      },
-    });
-  };
+  // Auto-play slider
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % SLIDER_DATA.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   const isLoading = loginLoading || superadminLoading;
 
@@ -50,11 +70,6 @@ const AdminLoginPage = () => {
     try {
       const loginCredential = data.email || data.name;
 
-      // Debug: Log the form data to verify password is captured
-      console.log("Form data:", data);
-      console.log("Password value:", data.password);
-
-      // Ensure password is included
       if (!data.password) {
         toast.error("Password is required!");
         return;
@@ -66,14 +81,7 @@ const AdminLoginPage = () => {
         password: data.password,
       });
 
-      // Check if there's an error (like 404) - if so, proceed directly to superadmin login
-      if (loginRes?.error) {
-        console.log(
-          "Systemuser login error (404 or other), proceeding to superadmin login...",
-        );
-        // Proceed directly to superadmin login below
-      } else if (loginRes?.data) {
-        // Handle successful systemuser login
+      if (loginRes?.data) {
         const responseData = loginRes.data;
         const accessToken =
           responseData?.accessToken || responseData?.data?.accessToken;
@@ -81,11 +89,9 @@ const AdminLoginPage = () => {
           responseData?.refreshToken || responseData?.data?.refreshToken;
 
         if (accessToken) {
-          // Decode token to check role
           const { payload } = decodeJWT(accessToken);
           const userRole = payload.role || responseData?.user?.role;
 
-          // Allow SYSTEM_OWNER and EMPLOYEE roles
           if (userRole === "SYSTEM_OWNER" || userRole === "EMPLOYEE") {
             dispatch(userLoggedIn({ accessToken, refreshToken, rememberMe }));
             toast.success("Admin Login Successful!");
@@ -95,269 +101,190 @@ const AdminLoginPage = () => {
         }
       }
 
-      // 2nd: Try superadmin login (uses email) - proceed if systemuser login failed (404, error, or invalid role)
-      console.log("Trying superadmin login...");
+      // 2nd: Try superadmin login if systemuser failed
+      const superadminResult = await superadminLogin({
+        email: loginCredential,
+        password: data.password,
+      }).unwrap();
 
-      try {
-        const superadminResult = await superadminLogin({
-          email: loginCredential,
-          password: data.password,
-        }).unwrap();
+      let accessToken = null;
+      let refreshToken = null;
+      let user = null;
 
-        console.log("Superadmin login response:", superadminResult);
+      if (superadminResult?.accessToken) {
+        accessToken = superadminResult.accessToken;
+        refreshToken = superadminResult.refreshToken || null;
+        user = superadminResult.user || null;
+      }
 
-        // Extract tokens from response - handle both direct response and wrapped response
-        // Backend returns { accessToken, refreshToken, user } directly
-        // RTK Query's unwrap() should return the response body directly
-        let accessToken = null;
-        let refreshToken = null;
-        let user = null;
+      if (accessToken) {
+        const { payload } = decodeJWT(accessToken);
 
-        // Try direct access first (most common case)
-        if (superadminResult?.accessToken) {
-          accessToken = superadminResult.accessToken;
-          refreshToken = superadminResult.refreshToken || null;
-          user = superadminResult.user || null;
-        }
-        // Fallback: check if wrapped in data property
-        else if (superadminResult?.data?.accessToken) {
-          accessToken = superadminResult.data.accessToken;
-          refreshToken = superadminResult.data.refreshToken || null;
-          user = superadminResult.data.user || null;
-        }
-        // Fallback: check if it's the response itself
-        else if (
-          typeof superadminResult === "string" &&
-          superadminResult.length > 100
-        ) {
-          // If the entire response is a string, it might be the token itself (unlikely but handle it)
-          accessToken = superadminResult;
-        }
-
-        console.log(
-          "Extracted accessToken:",
-          !!accessToken,
-          accessToken ? accessToken.substring(0, 20) + "..." : "null",
-        );
-        console.log("Extracted refreshToken:", !!refreshToken);
-        console.log("Extracted user:", !!user);
-
-        if (
-          accessToken &&
-          typeof accessToken === "string" &&
-          accessToken.length > 10
-        ) {
-          console.log("Superadmin accessToken found, saving to storage...");
-
-          // Decode token to verify it's valid
-          try {
-            const { payload } = decodeJWT(accessToken);
-            const userRole = payload.role || user?.role;
-            console.log("Superadmin login successful - Role:", userRole);
-            console.log(
-              "Superadmin login - AccessToken (first 20 chars):",
-              accessToken.substring(0, 20) + "...",
-            );
-          } catch (decodeError) {
-            console.error("Error decoding token:", decodeError);
-            toast.error("Login failed: Invalid token received.");
-            return;
-          }
-
-          // Dispatch action to save tokens - this will save to sessionStorage
-          dispatch(
-            superadminLoggedIn({
-              accessToken: accessToken,
-              refreshToken: refreshToken || null,
-              user: user || null,
-            }),
-          );
-
-          // Verify tokens were saved immediately
-          const savedToken = sessionStorage.getItem("superadmin_accessToken");
-          console.log("Token saved to sessionStorage:", !!savedToken);
-
-          if (!savedToken) {
-            console.error(
-              "ERROR: Token was not saved to sessionStorage! Attempting manual save...",
-            );
-            // Manual fallback save
-            sessionStorage.setItem("superadmin_accessToken", accessToken);
-            if (refreshToken) {
-              sessionStorage.setItem("superadmin_refreshToken", refreshToken);
-            }
-            // Verify again
-            const retryToken = sessionStorage.getItem("superadmin_accessToken");
-            if (!retryToken) {
-              console.error("CRITICAL: Manual token save also failed!");
-              toast.error("Login failed: Could not save authentication token.");
-              return;
-            }
-          }
-
-          toast.success("Super Admin Login Successful!");
-          navigate("/superadmin");
+        if (payload.role === "SUPER_ADMIN") {
+          toast.error("Please use Super Admin Portal");
           return;
-        } else {
-          console.error(
-            "Superadmin login - No valid accessToken in response:",
-            superadminResult,
-          );
-          console.error(
-            "Response structure:",
-            JSON.stringify(superadminResult, null, 2),
-          );
-          toast.error("Login failed: No access token received.");
         }
-      } catch (superadminError) {
-        // Both logins failed
-        console.error("Superadmin login error:", superadminError);
-        let errorMessage = "Invalid email or password!";
-
-        if (superadminError?.data?.message) {
-          errorMessage = superadminError.data.message;
-        } else if (superadminError?.message) {
-          errorMessage = superadminError.message;
-        } else if (superadminError?.error?.data?.message) {
-          errorMessage = superadminError.error.data.message;
-        } else if (superadminError?.error?.message) {
-          errorMessage = superadminError.error.message;
-        }
-
-        toast.error(errorMessage);
       }
     } catch (error) {
-      console.error("Login error:", error);
-      let errorMessage = "Invalid credentials!";
-
-      if (error?.data?.message) {
-        errorMessage = error.data.message;
-      } else if (error?.message) {
-        errorMessage = error.message;
-      } else if (error?.error?.data?.message) {
-        errorMessage = error.error.data.message;
-      } else if (error?.error?.message) {
-        errorMessage = error.error.message;
-      }
-
-      toast.error(errorMessage);
+      console.error("Login failed:", error);
+      toast.error(
+        error?.data?.message || "Login Failed. Please check your credentials.",
+      );
     }
   };
 
   return (
-    <AuthPage
-      title="Admin Login"
-      subtitle="Sign in to access your admin dashboard"
-    >
-      <>
-        {/* Quick Fill Button */}
-        <div className="absolute top-6 right-6 sm:top-8 sm:right-8 z-20">
-          <button
-            type="button"
-            onClick={handleFillCredentials}
-            className="group flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-95 ring-2 ring-white/20"
-          >
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-            Fill Now
-          </button>
+    <div className="min-h-screen w-full flex bg-white dark:bg-slate-950 overflow-hidden font-sans">
+      {/* Left Side - Form */}
+      <div className="w-full lg:w-1/2 relative flex flex-col justify-center items-center p-8 sm:p-12 lg:p-20 z-10">
+        {/* Background Elements */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
+          <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]" />
+          <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-[100px]" />
         </div>
 
-        {/* Enhanced Header */}
-        <div className="text-center mb-8 relative">
-          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
-          <p className="text-sm text-gray-500 dark:text-white/60">
-            Enter your admin credentials to access the dashboard
-          </p>
+        {/* Theme Toggle */}
+        <div className="absolute top-6 right-6">
+          <ThemeToggle variant="compact" />
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-          <div className="space-y-4">
-            <TextField
-              placeholder="Your Email or Name"
-              type="text"
-              register={register}
-              name="email"
-              icon={letter}
-              disabled={isLoading}
-              required
-            />
-            <PasswordField
-              placeholder="Type your Password"
-              register={register}
-              name="password"
-              type="password"
-              icon={password}
-              disabled={isLoading}
-              required
-              registerOptions={{
-                required: "Password is required",
-                minLength: {
-                  value: 1,
-                  message: "Password cannot be empty",
-                },
-              }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <Checkbox
-              name="rememberMe"
-              value={rememberMe}
-              setValue={setRememberMe}
-            >
-              <span className="dark:text-white text-gray-700 text-sm font-medium">
-                Remember Me
-              </span>
-            </Checkbox>
-            <Link
-              to="/forgot-password"
-              className="text-sm text-primary dark:text-secondary hover:underline transition-all duration-200 font-medium"
-            >
-              Forgot Password?
-            </Link>
-          </div>
-
-          <SubmitButton
-            isLoading={isLoading}
-            disabled={isLoading}
-            className="mt-2 relative overflow-hidden group"
+        <div className="w-full max-w-md space-y-8">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center space-y-2"
           >
-            <span className="relative z-10">
-              {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Logging In...
+            <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Welcome Back
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 text-lg">
+              Sign in to your admin dashboard
+            </p>
+          </motion.div>
+
+          {/* Form */}
+          <motion.form
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-6"
+          >
+            <div className="space-y-5">
+              <TextField
+                label="Email or Username"
+                placeholder="Enter your email"
+                register={register}
+                name="email"
+                icon={letter}
+                disabled={isLoading}
+                className="bg-slate-50 dark:bg-slate-900/50"
+              />
+              <TextField
+                label="Password"
+                type="password"
+                placeholder="Enter your password"
+                register={register}
+                name="password"
+                icon={password}
+                disabled={isLoading}
+                className="bg-slate-50 dark:bg-slate-900/50"
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-sm">
+              <Checkbox
+                name="rememberMe"
+                value={rememberMe}
+                setValue={setRememberMe}
+              >
+                <span className="ml-2 font-medium text-slate-700 dark:text-slate-300">
+                  Remember me
                 </span>
-              ) : (
-                "Login to Admin Dashboard"
-              )}
-            </span>
-          </SubmitButton>
-        </form>
+              </Checkbox>
+              <a
+                href="/forgot-password"
+                className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 hover:underline transition-all"
+              >
+                Forgot password?
+              </a>
+            </div>
 
-        {/* Additional Info */}
-        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-center text-sm text-gray-500 dark:text-white/50">
-            Protected by enterprise-grade security
-          </p>
+            <SubmitButton
+              isLoading={isLoading}
+              className="w-full h-12 text-lg font-semibold shadow-lg shadow-indigo-500/20 rounded-xl hover:scale-[1.02] transition-transform active:scale-[0.98]"
+            >
+              {isLoading ? "Signing in..." : "Sign In"}
+            </SubmitButton>
+          </motion.form>
         </div>
-      </>
-    </AuthPage>
+        
+        {/* Footer */}
+        <div className="absolute bottom-8 text-center text-xs text-slate-400 dark:text-slate-500">
+          © {new Date().getFullYear()} SquadCart. All rights reserved.
+        </div>
+      </div>
+
+      {/* Right Side - Slider */}
+      <div className="hidden lg:block w-1/2 relative bg-slate-900 overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0"
+          >
+            <img
+              src={SLIDER_DATA[currentSlide].image}
+              alt="Slider"
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent opacity-90" />
+
+        {/* Content */}
+        <div className="absolute bottom-0 left-0 w-full p-20 z-20">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentSlide}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h2 className="text-4xl font-bold text-white mb-6 leading-tight drop-shadow-lg">
+                {SLIDER_DATA[currentSlide].title}
+              </h2>
+              <p className="text-lg text-slate-300 max-w-lg leading-relaxed drop-shadow-md">
+                {SLIDER_DATA[currentSlide].text}
+              </p>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Indicators */}
+          <div className="flex gap-3 mt-10">
+            {SLIDER_DATA.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentSlide(idx)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  currentSlide === idx
+                    ? "w-8 bg-indigo-500"
+                    : "w-2 bg-slate-600 hover:bg-slate-500"
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
