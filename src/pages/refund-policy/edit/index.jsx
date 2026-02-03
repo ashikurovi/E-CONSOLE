@@ -6,10 +6,11 @@ import * as yup from "yup";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Save, FileText, Info, AlertCircle, RefreshCcw } from "lucide-react";
 import RichTextEditor from "@/components/input/RichTextEditor";
 import { useUpdateRefundPolicyMutation, useGetRefundPoliciesQuery } from "@/features/refund-policy/refundPolicyApiSlice";
 import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
 
 function EditRefundPolicyPage() {
     const { t } = useTranslation();
@@ -48,87 +49,143 @@ function EditRefundPolicyPage() {
     const onSubmit = async (data) => {
         if (!latestPolicy) return;
 
-        const payload = {
-            content: data.content,
-        };
+        try {
+            const payload = {
+                content: data.content,
+            };
 
-        const res = await updateRefundPolicy({ id: latestPolicy.id, ...payload });
-        if (res?.data) {
-            toast.success(t("refundPolicy.updatedSuccess"));
-            navigate("/refund-policy");
-        } else {
-            toast.error(res?.error?.data?.message || t("refundPolicy.updateFailed"));
+            const res = await updateRefundPolicy({ id: latestPolicy.id, ...payload }).unwrap();
+            if (res) {
+                toast.success(t("refundPolicy.updatedSuccess"));
+                navigate("/refund-policy");
+            }
+        } catch (error) {
+            toast.error(error?.data?.message || error?.message || t("refundPolicy.updateFailed"));
         }
     };
 
     if (!latestPolicy) {
         return (
-            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
-                <div className="flex items-center gap-4 mb-6">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => navigate("/refund-policy")}
-                        className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white"
-                    >
-                        <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                    <div>
-                        <h1 className="text-2xl font-semibold">{t("refundPolicy.notFound")}</h1>
-                        <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-                            {t("refundPolicy.notFoundDesc")}
-                        </p>
-                    </div>
-                </div>
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
             </div>
         );
     }
 
     return (
-        <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
-            <div className="flex items-center gap-4 mb-6">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => navigate("/refund-policy")}
-                    className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white"
-                >
-                    <ArrowLeft className="h-4 w-4" />
-                </Button>
+        <div className="min-h-screen pb-20">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-semibold">Edit Refund Policy</h1>
-                    <p className="text-sm text-black/60 dark:text-white/60 mt-1">
+                    <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                        <span onClick={() => navigate("/refund-policy")} className="cursor-pointer hover:text-indigo-500 transition-colors">Refund Policy</span>
+                        <span>/</span>
+                        <span className="text-indigo-500 font-medium">Edit</span>
+                    </div>
+                    <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-400 drop-shadow-sm">
+                        Edit Refund Policy
+                    </h1>
+                    <p className="text-gray-500 mt-2 text-lg">
                         Update your refund policy content
                     </p>
                 </div>
-            </div>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
-                <Controller
-                    name="content"
-                    control={control}
-                    render={({ field }) => (
-                        <RichTextEditor
-                            placeholder={t("refundPolicy.contentPlaceholder")}
-                            value={field.value || ""}
-                            onChange={field.onChange}
-                            error={errors.content}
-                            height="400px"
-                        />
-                    )}
-                />
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
                     <Button
-                        variant="ghost"
-                        type="button"
+                        variant="outline"
                         onClick={() => navigate("/refund-policy")}
-                        className="bg-red-500 hover:bg-red-600 text-white"
+                        className="rounded-xl h-12 px-6 border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 transition-all duration-300"
                     >
                         {t("common.cancel")}
                     </Button>
-                    <Button type="submit" disabled={isUpdating} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-                        {isUpdating ? t("common.updating") : t("common.update")}
+                    <Button
+                        onClick={handleSubmit(onSubmit)}
+                        disabled={isUpdating}
+                        className="rounded-xl h-12 px-8 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 transition-all duration-300 transform hover:-translate-y-0.5"
+                    >
+                        {isUpdating ? (
+                            <div className="flex items-center gap-2">
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <span>{t("common.updating")}</span>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                <Save className="w-5 h-5" />
+                                <span>{t("common.update")}</span>
+                            </div>
+                        )}
                     </Button>
+                </div>
+            </div>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Main Content Column */}
+                <div className="lg:col-span-2 space-y-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-white dark:bg-[#1a1f26] rounded-[24px] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-100/50 dark:shadow-black/20"
+                    >
+                        <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-black/20 flex items-center gap-3">
+                            <div className="p-2.5 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+                                <FileText className="w-5 h-5" />
+                            </div>
+                            <h3 className="font-bold text-lg">Policy Content</h3>
+                        </div>
+                        <div className="p-6">
+                            <Controller
+                                name="content"
+                                control={control}
+                                render={({ field }) => (
+                                    <RichTextEditor
+                                        placeholder={t("refundPolicy.contentPlaceholder")}
+                                        value={field.value || ""}
+                                        onChange={field.onChange}
+                                        error={errors.content}
+                                        height="500px"
+                                        className="prose dark:prose-invert max-w-none"
+                                    />
+                                )}
+                            />
+                        </div>
+                    </motion.div>
+                </div>
+
+                {/* Sidebar Column */}
+                <div className="lg:col-span-1 space-y-6">
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-100/50 dark:shadow-black/20 sticky top-6"
+                    >
+                        <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                            <Info className="w-5 h-5 text-indigo-500" />
+                            Help & Tips
+                        </h3>
+                        
+                        <div className="space-y-4">
+                            <div className="bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl p-4 border border-indigo-100 dark:border-indigo-900/20">
+                                <h4 className="font-semibold text-indigo-700 dark:text-indigo-400 mb-2 text-sm">What to include?</h4>
+                                <ul className="text-xs text-indigo-600/80 dark:text-indigo-400/70 space-y-2 list-disc pl-4">
+                                    <li>Conditions for returns</li>
+                                    <li>Timeframe for returns (e.g., 30 days)</li>
+                                    <li>Refund method (original payment, credit)</li>
+                                    <li>Who pays for return shipping?</li>
+                                    <li>Exceptions (non-returnable items)</li>
+                                </ul>
+                            </div>
+
+                            <div className="bg-orange-50 dark:bg-orange-900/10 rounded-2xl p-4 border border-orange-100 dark:border-orange-900/20">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <AlertCircle className="w-4 h-4 text-orange-500" />
+                                    <span className="font-bold text-orange-700 dark:text-orange-400 text-sm">Legal Disclaimer</span>
+                                </div>
+                                <p className="text-xs text-orange-600/80 dark:text-orange-400/70">
+                                    This template is not legal advice. Please consult with a legal professional to ensure your refund policy meets all applicable laws and regulations.
+                                </p>
+                            </div>
+                        </div>
+                    </motion.div>
                 </div>
             </form>
         </div>

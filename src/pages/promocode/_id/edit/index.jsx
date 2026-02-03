@@ -6,15 +6,26 @@ import * as yup from "yup";
 import toast from "react-hot-toast";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  ArrowLeft, Save, Percent, Hash, 
-  DollarSign, FileText,
-  CheckCircle2, XCircle, AlertCircle, Info,
-  Clock, Tag
+import {
+  ArrowLeft,
+  Save,
+  Percent,
+  Hash,
+  DollarSign,
+  FileText,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  Info,
+  Clock,
+  Tag,
 } from "lucide-react";
 import TextField from "@/components/input/TextField";
 import Dropdown from "@/components/dropdown/dropdown";
-import { useUpdatePromocodeMutation, useGetPromocodesQuery } from "@/features/promocode/promocodeApiSlice";
+import {
+  useUpdatePromocodeMutation,
+  useGetPromocodesQuery,
+} from "@/features/promocode/promocodeApiSlice";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -31,7 +42,7 @@ export default function PromocodeEditPage() {
       { label: t("promocodes.percentage"), value: "percentage", icon: Percent },
       { label: t("promocodes.fixed"), value: "fixed", icon: DollarSign },
     ],
-    [t]
+    [t],
   );
 
   const promocodeEditSchema = useMemo(
@@ -50,45 +61,65 @@ export default function PromocodeEditPage() {
         discountType: yup
           .string()
           .required(t("promocodes.validation.discountTypeRequired"))
-          .oneOf(["percentage", "fixed"], t("promocodes.validation.discountTypeInvalid")),
+          .oneOf(
+            ["percentage", "fixed"],
+            t("promocodes.validation.discountTypeInvalid"),
+          ),
         discountValue: yup
           .number()
           .typeError(t("promocodes.validation.discountValueNumber"))
           .required(t("promocodes.validation.discountValueRequired"))
           .positive(t("promocodes.validation.discountValuePositive"))
-          .test("max-percentage", t("promocodes.validation.percentageMax"), function (value) {
-            const discountType = this.parent.discountType;
-            if (discountType === "percentage" && value > 100) {
-              return false;
-            }
-            return true;
-          }),
+          .test(
+            "max-percentage",
+            t("promocodes.validation.percentageMax"),
+            function (value) {
+              const discountType = this.parent.discountType;
+              if (discountType === "percentage" && value > 100) {
+                return false;
+              }
+              return true;
+            },
+          ),
         maxUses: yup
           .number()
           .typeError(t("promocodes.validation.maxUsesNumber"))
           .nullable()
-          .transform((value, originalValue) => (originalValue === "" ? null : value))
+          .transform((value, originalValue) =>
+            originalValue === "" ? null : value,
+          )
           .min(1, t("promocodes.validation.maxUsesMin"))
           .integer(t("promocodes.validation.maxUsesInteger")),
         minOrderAmount: yup
           .number()
           .typeError(t("promocodes.validation.minOrderNumber"))
           .nullable()
-          .transform((value, originalValue) => (originalValue === "" ? null : value))
+          .transform((value, originalValue) =>
+            originalValue === "" ? null : value,
+          )
           .min(0, t("promocodes.validation.minOrderMin")),
-        startsAt: yup.string().nullable().transform((value) => (value === "" ? null : value)),
+        startsAt: yup
+          .string()
+          .nullable()
+          .transform((value) => (value === "" ? null : value)),
         expiresAt: yup
           .string()
           .nullable()
           .transform((value) => (value === "" ? null : value))
-          .test("after-starts", t("promocodes.validation.expiresAfterStarts"), function (value) {
-            const startsAt = this.parent.startsAt;
-            if (!value || !startsAt) return true;
-            return new Date(value) > new Date(startsAt);
-          }),
-        isActive: yup.boolean().required(t("promocodes.validation.statusRequired")),
+          .test(
+            "after-starts",
+            t("promocodes.validation.expiresAfterStarts"),
+            function (value) {
+              const startsAt = this.parent.startsAt;
+              if (!value || !startsAt) return true;
+              return new Date(value) > new Date(startsAt);
+            },
+          ),
+        isActive: yup
+          .boolean()
+          .required(t("promocodes.validation.statusRequired")),
       }),
-    [t]
+    [t],
   );
 
   const defaultType = useMemo(() => {
@@ -99,17 +130,35 @@ export default function PromocodeEditPage() {
 
   const [discountType, setDiscountType] = useState(defaultType);
 
-  const { register, handleSubmit, setValue, formState: { errors }, trigger, reset, watch } = useForm({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    trigger,
+    reset,
+    watch,
+  } = useForm({
     resolver: yupResolver(promocodeEditSchema),
     defaultValues: {
       code: promocode?.code ?? "",
       description: promocode?.description ?? "",
       discountType: promocode?.discountType ?? "",
-      discountValue: typeof promocode?.discountValue === "number" ? promocode?.discountValue : Number(promocode?.discountValue) || "",
+      discountValue:
+        typeof promocode?.discountValue === "number"
+          ? promocode?.discountValue
+          : Number(promocode?.discountValue) || "",
       maxUses: promocode?.maxUses != null ? Number(promocode?.maxUses) : "",
-      minOrderAmount: promocode?.minOrderAmount != null ? Number(promocode?.minOrderAmount) : "",
-      startsAt: promocode?.startsAt ? new Date(promocode.startsAt).toISOString().slice(0, 16) : "",
-      expiresAt: promocode?.expiresAt ? new Date(promocode.expiresAt).toISOString().slice(0, 16) : "",
+      minOrderAmount:
+        promocode?.minOrderAmount != null
+          ? Number(promocode?.minOrderAmount)
+          : "",
+      startsAt: promocode?.startsAt
+        ? new Date(promocode.startsAt).toISOString().slice(0, 16)
+        : "",
+      expiresAt: promocode?.expiresAt
+        ? new Date(promocode.expiresAt).toISOString().slice(0, 16)
+        : "",
       isActive: !!promocode?.isActive,
     },
   });
@@ -122,11 +171,21 @@ export default function PromocodeEditPage() {
         code: promocode.code ?? "",
         description: promocode.description ?? "",
         discountType: promocode.discountType ?? "",
-        discountValue: typeof promocode.discountValue === "number" ? promocode.discountValue : Number(promocode.discountValue) || "",
+        discountValue:
+          typeof promocode.discountValue === "number"
+            ? promocode.discountValue
+            : Number(promocode.discountValue) || "",
         maxUses: promocode.maxUses != null ? Number(promocode.maxUses) : "",
-        minOrderAmount: promocode.minOrderAmount != null ? Number(promocode.minOrderAmount) : "",
-        startsAt: promocode.startsAt ? new Date(promocode.startsAt).toISOString().slice(0, 16) : "",
-        expiresAt: promocode.expiresAt ? new Date(promocode.expiresAt).toISOString().slice(0, 16) : "",
+        minOrderAmount:
+          promocode.minOrderAmount != null
+            ? Number(promocode.minOrderAmount)
+            : "",
+        startsAt: promocode.startsAt
+          ? new Date(promocode.startsAt).toISOString().slice(0, 16)
+          : "",
+        expiresAt: promocode.expiresAt
+          ? new Date(promocode.expiresAt).toISOString().slice(0, 16)
+          : "",
         isActive: !!promocode.isActive,
       });
       const val = String(promocode.discountType).toLowerCase();
@@ -135,7 +194,8 @@ export default function PromocodeEditPage() {
     }
   }, [promocode, reset, discountTypeOptions]);
 
-  const [updatePromocode, { isLoading: isUpdating }] = useUpdatePromocodeMutation();
+  const [updatePromocode, { isLoading: isUpdating }] =
+    useUpdatePromocodeMutation();
 
   const handleDiscountTypeChange = (option) => {
     setDiscountType(option);
@@ -158,9 +218,16 @@ export default function PromocodeEditPage() {
       discountType: discountType?.value,
       discountValue: parseFloat(data.discountValue),
       maxUses: data.maxUses !== "" ? parseInt(data.maxUses, 10) : undefined,
-      minOrderAmount: data.minOrderAmount !== "" ? parseFloat(data.minOrderAmount) : undefined,
-      startsAt: data.startsAt ? new Date(data.startsAt).toISOString() : undefined,
-      expiresAt: data.expiresAt ? new Date(data.expiresAt).toISOString() : undefined,
+      minOrderAmount:
+        data.minOrderAmount !== ""
+          ? parseFloat(data.minOrderAmount)
+          : undefined,
+      startsAt: data.startsAt
+        ? new Date(data.startsAt).toISOString()
+        : undefined,
+      expiresAt: data.expiresAt
+        ? new Date(data.expiresAt).toISOString()
+        : undefined,
       isActive: !!data.isActive,
     };
 
@@ -169,7 +236,9 @@ export default function PromocodeEditPage() {
       toast.success(t("promocodes.promocodeUpdated"));
       navigate("/promocodes");
     } else {
-      toast.error(res?.error?.data?.message || t("promocodes.promocodeUpdateFailed"));
+      toast.error(
+        res?.error?.data?.message || t("promocodes.promocodeUpdateFailed"),
+      );
     }
   };
 
@@ -183,7 +252,7 @@ export default function PromocodeEditPage() {
 
   if (!promocode) {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="rounded-[24px] bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-8 text-center shadow-xl"
@@ -191,7 +260,9 @@ export default function PromocodeEditPage() {
         <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-full w-20 h-20 mx-auto flex items-center justify-center mb-6">
           <AlertCircle className="w-10 h-10 text-red-500" />
         </div>
-        <h1 className="text-2xl font-bold mb-2">{t("promocodes.promocodeNotFound")}</h1>
+        <h1 className="text-2xl font-bold mb-2">
+          {t("promocodes.promocodeNotFound")}
+        </h1>
         <p className="text-gray-500 mb-8 max-w-md mx-auto">
           {t("promocodes.promocodeNotFoundDesc")}
         </p>
@@ -212,7 +283,12 @@ export default function PromocodeEditPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-            <span onClick={() => navigate("/promocodes")} className="cursor-pointer hover:text-indigo-500 transition-colors">Promocodes</span>
+            <span
+              onClick={() => navigate("/promocodes")}
+              className="cursor-pointer hover:text-indigo-500 transition-colors"
+            >
+              Promocodes
+            </span>
             <span>/</span>
             <span className="text-indigo-500 font-medium">Edit</span>
           </div>
@@ -251,11 +327,14 @@ export default function PromocodeEditPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10"
+      >
         {/* Left Column: Main Info */}
         <div className="lg:col-span-2 space-y-8">
           {/* General Info Card */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-100/50 dark:shadow-black/20"
@@ -265,8 +344,12 @@ export default function PromocodeEditPage() {
                 <FileText className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">General Information</h3>
-                <p className="text-sm text-gray-500">Basic details about the promocode</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  General Information
+                </h3>
+                <p className="text-sm text-gray-500">
+                  Basic details about the promocode
+                </p>
               </div>
             </div>
 
@@ -287,7 +370,8 @@ export default function PromocodeEditPage() {
                 </div>
                 <p className="text-xs text-gray-500 mt-2 ml-1 flex items-center gap-1">
                   <Info className="w-3 h-3" />
-                  Code must be unique and will be converted to uppercase automatically
+                  Code must be unique and will be converted to uppercase
+                  automatically
                 </p>
               </div>
 
@@ -303,7 +387,7 @@ export default function PromocodeEditPage() {
           </motion.div>
 
           {/* Discount Configuration */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -314,8 +398,12 @@ export default function PromocodeEditPage() {
                 <Tag className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Discount Configuration</h3>
-                <p className="text-sm text-gray-500">Set how the discount is applied</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Discount Configuration
+                </h3>
+                <p className="text-sm text-gray-500">
+                  Set how the discount is applied
+                </p>
               </div>
             </div>
 
@@ -331,18 +419,24 @@ export default function PromocodeEditPage() {
                   className="w-full"
                 >
                   <div className="flex items-center gap-2 w-full">
-                    {discountType?.icon && <discountType.icon className="w-4 h-4 text-gray-500" />}
-                    <span>{discountType?.label || t("promocodes.selectType")}</span>
+                    {discountType?.icon && (
+                      <discountType.icon className="w-4 h-4 text-gray-500" />
+                    )}
+                    <span>
+                      {discountType?.label || t("promocodes.selectType")}
+                    </span>
                   </div>
                 </Dropdown>
                 {errors.discountType && (
-                  <span className="text-red-500 text-xs ml-1 block">{errors.discountType.message}</span>
+                  <span className="text-red-500 text-xs ml-1 block">
+                    {errors.discountType.message}
+                  </span>
                 )}
               </div>
 
               <div className="relative">
                 <div className="absolute top-8 left-0 pl-4 flex items-center pointer-events-none h-[46px]">
-                  {discountType?.value === 'percentage' ? (
+                  {discountType?.value === "percentage" ? (
                     <Percent className="h-5 w-5 text-gray-400" />
                   ) : (
                     <DollarSign className="h-5 w-5 text-gray-400" />
@@ -364,7 +458,9 @@ export default function PromocodeEditPage() {
                   <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600">
                     <DollarSign className="w-4 h-4" />
                   </div>
-                  <h4 className="font-semibold text-sm">Minimum Requirements</h4>
+                  <h4 className="font-semibold text-sm">
+                    Minimum Requirements
+                  </h4>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <TextField
@@ -394,18 +490,28 @@ export default function PromocodeEditPage() {
         {/* Right Column: Settings */}
         <div className="lg:col-span-1 space-y-8">
           {/* Status Card */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-100/50 dark:shadow-black/20 sticky top-6"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className={`p-3 rounded-2xl ${isActive ? 'bg-green-50 dark:bg-green-900/20 text-green-600' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}`}>
-                {isActive ? <CheckCircle2 className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
+              <div
+                className={`p-3 rounded-2xl ${isActive ? "bg-green-50 dark:bg-green-900/20 text-green-600" : "bg-gray-100 dark:bg-gray-800 text-gray-500"}`}
+              >
+                {isActive ? (
+                  <CheckCircle2 className="w-6 h-6" />
+                ) : (
+                  <XCircle className="w-6 h-6" />
+                )}
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Status</h3>
-                <p className="text-sm text-gray-500">{isActive ? 'Promocode is active' : 'Promocode is inactive'}</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Status
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {isActive ? "Promocode is active" : "Promocode is inactive"}
+                </p>
               </div>
             </div>
 

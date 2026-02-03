@@ -6,93 +6,166 @@ import * as yup from "yup";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Save, Shield, FileText, Info, AlertCircle } from "lucide-react";
 import RichTextEditor from "@/components/input/RichTextEditor";
 import { useCreateTermsConditionsMutation } from "@/features/terms-conditions/termsConditionsApiSlice";
+import { motion } from "framer-motion";
 
 function CreateTermsConditionsPage() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
+    const { t } = useTranslation();
+    const navigate = useNavigate();
 
-  const termsConditionsSchema = useMemo(
-    () =>
-      yup.object().shape({
-        content: yup
-          .string()
-          .required(t("termsConditions.validation.contentRequired"))
-          .min(10, t("termsConditions.validation.contentMin")),
-      }),
-    [t]
-  );
-  const { control, handleSubmit, reset, formState: { errors } } = useForm({
-    resolver: yupResolver(termsConditionsSchema),
-  });
-  const [createTermsConditions, { isLoading: isCreating }] = useCreateTermsConditionsMutation();
+    const termsConditionsSchema = useMemo(
+        () =>
+            yup.object().shape({
+                content: yup
+                    .string()
+                    .required(t("termsConditions.validation.contentRequired"))
+                    .min(10, t("termsConditions.validation.contentMin")),
+            }),
+        [t]
+    );
+    const { control, handleSubmit, reset, formState: { errors } } = useForm({
+        resolver: yupResolver(termsConditionsSchema),
+    });
+    const [createTermsConditions, { isLoading: isCreating }] = useCreateTermsConditionsMutation();
 
-  const onSubmit = async (data) => {
-    const payload = {
-      content: data.content,
+    const onSubmit = async (data) => {
+        try {
+            const payload = {
+                content: data.content,
+            };
+
+            const res = await createTermsConditions(payload).unwrap();
+            if (res) {
+                toast.success(t("termsConditions.createdSuccess"));
+                reset();
+                navigate("/terms-conditions");
+            }
+        } catch (error) {
+            toast.error(error?.data?.message || error?.message || t("termsConditions.createFailed"));
+        }
     };
 
-    const res = await createTermsConditions(payload);
-    if (res?.data) {
-      toast.success(t("termsConditions.createdSuccess"));
-      reset();
-      navigate("/terms-conditions");
-    } else {
-      toast.error(res?.error?.data?.message || t("termsConditions.createFailed"));
-    }
-  };
+    return (
+        <div className="min-h-screen pb-20">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                        <span onClick={() => navigate("/terms-conditions")} className="cursor-pointer hover:text-indigo-500 transition-colors">Terms & Conditions</span>
+                        <span>/</span>
+                        <span className="text-indigo-500 font-medium">Create</span>
+                    </div>
+                    <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-400 drop-shadow-sm">
+                        {t("termsConditions.createTitle")}
+                    </h1>
+                    <p className="text-gray-500 mt-2 text-lg">
+                        {t("termsConditions.createDesc")}
+                    </p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <Button
+                        variant="outline"
+                        onClick={() => navigate("/terms-conditions")}
+                        className="rounded-xl h-12 px-6 border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 transition-all duration-300"
+                    >
+                        {t("common.cancel")}
+                    </Button>
+                    <Button
+                        onClick={handleSubmit(onSubmit)}
+                        disabled={isCreating}
+                        className="rounded-xl h-12 px-8 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 transition-all duration-300 transform hover:-translate-y-0.5"
+                    >
+                        {isCreating ? (
+                            <div className="flex items-center gap-2">
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <span>{t("common.creating")}</span>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                <Save className="w-5 h-5" />
+                                <span>{t("common.create")}</span>
+                            </div>
+                        )}
+                    </Button>
+                </div>
+            </div>
 
-  return (
-    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate("/terms-conditions")}
-          className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-semibold">{t("termsConditions.createTitle")}</h1>
-          <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            {t("termsConditions.createDesc")}
-          </p>
-        </div>
-      </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Main Content Column */}
+                <div className="lg:col-span-2 space-y-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-white dark:bg-[#1a1f26] rounded-[24px] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-100/50 dark:shadow-black/20"
+                    >
+                        <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-black/20 flex items-center gap-3">
+                            <div className="p-2.5 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+                                <FileText className="w-5 h-5" />
+                            </div>
+                            <h3 className="font-bold text-lg">Terms Content</h3>
+                        </div>
+                        <div className="p-6">
+                            <Controller
+                                name="content"
+                                control={control}
+                                render={({ field }) => (
+                                    <RichTextEditor
+                                        placeholder={t("termsConditions.contentPlaceholder")}
+                                        value={field.value || ""}
+                                        onChange={field.onChange}
+                                        error={errors.content}
+                                        height="500px"
+                                        className="prose dark:prose-invert max-w-none"
+                                    />
+                                )}
+                            />
+                        </div>
+                    </motion.div>
+                </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
-        <Controller
-          name="content"
-          control={control}
-          render={({ field }) => (
-            <RichTextEditor
-              placeholder={t("termsConditions.contentPlaceholder")}
-              value={field.value || ""}
-              onChange={field.onChange}
-              error={errors.content}
-              height="400px"
-            />
-          )}
-        />
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-          <Button
-            variant="ghost"
-            type="button"
-            onClick={() => navigate("/terms-conditions")}
-            className="bg-red-500 hover:bg-red-600 text-white"
-          >
-            {t("common.cancel")}
-          </Button>
-          <Button type="submit" disabled={isCreating} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-            {isCreating ? t("common.creating") : t("common.create")}
-          </Button>
+                {/* Sidebar Column */}
+                <div className="lg:col-span-1 space-y-6">
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-100/50 dark:shadow-black/20 sticky top-6"
+                    >
+                        <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                            <Info className="w-5 h-5 text-indigo-500" />
+                            Help & Tips
+                        </h3>
+                        
+                        <div className="space-y-4">
+                            <div className="bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl p-4 border border-indigo-100 dark:border-indigo-900/20">
+                                <h4 className="font-semibold text-indigo-700 dark:text-indigo-400 mb-2 text-sm">What to include?</h4>
+                                <ul className="text-xs text-indigo-600/80 dark:text-indigo-400/70 space-y-2 list-disc pl-4">
+                                    <li>Acceptance of terms</li>
+                                    <li>User responsibilities</li>
+                                    <li>Intellectual property rights</li>
+                                    <li>Payment and subscription terms</li>
+                                    <li>Termination clauses</li>
+                                    <li>Limitation of liability</li>
+                                </ul>
+                            </div>
+
+                            <div className="bg-orange-50 dark:bg-orange-900/10 rounded-2xl p-4 border border-orange-100 dark:border-orange-900/20">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <AlertCircle className="w-4 h-4 text-orange-500" />
+                                    <span className="font-bold text-orange-700 dark:text-orange-400 text-sm">Legal Disclaimer</span>
+                                </div>
+                                <p className="text-xs text-orange-600/80 dark:text-orange-400/70">
+                                    This template is not legal advice. Please consult with a legal professional to ensure your terms and conditions meet all applicable laws and regulations in your jurisdiction.
+                                </p>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            </form>
         </div>
-      </form>
-    </div>
-  );
+    );
 }
 
 export default CreateTermsConditionsPage;
