@@ -6,12 +6,23 @@ import * as yup from "yup";
 import toast from "react-hot-toast";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { 
+  ArrowLeft, 
+  Save, 
+  ImageIcon, 
+  Type, 
+  Link as LinkIcon, 
+  Layout, 
+  CheckCircle2, 
+  XCircle,
+  Loader2
+} from "lucide-react";
 import TextField from "@/components/input/TextField";
 import FileUpload from "@/components/input/FileUpload";
 import { useUpdateBannerMutation, useGetBannersQuery } from "@/features/banners/bannersApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
 import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
 
 function BannerEditPage() {
   const { t } = useTranslation();
@@ -46,7 +57,7 @@ function BannerEditPage() {
   const [imageFile, setImageFile] = useState(null);
   const { uploadImage, isUploading } = useImageUpload();
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
     resolver: yupResolver(bannerEditSchema),
     defaultValues: {
       title: banner?.title || "",
@@ -58,6 +69,8 @@ function BannerEditPage() {
       order: banner?.order ?? 1,
     },
   });
+
+  const isActive = watch("isActive");
 
   useEffect(() => {
     if (banner) {
@@ -122,21 +135,23 @@ function BannerEditPage() {
 
   if (!banner) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/banners")}
-            className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-semibold">{t("banners.bannerNotFound")}</h1>
-            <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-              {t("banners.bannerNotFoundDesc")}
-            </p>
+      <div className="min-h-screen bg-gray-50/50 dark:bg-[#111318] p-4 md:p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/banners")}
+              className="bg-white dark:bg-[#1a1f26] hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-white rounded-xl h-10 w-10 border border-gray-200 dark:border-gray-800 shadow-sm"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t("banners.bannerNotFound")}</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {t("banners.bannerNotFoundDesc")}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -144,100 +159,226 @@ function BannerEditPage() {
   }
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate("/banners")}
-          className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-semibold">{t("banners.editBanner")}</h1>
-          <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            {t("createEdit.updateBanner")}
-          </p>
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#111318] p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/banners")}
+              className="bg-white dark:bg-[#1a1f26] hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-white rounded-xl h-10 w-10 border border-gray-200 dark:border-gray-800 shadow-sm"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
+                {t("banners.editBanner")}
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {t("createEdit.updateBanner")}
+              </p>
+            </div>
+          </div>
         </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
+          {/* Left Column: Main Info */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Banner Content Card */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-100/50 dark:shadow-black/20"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                  <Type className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {t("banners.bannerContent")}
+                </h3>
+              </div>
+              
+              <div className="space-y-6">
+                <TextField
+                  label={t("banners.titleField")}
+                  placeholder={t("banners.bannerTitlePlaceholder")}
+                  register={register}
+                  name="title"
+                  error={errors.title}
+                  className="bg-gray-50 dark:bg-black/20"
+                />
+                <TextField
+                  label={t("banners.subtitle")}
+                  placeholder={t("banners.subtitlePlaceholder")}
+                  register={register}
+                  name="subtitle"
+                  error={errors.subtitle}
+                  className="bg-gray-50 dark:bg-black/20"
+                />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <TextField
+                    label={t("banners.buttonText")}
+                    placeholder={t("banners.buttonTextPlaceholder")}
+                    register={register}
+                    name="buttonText"
+                    error={errors.buttonText}
+                    className="bg-gray-50 dark:bg-black/20"
+                  />
+                  <TextField
+                    label={t("banners.buttonLink")}
+                    placeholder={t("banners.buttonLinkPlaceholder")}
+                    register={register}
+                    name="buttonLink"
+                    error={errors.buttonLink}
+                    icon={<LinkIcon className="w-4 h-4 text-gray-400" />}
+                    className="bg-gray-50 dark:bg-black/20"
+                  />
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Media Card */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-100/50 dark:shadow-black/20"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                  <ImageIcon className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {t("banners.bannerImage")}
+                </h3>
+              </div>
+
+              <div className="space-y-6">
+                <FileUpload
+                  placeholder={t("banners.chooseImageFile")}
+                  label={t("banners.uploadImage")}
+                  name="image"
+                  accept="image/*"
+                  onChange={setImageFile}
+                  value={banner?.imageUrl}
+                />
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-gray-200 dark:border-gray-800" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-white dark:bg-[#1a1f26] px-2 text-gray-500 dark:text-gray-400">
+                      {t("banners.orLabel")}
+                    </span>
+                  </div>
+                </div>
+
+                <TextField
+                  label={t("banners.imageUrl")}
+                  placeholder={t("banners.imageUrlPlaceholder")}
+                  register={register}
+                  name="imageUrl"
+                  error={errors.imageUrl}
+                  className="bg-gray-50 dark:bg-black/20"
+                  icon={<LinkIcon className="w-4 h-4 text-gray-400" />}
+                />
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Right Column: Settings */}
+          <div className="lg:col-span-1 space-y-8">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-100/50 dark:shadow-black/20 sticky top-6"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  <Layout className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {t("common.status")}
+                </h3>
+              </div>
+
+              <div className="space-y-6">
+                <div className="p-4 rounded-xl bg-gray-50 dark:bg-black/20 space-y-4">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t("banners.displayOrder")}
+                  </label>
+                  <TextField
+                    placeholder={t("banners.orderPlaceholder")}
+                    register={register}
+                    name="order"
+                    type="number"
+                    error={errors.order}
+                    className="bg-white dark:bg-[#111318]"
+                  />
+                </div>
+
+                <div className="p-4 rounded-xl bg-gray-50 dark:bg-black/20 flex items-center justify-between cursor-pointer" onClick={() => document.getElementById('isActive-checkbox').click()}>
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-full ${isActive ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
+                      {isActive ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {isActive ? t("common.active") : t("common.inactive")}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {isActive ? t("banners.visibleToUsers") : t("banners.hiddenFromUsers")}
+                      </p>
+                    </div>
+                  </div>
+                  <input 
+                    id="isActive-checkbox"
+                    type="checkbox" 
+                    {...register("isActive")} 
+                    className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:bg-gray-800 dark:border-gray-700" 
+                  />
+                </div>
+                {errors.isActive && (
+                  <span className="text-red-500 text-xs ml-1">{errors.isActive.message}</span>
+                )}
+
+                <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
+                  <Button 
+                    type="submit" 
+                    disabled={isUpdating || isUploading} 
+                    className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 h-11 rounded-xl"
+                  >
+                    {isUpdating || isUploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {t("common.processing")}
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        {t("common.update")}
+                      </>
+                    )}
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    type="button" 
+                    onClick={() => navigate("/banners")} 
+                    className="w-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 h-11 rounded-xl"
+                  >
+                    {t("common.cancel")}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </form>
       </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-4">
-        <TextField
-          label={t("banners.titleField")}
-          placeholder={t("banners.bannerTitlePlaceholder")}
-          register={register}
-          name="title"
-          error={errors.title}
-        />
-        <TextField
-          label={t("banners.subtitle")}
-          placeholder={t("banners.subtitlePlaceholder")}
-          register={register}
-          name="subtitle"
-          error={errors.subtitle}
-        />
-
-        <FileUpload
-          placeholder={t("banners.chooseImageFile")}
-          label={t("banners.uploadImage")}
-          name="image"
-          accept="image/*"
-          onChange={setImageFile}
-          value={banner?.imageUrl}
-        />
-
-        <div className="text-center text-sm text-black/50 dark:text-white/50">{t("banners.orLabel")}</div>
-
-        <TextField
-          label={t("banners.imageUrl")}
-          placeholder={t("banners.imageUrlPlaceholder")}
-          register={register}
-          name="imageUrl"
-          error={errors.imageUrl}
-        />
-
-        <TextField
-          label={t("banners.buttonText")}
-          placeholder={t("banners.buttonTextPlaceholder")}
-          register={register}
-          name="buttonText"
-          error={errors.buttonText}
-        />
-        <TextField
-          label={t("banners.buttonLink")}
-          placeholder={t("banners.buttonLinkPlaceholder")}
-          register={register}
-          name="buttonLink"
-          error={errors.buttonLink}
-        />
-        <TextField
-          label={t("banners.displayOrder")}
-          placeholder={t("banners.orderPlaceholder")}
-          register={register}
-          name="order"
-          type="number"
-          error={errors.order}
-        />
-        <div className="flex flex-col gap-2">
-          <label className="text-black/50 dark:text-white/50 text-sm ml-1">{t("common.status")}</label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" {...register("isActive")} className="w-4 h-4 rounded border-black/20 dark:border-white/20" />
-            <span className="text-sm">{t("common.active")}</span>
-          </label>
-          {errors.isActive && (
-            <span className="text-red-500 text-xs ml-1">{errors.isActive.message}</span>
-          )}
-        </div>
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-          <Button variant="ghost" type="button" onClick={() => navigate("/banners")} className="bg-red-500 hover:bg-red-600 text-white">
-            {t("common.cancel")}
-          </Button>
-          <Button type="submit" disabled={isUpdating || isUploading} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-            {isUpdating || isUploading ? t("common.processing") : t("common.update")}
-          </Button>
-        </div>
-      </form>
     </div>
   );
 }
