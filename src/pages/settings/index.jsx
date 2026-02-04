@@ -16,6 +16,7 @@ import { MapPin, Shield, Package, Building2, CheckCircle, Calendar, Mail, Phone,
 import OrderNotificationSettings from "./components/OrderNotificationSettings";
 import { hasPermission, FeaturePermission } from "@/constants/feature-permission";
 import { generateInvoicePDF } from "@/pages/superadmin/invoice/InvoicePDFGenerator";
+import DomainSettings from "./components/DomainSettings";
 
 const SettingsPage = () => {
   const { t } = useTranslation();
@@ -468,6 +469,9 @@ const SettingsPage = () => {
           </Card>
         </div>
       </div>
+
+      {/* Custom Domain Settings */}
+      <DomainSettings />
 
       {/* Courier Credentials Section */}
       <div>
