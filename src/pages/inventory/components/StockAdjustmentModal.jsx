@@ -17,6 +17,15 @@ const StockAdjustmentModal = ({ isOpen, onClose, product, type = 'in' }) => { //
   const actionText = isStockIn ? "Add Stock" : "Remove Stock";
   const colorClass = isStockIn ? "text-green-600 bg-green-50" : "text-red-600 bg-red-50";
 
+  const cleanThumbnail = product?.thumbnail
+    ? product.thumbnail.replace(/`/g, "").trim()
+    : "";
+  const imageUrl =
+    cleanThumbnail ||
+    product?.images?.[0]?.url ||
+    product?.images?.[0] ||
+    null;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!product || !quantity || parseInt(quantity) <= 0) {
@@ -77,7 +86,11 @@ const StockAdjustmentModal = ({ isOpen, onClose, product, type = 'in' }) => { //
         <div className="mb-6 p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-gray-800">
             <div className="flex gap-3">
                 <div className="h-12 w-12 rounded-lg bg-white dark:bg-black/20 flex items-center justify-center border border-gray-200 dark:border-gray-700 overflow-hidden shrink-0">
-                     {product.images?.[0] ? <img src={product.images[0]} className="w-full h-full object-cover"/> : <span className="text-xs font-bold text-gray-400">IMG</span>}
+                     {imageUrl ? (
+                       <img src={imageUrl} className="w-full h-full object-cover" alt={product.name} />
+                     ) : (
+                       <span className="text-xs font-bold text-gray-400">IMG</span>
+                     )}
                 </div>
                 <div>
                    <div className="text-sm text-gray-500 dark:text-gray-400">Product</div>

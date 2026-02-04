@@ -59,21 +59,11 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    recoverCategory: builder.mutation({
-      query: (id) => ({
-        url: `/categories/${id}/recover`,
+    restoreCategory: builder.mutation({
+      query: ({ id, params }) => ({
+        url: `/categories/${id}/restore`,
         method: "PATCH",
-      }),
-      invalidatesTags: [
-        { type: "categories", id: "LIST" },
-        { type: "categories", id: "TRASH" },
-      ],
-    }),
-
-    permanentDeleteCategory: builder.mutation({
-      query: (id) => ({
-        url: `/categories/${id}/permanent`,
-        method: "DELETE",
+        params,
       }),
       invalidatesTags: [
         { type: "categories", id: "LIST" },
@@ -106,6 +96,5 @@ export const {
   useDeleteCategoryMutation,
   useToggleCategoryActiveMutation,
   useGetTrashedCategoriesQuery,
-  useRecoverCategoryMutation,
-  usePermanentDeleteCategoryMutation,
+  useRestoreCategoryMutation,
 } = categoryApiSlice;

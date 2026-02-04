@@ -215,7 +215,7 @@ export const routes = createBrowserRouter([
         ),
       },
       {
-        path: "/inventory/history",
+        path: "/inventory/:id/history",
         element: (
           <PermissionRoute permission={FeaturePermission.PRODUCTS}>
             <InventoryHistoryPage />

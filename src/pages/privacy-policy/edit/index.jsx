@@ -10,19 +10,19 @@ import {
   useUpdatePrivacyPolicyMutation,
 } from "../../../features/privacy-policy/privacyPolicyApiSlice";
 import AtomLoader from "../../../components/loader/AtomLoader";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import RichTextEditor from "../../../components/input/RichTextEditor";
 import { motion } from "framer-motion";
 import {
-  FaSave,
-  FaCheckCircle,
-  FaExclamationCircle,
-  FaArrowLeft,
-  FaHistory,
-  FaShieldAlt,
-  FaLightbulb,
-  FaClock
-} from "react-icons/fa";
+  Save,
+  CheckCircle,
+  AlertCircle,
+  ArrowLeft,
+  History,
+  Shield,
+  Lightbulb,
+  Clock,
+} from "lucide-react";
 
 const schema = yup.object().shape({
   content: yup.string().required("Content is required"),
@@ -106,7 +106,7 @@ const EditPrivacyPolicy = () => {
           <div>
             <div className="flex items-center gap-3 mt-2">
               <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl">
-                <FaShieldAlt className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                <Shield className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
               </div>
               <div>
                 <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-400 drop-shadow-sm">
@@ -125,7 +125,7 @@ const EditPrivacyPolicy = () => {
             onClick={() => navigate("/privacy-policy")}
             className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
           >
-            <FaArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4" />
             Back to Overview
           </motion.button>
         </motion.div>
@@ -133,7 +133,7 @@ const EditPrivacyPolicy = () => {
         {/* No Policy Found State */}
         {!latestPolicy && !isFetching && (
            <motion.div variants={itemVariants} className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-2xl border border-yellow-200 dark:border-yellow-800 text-center">
-             <FaExclamationCircle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+             <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">No Policy Found</h3>
              <p className="text-gray-600 dark:text-gray-400 mb-4">You haven't created a privacy policy yet.</p>
              <button
@@ -186,7 +186,7 @@ const EditPrivacyPolicy = () => {
                     />
                     {errors.version && (
                       <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                        <FaExclamationCircle /> {errors.version.message}
+                        <AlertCircle className="w-4 h-4 shrink-0" /> {errors.version.message}
                       </p>
                     )}
                   </div>
@@ -213,7 +213,7 @@ const EditPrivacyPolicy = () => {
                     </div>
                     {errors.content && (
                       <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                        <FaExclamationCircle /> {errors.content.message}
+                        <AlertCircle className="w-4 h-4 shrink-0" /> {errors.content.message}
                       </p>
                     )}
                   </div>
@@ -226,7 +226,7 @@ const EditPrivacyPolicy = () => {
               {/* Status Card */}
               <motion.div variants={itemVariants} className="bg-white dark:bg-gray-900 rounded-[24px] p-6 shadow-xl border border-gray-100 dark:border-gray-800/50 sticky top-6">
                 <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                  <FaCheckCircle className="text-emerald-500" />
+                  <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
                   Publishing Status
                 </h3>
                 
@@ -262,7 +262,7 @@ const EditPrivacyPolicy = () => {
                   <div className="bg-gray-50 dark:bg-black/20 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 space-y-3">
                      <div className="flex items-center gap-3">
                         <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg">
-                           <FaHistory className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                           <History className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         <div>
                            <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">Current Version</p>
@@ -271,7 +271,7 @@ const EditPrivacyPolicy = () => {
                      </div>
                      <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
-                           <FaClock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                           <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
                            <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">Last Modified</p>
@@ -297,7 +297,7 @@ const EditPrivacyPolicy = () => {
                       </>
                     ) : (
                       <>
-                        <FaSave className="w-5 h-5" />
+                        <Save className="w-5 h-5" />
                         <span>Update Policy</span>
                       </>
                     )}
@@ -308,7 +308,7 @@ const EditPrivacyPolicy = () => {
               {/* Best Practices Card */}
               <motion.div variants={itemVariants} className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-[24px] p-6 border border-indigo-100 dark:border-indigo-800/30">
                 <h4 className="font-bold text-indigo-900 dark:text-indigo-100 mb-3 flex items-center gap-2">
-                  <FaLightbulb className="text-amber-500" />
+                  <Lightbulb className="w-5 h-5 text-amber-500 shrink-0" />
                   Best Practices
                 </h4>
                 <ul className="space-y-3 text-sm text-indigo-800 dark:text-indigo-200">

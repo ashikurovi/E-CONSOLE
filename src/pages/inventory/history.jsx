@@ -1,20 +1,8 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  ArrowDownCircle,
-  ArrowUpCircle,
-  Clock,
-  FileEdit,
-  Search,
-  Filter,
-  Download,
-  Calendar,
-  User,
-  Package,
-} from "lucide-react";
+import React from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Clock, Package, ArrowLeft } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -24,262 +12,228 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { format } from "date-fns";
+import {
+  useGetProductQuery,
+  useGetProductStockHistoryQuery,
+} from "@/features/product/productApiSlice";
+
+const formatDateTime = (value) => {
+  if (!value) return "-";
+  const d = new Date(value);
+  return d.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
 const InventoryHistoryPage = () => {
-  const { t } = useTranslation();
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
+  const authUser = useSelector((state) => state.auth.user);
 
-  // Mock Data - Replace with actual API call
-  const historyData = [
-    {
-      id: 1,
-      productName: "Wireless Headphones",
-      sku: "WH-001",
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80",
-      type: "stock_in",
-      amount: 50,
-      reason: "New shipment received",
-      date: new Date(Date.now() - 1000 * 60 * 60 * 2),
-      user: "Admin User",
-    },
-    {
-      id: 2,
-      productName: "Smart Watch Series 5",
-      sku: "SW-005",
-      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80",
-      type: "stock_out",
-      amount: 12,
-      reason: "Order #12345 fulfillment",
-      date: new Date(Date.now() - 1000 * 60 * 60 * 24),
-      user: "System",
-    },
-    {
-      id: 3,
-      productName: "Ergonomic Office Chair",
-      sku: "EC-100",
-      image: "https://images.unsplash.com/photo-1592078615290-033ee584e267?w=500&q=80",
-      type: "update",
-      field: "price",
-      oldValue: "$120.00",
-      newValue: "$125.00",
-      date: new Date(Date.now() - 1000 * 60 * 60 * 48),
-      user: "Manager",
-    },
-    {
-      id: 4,
-      productName: "Wireless Headphones",
-      sku: "WH-001",
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80",
-      type: "stock_out",
-      amount: 5,
-      reason: "Damaged goods",
-      date: new Date(Date.now() - 1000 * 60 * 60 * 72),
-      user: "Admin User",
-    },
-    {
-      id: 5,
-      productName: "Gaming Keyboard",
-      sku: "GK-202",
-      image: "https://images.unsplash.com/photo-1587829741301-dc798b91a446?w=500&q=80",
-      type: "created",
-      date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
-      user: "Admin User",
-    },
-  ];
+  const {
+    data: product,
+    isLoading: isProductLoading,
+    isError: isProductError,
+  } = useGetProductQuery(id, {
+    skip: !id,
+  });
 
-  const getBadge = (type) => {
-    switch (type) {
-      case "stock_in":
-        return (
-          <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200 gap-1">
-            <ArrowDownCircle className="w-3 h-3" /> Stock In
-          </Badge>
-        );
-      case "stock_out":
-        return (
-          <Badge className="bg-red-100 text-red-700 hover:bg-red-200 border-red-200 gap-1">
-            <ArrowUpCircle className="w-3 h-3" /> Stock Out
-          </Badge>
-        );
-      case "update":
-        return (
-          <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200 gap-1">
-            <FileEdit className="w-3 h-3" /> Updated
-          </Badge>
-        );
-      case "created":
-        return (
-          <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 gap-1">
-            <Package className="w-3 h-3" /> Created
-          </Badge>
-        );
-      default:
-        return <Badge variant="outline">Unknown</Badge>;
-    }
-  };
+  const {
+    data: history = [],
+    isLoading,
+    isError,
+  } = useGetProductStockHistoryQuery(
+    id && authUser
+      ? {
+          id,
+          params: {
+            companyId: authUser.companyId,
+            limit: 50,
+          },
+        }
+      : { id: 0, params: {} },
+    {
+      skip: !id || !authUser,
+    },
+  );
+
+  const isPageLoading = isProductLoading || isLoading;
+
+  const cleanThumbnail = product?.thumbnail
+    ? product.thumbnail.replace(/`/g, "").trim()
+    : "";
+  const imageUrl =
+    cleanThumbnail ||
+    product?.images?.[0]?.url ||
+    product?.images?.[0] ||
+    null;
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 p-4 lg:p-8 space-y-8 relative">
-      {/* Background Decoration */}
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 p-4 lg:p-8 space-y-8 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50/50 to-transparent dark:from-indigo-950/20 dark:to-transparent -z-10" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
-      {/* Header */}
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
-      >
-        <div>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
           <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="pl-0 hover:bg-transparent hover:text-indigo-600 mb-2"
+            variant="outline"
+            size="icon"
+            className="rounded-full border-slate-200 dark:border-slate-700"
+            onClick={() => navigate("/inventory")}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Inventory
+            <ArrowLeft className="w-4 h-4" />
           </Button>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-            <Clock className="w-8 h-8 text-indigo-500" />
-            Inventory History
-          </h1>
-          <p className="text-slate-500 mt-2">
-            Track all stock movements and product updates
-          </p>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center">
+              <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <div>
+              <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
+                Stock History
+              </h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                All stock in/out events for this product.
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" className="bg-white">
-            <Download className="w-4 h-4 mr-2" /> Export Log
-          </Button>
-        </div>
-      </motion.div>
+      </div>
 
-      {/* Filters */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row gap-4"
-      >
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search by product, SKU, or user..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-          />
+      <div className="bg-white dark:bg-[#050816] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+        <div className="px-6 pt-4 pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40">
+          {isProductError ? (
+            <div className="text-sm text-red-500">
+              Failed to load product details.
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center border border-slate-200 dark:border-slate-700 overflow-hidden">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={product?.name || "Product image"}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Package className="w-5 h-5 text-slate-400" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                  {product?.name || "Loading product..."}
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                  SKU: {product?.sku || "—"} • Current stock:{" "}
+                  <span className="font-mono font-bold">
+                    {product?.stock ?? 0}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        <Button variant="outline" className="border-slate-200">
-          <Filter className="w-4 h-4 mr-2" /> Filter Type
-        </Button>
-        <Button variant="outline" className="border-slate-200">
-          <Calendar className="w-4 h-4 mr-2" /> Date Range
-        </Button>
-      </motion.div>
 
-      {/* Table */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm"
-      >
-        <Table>
-          <TableHeader className="bg-slate-50/50">
-            <TableRow>
-              <TableHead className="pl-6">Product</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Change</TableHead>
-              <TableHead>Reason / Details</TableHead>
-              <TableHead>User</TableHead>
-              <TableHead className="text-right pr-6">Date</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {historyData.map((item) => (
-              <TableRow key={item.id} className="group hover:bg-slate-50/50">
-                <TableCell className="pl-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
-                      <img
-                        src={item.image}
-                        alt={item.productName}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-900 dark:text-white">
-                        {item.productName}
-                      </p>
-                      <p className="text-xs text-slate-500">{item.sku}</p>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>{getBadge(item.type)}</TableCell>
-                <TableCell>
-                  {item.type === "stock_in" && (
-                    <span className="text-emerald-600 font-bold">
-                      +{item.amount}
-                    </span>
-                  )}
-                  {item.type === "stock_out" && (
-                    <span className="text-red-600 font-bold">
-                      -{item.amount}
-                    </span>
-                  )}
-                  {item.type === "update" && (
-                    <span className="text-slate-500">—</span>
-                  )}
-                  {item.type === "created" && (
-                    <span className="text-emerald-600 font-bold">Initial</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {item.type === "update" ? (
-                    <div className="text-sm">
-                      <span className="text-slate-500">Changed {item.field}: </span>
-                      <span className="line-through text-red-400 mr-2">
-                        {item.oldValue}
-                      </span>
-                      <span className="text-emerald-600 font-medium">
-                        {item.newValue}
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="text-slate-600 dark:text-slate-300">
-                      {item.reason || "—"}
-                    </span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">
-                      {item.user.charAt(0)}
-                    </div>
-                    <span className="text-sm text-slate-600">{item.user}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right pr-6">
-                  <div className="flex flex-col items-end">
-                    <span className="text-sm font-medium text-slate-900 dark:text-white">
-                      {format(item.date, "MMM d, yyyy")}
-                    </span>
-                    <span className="text-xs text-slate-500">
-                      {format(item.date, "h:mm a")}
-                    </span>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </motion.div>
+        <div className="px-6 py-4">
+          <div className="h-full overflow-auto rounded-xl border border-slate-100 dark:border-slate-800">
+            <Table>
+              <TableHeader className="bg-slate-50/80 dark:bg-slate-900/60 backdrop-blur-sm">
+                <TableRow className="border-slate-200 dark:border-slate-800">
+                  <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Date
+                  </TableHead>
+                  <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Type
+                  </TableHead>
+                  <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Quantity
+                  </TableHead>
+                  <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Balance
+                  </TableHead>
+                  <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Performed By
+                  </TableHead>
+                  <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Reason
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isPageLoading ? (
+                  [...Array(5)].map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell colSpan={6} className="h-14">
+                        <div className="h-3 w-full rounded bg-slate-200/70 dark:bg-slate-800/60 animate-pulse" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : isError ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-32 text-center">
+                      <div className="text-sm text-slate-500 dark:text-slate-400">
+                        Failed to load stock history. Please try again.
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : history.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-32 text-center">
+                      <div className="text-sm text-slate-500 dark:text-slate-400">
+                        No stock adjustments recorded for this product yet.
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  history.map((entry) => (
+                    <TableRow
+                      key={entry.id}
+                      className="border-slate-100 dark:border-slate-800"
+                    >
+                      <TableCell className="text-sm text-slate-700 dark:text-slate-200">
+                        {formatDateTime(entry.createdAt)}
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                            entry.type === "IN"
+                              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300"
+                              : "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300"
+                          }`}
+                        >
+                          {entry.type === "IN" ? "Stock In" : "Stock Out"}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-sm font-mono">
+                        {entry.quantity > 0 ? "+" : ""}
+                        {entry.quantity}
+                      </TableCell>
+                      <TableCell className="text-sm font-mono">
+                        {entry.previousStock} →{" "}
+                          <span className="font-semibold">
+                            {entry.newStock}
+                          </span>
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {entry.user?.name || entry.user?.email || "—"}
+                      </TableCell>
+                      <TableCell className="text-xs text-slate-500 dark:text-slate-400 max-w-xs truncate">
+                        {entry.reason || "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default InventoryHistoryPage;
+

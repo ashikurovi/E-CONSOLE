@@ -169,6 +169,20 @@ export const productApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: [{ type: "products", id: "LIST" }],
     }),
+
+    // Get stock adjustment history for a product
+    getProductStockHistory: builder.query({
+      query: ({ id, params }) => ({
+        url: `/products/${id}/stock-history`,
+        method: "GET",
+        params,
+      }),
+      transformResponse: (res) => res?.data ?? [],
+      providesTags: (result, error, { id }) => [
+        { type: "products", id },
+        { type: "products", id: `STOCK_HISTORY_${id}` },
+      ],
+    }),
   }),
 });
 
@@ -188,4 +202,5 @@ export const {
   useRecoverProductMutation,
   usePublishDraftMutation,
   usePermanentDeleteProductMutation,
+  useGetProductStockHistoryQuery,
 } = productApiSlice;
