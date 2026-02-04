@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -11,6 +12,7 @@ export default function ProductFormActions({
   submitLabel = "Publish",
   savingLabel = "Saving...",
 }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -21,7 +23,7 @@ export default function ProductFormActions({
         onClick={() => navigate("/products")}
         className="flex-1 border-slate-200 hover:bg-slate-50 text-slate-600 font-semibold h-12 rounded-xl dark:border-slate-700 dark:hover:bg-slate-800 dark:text-slate-400"
       >
-        Discard
+        {t("productForm.discard")}
       </Button>
       <Button
         type="button"
@@ -30,7 +32,7 @@ export default function ProductFormActions({
         onClick={handleSubmit((d) => onSubmit(d, { asDraft: true }))}
         disabled={isUpdating || isUploading || !isValid}
       >
-        {isUpdating ? savingLabel : "Save as Draft"}
+        {isUpdating ? savingLabel : t("productForm.saveAsDraft")}
       </Button>
       <Button
         type="submit"

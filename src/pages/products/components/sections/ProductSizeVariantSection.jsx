@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 
 export default function ProductSizeVariantSection({
@@ -11,14 +12,16 @@ export default function ProductSizeVariantSection({
   newSizeValue,
   setNewSizeValue,
 }) {
+  const { t } = useTranslation();
+  
   return (
     <div className="grid grid-cols-12 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
       <div className="col-span-12 lg:col-span-4">
         <h3 className="text-base font-bold text-slate-900 dark:text-slate-50">
-          Size Variant
+          {t("productForm.sizeVariant")}
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
-          Choose the size variants for the product.
+          {t("productForm.sizeVariantHint")}
         </p>
       </div>
       <div className="col-span-12 lg:col-span-8">
@@ -56,7 +59,7 @@ export default function ProductSizeVariantSection({
             <input
               type="text"
               autoFocus
-              placeholder="Enter size..."
+              placeholder={t("productForm.enterSize")}
               className="w-24 px-3 py-2 rounded-lg border-2 border-indigo-600 text-center font-medium outline-none bg-white dark:bg-slate-900 text-slate-900 text-sm"
               value={newSizeValue}
               onChange={(e) => setNewSizeValue(e.target.value)}
@@ -84,7 +87,7 @@ export default function ProductSizeVariantSection({
                 }
               }}
             />
-            <span className="text-xs text-slate-400">Press Enter to add</span>
+            <span className="text-xs text-slate-400">{t("productForm.pressEnterToAdd")}</span>
           </div>
         )}
       </div>

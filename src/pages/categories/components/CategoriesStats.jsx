@@ -1,8 +1,11 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 const CategoriesStats = ({ stats }) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {stats.map((stat, idx) => (
@@ -49,7 +52,7 @@ const CategoriesStats = ({ stats }) => {
                 {stat.trend}
               </span>
               <span className="text-xs text-gray-400 font-medium">
-                vs last month
+                {t("categories.vsLastMonth")}
               </span>
             </div>
           </div>

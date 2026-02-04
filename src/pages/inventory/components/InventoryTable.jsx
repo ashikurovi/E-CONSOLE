@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ArrowDownCircle, ArrowUpCircle, History, MoreHorizontal, Package } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -32,6 +33,7 @@ const InventoryTable = ({
   setStockModal,
   setHistoryModal,
 }) => {
+  const { t } = useTranslation();
   const isTableLoading = isLoading;
 
   return (
@@ -47,27 +49,27 @@ const InventoryTable = ({
             <TableRow className="hover:bg-transparent border-slate-200 dark:border-slate-800">
               {visibleColumns?.details !== false && (
                 <TableHead className="h-14 font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Product Details
+                  {t("inventory.productDetails")}
                 </TableHead>
               )}
               {visibleColumns?.sku !== false && (
                 <TableHead className="h-14 font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  SKU / Code
+                  {t("inventory.skuCode")}
                 </TableHead>
               )}
               {visibleColumns?.stock !== false && (
                 <TableHead className="h-14 font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Stock Level
+                  {t("inventory.stockLevel")}
                 </TableHead>
               )}
               {visibleColumns?.pricing !== false && (
                 <TableHead className="h-14 font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Pricing
+                  {t("inventory.pricing")}
                 </TableHead>
               )}
               {visibleColumns?.actions !== false && (
                 <TableHead className="h-14 font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 text-right pr-6">
-                  Actions
+                  {t("inventory.actions")}
                 </TableHead>
               )}
             </TableRow>
@@ -138,9 +140,9 @@ const InventoryTable = ({
                       <Package className="w-8 h-8 opacity-50" />
                     </div>
                     <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
-                      No products found
+                      {t("inventory.noProductsFound")}
                     </h3>
-                    <p className="text-sm">Try adjusting your search or filters</p>
+                    <p className="text-sm">{t("inventory.tryAdjustingFilters")}</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -179,7 +181,7 @@ const InventoryTable = ({
                               {product.name}
                             </span>
                             <span className="text-xs text-slate-500 dark:text-slate-400">
-                              {product.unit || "Piece"}
+                              {product.unit || t("inventory.piece")}
                             </span>
                           </div>
                         </div>
@@ -210,7 +212,7 @@ const InventoryTable = ({
                             {product.stock || 0}
                           </span>
                           <span className="text-xs text-slate-400 font-medium">
-                            in stock
+                            {t("inventory.inStock")}
                           </span>
                         </div>
                         <div className="w-24 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -238,7 +240,7 @@ const InventoryTable = ({
                             {renderPrice(product.price)}
                           </span>
                           <span className="text-xs text-slate-400">
-                            Cost:{" "}
+                            {t("inventory.cost")}{" "}
                             {renderPrice(product.costPrice || product.price * 0.8)}
                           </span>
                         </div>
@@ -254,7 +256,7 @@ const InventoryTable = ({
                                 variant="ghost"
                                 className="h-8 w-8 p-0 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
                               >
-                                <span className="sr-only">Open menu</span>
+                                <span className="sr-only">{t("inventory.openMenu")}</span>
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -267,7 +269,7 @@ const InventoryTable = ({
                                   navigate(`/products/${product.id}/edit`)
                                 }
                               >
-                                <Package className="w-4 h-4 mr-2" /> Edit Details
+                                <Package className="w-4 h-4 mr-2" /> {t("inventory.editDetails")}
                               </DropdownMenuItem>
 
                               <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800" />
@@ -282,8 +284,7 @@ const InventoryTable = ({
                                 }
                                 className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 dark:focus:bg-emerald-900/20"
                               >
-                                <ArrowDownCircle className="w-4 h-4 mr-2" /> Stock
-                                In
+                                <ArrowDownCircle className="w-4 h-4 mr-2" /> {t("inventory.stockIn")}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() =>
@@ -295,8 +296,7 @@ const InventoryTable = ({
                                 }
                                 className="text-red-600 focus:text-red-700 focus:bg-red-50 dark:focus:bg-red-900/20"
                               >
-                                <ArrowUpCircle className="w-4 h-4 mr-2" /> Stock
-                                Out
+                                <ArrowUpCircle className="w-4 h-4 mr-2" /> {t("inventory.stockOut")}
                               </DropdownMenuItem>
 
                               <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800" />
@@ -304,7 +304,7 @@ const InventoryTable = ({
                               <DropdownMenuItem
                                 onClick={() => navigate(`/inventory/${product.id}/history`)}
                               >
-                                <History className="w-4 h-4 mr-2" /> History
+                                <History className="w-4 h-4 mr-2" /> {t("inventory.history")}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

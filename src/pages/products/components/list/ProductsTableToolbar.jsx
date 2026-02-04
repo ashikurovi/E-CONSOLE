@@ -13,6 +13,7 @@ export default function ProductsTableToolbar({
     { value: "monthly", label: "Monthly" },
     { value: "yearly", label: "Yearly" },
   ],
+  t = (k) => k,
 }) {
   return (
     <div className="flex items-center gap-3 w-full md:w-auto">
@@ -32,7 +33,13 @@ export default function ProductsTableToolbar({
       >
         {periodOptions.map((opt) => (
           <option key={opt.value} value={opt.value}>
-            {opt.label}
+            {opt.value === "weekly"
+              ? t("products.periodWeekly")
+              : opt.value === "monthly"
+                ? t("products.periodMonthly")
+                : opt.value === "yearly"
+                  ? t("products.periodYearly")
+                  : opt.label}
           </option>
         ))}
       </select>

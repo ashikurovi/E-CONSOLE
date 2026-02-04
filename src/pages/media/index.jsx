@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 import {
@@ -20,6 +21,7 @@ import MediaImageViewModal from "./components/MediaImageViewModal";
  * Premium Album/Collection View with Upload & Crop
  */
 export default function MediaPage() {
+  const { t } = useTranslation();
   const authUser = useSelector((state) => state.auth.user);
   const companyId = authUser?.companyId;
 
@@ -55,13 +57,13 @@ export default function MediaPage() {
     try {
       const result = await deleteMedia({ id: image.id, companyId });
       if (result?.data) {
-        toast.success("Media deleted");
+        toast.success(t("media.mediaDeleted"));
         if (viewImage?.id === image.id) setViewImage(null);
       } else {
-        toast.error(result?.error?.data || "Delete failed");
+        toast.error(result?.error?.data || t("media.deleteFailed"));
       }
     } catch (err) {
-      toast.error(err?.message || "Delete failed");
+      toast.error(err?.message || t("media.deleteFailed"));
     }
   };
 

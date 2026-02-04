@@ -5,17 +5,26 @@ import TextField from "@/components/input/TextField";
 import { useUpdateProductMutation } from "@/features/product/productApiSlice";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
-const StockAdjustmentModal = ({ isOpen, onClose, product, type = 'in' }) => { // type: 'in' | 'out'
+const StockAdjustmentModal = ({ isOpen, onClose, product, type = "in" }) => {
+  // type: 'in' | 'out'
   const { user } = useSelector((state) => state.auth);
+  const { t } = useTranslation();
   const [updateProduct, { isLoading }] = useUpdateProductMutation();
   const [quantity, setQuantity] = useState("");
   const [reason, setReason] = useState(""); // Optional reason for history
 
-  const isStockIn = type === 'in';
-  const title = isStockIn ? "Stock In" : "Stock Out";
-  const actionText = isStockIn ? "Add Stock" : "Remove Stock";
-  const colorClass = isStockIn ? "text-green-600 bg-green-50" : "text-red-600 bg-red-50";
+  const isStockIn = type === "in";
+  const title = isStockIn
+    ? t("inventory.stockInLabel")
+    : t("inventory.stockOutLabel");
+  const actionText = isStockIn
+    ? t("inventory.addStock")
+    : t("inventory.removeStock");
+  const colorClass = isStockIn
+    ? "text-green-600 bg-green-50"
+    : "text-red-600 bg-red-50";
 
   const cleanThumbnail = product?.thumbnail
     ? product.thumbnail.replace(/`/g, "").trim()
@@ -29,7 +38,7 @@ const StockAdjustmentModal = ({ isOpen, onClose, product, type = 'in' }) => { //
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!product || !quantity || parseInt(quantity) <= 0) {
-      toast.error("Please enter a valid quantity");
+      toast.error(t("inventory.enterValidQuantity"));
       return;
     }
 
@@ -37,8 +46,8 @@ const StockAdjustmentModal = ({ isOpen, onClose, product, type = 'in' }) => { //
     const qty = parseInt(quantity);
 
     if (!isStockIn && qty > currentStock) {
-        toast.error("Cannot remove more stock than available");
-        return;
+      toast.error(t("inventory.cannotRemoveMoreThanAvailable"));
+      return;
     }
 
     const updatedStock = isStockIn ? currentStock + qty : currentStock - qty;
@@ -46,7 +55,7 @@ const StockAdjustmentModal = ({ isOpen, onClose, product, type = 'in' }) => { //
     try {
       const res = await updateProduct({
         id: product.id,
-        body: { 
+        body: {
           stock: updatedStock,
           adjustment: isStockIn ? qty : -qty,
           reason: reason, // Assuming backend handles history logging if moved to inventory specific API
@@ -55,15 +64,25 @@ const StockAdjustmentModal = ({ isOpen, onClose, product, type = 'in' }) => { //
       });
 
       if (res?.data) {
-        toast.success(`Successfully ${isStockIn ? 'added' : 'removed'} ${qty} units.`);
+        toast.success(
+          isStockIn
+            ? t("inventory.updateStockSuccessIn", { qty })
+            : t("inventory.updateStockSuccessOut", { qty }),
+        );
         setQuantity("");
         setReason("");
         onClose();
       } else {
-        toast.error(res?.error?.data?.message || "Failed to update stock");
+        toast.error(
+          res?.error?.data?.message || t("inventory.updateStockFailed"),
+        );
       }
     } catch (error) {
-      toast.error("Failed to update stock: " + error.message);
+      toast.error(
+        t("inventory.updateStockFailedWithMessage", {
+          message: error.message,
+        }),
+      );
     }
   };
 
@@ -75,7 +94,7 @@ const StockAdjustmentModal = ({ isOpen, onClose, product, type = 'in' }) => { //
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <span className={`px-2 py-0.5 rounded text-sm font-bold ${colorClass}`}>
-                {isStockIn ? "Stock In" : "Stock Out"}
+              {title}
             </span>
           </h2>
           <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
@@ -93,20 +112,20 @@ const StockAdjustmentModal = ({ isOpen, onClose, product, type = 'in' }) => { //
                      )}
                 </div>
                 <div>
-                   <div className="text-sm text-gray-500 dark:text-gray-400">Product</div>
+                   <div className="text-sm text-gray-500 dark:text-gray-400">{t("inventory.product")}</div>
                    <div className="font-semibold text-gray-900 dark:text-white line-clamp-1">{product.name}</div>
-                   <div className="text-xs text-gray-500 mt-1">Code: {product.sku || '-'}</div>
+                   <div className="text-xs text-gray-500 mt-1">{t("inventory.code")} {product.sku || '-'}</div>
                 </div>
             </div>
             <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center text-sm">
-                <span className="text-gray-500">Current Stock</span>
+                <span className="text-gray-500">{t("inventory.currentStock")}</span>
                 <span className="font-mono font-bold text-gray-900 dark:text-white">{product.stock ?? 0}</span>
             </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <TextField
-            label="Quantity"
+            label={t("inventory.quantityLabel")}
             placeholder="0"
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
@@ -118,15 +137,17 @@ const StockAdjustmentModal = ({ isOpen, onClose, product, type = 'in' }) => { //
           />
         
           <TextField
-            label="Reason (Optional)"
-            placeholder="e.g. Received new shipment / Damaged"
+            label={t("inventory.reasonOptional")}
+            placeholder={t("inventory.reasonPlaceholder")}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
 
           {quantity && parseInt(quantity) > 0 && (
              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg text-sm">
-                <span className="text-gray-500">New Balance</span>
+                <span className="text-gray-500">
+                  {t("inventory.newBalance")}
+                </span>
                 <div className="flex items-center gap-2">
                     <span className="line-through text-gray-400">{product.stock || 0}</span>
                     <ArrowRight className="w-3 h-3 text-gray-400" />
@@ -142,14 +163,14 @@ const StockAdjustmentModal = ({ isOpen, onClose, product, type = 'in' }) => { //
 
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="outline" type="button" onClick={onClose} disabled={isLoading} className="border-gray-200 dark:border-gray-700">
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button 
                 type="submit" 
                 disabled={isLoading || !quantity || parseInt(quantity) <= 0}
                 className={isStockIn ? "bg-green-600 hover:bg-green-700 text-white" : "bg-red-600 hover:bg-red-700 text-white"}
             >
-              {isLoading ? "Updating..." : actionText}
+              {isLoading ? t("common.updating") : actionText}
             </Button>
           </div>
         </form>

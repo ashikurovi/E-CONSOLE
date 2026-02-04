@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import SkeletonLoader from "./SkeletonLoader";
@@ -11,12 +12,15 @@ export default function RecentTransactionsCard({
   onPageChange,
   isLoading,
 }) {
+  const { t } = useTranslation();
   const start = (currentPage - 1) * itemsPerPage;
   const currentData = data.slice(start, start + itemsPerPage);
 
-  const todayTransactions = currentData.filter((t) => t.date === "Today");
-  const yesterdayTransactions = currentData.filter((t) => t.date === "Yesterday");
-  const otherTransactions = currentData.filter((t) => t.date !== "Today" && t.date !== "Yesterday");
+  const todayTransactions = currentData.filter((tx) => tx.date === "Today");
+  const yesterdayTransactions = currentData.filter((tx) => tx.date === "Yesterday");
+  const otherTransactions = currentData.filter(
+    (tx) => tx.date !== "Today" && tx.date !== "Yesterday",
+  );
 
   const renderTransaction = (transaction) => (
     <div
@@ -55,7 +59,7 @@ export default function RecentTransactionsCard({
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <CreditCard className="w-5 h-5" />
-          Recent Transactions
+          {t("dashboard.recentTransactions")}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1">
@@ -66,32 +70,39 @@ export default function RecentTransactionsCard({
             <div className="space-y-6">
               {todayTransactions.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-500 mb-3">Today</h4>
+                  <h4 className="text-sm font-semibold text-gray-500 mb-3">
+                    {t("dashboard.today")}
+                  </h4>
                   <div className="space-y-4">{todayTransactions.map(renderTransaction)}</div>
                 </div>
               )}
               {yesterdayTransactions.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-500 mb-3">Yesterday</h4>
+                  <h4 className="text-sm font-semibold text-gray-500 mb-3">
+                    {t("dashboard.yesterday")}
+                  </h4>
                   <div className="space-y-4">{yesterdayTransactions.map(renderTransaction)}</div>
                 </div>
               )}
               {otherTransactions.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-500 mb-3">Earlier</h4>
+                  <h4 className="text-sm font-semibold text-gray-500 mb-3">
+                    {t("dashboard.earlier")}
+                  </h4>
                   <div className="space-y-4">{otherTransactions.map(renderTransaction)}</div>
                 </div>
               )}
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-between sm:justify-end gap-4 mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500">
               <div className="flex items-center gap-2">
-                <span>Items per page</span>
+                <span>{t("table.itemsPerPage")}</span>
                 <select className="bg-transparent border border-gray-200 dark:border-gray-700 rounded px-1 py-0.5 focus:outline-none" disabled>
                   <option>{itemsPerPage}</option>
                 </select>
               </div>
               <span>
-                {start + 1}-{Math.min(start + itemsPerPage, data.length)} of {data.length} items
+                {start + 1}-{Math.min(start + itemsPerPage, data.length)}{" "}
+                {t("table.of")} {data.length} {t("table.items")}
               </span>
               <div className="flex items-center gap-1">
                 <button

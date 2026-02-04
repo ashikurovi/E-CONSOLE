@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,23 +12,43 @@ import {
 import { PieChart as PieChartIcon, ChevronDown } from "lucide-react";
 
 export default function SalesDistributionCard({ data, filter, onFilterChange }) {
+  const { t } = useTranslation();
+
+  const getFilterLabel = (value) => {
+    switch (value) {
+      case "Weekly":
+        return t("dashboard.filterWeekly");
+      case "Monthly":
+        return t("dashboard.filterMonthly");
+      case "Yearly":
+        return t("dashboard.filterYearly");
+      default:
+        return value;
+    }
+  };
   return (
     <Card className="border-none shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
           <PieChartIcon className="w-5 h-5" />
-          Sales Distribution
+          {t("dashboard.salesDistributionTitle")}
         </CardTitle>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="h-8 gap-1">
-              {filter} <ChevronDown className="w-3 h-3 opacity-50" />
+              {getFilterLabel(filter)} <ChevronDown className="w-3 h-3 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onFilterChange("Weekly")}>Weekly</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onFilterChange("Monthly")}>Monthly</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onFilterChange("Yearly")}>Yearly</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onFilterChange("Weekly")}>
+              {t("dashboard.filterWeekly")}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onFilterChange("Monthly")}>
+              {t("dashboard.filterMonthly")}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onFilterChange("Yearly")}>
+              {t("dashboard.filterYearly")}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>

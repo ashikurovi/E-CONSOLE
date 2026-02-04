@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Search, Plus, Filter, LayoutGrid, LayoutList, ChevronDown, Check } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import {
@@ -25,12 +26,27 @@ export default function MediaHeader({
   total,
   onUploadClick,
 }) {
+  const { t } = useTranslation();
+
+  const getSortLabel = (value) => {
+    switch (value) {
+      case "newest":
+        return t("media.newestFirst");
+      case "name":
+        return t("media.name");
+      case "size":
+        return t("media.size");
+      default:
+        return value;
+    }
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0b0f14]/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800 px-6 lg:px-10 py-5 transition-all duration-300">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
-            Media Library
+            {t("media.title")}
           </h1>
         </div>
 
@@ -39,7 +55,7 @@ export default function MediaHeader({
             <Search className="w-4 h-4 text-gray-400 mr-2.5" />
             <input
               type="text"
-              placeholder="Search media..."
+              placeholder={t("media.searchPlaceholder")}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && setSearchQuery(searchInput.trim())}
@@ -67,7 +83,7 @@ export default function MediaHeader({
             className="bg-[#5347CE] hover:bg-[#463cb8] text-white rounded-full px-6 py-5 shadow-lg shadow-indigo-500/25 transition-all duration-300 transform hover:-translate-y-0.5"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Upload Media
+            {t("media.uploadMedia")}
           </Button>
         </div>
       </div>
@@ -80,37 +96,37 @@ export default function MediaHeader({
             className="hidden sm:flex rounded-full border-gray-200 dark:border-gray-800 dark:bg-transparent dark:text-gray-300 dark:hover:bg-white/5"
           >
             <Filter className="w-4 h-4 mr-2 text-gray-500" />
-            All Formats
+            {t("media.allFormats")}
           </Button>
           <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-            Showing <span className="text-gray-900 dark:text-white">{imagesCount}</span> of{" "}
-            <span className="text-gray-900 dark:text-white">{total}</span> items
+            {t("media.showing")} <span className="text-gray-900 dark:text-white">{imagesCount}</span> {t("media.of")}{" "}
+            <span className="text-gray-900 dark:text-white">{total}</span> {t("media.items")}
           </div>
         </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-              Sort by:{" "}
+              {t("media.sortBy")}{" "}
               <span className="text-indigo-600 dark:text-indigo-400">
-                {sortBy === "newest" ? "Newest First" : sortBy === "name" ? "Name" : "Size"}
+                {getSortLabel(sortBy)}
               </span>
               <ChevronDown className="w-4 h-4" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Sort Options</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("media.sortOptions")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setSortBy("newest")}>
-              Newest First
+              {t("media.newestFirst")}
               {sortBy === "newest" && <Check className="w-3.5 h-3.5 ml-auto text-indigo-600" />}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setSortBy("name")}>
-              Name (A-Z)
+              {t("media.nameAZ")}
               {sortBy === "name" && <Check className="w-3.5 h-3.5 ml-auto text-indigo-600" />}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setSortBy("size")}>
-              Size
+              {t("media.size")}
               {sortBy === "size" && <Check className="w-3.5 h-3.5 ml-auto text-indigo-600" />}
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Copy, Crop, MoreVertical, Trash2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import {
@@ -24,6 +25,8 @@ export default function MediaImageViewModal({
   onEditUpload,
   onDelete,
 }) {
+  const { t } = useTranslation();
+
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-[95vw] md:max-w-[85vw] h-[90vh] md:h-[85vh] p-0 overflow-hidden bg-black/95 border-none shadow-2xl flex flex-col">
@@ -54,7 +57,7 @@ export default function MediaImageViewModal({
                   onClick={() => onCopyUrl(image?.url)}
                   className="focus:bg-gray-800 focus:text-white cursor-pointer"
                 >
-                  <Copy className="w-4 h-4 mr-2" /> Copy URL
+                  <Copy className="w-4 h-4 mr-2" /> {t("media.copyUrl")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
@@ -63,14 +66,14 @@ export default function MediaImageViewModal({
                   }}
                   className="focus:bg-gray-800 focus:text-white cursor-pointer"
                 >
-                  <Crop className="w-4 h-4 mr-2" /> Edit / Re-upload
+                  <Crop className="w-4 h-4 mr-2" /> {t("media.editReupload")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-gray-800" />
                 <DropdownMenuItem
                   className="text-red-400 focus:text-red-400 focus:bg-red-900/20 cursor-pointer"
                   onClick={() => image && onDelete(image)}
                 >
-                  <Trash2 className="w-4 h-4 mr-2" /> Delete
+                  <Trash2 className="w-4 h-4 mr-2" /> {t("media.delete")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -117,28 +120,28 @@ export default function MediaImageViewModal({
         <div className="absolute bottom-0 left-0 right-0 px-8 py-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent flex flex-wrap gap-8 items-center justify-center md:justify-start z-50">
           <div className="flex flex-col text-left">
             <span className="uppercase tracking-widest text-[10px] font-bold text-gray-500 mb-0.5">
-              Title
+              {t("media.titleLabel")}
             </span>
             <span className="text-white text-sm font-medium">{image?.title}</span>
           </div>
           <div className="w-px h-8 bg-white/10 hidden md:block" />
           <div className="flex flex-col text-left">
             <span className="uppercase tracking-widest text-[10px] font-bold text-gray-500 mb-0.5">
-              File Size
+              {t("media.fileSize")}
             </span>
             <span className="text-white text-sm font-medium">{image?.size}</span>
           </div>
           <div className="w-px h-8 bg-white/10 hidden md:block" />
           <div className="flex flex-col text-left">
             <span className="uppercase tracking-widest text-[10px] font-bold text-gray-500 mb-0.5">
-              Date Added
+              {t("media.dateAdded")}
             </span>
             <span className="text-white text-sm font-medium">{image?.date}</span>
           </div>
           <div className="w-px h-8 bg-white/10 hidden md:block" />
           <div className="flex flex-col text-left">
             <span className="uppercase tracking-widest text-[10px] font-bold text-gray-500 mb-0.5">
-              Format
+              {t("media.format")}
             </span>
             <span className="text-white text-sm font-medium">{image?.type}</span>
           </div>

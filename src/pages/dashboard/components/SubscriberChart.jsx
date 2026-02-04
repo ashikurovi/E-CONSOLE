@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   BarChart,
   Bar,
@@ -23,13 +24,30 @@ export default function SubscriberChart({
   totalCustomers,
   delta,
 }) {
+  const { t } = useTranslation();
+
+  const getFilterLabel = (value) => {
+    switch (value) {
+      case "Daily":
+        return t("dashboard.filterDaily");
+      case "Weekly":
+        return t("dashboard.filterWeekly");
+      case "Monthly":
+        return t("dashboard.filterMonthly");
+      case "Yearly":
+        return t("dashboard.filterYearly");
+      default:
+        return value;
+    }
+  };
+
   return (
     <Card className="border-none shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
           <CardTitle className="text-lg flex items-center gap-2">
             <UserPlus className="w-5 h-5" />
-            Total Subscriber
+            {t("dashboard.totalSubscriber")}
           </CardTitle>
           <div className="flex flex-wrap items-baseline gap-2 mt-1">
             <span className="text-2xl font-bold">{totalCustomers ?? "0"}</span>
@@ -37,19 +55,29 @@ export default function SubscriberChart({
               <ArrowUpRight className="w-3 h-3" /> {delta ?? "0%"}
             </span>
           </div>
-          <p className="text-xs text-gray-500 mt-1">Total Customers</p>
+          <p className="text-xs text-gray-500 mt-1">
+            {t("dashboard.totalCustomersLabel")}
+          </p>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="h-8 gap-1">
-              {filter} <ChevronDown className="w-3 h-3 opacity-50" />
+              {getFilterLabel(filter)} <ChevronDown className="w-3 h-3 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onFilterChange("Daily")}>Daily</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onFilterChange("Weekly")}>Weekly</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onFilterChange("Monthly")}>Monthly</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onFilterChange("Yearly")}>Yearly</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onFilterChange("Daily")}>
+              {t("dashboard.filterDaily")}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onFilterChange("Weekly")}>
+              {t("dashboard.filterWeekly")}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onFilterChange("Monthly")}>
+              {t("dashboard.filterMonthly")}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onFilterChange("Yearly")}>
+              {t("dashboard.filterYearly")}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>

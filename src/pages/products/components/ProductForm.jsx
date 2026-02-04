@@ -21,6 +21,7 @@ import FileUpload from "@/components/input/FileUpload";
 import DescriptionInputWithAI from "@/components/input/DescriptionInputWithAI";
 import { X, Plus } from "lucide-react";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 // Yup validation schema
 const productSchema = yup.object().shape({
@@ -61,6 +62,7 @@ const productSchema = yup.object().shape({
 });
 
 function ProductForm({ categoryOptions = [] }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [categoryOption, setCategoryOption] = useState(null);
   const {
@@ -161,23 +163,23 @@ function ProductForm({ categoryOptions = [] }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">Add Product</Button>
+        <Button size="sm">{t("products.addProduct")}</Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Product</DialogTitle>
+          <DialogTitle>{t("createEdit.createProduct")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
           {/* Basic Information Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-                Basic Information
+                {t("products.basicInformation")}
               </h3>
             </div>
             <TextField
-              label="Product Name *"
-              placeholder="Enter product name"
+              label={`${t("productForm.productName")} *`}
+              placeholder={t("productForm.productNamePlaceholder")}
               register={register}
               name="name"
               error={errors.name?.message}
@@ -188,8 +190,8 @@ function ProductForm({ categoryOptions = [] }) {
               render={({ field }) => (
                 <DescriptionInputWithAI
                   {...field}
-                  label="Description"
-                  placeholder="Enter product description"
+                  label={t("productForm.description")}
+                  placeholder={t("productForm.descriptionPlaceholder")}
                   rows={4}
                   error={errors.description?.message}
                   type="product"
@@ -203,13 +205,13 @@ function ProductForm({ categoryOptions = [] }) {
           <div className="space-y-4">
             <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-                Pricing
+                {t("productForm.pricing")}
               </h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <TextField
-                label="Price *"
-                placeholder="0.00"
+                label={`${t("productForm.price")} *`}
+                placeholder={t("productForm.pricePlaceholder")}
                 register={register}
                 name="price"
                 type="number"
@@ -217,8 +219,8 @@ function ProductForm({ categoryOptions = [] }) {
                 error={errors.price?.message}
               />
               <TextField
-                label="Discount Price"
-                placeholder="0.00 (optional)"
+                label={t("productForm.discountPrice")}
+                placeholder={t("productForm.priceOptionalPlaceholder")}
                 register={register}
                 name="discountPrice"
                 type="number"
@@ -232,12 +234,12 @@ function ProductForm({ categoryOptions = [] }) {
           <div className="space-y-4">
             <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-                Product Images
+                {t("productForm.productImages")}
               </h3>
             </div>
             <FileUpload
-              placeholder="Choose thumbnail (optional)"
-              label="Thumbnail"
+              placeholder={t("productForm.chooseThumbnail")}
+              label={t("productForm.thumbnail")}
               register={register}
               name="thumbnail"
               accept="image/*"
@@ -247,7 +249,9 @@ function ProductForm({ categoryOptions = [] }) {
 
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <label className="text-black/50 dark:text-white/50 text-sm ml-1">Gallery Images</label>
+                <label className="text-black/50 dark:text-white/50 text-sm ml-1">
+                  {t("productForm.galleryImages")}
+                </label>
                 <Button
                   type="button"
                   variant="outline"
@@ -256,7 +260,7 @@ function ProductForm({ categoryOptions = [] }) {
                   className="flex items-center gap-1"
                 >
                   <Plus className="h-4 w-4" />
-                  Add Image
+                  {t("common.addImage")}
                 </Button>
               </div>
               <div className="space-y-3">
@@ -264,7 +268,7 @@ function ProductForm({ categoryOptions = [] }) {
                   <div key={index} className="border border-black/5 dark:border-gray-800 p-3 rounded-md space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-black/70 dark:text-white/70">
-                        Image {index + 1}
+                        {t("productForm.imageNumber", { num: index + 1 })}
                       </span>
                       <div className="flex items-center gap-2">
                         <Checkbox
@@ -272,7 +276,7 @@ function ProductForm({ categoryOptions = [] }) {
                           value={img.isPrimary}
                           setValue={() => setPrimaryImage(index)}
                         >
-                          Primary
+                          {t("productForm.primary")}
                         </Checkbox>
                         <Button
                           type="button"
@@ -299,7 +303,7 @@ function ProductForm({ categoryOptions = [] }) {
                       />
                       <input
                         type="text"
-                        placeholder="Or enter image URL"
+                        placeholder={t("productForm.orEnterImageUrl")}
                         value={img.url || ""}
                         onChange={(e) => updateImage(index, "url", e.target.value)}
                         className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
@@ -307,7 +311,7 @@ function ProductForm({ categoryOptions = [] }) {
                     </div>
                     <input
                       type="text"
-                      placeholder="Alt text (optional)"
+                      placeholder={t("productForm.altTextPlaceholder")}
                       value={img.alt || ""}
                       onChange={(e) => updateImage(index, "alt", e.target.value)}
                       className="border border-black/5 dark:border-gray-800 py-2.5 px-4 bg-gray-50 dark:bg-[#1a1f26] w-full outline-none focus:border-green-300/50 dark:focus:border-green-300/50 dark:text-white/90"
@@ -337,7 +341,7 @@ function ProductForm({ categoryOptions = [] }) {
                 ))}
                 {imageFiles.length === 0 && (
                   <p className="text-sm text-black/50 dark:text-white/50 text-center py-4">
-                    No images added. Click "Add Image" to add product images.
+                    {t("common.noImagesAdded")}
                   </p>
                 )}
               </div>
@@ -348,7 +352,7 @@ function ProductForm({ categoryOptions = [] }) {
           <div className="space-y-4">
             <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-                Category & Classification
+                {t("productForm.categoryClassification")}
               </h3>
             </div>
             <Dropdown
@@ -358,7 +362,9 @@ function ProductForm({ categoryOptions = [] }) {
               className="py-2"
             >
               {categoryOption?.label || (
-                <span className="text-black/50 dark:text-white/50">Select Category</span>
+                <span className="text-black/50 dark:text-white/50">
+                  {t("productForm.selectCategory")}
+                </span>
               )}
             </Dropdown>
           </div>
@@ -370,10 +376,12 @@ function ProductForm({ categoryOptions = [] }) {
               onClick={() => setIsOpen(false)}
               className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700"
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isCreating || isUploading}>
-              {isCreating || isUploading ? "Creating..." : "Create"}
+              {isCreating || isUploading
+                ? t("common.creating")
+                : t("common.create")}
             </Button>
           </DialogFooter>
         </form>

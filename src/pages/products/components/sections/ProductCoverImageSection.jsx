@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { X, Image as ImageIcon } from "lucide-react";
 
 export default function ProductCoverImageSection({
@@ -7,14 +8,16 @@ export default function ProductCoverImageSection({
   setThumbnailFile,
   setThumbnailUrl,
 }) {
+  const { t } = useTranslation();
+  
   return (
     <div className="grid grid-cols-12 gap-6">
       <div className="col-span-12 lg:col-span-4">
         <h3 className="text-base font-bold text-slate-900 dark:text-slate-50">
-          Cover Image
+          {t("productForm.coverImage")}
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
-          Upload a cover image for your product. Recommended size 1200x300.
+          {t("productForm.coverImageHint")}
         </p>
       </div>
       <div className="col-span-12 lg:col-span-8 space-y-3">
@@ -25,10 +28,10 @@ export default function ProductCoverImageSection({
                 <ImageIcon className="w-6 h-6" />
               </div>
               <h3 className="text-base font-semibold text-indigo-600 mb-1">
-                Upload Cover Image
+                {t("productForm.uploadCoverImage")}
               </h3>
               <p className="text-xs text-slate-400">
-                Drag and drop or click to upload
+                {t("productForm.dragDropOrClick")}
               </p>
             </>
           ) : (
@@ -50,7 +53,7 @@ export default function ProductCoverImageSection({
                   setThumbnailUrl("");
                 }}
                 className="absolute top-4 right-4 p-2 bg-white text-slate-400 hover:text-red-500 rounded-full shadow-md hover:shadow-lg transition-all opacity-0 group-hover:opacity-100 transform hover:scale-110"
-                title="Remove image"
+                title={t("productForm.removeImage")}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -69,7 +72,7 @@ export default function ProductCoverImageSection({
           />
         </div>
         <div className="flex gap-2 items-center">
-          <span className="text-sm text-slate-500">Or paste image URL:</span>
+          <span className="text-sm text-slate-500">{t("productForm.orPasteImageUrl")}</span>
           <input
             type="url"
             value={thumbnailUrl}
@@ -77,7 +80,7 @@ export default function ProductCoverImageSection({
               setThumbnailUrl(e.target.value);
               if (e.target.value) setThumbnailFile(null);
             }}
-            placeholder="https://example.com/image.jpg"
+            placeholder={t("productForm.imageUrlPlaceholder")}
             className="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>

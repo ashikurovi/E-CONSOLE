@@ -57,7 +57,7 @@ import {
 import RestockModal from "@/pages/products/components/RestockModal";
 
 const ProductsPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const authUser = useSelector((state) => state.auth.user);
@@ -216,7 +216,7 @@ const ProductsPage = () => {
 
     return [
       {
-        label: "Total Products",
+        label: t("products.totalProductsStat"),
         value: totalProducts,
         trend: `${productTrend > 0 ? "+" : ""}${productTrend.toFixed(1)}%`,
         trendDir: productTrend >= 0 ? "up" : "down",
@@ -227,8 +227,8 @@ const ProductsPage = () => {
         wave: "text-indigo-500",
       },
       {
-        label: "Total Inventory Value",
-        value: new Intl.NumberFormat("en-US", {
+        label: t("products.totalInventoryValueStat"),
+        value: new Intl.NumberFormat(i18n.language === "bn" ? "bn-BD" : "en-US", {
           style: "currency",
           currency: "USD",
           maximumFractionDigits: 0,
@@ -242,7 +242,7 @@ const ProductsPage = () => {
         wave: "text-emerald-500",
       },
       {
-        label: "Low Stock Items",
+        label: t("products.lowStockItemsStat"),
         value: lowStock,
         trend: `${lowStockTrend > 0 ? "+" : ""}${lowStockTrend.toFixed(1)}%`,
         trendDir: lowStockTrend >= 0 ? "up" : "down",
@@ -253,7 +253,7 @@ const ProductsPage = () => {
         wave: "text-orange-500",
       },
       {
-        label: "Out of Stock",
+        label: t("products.outOfStockStat"),
         value: outOfStock,
         trend: `${outOfStockTrend > 0 ? "+" : ""}${outOfStockTrend.toFixed(1)}%`,
         trendDir: outOfStockTrend >= 0 ? "up" : "down",
@@ -342,7 +342,7 @@ const ProductsPage = () => {
   // Columns Configuration for ReusableTable
   const columns = [
     {
-      header: "Code",
+      header: t("products.tableCode"),
       field: "sku",
       render: (row) => (
         <span className="font-medium text-gray-600 dark:text-gray-300">
@@ -351,7 +351,7 @@ const ProductsPage = () => {
       ),
     },
     {
-      header: "Product",
+      header: t("products.tableProduct"),
       field: "name",
       render: (row) => {
         const cleanThumbnail = row.thumbnail?.replace(/`/g, "").trim();
@@ -378,7 +378,7 @@ const ProductsPage = () => {
       },
     },
     {
-      header: "Category",
+      header: t("products.tableCategory"),
       field: "category",
       render: (row) => (
         <span className="text-gray-600 dark:text-gray-400">
@@ -387,7 +387,7 @@ const ProductsPage = () => {
       ),
     },
     {
-      header: "Unit",
+      header: t("products.tableUnit"),
       field: "unit",
       render: (row) => (
         <span className="text-gray-600 dark:text-gray-400">
@@ -396,7 +396,7 @@ const ProductsPage = () => {
       ),
     },
     {
-      header: "Sizes",
+      header: t("products.tableSizes"),
       field: "sizes",
       render: (row) => (
         <span className="text-gray-600 dark:text-gray-400 text-xs">
@@ -407,7 +407,7 @@ const ProductsPage = () => {
       ),
     },
     {
-      header: "Variants",
+      header: t("products.tableVariants"),
       field: "variants",
       render: (row) => (
         <span className="text-gray-600 dark:text-gray-400 text-xs">
@@ -418,7 +418,7 @@ const ProductsPage = () => {
       ),
     },
     {
-      header: "Quantity",
+      header: t("products.tableQuantity"),
       field: "stock",
       render: (row) => (
         <span
@@ -433,7 +433,7 @@ const ProductsPage = () => {
       ),
     },
     {
-      header: "Selling Price",
+      header: t("products.tableSellingPrice"),
       field: "price",
       render: (row) => (
         <span className="font-medium text-gray-900 dark:text-white">
@@ -442,7 +442,7 @@ const ProductsPage = () => {
       ),
     },
     {
-      header: "Discount Price",
+      header: t("products.tableDiscountPrice"),
       field: "discountPrice",
       render: (row) => (
         <span className="text-gray-600 dark:text-gray-400">
@@ -453,7 +453,7 @@ const ProductsPage = () => {
     ...(activeTab === "published"
       ? [
           {
-            header: "Status",
+            header: t("products.tableStatus"),
             field: "isActive",
             render: (row) => (
               <div className="flex justify-center">
@@ -468,25 +468,25 @@ const ProductsPage = () => {
         ]
       : []),
     {
-      header: "Actions",
+      header: t("products.tableActions"),
       field: "actions",
       render: (row) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
+                  <span className="sr-only">{t("products.openMenuSr")}</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("common.actions")}</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() => navigate(`/products/${row.id}/edit`)}
             >
-              <Edit className="mr-2 h-4 w-4" /> Edit
+              <Edit className="mr-2 h-4 w-4" /> {t("products.edit")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate(`/products/${row.id}`)}>
-              <Eye className="mr-2 h-4 w-4" /> View Details
+              <Eye className="mr-2 h-4 w-4" /> {t("products.viewDetails")}
             </DropdownMenuItem>
             {activeTab !== "trash" && (
               <DropdownMenuItem
@@ -503,22 +503,24 @@ const ProductsPage = () => {
                     setModalState({ type: "recover", product: row })
                   }
                 >
-                  <RotateCcw className="mr-2 h-4 w-4 text-green-600" /> Recover
+                  <RotateCcw className="mr-2 h-4 w-4 text-green-600" />{" "}
+                  {t("products.recoverAction")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() =>
                     setModalState({ type: "permanentDelete", product: row })
                   }
                 >
-                  <Trash2 className="mr-2 h-4 w-4 text-red-600" /> Delete
-                  Permanently
+                  <Trash2 className="mr-2 h-4 w-4 text-red-600" />{" "}
+                  {t("products.deletePermanentlyAction")}
                 </DropdownMenuItem>
               </>
             ) : (
               <DropdownMenuItem
                 onClick={() => setModalState({ type: "delete", product: row })}
               >
-                <Trash2 className="mr-2 h-4 w-4 text-red-600" /> Delete
+                <Trash2 className="mr-2 h-4 w-4 text-red-600" />{" "}
+                {t("products.deleteAction")}
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
@@ -531,7 +533,9 @@ const ProductsPage = () => {
     <div className="p-6 lg:p-10 bg-[#f8f9fa] dark:bg-[#0b0f14] min-h-screen font-sans space-y-6">
       <ProductsPageHeader
         t={t}
-        onExport={() => exportProductsToPDF(processedData, "Products")}
+        onExport={() =>
+          exportProductsToPDF(processedData, t("products.title") || "Products")
+        }
       />
 
       <ProductsStatsGrid stats={stats} />
@@ -548,9 +552,10 @@ const ProductsPage = () => {
           <ProductsTableToolbar
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
-            searchPlaceholder="Search products..."
+            searchPlaceholder={t("products.searchPlaceholder")}
             period={period}
             onPeriodChange={setPeriod}
+            t={t}
           />
         </div>
 
@@ -562,7 +567,7 @@ const ProductsPage = () => {
           itemsPerPage={pageSize}
           currentPage={currentPage}
           onPageChange={setCurrentPage}
-          searchPlaceholder="Search products..."
+          searchPlaceholder={t("products.searchPlaceholder")}
         />
       </div>
 

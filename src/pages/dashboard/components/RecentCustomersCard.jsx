@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -19,6 +20,7 @@ export default function RecentCustomersCard({
   onPageChange,
   isLoading,
 }) {
+  const { t } = useTranslation();
   const start = (currentPage - 1) * itemsPerPage;
   const currentData = data.slice(start, start + itemsPerPage);
 
@@ -27,7 +29,7 @@ export default function RecentCustomersCard({
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <Users className="w-5 h-5" />
-          Recent Customers
+          {t("dashboard.recentCustomers")}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1">
@@ -40,13 +42,22 @@ export default function RecentCustomersCard({
                 <TableHeader>
                   <TableRow>
                     <TableHead className="uppercase text-xs font-bold text-gray-500">
-                      <div className="flex items-center gap-1">User <ArrowUpDown className="w-3 h-3" /></div>
+                      <div className="flex items-center gap-1">
+                        {t("dashboard.columnUser")}{" "}
+                        <ArrowUpDown className="w-3 h-3" />
+                      </div>
                     </TableHead>
                     <TableHead className="uppercase text-xs font-bold text-gray-500">
-                      <div className="flex items-center gap-1">IP Address <ArrowUpDown className="w-3 h-3" /></div>
+                      <div className="flex items-center gap-1">
+                        {t("dashboard.columnIpAddress")}{" "}
+                        <ArrowUpDown className="w-3 h-3" />
+                      </div>
                     </TableHead>
                     <TableHead className="text-right uppercase text-xs font-bold text-gray-500">
-                      <div className="flex items-center justify-end gap-1">Time <ArrowUpDown className="w-3 h-3" /></div>
+                      <div className="flex items-center justify-end gap-1">
+                        {t("dashboard.columnTime")}{" "}
+                        <ArrowUpDown className="w-3 h-3" />
+                      </div>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -68,13 +79,14 @@ export default function RecentCustomersCard({
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-between sm:justify-end gap-4 mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500">
               <div className="flex items-center gap-2">
-                <span>Items per page</span>
+                <span>{t("table.itemsPerPage")}</span>
                 <select className="bg-transparent border border-gray-200 dark:border-gray-700 rounded px-1 py-0.5 focus:outline-none" disabled>
                   <option>{itemsPerPage}</option>
                 </select>
               </div>
               <span>
-                {start + 1}-{Math.min(start + itemsPerPage, data.length)} of {data.length} items
+                {start + 1}-{Math.min(start + itemsPerPage, data.length)}{" "}
+                {t("table.of")} {data.length} {t("table.items")}
               </span>
               <div className="flex items-center gap-1">
                 <button

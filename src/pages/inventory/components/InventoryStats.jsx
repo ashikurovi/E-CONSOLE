@@ -6,15 +6,18 @@ import {
   Package,
   XCircle,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const InventoryStats = ({ stats }) => {
+  const { t } = useTranslation();
+
   const cards = useMemo(() => {
     const productGrowth = stats?.productGrowth ?? "0.0";
     const growthUp = parseFloat(productGrowth) >= 0;
 
     return [
       {
-        title: "Total Products",
+        title: t("inventory.totalProducts"),
         value: stats?.totalItems ?? 0,
         icon: Package,
         color: "text-indigo-600",
@@ -24,7 +27,7 @@ const InventoryStats = ({ stats }) => {
         waveColor: "#6366f1",
       },
       {
-        title: "Total Inventory Value",
+        title: t("inventory.totalInventoryValue"),
         value: stats?.totalValueFormatted ?? "$0.00",
         icon: TrendingUp,
         color: "text-emerald-600",
@@ -34,7 +37,7 @@ const InventoryStats = ({ stats }) => {
         waveColor: "#10b981",
       },
       {
-        title: "Low Stock Items",
+        title: t("inventory.lowStockItems"),
         value: stats?.lowStock ?? 0,
         icon: AlertTriangle,
         color: "text-amber-600",
@@ -44,7 +47,7 @@ const InventoryStats = ({ stats }) => {
         waveColor: "#f59e0b",
       },
       {
-        title: "Out of Stock",
+        title: t("inventory.outOfStock"),
         value: stats?.outOfStock ?? 0,
         icon: XCircle,
         color: "text-red-600",
@@ -54,7 +57,7 @@ const InventoryStats = ({ stats }) => {
         waveColor: "#ef4444",
       },
     ];
-  }, [stats]);
+  }, [stats, t]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -116,7 +119,7 @@ const InventoryStats = ({ stats }) => {
                 />
                 {stat.trend}
               </span>
-              <span className="text-xs text-slate-400">vs last month</span>
+              <span className="text-xs text-slate-400">{t("inventory.vsLastMonth")}</span>
             </div>
           </div>
 

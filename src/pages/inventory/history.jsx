@@ -2,6 +2,7 @@ import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Clock, Package, ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,10 +18,10 @@ import {
   useGetProductStockHistoryQuery,
 } from "@/features/product/productApiSlice";
 
-const formatDateTime = (value) => {
+const formatDateTime = (value, locale = "en-US") => {
   if (!value) return "-";
   const d = new Date(value);
-  return d.toLocaleString("en-US", {
+  return d.toLocaleString(locale, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -33,6 +34,7 @@ const InventoryHistoryPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
+  const { t, i18n } = useTranslation();
 
   const {
     data: product,
@@ -93,10 +95,10 @@ const InventoryHistoryPage = () => {
             </div>
             <div>
               <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
-                Stock History
+                {t("inventory.historyTitle")}
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                All stock in/out events for this product.
+                {t("inventory.historySubtitle")}
               </p>
             </div>
           </div>
@@ -107,7 +109,7 @@ const InventoryHistoryPage = () => {
         <div className="px-6 pt-4 pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40">
           {isProductError ? (
             <div className="text-sm text-red-500">
-              Failed to load product details.
+              {t("inventory.failedToLoadProductDetails")}
             </div>
           ) : (
             <div className="flex items-center gap-3">
@@ -115,7 +117,7 @@ const InventoryHistoryPage = () => {
                 {imageUrl ? (
                   <img
                     src={imageUrl}
-                    alt={product?.name || "Product image"}
+                    alt={product?.name || t("inventory.loadingProduct")}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -124,10 +126,10 @@ const InventoryHistoryPage = () => {
               </div>
               <div className="min-w-0">
                 <div className="text-sm font-semibold text-slate-900 dark:text-white truncate">
-                  {product?.name || "Loading product..."}
+                  {product?.name || t("inventory.loadingProduct")}
                 </div>
                 <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                  SKU: {product?.sku || "—"} • Current stock:{" "}
+                  {t("inventory.sku")} {product?.sku || "—"} • {t("inventory.currentStockLabel")}{" "}
                   <span className="font-mono font-bold">
                     {product?.stock ?? 0}
                   </span>
@@ -143,22 +145,22 @@ const InventoryHistoryPage = () => {
               <TableHeader className="bg-slate-50/80 dark:bg-slate-900/60 backdrop-blur-sm">
                 <TableRow className="border-slate-200 dark:border-slate-800">
                   <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                    Date
+                    {t("inventory.date")}
                   </TableHead>
                   <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                    Type
+                    {t("inventory.type")}
                   </TableHead>
                   <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                    Quantity
+                    {t("inventory.quantity")}
                   </TableHead>
                   <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                    Balance
+                    {t("inventory.balance")}
                   </TableHead>
                   <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                    Performed By
+                    {t("inventory.performedBy")}
                   </TableHead>
                   <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                    Reason
+                    {t("inventory.reason")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -175,7 +177,7 @@ const InventoryHistoryPage = () => {
                   <TableRow>
                     <TableCell colSpan={6} className="h-32 text-center">
                       <div className="text-sm text-slate-500 dark:text-slate-400">
-                        Failed to load stock history. Please try again.
+                        {t("inventory.loadHistoryFailed")}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -183,7 +185,7 @@ const InventoryHistoryPage = () => {
                   <TableRow>
                     <TableCell colSpan={6} className="h-32 text-center">
                       <div className="text-sm text-slate-500 dark:text-slate-400">
-                        No stock adjustments recorded for this product yet.
+                        {t("inventory.noHistory")}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -194,7 +196,10 @@ const InventoryHistoryPage = () => {
                       className="border-slate-100 dark:border-slate-800"
                     >
                       <TableCell className="text-sm text-slate-700 dark:text-slate-200">
-                        {formatDateTime(entry.createdAt)}
+                        {formatDateTime(
+                          entry.createdAt,
+                          i18n.language === "bn" ? "bn-BD" : "en-US",
+                        )}
                       </TableCell>
                       <TableCell>
                         <span
@@ -204,7 +209,9 @@ const InventoryHistoryPage = () => {
                               : "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300"
                           }`}
                         >
-                          {entry.type === "IN" ? "Stock In" : "Stock Out"}
+                          {entry.type === "IN"
+                            ? t("inventory.stockIn")
+                            : t("inventory.stockOut")}
                         </span>
                       </TableCell>
                       <TableCell className="text-sm font-mono">

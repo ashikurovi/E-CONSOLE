@@ -339,8 +339,8 @@ function CreateProductPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
       <ProductFormHeader
-        title="Add New Product"
-        backLabel="Back to product list"
+        title={t("productForm.addNewProduct")}
+        backLabel={t("productForm.backToProductList")}
       />
 
       <div className="max-w-[1600px] mx-auto p-6 pt-8">
@@ -406,8 +406,8 @@ function CreateProductPage() {
               isUpdating={isCreating}
               isUploading={isUploading}
               isValid={isValid}
-              submitLabel="Publish"
-              savingLabel="Publishing..."
+              submitLabel={t("productForm.publish")}
+              savingLabel={t("productForm.saving")}
             />
           </div>
 

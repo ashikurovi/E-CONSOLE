@@ -113,10 +113,10 @@ const CategoryEditPage = () => {
       params,
     });
     if (res?.data) {
-      toast.success("Category updated");
+      toast.success(t("forms.categoryUpdated"));
       navigate("/categories");
     } else {
-      toast.error(res?.error?.data?.message || "Failed to update category");
+      toast.error(res?.error?.data?.message || t("forms.categoryUpdateFailed"));
     }
   };
 
@@ -127,10 +127,10 @@ const CategoryEditPage = () => {
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-            Category Not Found
+            {t("forms.categoryNotFound")}
           </h1>
           <Button onClick={() => navigate("/categories")} className="mt-4">
-            Go Back
+            {t("forms.goBack")}
           </Button>
         </div>
       </div>
@@ -152,7 +152,7 @@ const CategoryEditPage = () => {
             </Button>
             <div>
               <div className="text-xs text-slate-500 font-medium">
-                Back to categories
+                {t("forms.backToCategories")}
               </div>
               <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
                 {t("createEdit.editCategory")}
@@ -165,7 +165,7 @@ const CategoryEditPage = () => {
               onClick={() => navigate("/categories")}
               className="hidden sm:flex"
             >
-              Cancel
+              {t("forms.cancel")}
             </Button>
             <Button
               onClick={handleSubmit(onSubmit)}
@@ -175,12 +175,12 @@ const CategoryEditPage = () => {
               {isUpdating || isUploading ? (
                 <span className="flex items-center gap-2">
                   <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                  Saving...
+                  {t("forms.saving")}
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
                   <Save className="w-4 h-4" />
-                  Save Changes
+                  {t("forms.saveChanges")}
                 </span>
               )}
             </Button>
@@ -199,11 +199,10 @@ const CategoryEditPage = () => {
             <div className="grid grid-cols-12 gap-6">
               <div className="col-span-12 lg:col-span-4">
                 <h3 className="text-base font-bold text-slate-900 dark:text-slate-50">
-                  Category Image
+                  {t("forms.categoryImage")}
                 </h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
-                  Upload a representative image for this category. Recommended
-                  size 800x800.
+                  {t("forms.categoryImageDesc")}
                 </p>
               </div>
               <div className="col-span-12 lg:col-span-8">
@@ -214,10 +213,10 @@ const CategoryEditPage = () => {
                         <ImageIcon className="w-8 h-8" />
                       </div>
                       <h3 className="text-lg font-semibold text-indigo-600 mb-1">
-                        Upload Image
+                        {t("forms.uploadImage")}
                       </h3>
                       <p className="text-sm text-slate-400">
-                        Drag and drop or click to upload
+                        {t("forms.dragDropOrClick")}
                       </p>
                     </>
                   ) : (
@@ -233,7 +232,7 @@ const CategoryEditPage = () => {
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <p className="text-white font-medium bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm">
-                          Click to change
+                          {t("forms.clickToChange")}
                         </p>
                       </div>
                     </div>
@@ -260,7 +259,7 @@ const CategoryEditPage = () => {
                         // For now, this just resets the selection.
                       }}
                       className="absolute top-4 right-4 p-2 bg-white text-slate-400 hover:text-red-500 rounded-full shadow-lg hover:shadow-xl transition-all z-20"
-                      title="Remove selection"
+                      title={t("forms.removeSelection")}
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -273,20 +272,20 @@ const CategoryEditPage = () => {
             <div className="grid grid-cols-12 gap-6 pt-8 border-t border-slate-200 dark:border-slate-800">
               <div className="col-span-12 lg:col-span-4">
                 <h3 className="text-base font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
-                  Category Details
+                  {t("forms.categoryDetails")}
                 </h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
-                  Basic information about the category.
+                  {t("forms.categoryDetailsDesc")}
                 </p>
               </div>
               <div className="col-span-12 lg:col-span-8 space-y-6">
                 {/* Name Input */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    Category Name <span className="text-red-500">*</span>
+                    {t("forms.categoryNameLabel")} <span className="text-red-500">*</span>
                   </label>
                   <TextField
-                    placeholder="e.g., Electronics, Summer Collection"
+                    placeholder={t("forms.categoryNamePlaceholderEdit")}
                     register={register}
                     name="name"
                     error={errors.name?.message}
@@ -297,7 +296,7 @@ const CategoryEditPage = () => {
                 {/* Parent Category */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    Parent Category
+                    {t("forms.parentCategory")}
                   </label>
                   <Dropdown
                     name={t("forms.parentCategory")}
@@ -314,12 +313,12 @@ const CategoryEditPage = () => {
                         }
                       >
                         {selectedParent?.label ||
-                          "Select a parent category (optional)"}
+                          t("forms.selectParentCategoryOptional")}
                       </span>
                     </div>
                   </Dropdown>
                   <p className="text-xs text-slate-500">
-                    Select a parent category to make this a sub-category.
+                    {t("forms.parentCategoryHint")}
                   </p>
                 </div>
               </div>
@@ -329,10 +328,10 @@ const CategoryEditPage = () => {
             <div className="grid grid-cols-12 gap-6 pt-8 border-t border-slate-200 dark:border-slate-800">
               <div className="col-span-12 lg:col-span-4">
                 <h3 className="text-base font-bold text-slate-900 dark:text-slate-50">
-                  Status & Visibility
+                  {t("forms.statusVisibility")}
                 </h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
-                  Control the visibility of this category in your store.
+                  {t("forms.statusVisibilityDesc")}
                 </p>
               </div>
               <div className="col-span-12 lg:col-span-8">
@@ -349,12 +348,12 @@ const CategoryEditPage = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-slate-900 dark:text-white">
-                        {isActive ? "Active" : "Inactive"}
+                        {isActive ? t("forms.active") : t("forms.inactive")}
                       </h4>
                       <p className="text-sm text-slate-500">
                         {isActive
-                          ? "This category is visible to customers."
-                          : "This category is hidden from the store."}
+                          ? t("forms.categoryVisibleToCustomers")
+                          : t("forms.categoryHiddenFromStore")}
                       </p>
                     </div>
                   </div>
@@ -375,14 +374,12 @@ const CategoryEditPage = () => {
             <div className="bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-500/20">
               <h4 className="font-bold text-indigo-900 dark:text-indigo-100 mb-2 flex items-center gap-2">
                 <Info className="w-5 h-5" />
-                Tips
+                {t("forms.tips")}
               </h4>
               <ul className="text-sm text-indigo-800 dark:text-indigo-200 space-y-2 list-disc list-inside">
-                <li>Use high-quality images for better visual appeal.</li>
-                <li>Keep category names clear and concise.</li>
-                <li>
-                  Organize sub-categories logically for better navigation.
-                </li>
+                <li>{t("forms.tip1Edit")}</li>
+                <li>{t("forms.tip2Edit")}</li>
+                <li>{t("forms.tip3Edit")}</li>
               </ul>
             </div>
           </div>

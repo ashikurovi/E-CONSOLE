@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { ResponsiveContainer, AreaChart, Area } from "recharts";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
@@ -13,6 +14,7 @@ export default function MetricCard({
   iconColor,
   sparklineData,
 }) {
+  const { t } = useTranslation();
   const isPositive = changeType === "increase";
   return (
     <Card className="border-none shadow-sm hover:shadow-lg transition-all duration-300 relative overflow-hidden group">
@@ -49,7 +51,9 @@ export default function MetricCard({
               )}
               {change}
             </div>
-            <span className="text-xs text-gray-400 font-medium">vs last month</span>
+            <span className="text-xs text-gray-400 font-medium">
+              {t("dashboard.vsLastMonth")}
+            </span>
           </div>
         </div>
 

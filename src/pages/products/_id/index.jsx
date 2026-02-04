@@ -50,7 +50,7 @@ const ProductViewPage = () => {
           <p className="text-gray-500 dark:text-gray-400 mb-8">{t("products.productNotFoundDesc")}</p>
           <Button onClick={() => navigate("/products")} className="rounded-xl px-8 h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold">
             <ArrowLeft className="mr-2 h-5 w-5" />
-            Back to Products
+            {t("productForm.backToProducts")}
           </Button>
         </div>
       </div>
@@ -67,25 +67,25 @@ const ProductViewPage = () => {
   
   const stats = [
     {
-      label: "Stock Level",
+      label: t("productForm.stockLevel"),
       value: product.stock || 0,
-      subValue: isOutOfStock ? "Out of Stock" : isLowStock ? "Low Stock" : "In Stock",
+      subValue: isOutOfStock ? t("products.outOfStock") : isLowStock ? t("products.lowStock") : t("products.inStock"),
       icon: Package,
       color: isOutOfStock ? "text-red-600" : isLowStock ? "text-orange-600" : "text-emerald-600",
       bg: isOutOfStock ? "bg-red-50 dark:bg-red-900/20" : isLowStock ? "bg-orange-50 dark:bg-orange-900/20" : "bg-emerald-50 dark:bg-emerald-900/20",
     },
     {
-      label: "Total Sold",
+      label: t("productForm.totalSold"),
       value: product.sold || 0,
-      subValue: "Lifetime Sales",
+      subValue: t("productForm.lifetimeSales"),
       icon: ShoppingCart,
       color: "text-blue-600",
       bg: "bg-blue-50 dark:bg-blue-900/20",
     },
     {
-      label: "Total Revenue",
+      label: t("productForm.totalRevenue"),
       value: renderPrice(product.totalIncome),
-      subValue: "Gross Income",
+      subValue: t("productForm.grossIncome"),
       icon: DollarSign,
       color: "text-violet-600",
       bg: "bg-violet-50 dark:bg-violet-900/20",
@@ -108,17 +108,17 @@ const ProductViewPage = () => {
             className="pl-0 hover:bg-transparent text-gray-500 hover:text-indigo-600 transition-colors mb-2"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Inventory
+            {t("productForm.backToInventory")}
           </Button>
           <h1 className="text-4xl font-black tracking-tight text-gray-900 dark:text-white">
-            Product <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400">Details</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400">{t("productForm.productDetails")}</span>
           </h1>
           <div className="flex items-center gap-3 text-sm font-medium text-gray-500 dark:text-gray-400">
              <span className="flex items-center gap-1">
-                <Tag className="w-4 h-4" /> {product.category?.name || "Uncategorized"}
+                <Tag className="w-4 h-4" /> {product.category?.name || t("productForm.uncategorized")}
              </span>
              <span>•</span>
-             <span className="uppercase tracking-wider">SKU: {product.sku || "N/A"}</span>
+             <span className="uppercase tracking-wider">{t("products.sku")}: {product.sku || t("common.na")}</span>
           </div>
         </div>
 
@@ -128,7 +128,7 @@ const ProductViewPage = () => {
             className="h-12 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all duration-300 transform hover:-translate-y-1"
           >
             <Pencil className="mr-2 h-4 w-4" />
-            Edit Product
+            {t("productForm.editProduct")}
           </Button>
         </div>
       </motion.div>
@@ -182,7 +182,7 @@ const ProductViewPage = () => {
                   )}
                   {product.discountPrice && (
                      <div className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                        Sale
+                        {t("productForm.sale")}
                      </div>
                   )}
                </div>
@@ -221,7 +221,7 @@ const ProductViewPage = () => {
                            ${product.isActive ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-gray-100 text-gray-700"}
                            px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider
                         `}>
-                           {product.isActive ? "Active" : "Inactive"}
+                           {product.isActive ? t("productForm.active") : t("productForm.inactive")}
                         </Badge>
                         <Badge variant="outline" className="border-gray-200 dark:border-gray-700 text-gray-500">
                            {product.status}
@@ -245,10 +245,10 @@ const ProductViewPage = () => {
                <div className="space-y-4">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                      <Layers className="w-5 h-5 text-indigo-500" />
-                     Description
+                     {t("productForm.description")}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                     {product.description || "No description available for this product."}
+                     {product.description || t("productForm.noDescriptionAvailable")}
                   </p>
                </div>
             </div>
@@ -259,22 +259,22 @@ const ProductViewPage = () => {
                <div className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                      <Box className="w-5 h-5 text-indigo-500" />
-                     Inventory Details
+                     {t("productForm.inventoryDetails")}
                   </h3>
                   <div className="space-y-4">
                      <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-black/20 rounded-xl">
-                        <span className="text-gray-500 font-medium">Stock Status</span>
+                        <span className="text-gray-500 font-medium">{t("productForm.stockStatus")}</span>
                         <span className={`font-bold ${isOutOfStock ? "text-red-600" : isLowStock ? "text-orange-600" : "text-emerald-600"}`}>
-                           {isOutOfStock ? "Out of Stock" : isLowStock ? "Low Stock" : "In Stock"}
+                           {isOutOfStock ? t("products.outOfStock") : isLowStock ? t("products.lowStock") : t("products.inStock")}
                         </span>
                      </div>
                      <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-black/20 rounded-xl">
-                        <span className="text-gray-500 font-medium">Quantity</span>
-                        <span className="font-bold text-gray-900 dark:text-white">{product.stock || 0} units</span>
+                        <span className="text-gray-500 font-medium">{t("productForm.quantity")}</span>
+                        <span className="font-bold text-gray-900 dark:text-white">{product.stock || 0} {t("productForm.units")}</span>
                      </div>
                      <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-black/20 rounded-xl">
-                        <span className="text-gray-500 font-medium">Low Stock Limit</span>
-                        <span className="font-bold text-gray-900 dark:text-white">5 units</span>
+                        <span className="text-gray-500 font-medium">{t("productForm.lowStockLimit")}</span>
+                        <span className="font-bold text-gray-900 dark:text-white">5 {t("productForm.units")}</span>
                      </div>
                   </div>
                </div>
@@ -283,19 +283,19 @@ const ProductViewPage = () => {
                <div className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                      <Tag className="w-5 h-5 text-indigo-500" />
-                     Pricing Info
+                     {t("productForm.pricingInfo")}
                   </h3>
                   <div className="space-y-4">
                      <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-black/20 rounded-xl">
-                        <span className="text-gray-500 font-medium">Regular Price</span>
+                        <span className="text-gray-500 font-medium">{t("productForm.regularPrice")}</span>
                         <span className="font-bold text-gray-900 dark:text-white">{renderPrice(product.price)}</span>
                      </div>
                      <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-black/20 rounded-xl">
-                        <span className="text-gray-500 font-medium">Discount Price</span>
+                        <span className="text-gray-500 font-medium">{t("productForm.discountPrice")}</span>
                         <span className="font-bold text-gray-900 dark:text-white">{product.discountPrice ? renderPrice(product.discountPrice) : "—"}</span>
                      </div>
                      <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-black/20 rounded-xl">
-                        <span className="text-gray-500 font-medium">Profit Margin</span>
+                        <span className="text-gray-500 font-medium">{t("productForm.profitMargin")}</span>
                         <span className="font-bold text-emerald-600">
                            {product.costPrice ? `${Math.round(((product.price - product.costPrice) / product.price) * 100)}%` : "—"}
                         </span>

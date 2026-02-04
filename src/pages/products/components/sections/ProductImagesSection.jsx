@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { X, Plus, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -9,11 +10,13 @@ export default function ProductImagesSection({
   setImageUrlInput,
   removeImage,
 }) {
+  const { t } = useTranslation();
+  
   return (
     <div className="grid grid-cols-12 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
       <div className="col-span-12 lg:col-span-4">
         <h3 className="text-base font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
-          Product Images <Info className="w-4 h-4 text-slate-400" />
+          {t("productForm.productImages")} <Info className="w-4 h-4 text-slate-400" />
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
           Make your fashion products look more attractive with 3:4 size photos.
@@ -27,7 +30,7 @@ export default function ProductImagesSection({
                 <Plus className="w-5 h-5" />
               </div>
               <span className="text-xs font-semibold text-indigo-600">
-                Upload File
+                {t("productForm.uploadFile")}
               </span>
               <input
                 type="file"
@@ -52,7 +55,7 @@ export default function ProductImagesSection({
                 type="url"
                 value={imageUrlInput}
                 onChange={(e) => setImageUrlInput(e.target.value)}
-                placeholder="Or paste image URL..."
+                placeholder={t("productForm.orPasteImageUrlPlaceholder")}
                 className="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none text-sm text-slate-900 dark:text-slate-50"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && imageUrlInput?.trim()) {
@@ -91,7 +94,7 @@ export default function ProductImagesSection({
                 disabled={!imageUrlInput?.trim()}
                 className="shrink-0"
               >
-                Add
+                {t("productForm.add")}
               </Button>
             </div>
           </div>

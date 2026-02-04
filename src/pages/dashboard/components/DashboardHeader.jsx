@@ -1,7 +1,10 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import TypewriterText from "./TypewriterText";
 
 export default function DashboardHeader({ currentDateTime, getGreeting }) {
+  const { t, i18n } = useTranslation();
+
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8 p-6 rounded-2xl bg-white/40 dark:bg-black/40 backdrop-blur-xl border border-white/20 shadow-sm relative overflow-hidden group">
       <div className="absolute inset-0 bg-gradient-to-r from-nexus-primary/5 via-transparent to-nexus-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
@@ -17,10 +20,10 @@ export default function DashboardHeader({ currentDateTime, getGreeting }) {
           </span>
           <TypewriterText
             texts={[
-              "Overview of your store performance",
-              "Real-time analytics and insights",
-              "Manage orders and inventory effortlessly",
-              "Track your growth and revenue",
+              t("dashboard.overviewTagline1"),
+              t("dashboard.overviewTagline2"),
+              t("dashboard.overviewTagline3"),
+              t("dashboard.overviewTagline4"),
             ]}
           />
         </div>
@@ -28,14 +31,18 @@ export default function DashboardHeader({ currentDateTime, getGreeting }) {
 
       <div className="text-left md:text-right relative z-10 w-full md:w-auto">
         <p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-          {currentDateTime.toLocaleTimeString("en-US", {
+          {currentDateTime.toLocaleTimeString(
+            i18n.language === "bn" ? "bn-BD" : "en-US",
+            {
             hour: "2-digit",
             minute: "2-digit",
             second: "2-digit",
           })}
         </p>
         <p className="text-sm font-medium text-nexus-primary dark:text-nexus-blue mt-0.5 uppercase tracking-wider">
-          {currentDateTime.toLocaleDateString("en-US", {
+          {currentDateTime.toLocaleDateString(
+            i18n.language === "bn" ? "bn-BD" : "en-US",
+            {
             weekday: "long",
             year: "numeric",
             month: "long",

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { Copy, Crop, MoreVertical, Trash2 } from "lucide-react";
 import {
@@ -13,6 +14,8 @@ import {
  * Single media card for grid view
  */
 export default function MediaCard({ image, onView, onCopyUrl, onEditUpload, onDelete }) {
+  const { t } = useTranslation();
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -43,7 +46,7 @@ export default function MediaCard({ image, onView, onCopyUrl, onEditUpload, onDe
                   }}
                 >
                   <Copy className="w-4 h-4 mr-2" />
-                  Copy URL
+                  {t("media.copyUrl")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={(e) => {
@@ -52,7 +55,7 @@ export default function MediaCard({ image, onView, onCopyUrl, onEditUpload, onDe
                   }}
                 >
                   <Crop className="w-4 h-4 mr-2" />
-                  Edit / Re-upload
+                  {t("media.editReupload")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -60,7 +63,7 @@ export default function MediaCard({ image, onView, onCopyUrl, onEditUpload, onDe
                   onClick={(e) => onDelete(image, e)}
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
+                  {t("media.delete")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

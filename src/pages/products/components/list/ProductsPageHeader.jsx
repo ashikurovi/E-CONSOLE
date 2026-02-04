@@ -14,14 +14,10 @@ export default function ProductsPageHeader({
     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-2">
       <div className="space-y-2">
         <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gray-900 dark:text-white">
-          Product{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400">
-            Inventory
-          </span>
+          {t("products.pageHeadline")}
         </h1>
         <p className="text-gray-500 dark:text-gray-400 font-medium max-w-lg text-base">
-          Manage your product catalog, track inventory levels, and organize
-          your stock efficiently.
+          {t("products.pageSubheadline")}
         </p>
       </div>
 
@@ -40,7 +36,7 @@ export default function ProductsPageHeader({
           className="h-14 px-6 rounded-2xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1f26] font-bold flex items-center gap-2 text-gray-700 dark:text-gray-200 hover:bg-gray-50"
         >
           <Download className="w-5 h-5" />
-          {t("Export")}
+          {t("products.export")}
         </Button>
         <Button
           variant="outline"

@@ -1,21 +1,21 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 const CategoriesHeader = ({ t, onAdd }) => {
+  const { t: translate } = useTranslation();
+  const translation = t || translate;
+  
   return (
     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-2">
       <div className="space-y-2">
         <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gray-900 dark:text-white">
-          Category{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400">
-            Management
-          </span>
+          {translation("categories.title")}
         </h1>
         <p className="text-gray-500 dark:text-gray-400 font-medium max-w-lg text-base">
-          Organize your products with categories and subcategories for better
-          navigation.
+          {translation("categories.subtitle")}
         </p>
       </div>
 
@@ -28,7 +28,7 @@ const CategoriesHeader = ({ t, onAdd }) => {
             <Plus className="w-5 h-5" />
           </div>
           <span className="text-lg">
-            {t("common.add")} {t("nav.categories")}
+            {translation("common.add")} {translation("nav.categories")}
           </span>
         </Button>
       </div>

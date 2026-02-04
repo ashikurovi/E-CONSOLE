@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { Copy, Crop, Eye, MoreVertical, Trash2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
@@ -14,6 +15,8 @@ import {
  * Single media item for list view
  */
 export default function MediaListItem({ image, onView, onCopyUrl, onEditUpload, onDelete }) {
+  const { t } = useTranslation();
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -10 }}
@@ -65,7 +68,7 @@ export default function MediaListItem({ image, onView, onCopyUrl, onEditUpload, 
               }}
             >
               <Copy className="w-4 h-4 mr-2" />
-              Copy URL
+              {t("media.copyUrl")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(e) => {
@@ -74,7 +77,7 @@ export default function MediaListItem({ image, onView, onCopyUrl, onEditUpload, 
               }}
             >
               <Crop className="w-4 h-4 mr-2" />
-              Edit / Re-upload
+              {t("media.editReupload")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -82,7 +85,7 @@ export default function MediaListItem({ image, onView, onCopyUrl, onEditUpload, 
               onClick={(e) => onDelete(image, e)}
             >
               <Trash2 className="w-4 h-4 mr-2" />
-              Delete
+              {t("media.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

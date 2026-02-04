@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, LayoutGrid, ListFilter, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,6 +23,8 @@ const InventoryToolbar = ({
   visibleColumns,
   toggleColumn,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -33,7 +36,7 @@ const InventoryToolbar = ({
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
         <input
           type="text"
-          placeholder="Search products, SKU, or tags..."
+          placeholder={t("inventory.searchPlaceholder")}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
@@ -46,7 +49,7 @@ const InventoryToolbar = ({
           className="flex-1 sm:flex-none border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl"
         >
           <ListFilter className="w-4 h-4 mr-2" />
-          Filter
+          {t("inventory.filter")}
         </Button>
 
         <DropdownMenu>
@@ -55,10 +58,11 @@ const InventoryToolbar = ({
               variant="outline"
               className="flex-1 sm:flex-none border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl"
             >
-              Category:{" "}
+              {t("inventory.category")}:{" "}
               <span className="ml-1 max-w-[140px] truncate">
-                {categoryOptions?.find((c) => c.value === String(selectedCategoryId))?.label ||
-                  "All categories"}
+                {categoryOptions?.find(
+                  (c) => c.value === String(selectedCategoryId),
+                )?.label || t("inventory.allCategories")}
               </span>
               <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
             </Button>
@@ -67,7 +71,7 @@ const InventoryToolbar = ({
             align="end"
             className="rounded-xl border-slate-200 dark:border-slate-800 max-h-[320px] overflow-y-auto"
           >
-            {(categoryOptions || [{ label: "All categories", value: "" }]).map(
+            {(categoryOptions || [{ label: t("inventory.allCategories"), value: "" }]).map(
               (opt) => (
                 <DropdownMenuItem
                   key={opt.value}
@@ -86,7 +90,7 @@ const InventoryToolbar = ({
               variant="outline"
               className="flex-1 sm:flex-none border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl"
             >
-              Sort by: Latest
+              {t("inventory.sortByLatest")}
               <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
@@ -97,17 +101,17 @@ const InventoryToolbar = ({
             <DropdownMenuItem
               onClick={() => setSortConfig({ key: "createdAt", direction: "desc" })}
             >
-              Latest Added
+              {t("inventory.sortLatestAdded")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => setSortConfig({ key: "stock", direction: "asc" })}
             >
-              Stock: Low to High
+              {t("inventory.sortStockLowToHigh")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => setSortConfig({ key: "stock", direction: "desc" })}
             >
-              Stock: High to Low
+              {t("inventory.sortStockHighToLow")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -128,11 +132,31 @@ const InventoryToolbar = ({
           >
             <div className="grid grid-cols-2 gap-1 p-1">
               {[
-                { key: "details", label: "Details", color: "bg-indigo-500" },
-                { key: "sku", label: "SKU", color: "bg-slate-500" },
-                { key: "stock", label: "Stock", color: "bg-amber-500" },
-                { key: "pricing", label: "Pricing", color: "bg-emerald-500" },
-                { key: "actions", label: "Actions", color: "bg-purple-500" },
+                {
+                  key: "details",
+                  label: t("inventory.columnDetails"),
+                  color: "bg-indigo-500",
+                },
+                {
+                  key: "sku",
+                  label: t("inventory.columnSku"),
+                  color: "bg-slate-500",
+                },
+                {
+                  key: "stock",
+                  label: t("inventory.columnStock"),
+                  color: "bg-amber-500",
+                },
+                {
+                  key: "pricing",
+                  label: t("inventory.columnPricing"),
+                  color: "bg-emerald-500",
+                },
+                {
+                  key: "actions",
+                  label: t("inventory.columnActions"),
+                  color: "bg-purple-500",
+                },
               ].map((col) => (
                 <DropdownMenuItem
                   key={col.key}
@@ -157,7 +181,7 @@ const InventoryToolbar = ({
                 });
               }}
             >
-              Reset columns
+              {t("inventory.resetColumns")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

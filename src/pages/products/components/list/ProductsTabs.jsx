@@ -1,10 +1,5 @@
 import React from "react";
-
-const TABS = [
-  { key: "published", label: "Published" },
-  { key: "drafts", label: "Drafts" },
-  { key: "trash", label: "Trash" },
-];
+import { useTranslation } from "react-i18next";
 
 export default function ProductsTabs({
   activeTab,
@@ -13,6 +8,14 @@ export default function ProductsTabs({
   draftsCount = 0,
   trashCount = 0,
 }) {
+  const { t } = useTranslation();
+  
+  const TABS = [
+    { key: "published", label: t("products.published") },
+    { key: "drafts", label: t("products.drafts") },
+    { key: "trash", label: t("products.trash") },
+  ];
+  
   const counts = {
     published: publishedCount,
     drafts: draftsCount,

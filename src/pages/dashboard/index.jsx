@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Eye, ShoppingBag, Package, DollarSign } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useGetDashboardQuery } from "@/features/dashboard/dashboardApiSlice";
 import {
   MetricCard,
@@ -16,6 +17,7 @@ import {
 
 const DashboardPage = () => {
   const authUser = useSelector((state) => state.auth.user);
+  const { t } = useTranslation();
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
   useEffect(() => {
@@ -25,10 +27,10 @@ const DashboardPage = () => {
 
   const getGreeting = () => {
     const hour = currentDateTime.getHours();
-    if (hour >= 5 && hour < 12) return "Good Morning";
-    if (hour >= 12 && hour < 17) return "Good Afternoon";
-    if (hour >= 17 && hour < 21) return "Good Evening";
-    return "Good Night";
+    if (hour >= 5 && hour < 12) return t("dashboard.goodMorning");
+    if (hour >= 12 && hour < 17) return t("dashboard.goodAfternoon");
+    if (hour >= 17 && hour < 21) return t("dashboard.goodEvening");
+    return t("dashboard.goodNight");
   };
 
   const { data: dashboardData, isLoading } = useGetDashboardQuery(
@@ -100,7 +102,7 @@ const DashboardPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard
-          title="Total Products"
+          title={t("dashboard.totalProducts")}
           value={dashboardData?.overviewMetrics?.totalProducts?.toLocaleString() ?? "0"}
           change={dashboardData?.stats?.[0]?.delta ?? "0%"}
           changeType={dashboardData?.stats?.[0]?.tone === "green" ? "increase" : "decrease"}
@@ -110,7 +112,7 @@ const DashboardPage = () => {
           sparklineData={sparklineData}
         />
         <MetricCard
-          title="Total Sales"
+          title={t("dashboard.totalSales")}
           value={dashboardData?.overviewMetrics?.totalSales?.toLocaleString() ?? "0"}
           change={dashboardData?.stats?.[1]?.delta ?? "0%"}
           changeType={dashboardData?.stats?.[1]?.tone === "green" ? "increase" : "decrease"}
@@ -120,7 +122,7 @@ const DashboardPage = () => {
           sparklineData={sparklineData}
         />
         <MetricCard
-          title="Total Revenue"
+          title={t("dashboard.totalRevenue")}
           value={
             dashboardData?.overviewMetrics?.totalRevenue != null
               ? `$${Number(dashboardData.overviewMetrics.totalRevenue).toLocaleString("en-US", {
@@ -137,7 +139,7 @@ const DashboardPage = () => {
           sparklineData={sparklineData}
         />
         <MetricCard
-          title="Total Customers"
+          title={t("dashboard.totalCustomers")}
           value={dashboardData?.overviewMetrics?.totalStoreViews?.toLocaleString() ?? "0"}
           change={dashboardData?.stats?.[1]?.delta ?? "0%"}
           changeType={dashboardData?.stats?.[1]?.tone === "green" ? "increase" : "decrease"}

@@ -97,6 +97,7 @@ export default function ProductEditPage() {
   const [variants, setVariants] = useState([]);
   const [isAddingVariant, setIsAddingVariant] = useState(false);
   const [newVariantName, setNewVariantName] = useState("");
+  const [newVariantColor, setNewVariantColor] = useState("#6366f1");
   const initializedRef = useRef(false);
 
   const {
@@ -166,6 +167,7 @@ export default function ProductEditPage() {
       setVariants(
         product.variants.map((v, i) => ({
           name: typeof v === "object" ? v.name : String(v),
+          color: typeof v === "object" ? (v.color || "#6366f1") : "#6366f1",
           id: v.id ?? Date.now() + i,
         }))
       );
@@ -176,20 +178,21 @@ export default function ProductEditPage() {
     if (newVariantName.trim()) {
       setVariants((prev) => [
         ...prev,
-        { name: newVariantName.trim(), id: Date.now() },
+        { name: newVariantName.trim(), color: newVariantColor, id: Date.now() },
       ]);
       setNewVariantName("");
+      setNewVariantColor("#6366f1");
       setIsAddingVariant(false);
     }
-  }, [newVariantName]);
+  }, [newVariantName, newVariantColor]);
 
   const removeVariant = useCallback((id) => {
     setVariants((prev) => prev.filter((v) => v.id !== id));
   }, []);
 
-  const updateVariantName = useCallback((id, name) => {
+  const updateVariant = useCallback((id, field, value) => {
     setVariants((prev) =>
-      prev.map((v) => (v.id === id ? { ...v, name } : v))
+      prev.map((v) => (v.id === id ? { ...v, [field]: value } : v))
     );
   }, []);
 
@@ -271,11 +274,11 @@ export default function ProductEditPage() {
         toast.success(
           asDraft
             ? t("productForm.productSavedAsDraft")
-            : "Product updated successfully"
+            : t("productForm.productUpdated")
         );
         navigate("/products");
       } catch (err) {
-        toast.error(err?.data?.message || "Failed to update product");
+        toast.error(err?.data?.message || t("productForm.productUpdateFailed"));
       }
     },
     [
@@ -300,7 +303,7 @@ export default function ProductEditPage() {
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-slate-500 dark:text-slate-400 font-medium">
-            Loading product…
+            {t("products.loadingProductDetails")}
           </p>
         </div>
       </div>
@@ -309,7 +312,10 @@ export default function ProductEditPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
-      <ProductFormHeader title="Edit Product" backLabel="Back to product list" />
+      <ProductFormHeader 
+        title={t("productForm.editProduct")} 
+        backLabel={t("productForm.backToProductList")} 
+      />
 
       <div className="max-w-[1600px] mx-auto p-6 pt-8">
         <form
@@ -348,12 +354,14 @@ export default function ProductEditPage() {
             />
             <ProductVariantSection
               variants={variants}
-              updateVariantName={updateVariantName}
+              updateVariant={updateVariant}
               removeVariant={removeVariant}
               isAddingVariant={isAddingVariant}
               setIsAddingVariant={setIsAddingVariant}
               newVariantName={newVariantName}
               setNewVariantName={setNewVariantName}
+              newVariantColor={newVariantColor}
+              setNewVariantColor={setNewVariantColor}
               handleAddVariant={handleAddVariant}
             />
             <ProductDescriptionSection
@@ -372,8 +380,8 @@ export default function ProductEditPage() {
               isUpdating={isUpdating}
               isUploading={isUploading}
               isValid={isValid}
-              submitLabel="Publish"
-              savingLabel="Saving..."
+              submitLabel={t("productForm.publish")}
+              savingLabel={t("productForm.saving")}
             />
           </div>
         </form>

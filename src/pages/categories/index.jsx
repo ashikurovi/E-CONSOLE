@@ -211,7 +211,7 @@ const CategoriesPage = () => {
         wave: "text-emerald-500",
       },
       {
-        label: "Disabled Categories",
+        label: t("categories.disabledCategories") || "Disabled Categories",
         value: disabledCategories,
         trend: "0.0%",
         trendDir: "up",
@@ -222,7 +222,7 @@ const CategoriesPage = () => {
         wave: "text-orange-500",
       },
       {
-        label: "Subcategories",
+        label: t("categories.subcategories") || "Subcategories",
         value: subCategories,
         trend: "0.0%",
         trendDir: "up",
@@ -297,7 +297,7 @@ const CategoriesPage = () => {
         ),
       },
       {
-        header: t("common.date") || "Date",
+        header: t("activityLogs.date") || t("common.date") || "Date",
         field: "createdAt",
         render: (row) => (
           <div className="flex flex-col">
@@ -327,10 +327,10 @@ const CategoriesPage = () => {
         field: "status",
         render: (row) =>
           activeTab === "trash" ? (
-            <span className="inline-flex items-center gap-2 text-xs font-bold px-2.5 py-1 rounded-lg bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300">
-              <Trash2 className="w-3.5 h-3.5" />
-              Trashed
-            </span>
+                  <span className="inline-flex items-center gap-2 text-xs font-bold px-2.5 py-1 rounded-lg bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300">
+                    <Trash2 className="w-3.5 h-3.5" />
+                    {t("categories.statusTrashed")}
+                  </span>
           ) : (
             <div className="flex items-center">
               <Switch
@@ -348,7 +348,9 @@ const CategoriesPage = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">
+                  {t("products.openMenuSr") || "Open menu"}
+                </span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -358,7 +360,8 @@ const CategoriesPage = () => {
                 <DropdownMenuItem
                   onClick={() => setRestoreModal({ isOpen: true, category: row })}
                 >
-                  <CheckCircle className="mr-2 h-4 w-4 text-green-600" /> Restore
+                  <CheckCircle className="mr-2 h-4 w-4 text-green-600" />{" "}
+                  {t("categories.restoreConfirm")}
                 </DropdownMenuItem>
               ) : (
                 <>
@@ -506,18 +509,18 @@ const CategoriesPage = () => {
               id: restoreModal.category.id,
               params: { companyId: authUser?.companyId },
             }).unwrap();
-            toast.success("Category restored");
+            toast.success(t("categories.restored"));
             setRestoreModal({ isOpen: false, category: null });
           } catch (e) {
             toast.error(t("common.failed"));
           }
         }}
-        title="Restore category"
-        description="This will move the category out of Trash and make it available again."
-        itemName={`Restore "${restoreModal.category?.name}"?`}
+        title={t("categories.restoreTitle")}
+        description={t("categories.restoreDescription")}
+        itemName={`${t("categories.restoreConfirm")} "${restoreModal.category?.name}"?`}
         isLoading={isRestoring}
         type="success"
-        confirmText="Restore"
+        confirmText={t("categories.restoreConfirm")}
       />
     </div>
   );

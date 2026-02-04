@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import {
   Upload,
@@ -23,6 +24,7 @@ import {
  * Media Upload Modal - Select, Crop & Upload flow
  */
 export default function MediaUploadModal({ open, onOpenChange, companyId }) {
+  const { t } = useTranslation();
   const [uploadStep, setUploadStep] = useState("select");
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -60,7 +62,7 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
 
   const handleCropAndGenerate = async () => {
     if (!companyId) {
-      toast.error("Company context required");
+      toast.error(t("media.companyContextRequired"));
       return;
     }
     setIsProcessing(true);
@@ -111,12 +113,12 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
         const url = result.data.url || result.data.data.url;
         setGeneratedUrl(url);
         setUploadStep("result");
-        toast.success("Media uploaded successfully");
+        toast.success(t("media.uploadSuccess"));
       } else {
-        throw new Error(result?.error?.data || "Upload failed");
+        throw new Error(result?.error?.data || t("media.uploadFailed"));
       }
     } catch (err) {
-      toast.error(err?.message || "Upload failed");
+      toast.error(err?.message || t("media.uploadFailed"));
     } finally {
       setIsProcessing(false);
     }
@@ -125,7 +127,7 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
   const handleCopyUrl = () => {
     if (generatedUrl) {
       navigator.clipboard.writeText(generatedUrl);
-      toast.success("Copied to clipboard");
+      toast.success(t("media.copied"));
     }
   };
 
@@ -138,25 +140,24 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
             <DialogTitle className="text-xl font-bold flex items-center gap-2.5 text-gray-900 dark:text-white">
               {uploadStep === "select" && (
                 <>
-                  <Upload className="w-5 h-5 text-indigo-600" /> Upload Media
+                  <Upload className="w-5 h-5 text-indigo-600" /> {t("media.uploadMediaTitle")}
                 </>
               )}
               {uploadStep === "crop" && (
                 <>
-                  <Crop className="w-5 h-5 text-indigo-600" /> Edit & Crop
+                  <Crop className="w-5 h-5 text-indigo-600" /> {t("media.editCrop")}
                 </>
               )}
               {uploadStep === "result" && (
                 <>
-                  <Sparkles className="w-5 h-5 text-indigo-600" /> Processed
-                  Successfully
+                  <Sparkles className="w-5 h-5 text-indigo-600" /> {t("media.processedSuccessfully")}
                 </>
               )}
             </DialogTitle>
             <DialogDescription className="text-gray-500 dark:text-gray-400 mt-1">
-              {uploadStep === "select" && "Add new images to your collection"}
-              {uploadStep === "crop" && "Adjust your image before saving"}
-              {uploadStep === "result" && "Your media is ready to use"}
+              {uploadStep === "select" && t("media.addNewImages")}
+              {uploadStep === "crop" && t("media.adjustImage")}
+              {uploadStep === "result" && t("media.mediaReady")}
             </DialogDescription>
           </div>
         </div>
@@ -192,10 +193,10 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
                       </div>
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                      Click or Drag to Upload
+                      {t("media.clickOrDrag")}
                     </h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Supports high-res JPG, PNG, WEBP up to 20MB
+                      {t("media.supportsFormats")}
                     </p>
                   </div>
                 </label>
@@ -269,15 +270,14 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
                 <div className="bg-gray-50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold uppercase text-gray-400 tracking-wider">
-                      Free Transform
+                      {t("media.freeTransform")}
                     </span>
                     <span className="text-xs text-indigo-600 font-medium bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded">
-                      Drag box to crop
+                      {t("media.dragBoxToCrop")}
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Adjust the selection frame to crop your desired area. Use
-                    corner handles to resize.
+                    {t("media.adjustSelectionFrame")}
                   </p>
                 </div>
 
@@ -287,7 +287,7 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
                     onClick={() => setUploadStep("select")}
                     className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                   >
-                    Cancel
+                    {t("media.cancel")}
                   </Button>
                   <Button
                     onClick={handleCropAndGenerate}
@@ -297,12 +297,12 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
                     {isProcessing ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                        Running AI...
+                        {t("media.runningAI")}
                       </>
                     ) : (
                       <>
                         <Crop className="w-4 h-4 mr-2" />
-                        Crop & Save
+                        {t("media.cropAndSave")}
                       </>
                     )}
                   </Button>
@@ -313,7 +313,7 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
                   <div className="absolute inset-0 bg-white/90 dark:bg-[#1a1f26]/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center rounded-[32px]">
                     <div className="w-64 space-y-4">
                       <div className="flex justify-between text-sm font-medium">
-                        <span>Optimizing...</span>
+                        <span>{t("media.optimizing")}</span>
                         <span>{progress}%</span>
                       </div>
                       <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
@@ -346,21 +346,21 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
 
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                    Upload Complete
+                    {t("media.uploadComplete")}
                   </h3>
                   <p className="text-gray-500 dark:text-gray-400 text-sm max-w-sm mx-auto">
-                    Your image has been optimized, tagged, and added to the{" "}
+                    {t("media.imageOptimized")}{" "}
                     <span className="font-semibold text-gray-900 dark:text-gray-300">
-                      Global
+                      {t("media.global")}
                     </span>{" "}
-                    collection.
+                    {t("media.collection")}
                   </p>
                 </div>
 
                 <div className="w-full bg-gray-50 dark:bg-black/30 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center gap-4">
                   <div className="flex-1 text-left overflow-hidden">
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1.5">
-                      CDN ACCESS URL
+                      {t("media.cdnAccessUrl")}
                     </p>
                     <p className="text-sm font-mono font-medium text-indigo-600 dark:text-indigo-400 truncate">
                       {generatedUrl}
@@ -380,7 +380,7 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
                   className="w-full bg-gray-900 dark:bg-white dark:text-black text-white h-12 text-base rounded-xl hover:scale-[1.02] transition-transform"
                   onClick={handleCloseModal}
                 >
-                  Return to Library
+                  {t("media.returnToLibrary")}
                 </Button>
               </motion.div>
             )}

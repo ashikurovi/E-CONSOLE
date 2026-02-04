@@ -18,7 +18,7 @@ export default function ProductDescriptionSection({
         render={({ field }) => (
           <DescriptionInputWithAI
             {...field}
-            label="Business Description"
+            label={t("productForm.businessDescription")}
             placeholder={t("productForm.descriptionPlaceholder")}
             rows={6}
             error={errors.description?.message}
