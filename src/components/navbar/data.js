@@ -294,6 +294,32 @@ export const navSections = [
         link: "/manage-users",
         permission: FeaturePermission.STAFF,
         icon: Users,
+        children: [
+          {
+            title: "All Users",
+            link: "/manage-users?tab=all-users",
+          },
+          {
+            title: "Active",
+            link: "/manage-users?tab=active",
+          },
+          {
+            title: "Inactive",
+            link: "/manage-users?tab=inactive",
+          },
+          {
+            title: "System Owner",
+            link: "/manage-users?tab=system-owner",
+          },
+          {
+            title: "Admins",
+            link: "/manage-users?tab=admins",
+          },
+          {
+            title: "Employees",
+            link: "/manage-users?tab=employees",
+          },
+        ],
       },
       {
         id: 16,
@@ -319,15 +345,12 @@ export const navSections = [
             link: "/settings?tab=account",
           },
           {
-            title: "User Permissions",
-            link: "/settings?tab=permissions",
-          },
-          {
             title: "Billings",
             link: "/settings?tab=billings",
           },
         ],
       },
+
       {
         id: 17,
         title: "Upgrade Plan",
