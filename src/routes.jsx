@@ -441,7 +441,7 @@ export const routes = createBrowserRouter([
       {
         path: "/reviews",
         element: (
-          <PermissionRoute permission={FeaturePermission.CUSTOMERS}>
+          <PermissionRoute permission={FeaturePermission.REVIEW}>
             <ReviewsPage />
           </PermissionRoute>
         ),
@@ -449,7 +449,7 @@ export const routes = createBrowserRouter([
       {
         path: "/reviews/:id",
         element: (
-          <PermissionRoute permission={FeaturePermission.CUSTOMERS}>
+          <PermissionRoute permission={FeaturePermission.REVIEW}>
             <ReviewDetailPage />
           </PermissionRoute>
         ),

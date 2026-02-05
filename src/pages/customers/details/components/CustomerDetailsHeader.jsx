@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import LanguageSwitcher from "@/components/language/LanguageSwitcher";
 
 const CustomerDetailsHeader = ({
   customer,
@@ -49,6 +50,8 @@ const CustomerDetailsHeader = ({
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
+          <LanguageSwitcher variant="compact" />
+
           <Button
             variant="destructive"
             className="flex-1 md:flex-none h-11 rounded-xl font-bold bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/20"

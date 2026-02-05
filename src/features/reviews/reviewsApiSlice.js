@@ -29,6 +29,14 @@ export const reviewsApiSlice = apiSlice.injectEndpoints({
         { type: "reviews", id: "LIST" },
       ],
     }),
+    createReview: builder.mutation({
+      query: (body) => ({
+        url: "/reviews",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: [{ type: "reviews", id: "LIST" }],
+    }),
   }),
 });
 
@@ -36,4 +44,5 @@ export const {
   useGetReviewsQuery,
   useGetReviewByIdQuery,
   useReplyReviewMutation,
+  useCreateReviewMutation,
 } = reviewsApiSlice;

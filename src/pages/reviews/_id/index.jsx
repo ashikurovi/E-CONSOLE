@@ -17,7 +17,8 @@ import {
   Calendar,
   Clock,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Mail
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -83,11 +84,11 @@ const ReviewDetailPage = () => {
           {t("reviews.notFound") || "Review Not Found"}
         </h2>
         <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md">
-          The review you are looking for does not exist or has been removed.
+          {t("reviews.detailSubtitle")}
         </p>
         <Button onClick={() => navigate("/reviews")} variant="outline">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          {t("common.backToReviews") || "Back to Reviews"}
+          {t("common.backToReviews")}
         </Button>
       </div>
     );
@@ -110,10 +111,10 @@ const ReviewDetailPage = () => {
             className="pl-0 hover:bg-transparent text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 mb-2"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            {t("common.back") || "Back to Reviews"}
+            {t("common.back")}
           </Button>
           <h1 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white">
-            {t("reviews.detailTitle") || "Review Details"}
+            {t("reviews.detailTitle")}
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
             #{review.id} • {new Date(review.createdAt).toLocaleDateString()}
@@ -129,12 +130,12 @@ const ReviewDetailPage = () => {
             {review.reply ? (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                {t("reviews.statusReplied") || "Replied"}
+                {t("reviews.statusReplied")}
               </>
             ) : (
               <>
                 <Clock className="w-4 h-4" />
-                {t("reviews.statusPending") || "Pending Reply"}
+                {t("reviews.statusPending")}
               </>
             )}
           </div>
@@ -156,11 +157,11 @@ const ReviewDetailPage = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                      {review.user?.name || "Guest User"}
+                      {review.user?.name || t("reviews.guestUser")}
                     </h3>
                     <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-1">
                       <Mail className="w-3.5 h-3.5" />
-                      {review.user?.email || "No email provided"}
+                      {review.user?.email || t("reviews.noEmailProvided")}
                     </div>
                   </div>
                 </div>
@@ -178,14 +179,14 @@ const ReviewDetailPage = () => {
                     ))}
                   </div>
                   <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {review.rating}.0 / 5.0 Rating
+                    {t("reviews.ratingSummary", { rating: review.rating })}
                   </span>
                 </div>
               </div>
 
               <div className="mb-8">
                 <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">
-                  {t("reviews.customerFeedback") || "Customer Feedback"}
+                  {t("reviews.customerFeedback")}
                 </h4>
                 {review.title && (
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
@@ -205,8 +206,12 @@ const ReviewDetailPage = () => {
                     <Package className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Product</p>
-                    <p className="font-semibold text-gray-900 dark:text-white">{review.product?.name || "Unknown Product"}</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                      {t("reviews.productLabel")}
+                    </p>
+                    <p className="font-semibold text-gray-900 dark:text-white">
+                      {review.product?.name || t("common.unknown")}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -214,7 +219,9 @@ const ReviewDetailPage = () => {
                     <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Date</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                      {t("reviews.dateLabel")}
+                    </p>
                     <p className="font-semibold text-gray-900 dark:text-white">
                       {new Date(review.createdAt).toLocaleDateString()}
                     </p>
@@ -233,7 +240,7 @@ const ReviewDetailPage = () => {
                 <MessageSquare className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                {t("reviews.response") || "Your Response"}
+                {t("reviews.response")}
               </h3>
             </div>
 
@@ -242,14 +249,14 @@ const ReviewDetailPage = () => {
                 <div className="flex items-center gap-2 mb-3">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
-                    Response Sent
+                    {t("reviews.responseSent")}
                   </span>
                 </div>
                 <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-3">
                   {review.reply}
                 </p>
                 <p className="text-xs text-emerald-600/70 dark:text-emerald-400/70">
-                  {t("reviews.updatedAt") || "Last updated"}:{" "}
+                  {t("reviews.updatedAt")}:{" "}
                   {new Date(review.updatedAt).toLocaleString()}
                 </p>
               </div>
@@ -257,9 +264,11 @@ const ReviewDetailPage = () => {
               <div className="bg-amber-50/50 dark:bg-amber-900/10 rounded-2xl p-4 border border-amber-100 dark:border-amber-900/30 mb-6 flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5" />
                 <div>
-                  <h4 className="text-sm font-semibold text-amber-800 dark:text-amber-300">Action Required</h4>
+                  <h4 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                    {t("reviews.actionRequired")}
+                  </h4>
                   <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-1">
-                    This review hasn't received a response yet. Replying helps build trust with customers.
+                    {t("reviews.actionRequiredDesc")}
                   </p>
                 </div>
               </div>
@@ -268,7 +277,9 @@ const ReviewDetailPage = () => {
             <form onSubmit={handleReply} className="space-y-4">
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 block">
-                  {review.reply ? "Update Reply" : "Write a Reply"}
+                  {review.reply
+                    ? t("reviews.updateReply")
+                    : t("reviews.sendReply")}
                 </label>
                 <textarea
                   value={replyText}
@@ -276,7 +287,7 @@ const ReviewDetailPage = () => {
                   placeholder={
                     review.reply
                       ? (t("reviews.updateReplyPlaceholder") || "Update your reply...")
-                      : (t("reviews.replyPlaceholder") || "Thank the customer for their feedback...")
+                      : t("reviews.replyPlaceholder")
                   }
                   rows={6}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-black/20 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"
@@ -291,14 +302,14 @@ const ReviewDetailPage = () => {
                 {isReplying ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                    {t("common.sending") || "Sending..."}
+                    {t("common.sending")}
                   </>
                 ) : (
                   <>
                     <Send className="w-4 h-4 mr-2" />
                     {review.reply
-                      ? t("reviews.updateReply") || "Update Reply"
-                      : t("reviews.sendReply") || "Send Reply"}
+                      ? t("reviews.updateReply")
+                      : t("reviews.sendReply")}
                   </>
                 )}
               </Button>

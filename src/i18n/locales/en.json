@@ -51,7 +51,10 @@
     "no": "No",
     "copy": "Copy",
     "copied": "Copied!",
-    "copyFailed": "Failed to copy"
+    "copyFailed": "Failed to copy",
+    "select": "Select",
+    "back": "Back",
+    "backToReviews": "Back to Reviews"
   },
   "nav": {
     "searchMenuItems": "Search menu items...",
@@ -1391,6 +1394,9 @@
   "reviews": {
     "title": "Customer Reviews",
     "subtitle": "View and reply to customer product reviews from your dashboard.",
+    "totalReviews": "Total Reviews",
+    "avgRating": "Average Rating",
+    "pendingReplies": "Pending Replies",
     "product": "Product",
     "customer": "Customer",
     "rating": "Rating",
@@ -1398,6 +1404,7 @@
     "reply": "Reply",
     "replied": "Replied",
     "pending": "Pending",
+    "status": "Status",
     "createdAt": "Created",
     "viewReply": "View / Reply",
     "detailTitle": "Review Detail",
@@ -1412,7 +1419,21 @@
     "updateReplyPlaceholder": "Update your reply...",
     "sendReply": "Send Reply",
     "updateReply": "Update Reply",
-    "updatedAt": "Last updated"
+    "updatedAt": "Last updated",
+    "addReview": "Add Review",
+    "createTitle": "Create Review",
+    "statusReplied": "Replied",
+    "statusPending": "Pending Reply",
+    "customerFeedback": "Customer Feedback",
+    "guestUser": "Guest User",
+    "noEmailProvided": "No email provided",
+    "ratingSummary": "{{rating}}.0 / 5.0 Rating",
+    "productLabel": "Product",
+    "dateLabel": "Date",
+    "response": "Your Response",
+    "responseSent": "Response Sent",
+    "actionRequired": "Action Required",
+    "actionRequiredDesc": "This review hasn't received a response yet. Replying helps build trust with customers."
   },
   "aiReport": {
     "subtitle": "AI-generated daily insights for your store.",
