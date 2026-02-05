@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   LayoutGrid,
@@ -18,7 +19,19 @@ import AccountSettings from "./components/AccountSettings";
 import UserPermissionSettings from "./components/UserPermissionSettings";
 
 const SettingsPage = () => {
-  const [activeTab, setActiveTab] = useState("general");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "general";
+
+  // Redirect to default tab if none provided
+  useEffect(() => {
+    if (!searchParams.get("tab")) {
+      setSearchParams({ tab: "general" }, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  const setActiveTab = (tab) => {
+    setSearchParams({ tab });
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -30,7 +43,6 @@ const SettingsPage = () => {
         return <NotificationSettings />;
       case "account":
         return <AccountSettings />;
-        4;
       case "permissions":
         return <UserPermissionSettings />;
       case "billings":

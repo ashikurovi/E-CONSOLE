@@ -67,14 +67,17 @@ function CollapsibleSection({ section, isCollapsed, t }) {
   useEffect(() => {
     const isChildActive = section.items.some((item) => {
       if (item.children) {
-        return item.children.some((child) =>
-          location.pathname.startsWith(child.link),
-        );
+        return item.children.some((child) => {
+          if (child.link.includes("?")) {
+            return child.link === location.pathname + location.search;
+          }
+          return location.pathname.startsWith(child.link);
+        });
       }
       return location.pathname.startsWith(item.to);
     });
     if (isChildActive) setIsOpen(true);
-  }, [location.pathname, section.items]);
+  }, [location.pathname, location.search, section.items]);
 
   const toggleSection = () => {
     setIsOpen(!isOpen);
@@ -166,12 +169,15 @@ function Item({ item, isLast, t }) {
   // Auto-expand if child is active
   useEffect(() => {
     if (hasChildren) {
-      const isChildActive = item.children.some((child) =>
-        location.pathname.startsWith(child.link),
-      );
+      const isChildActive = item.children.some((child) => {
+        if (child.link.includes("?")) {
+          return child.link === location.pathname + location.search;
+        }
+        return location.pathname.startsWith(child.link);
+      });
       if (isChildActive) setIsOpen(true);
     }
-  }, [location.pathname, hasChildren, item.children]);
+  }, [location.pathname, location.search, hasChildren, item.children]);
 
   // Render Branch Connector
   const Branch = () => (
