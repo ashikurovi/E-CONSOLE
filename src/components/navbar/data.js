@@ -298,6 +298,7 @@ export const navSections = [
           {
             title: "All Users",
             link: "/manage-users?tab=all-users",
+            icon: Users,
           },
           {
             title: "Active",
