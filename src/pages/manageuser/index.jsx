@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -215,9 +215,32 @@ const ManageUsersPage = () => {
   const [users, setUsers] = useState(MOCK_USERS);
   const [selectedUserId, setSelectedUserId] = useState(MOCK_USERS[0].id);
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState("All Users");
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const TAB_MAPPING = {
+    "all-users": "All Users",
+    active: "Active",
+    inactive: "Inactive",
+    "system-owner": "System Owner",
+    admins: "Admins",
+    employees: "Employees",
+  };
+  const REVERSE_TAB_MAPPING = {
+    "All Users": "all-users",
+    Active: "active",
+    Inactive: "inactive",
+    "System Owner": "system-owner",
+    Admins: "admins",
+    Employees: "employees",
+  };
+
+  const activeTab = TAB_MAPPING[searchParams.get("tab")] || "All Users";
+
+  const handleTabChange = (tabName) => {
+    setSearchParams({ tab: REVERSE_TAB_MAPPING[tabName] || "all-users" });
+  };
+
   const [showMobileDetail, setShowMobileDetail] = useState(false);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const selectedUser = useMemo(
     () => users.find((u) => u.id === selectedUserId),
@@ -268,7 +291,7 @@ const ManageUsersPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] dark:bg-[#0B0D12] p-4 md:p-6 lg:h-screen lg:overflow-hidden flex flex-col">
+    <div className="min-h-screen  p-4 md:p-6 lg:h-screen lg:overflow-hidden flex flex-col">
       {/* Top Header */}
       <div className="flex flex-wrap justify-between items-center mb-6 gap-4 shrink-0">
         <div className="flex items-center gap-3">
@@ -297,110 +320,9 @@ const ManageUsersPage = () => {
 
       {/* Main Layout Grid */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
-        {/* LEFT SIDEBAR - FILTERS */}
-        <div className="hidden lg:flex lg:col-span-2 xl:col-span-2 flex-col gap-6 overflow-y-auto pr-2 custom-scrollbar">
-          {/* Views Group */}
-          <div>
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 pl-2">
-              Views
-            </h3>
-            <div className="space-y-1">
-              {[
-                { name: "All Users", count: users.length, icon: User },
-                {
-                  name: "Active",
-                  count: users.filter((u) => u.isActive).length,
-                  icon: CheckCircle,
-                },
-                {
-                  name: "Inactive",
-                  count: users.filter((u) => !u.isActive).length,
-                  icon: XCircle,
-                },
-              ].map((item) => (
-                <button
-                  key={item.name}
-                  onClick={() => setActiveTab(item.name)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${
-                    activeTab === item.name
-                      ? "bg-white dark:bg-[#1a1f26] text-indigo-600 shadow-sm border border-gray-100 dark:border-gray-800"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <item.icon
-                      className={`h-4 w-4 ${activeTab === item.name ? "text-indigo-600" : "text-gray-400"}`}
-                    />
-                    <span>{item.name}</span>
-                  </div>
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full ${
-                      activeTab === item.name
-                        ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300"
-                        : "bg-gray-100 text-gray-500 dark:bg-gray-800"
-                    }`}
-                  >
-                    {item.count}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Roles Group */}
-          <div>
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 pl-2">
-              Roles
-            </h3>
-            <div className="space-y-1">
-              {[
-                {
-                  name: "System Owner",
-                  count: users.filter((u) => u.role === "SYSTEM_OWNER").length,
-                },
-                {
-                  name: "Admins",
-                  count: users.filter((u) =>
-                    ["SUPER_ADMIN", "MANAGER"].includes(u.role),
-                  ).length,
-                },
-                {
-                  name: "Employees",
-                  count: users.filter((u) => u.role === "EMPLOYEE").length,
-                },
-              ].map((item) => (
-                <button
-                  key={item.name}
-                  onClick={() => setActiveTab(item.name)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${
-                    activeTab === item.name
-                      ? "bg-white dark:bg-[#1a1f26] text-indigo-600 shadow-sm border border-gray-100 dark:border-gray-800"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Shield
-                      className={`h-4 w-4 ${activeTab === item.name ? "text-indigo-600" : "text-gray-400"}`}
-                    />
-                    <span>{item.name}</span>
-                  </div>
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full ${
-                      activeTab === item.name
-                        ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300"
-                        : "bg-gray-100 text-gray-500 dark:bg-gray-800"
-                    }`}
-                  >
-                    {item.count}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
+        
         {/* CENTER - USER LIST */}
-        <div className="col-span-1 lg:col-span-6 xl:col-span-7 flex flex-col bg-white dark:bg-[#1a1f26] rounded-[24px] shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+        <div className="col-span-1 lg:col-span-8 xl:col-span-9 flex flex-col bg-white dark:bg-[#1a1f26] rounded-[24px] shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
           {/* Toolbar */}
           <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between gap-4">
             <div className="relative flex-1 max-w-md">
@@ -417,20 +339,14 @@ const ManageUsersPage = () => {
               <span className="text-xs text-gray-500 font-medium hidden sm:inline-block">
                 {filteredUsers.length} Users Found
               </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden"
-                onClick={() => setShowMobileFilters(true)}
-              >
-                <Filter className="h-4 w-4 text-gray-500" />
-              </Button>
             </div>
           </div>
 
           {/* Table Header */}
           <div className="grid grid-cols-12 px-4 py-3 bg-gray-50/50 dark:bg-gray-800/30 border-b border-gray-100 dark:border-gray-800 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            <div className="col-span-8 md:col-span-4 pl-2 md:pl-8">User Details</div>
+            <div className="col-span-8 md:col-span-4 pl-2 md:pl-8">
+              User Details
+            </div>
             <div className="hidden md:block md:col-span-3">Role</div>
             <div className="col-span-4 md:col-span-3 text-right md:text-left">
               Status
@@ -552,305 +468,239 @@ const ManageUsersPage = () => {
               transition={{ duration: 0.3 }}
               className="bg-white dark:bg-[#1a1f26] rounded-[24px] shadow-sm border border-gray-100 dark:border-gray-800 h-full flex flex-col overflow-hidden"
             >
-              {/* Detail Header */}
-              <div className="p-6 pb-4 border-b border-gray-100 dark:border-gray-800 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-indigo-50/50 to-transparent dark:from-indigo-900/10 pointer-events-none" />
+              {/* System Header */}
+              <div className="relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/80 via-indigo-50/20 to-transparent dark:from-indigo-950/30 dark:via-indigo-950/5 pointer-events-none" />
 
-                <div className="flex justify-between items-start mb-4 relative z-10">
-                  <span className="font-mono text-xs text-gray-400">
-                    #{selectedUser.id}
-                  </span>
-                  <div className="flex gap-1">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-7 w-7 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
-                    >
-                      <MoreHorizontal className="h-4 w-4 text-gray-400" />
-                    </Button>
+                {/* Top Actions */}
+                <div className="relative z-10 flex justify-between items-start p-6 pb-2">
+                  <div className="flex items-center gap-2 px-2.5 py-1 bg-white/80 dark:bg-black/20 backdrop-blur-sm rounded-lg border border-gray-100 dark:border-gray-800">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                    <span className="font-mono text-[10px] font-medium text-indigo-600 dark:text-indigo-400">
+                      ID: {selectedUser.id}
+                    </span>
                   </div>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 rounded-full hover:bg-white/80 dark:hover:bg-black/20"
+                  >
+                    <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                  </Button>
                 </div>
 
-                <div className="flex flex-col items-center text-center relative z-10">
-                  <div className="relative mb-3">
+                {/* Profile Section */}
+                <div className="relative z-10 flex flex-col items-center text-center px-6 pb-6">
+                  <div className="relative mb-4 group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full opacity-75 blur group-hover:opacity-100 transition duration-500" />
                     {selectedUser.image ? (
                       <img
                         src={selectedUser.image}
                         alt=""
-                        className="h-20 w-20 rounded-full object-cover border-4 border-white dark:border-[#1a1f26] shadow-md"
+                        className="relative h-24 w-24 rounded-full object-cover border-[4px] border-white dark:border-[#1a1f26] shadow-xl"
                       />
                     ) : (
-                      <div className="h-20 w-20 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center border-4 border-white dark:border-[#1a1f26] shadow-md">
-                        <User className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                      <div className="relative h-24 w-24 rounded-full bg-indigo-50 dark:bg-indigo-900/50 flex items-center justify-center border-[4px] border-white dark:border-[#1a1f26] shadow-xl">
+                        <User className="h-10 w-10 text-indigo-600 dark:text-indigo-400" />
                       </div>
                     )}
-                    <div className="absolute bottom-1 right-1 bg-white dark:bg-[#1a1f26] rounded-full p-1">
+                    <div className="absolute bottom-1 right-1 bg-white dark:bg-[#1a1f26] rounded-full p-1.5 shadow-sm">
                       <div
-                        className={`h-3 w-3 rounded-full ${selectedUser.isActive ? "bg-green-500" : "bg-gray-300"}`}
+                        className={`h-3 w-3 rounded-full ring-2 ring-white dark:ring-[#1a1f26] ${selectedUser.isActive ? "bg-emerald-500" : "bg-gray-300"}`}
                       />
                     </div>
                   </div>
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight mb-1">
                     {selectedUser.name}
                   </h2>
-                  <p className="text-sm text-gray-500">{selectedUser.email}</p>
-                  <div className="mt-3">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 font-medium">
+                    {selectedUser.email}
+                  </p>
+
+                  <div className="flex items-center gap-2">
                     <RoleBadge role={selectedUser.role} />
                   </div>
                 </div>
               </div>
 
               {/* Detail Content */}
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
-                {/* Contact Info */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                    Contact Information
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
+                {/* System Stats Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Clock className="h-3.5 w-3.5 text-indigo-500" />
+                      <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                        Joined
+                      </span>
+                    </div>
+                    <p className="text-xs font-semibold text-gray-900 dark:text-white pl-5.5">
+                      {selectedUser.joinedDate}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Activity className="h-3.5 w-3.5 text-emerald-500" />
+                      <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                        Activity
+                      </span>
+                    </div>
+                    <p className="text-xs font-semibold text-gray-900 dark:text-white pl-5.5">
+                      {selectedUser.lastActive}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span className="w-1 h-4 bg-indigo-500 rounded-full" />
+                    CONTACT DETAILS
                   </h4>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-                      <Mail className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
-                        {selectedUser.email}
-                      </span>
+                  <div className="bg-gray-50/50 dark:bg-gray-800/30 rounded-2xl p-1 space-y-1">
+                    <div className="flex items-center gap-3 p-3 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-colors group">
+                      <div className="h-8 w-8 rounded-lg bg-white dark:bg-gray-800 flex items-center justify-center text-gray-400 group-hover:text-indigo-500 shadow-sm transition-colors">
+                        <Phone className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">
+                          Phone Number
+                        </p>
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+                          {selectedUser.phone}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-                      <Phone className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {selectedUser.phone}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-                      <MapPin className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {selectedUser.companyName}
-                      </span>
+                    <div className="flex items-center gap-3 p-3 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-colors group">
+                      <div className="h-8 w-8 rounded-lg bg-white dark:bg-gray-800 flex items-center justify-center text-gray-400 group-hover:text-indigo-500 shadow-sm transition-colors">
+                        <MapPin className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">
+                          Company
+                        </p>
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+                          {selectedUser.companyName}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* AI Summary / Permissions */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                      Permission Summary
+                {/* System Permissions */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <span className="w-1 h-4 bg-purple-500 rounded-full" />
+                      SYSTEM ACCESS
                     </h4>
-                    <span className="text-xs text-indigo-600 font-medium flex items-center gap-1">
-                      <Shield className="h-3 w-3" />
-                      {selectedUser.permissions.length} Assigned
+                    <span className="px-2 py-0.5 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 text-[10px] font-bold rounded-md uppercase tracking-wide border border-purple-100 dark:border-purple-900/30">
+                      Level {selectedUser.permissions.length}
                     </span>
                   </div>
-                  <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-900/20">
-                    <p className="text-xs text-indigo-800 dark:text-indigo-200 leading-relaxed">
-                      This user has{" "}
-                      <span className="font-semibold">Full Access</span> to the
-                      Dashboard and can manage orders, products, and system
-                      settings. Security level is high.
-                    </p>
-                    <div className="mt-3 w-full bg-indigo-200 dark:bg-indigo-800 h-1.5 rounded-full overflow-hidden">
-                      <div
-                        className="bg-indigo-600 h-full rounded-full"
-                        style={{ width: "92%" }}
-                      />
+
+                  <div className="p-4 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-800/30 rounded-2xl border border-gray-100 dark:border-gray-800 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-3 opacity-5">
+                      <Shield className="h-24 w-24" />
                     </div>
-                    <div className="flex justify-between mt-1 text-[10px] text-indigo-500">
-                      <span>Access Level</span>
-                      <span>92%</span>
+                    <div className="relative z-10">
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {selectedUser.permissions.map((perm, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center px-2 py-1 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[10px] font-medium text-gray-600 dark:text-gray-300 shadow-sm"
+                          >
+                            {perm.replace(/_/g, " ")}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between text-[10px] font-medium text-gray-500">
+                          <span>Security Clearance</span>
+                          <span className="text-purple-600 dark:text-purple-400">
+                            High Priority
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 w-[92%] rounded-full" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Activity Timeline */}
-                <div>
-                  <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                    Recent Activity
+                {/* System Logs */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span className="w-1 h-4 bg-emerald-500 rounded-full" />
+                    SYSTEM LOGS
                   </h4>
-                  <div className="relative border-l border-gray-200 dark:border-gray-800 ml-2 space-y-4 pb-2">
-                    {selectedUser.activities?.map((activity, idx) => (
-                      <div key={idx} className="ml-4 relative">
-                        <div
-                          className={`absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-[#1a1f26] ${
-                            activity.type === "system"
-                              ? "bg-red-400"
-                              : activity.type === "create"
-                                ? "bg-green-400"
-                                : "bg-blue-400"
-                          }`}
-                        />
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
-                          {activity.text}
-                        </p>
-                        <span className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                          <Clock className="h-3 w-3" /> {activity.time}
-                        </span>
-                      </div>
-                    ))}
+                  <div className="relative pl-2">
+                    <div className="absolute left-[11px] top-2 bottom-2 w-[1px] bg-gray-200 dark:bg-gray-800" />
+                    <div className="space-y-6">
+                      {selectedUser.activities?.map((activity, idx) => (
+                        <div key={idx} className="relative pl-6 group">
+                          <div
+                            className={`absolute left-[7px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-[#1a1f26] shadow-sm transition-transform group-hover:scale-125 ${
+                              activity.type === "system"
+                                ? "bg-red-500"
+                                : activity.type === "create"
+                                  ? "bg-emerald-500"
+                                  : "bg-blue-500"
+                            }`}
+                          />
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-mono text-gray-400 uppercase tracking-tight">
+                              {activity.time}
+                            </span>
+                            <p className="text-sm text-gray-700 dark:text-gray-300 font-medium leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                              {activity.text}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Action Footer */}
-              <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 space-y-2">
+              <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] space-y-3 z-10">
                 <Button
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-500/20"
+                  className="w-full bg-nexus-primary hover:bg-nexus-primary/90 text-white rounded-xl shadow-lg shadow-indigo-500/20 h-11 font-medium transition-all active:scale-[0.98]"
                   onClick={() =>
                     navigate(`/manage-users/edit/${selectedUser.id}`)
                   }
                 >
                   <Edit className="h-4 w-4 mr-2" />
-                  Edit Details
+                  Modify System Access
                 </Button>
                 <Button
-                  variant="outline"
-                  className="w-full border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/30 dark:bg-red-900/10 dark:text-red-400 rounded-xl"
+                  variant="ghost"
+                  className="w-full text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 h-10 rounded-xl font-medium transition-all active:scale-[0.98]"
                   onClick={() => handleDelete(selectedUser.id)}
                 >
-                  Remove User
+                  Revoke User Access
                 </Button>
               </div>
             </motion.div>
           ) : (
-            <div className="h-full flex flex-col items-center justify-center text-gray-400 bg-white dark:bg-[#1a1f26] rounded-[24px] border border-gray-100 dark:border-gray-800">
-              <User className="h-12 w-12 mb-3 opacity-20" />
-              <p>Select a user to view details</p>
+            <div className="h-full flex flex-col items-center justify-center text-gray-400 bg-white dark:bg-[#1a1f26] rounded-[24px] border border-gray-100 dark:border-gray-800 p-8 text-center">
+              <div className="h-20 w-20 bg-gray-50 dark:bg-gray-800/50 rounded-full flex items-center justify-center mb-4">
+                <User className="h-8 w-8 opacity-20" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                No User Selected
+              </h3>
+              <p className="text-sm max-w-[200px]">
+                Select a user from the list to view their system details and
+                activity logs
+              </p>
             </div>
           )}
         </div>
       </div>
-
-      {/* MOBILE FILTERS MODAL */}
-      <AnimatePresence>
-        {showMobileFilters && (
-          <motion.div
-            initial={{ opacity: 0, x: "-100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "-100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-50 lg:hidden bg-[#F3F4F6] dark:bg-[#0B0D12] flex flex-col"
-          >
-            <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-[#1a1f26]">
-              <h3 className="font-semibold text-gray-900 dark:text-white">
-                Filters
-              </h3>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowMobileFilters(false)}
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 space-y-6">
-              {/* Views Group */}
-              <div>
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 pl-2">
-                  Views
-                </h3>
-                <div className="space-y-1">
-                  {[
-                    { name: "All Users", count: users.length, icon: User },
-                    {
-                      name: "Active",
-                      count: users.filter((u) => u.isActive).length,
-                      icon: CheckCircle,
-                    },
-                    {
-                      name: "Inactive",
-                      count: users.filter((u) => !u.isActive).length,
-                      icon: XCircle,
-                    },
-                  ].map((item) => (
-                    <button
-                      key={item.name}
-                      onClick={() => {
-                        setActiveTab(item.name);
-                        setShowMobileFilters(false);
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${
-                        activeTab === item.name
-                          ? "bg-white dark:bg-[#1a1f26] text-indigo-600 shadow-sm border border-gray-100 dark:border-gray-800"
-                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <item.icon
-                          className={`h-4 w-4 ${activeTab === item.name ? "text-indigo-600" : "text-gray-400"}`}
-                        />
-                        <span>{item.name}</span>
-                      </div>
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full ${
-                          activeTab === item.name
-                            ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300"
-                            : "bg-gray-100 text-gray-500 dark:bg-gray-800"
-                        }`}
-                      >
-                        {item.count}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Roles Group */}
-              <div>
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 pl-2">
-                  Roles
-                </h3>
-                <div className="space-y-1">
-                  {[
-                    {
-                      name: "System Owner",
-                      count: users.filter((u) => u.role === "SYSTEM_OWNER")
-                        .length,
-                    },
-                    {
-                      name: "Admins",
-                      count: users.filter((u) =>
-                        ["SUPER_ADMIN", "MANAGER"].includes(u.role),
-                      ).length,
-                    },
-                    {
-                      name: "Employees",
-                      count: users.filter((u) => u.role === "EMPLOYEE").length,
-                    },
-                  ].map((item) => (
-                    <button
-                      key={item.name}
-                      onClick={() => {
-                        setActiveTab(item.name);
-                        setShowMobileFilters(false);
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${
-                        activeTab === item.name
-                          ? "bg-white dark:bg-[#1a1f26] text-indigo-600 shadow-sm border border-gray-100 dark:border-gray-800"
-                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Shield
-                          className={`h-4 w-4 ${activeTab === item.name ? "text-indigo-600" : "text-gray-400"}`}
-                        />
-                        <span>{item.name}</span>
-                      </div>
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full ${
-                          activeTab === item.name
-                            ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300"
-                            : "bg-gray-100 text-gray-500 dark:bg-gray-800"
-                        }`}
-                      >
-                        {item.count}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* MOBILE DETAIL MODAL/OVERLAY */}
       <AnimatePresence>
