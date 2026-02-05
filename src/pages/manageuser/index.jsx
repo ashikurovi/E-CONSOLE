@@ -26,6 +26,12 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import toast from "react-hot-toast";
 
 // --- Mock Data ---
@@ -320,7 +326,6 @@ const ManageUsersPage = () => {
 
       {/* Main Layout Grid */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
-        
         {/* CENTER - USER LIST */}
         <div className="col-span-1 lg:col-span-8 xl:col-span-9 flex flex-col bg-white dark:bg-[#1a1f26] rounded-[24px] shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
           {/* Toolbar */}
@@ -480,13 +485,35 @@ const ManageUsersPage = () => {
                       ID: {selectedUser.id}
                     </span>
                   </div>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8 rounded-full hover:bg-white/80 dark:hover:bg-black/20"
-                  >
-                    <MoreHorizontal className="h-4 w-4 text-gray-500" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 rounded-full hover:bg-white/80 dark:hover:bg-black/20"
+                      >
+                        <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem
+                        onClick={() =>
+                          navigate(`/manage-users/edit/${selectedUser.id}`)
+                        }
+                        className="cursor-pointer"
+                      >
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>Edit User</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDelete(selectedUser.id)}
+                        className="text-red-600 focus:text-red-600 cursor-pointer focus:bg-red-50 dark:focus:bg-red-900/10"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>Delete User</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 {/* Profile Section */}
