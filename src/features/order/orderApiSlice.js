@@ -124,7 +124,7 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       ],
     }),
     cancelOrder: builder.mutation({
-      query: ({ id, params }) => ({ url: `/orders/${id}/cancel`, method: "PATCH", params }),
+      query: ({ id, body, params }) => ({ url: `/orders/${id}/cancel`, method: "PATCH", body, params }),
       invalidatesTags: (result, error, id) => [
         { type: "orders", id },
         { type: "orders", id: "LIST" },
