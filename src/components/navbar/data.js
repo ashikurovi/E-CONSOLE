@@ -302,6 +302,32 @@ export const navSections = [
         tKey: "nav.settings",
         link: "/settings",
         icon: Settings,
+        children: [
+          {
+            title: "General",
+            link: "/settings?tab=general",
+          },
+          {
+            title: "Preferences",
+            link: "/settings?tab=preferences",
+          },
+          {
+            title: "Notifications",
+            link: "/settings?tab=notifications",
+          },
+          {
+            title: "Account",
+            link: "/settings?tab=account",
+          },
+          {
+            title: "User Permissions",
+            link: "/settings?tab=permissions",
+          },
+          {
+            title: "Billings",
+            link: "/settings?tab=billings",
+          },
+        ],
       },
       {
         id: 17,
