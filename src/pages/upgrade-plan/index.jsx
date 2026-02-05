@@ -6,6 +6,8 @@ import {
   Eye,
   Trash2,
   Book,
+  Flame,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -38,7 +40,7 @@ const UpgradePlanPage = () => {
       buttonText: "Choose Plan",
     },
     {
-      name: "Professional Plan",
+      name: "Your Current Packages Futhe ",
       subtitle: "Suitable plan for starter",
       price: "149.99",
       features: [
@@ -262,6 +264,90 @@ const UpgradePlanPage = () => {
 
   return (
     <div className="p-6 space-y-8 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-[#0b0f14] dark:to-[#151b23] min-h-screen">
+      {/* Frist One Card  */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="w-full max-w-6xl mx-auto mb-12 relative group"
+      >
+        {/* Animated background glow */}
+        <div className="absolute inset-0 bg-gradient-to-r from-violet-200/30 via-fuchsia-200/30 to-indigo-200/30 dark:from-violet-900/20 dark:via-fuchsia-900/20 dark:to-indigo-900/20 blur-3xl -z-10 rounded-[40px] opacity-70 group-hover:opacity-100 transition-opacity duration-700" />
+        
+        <div className="bg-white/70 dark:bg-gray-900/60 backdrop-blur-2xl rounded-[32px] p-8 md:p-12 border border-white/60 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-black/20 overflow-hidden relative transition-all duration-500 hover:shadow-[0_20px_40px_rgba(124,58,237,0.1)]">
+          {/* Decorative shapes */}
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-purple-100/40 to-transparent dark:from-purple-900/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-orange-500 font-bold tracking-wider text-sm uppercase bg-orange-50 dark:bg-orange-900/20 px-3 py-1 rounded-lg border border-orange-100 dark:border-orange-900/30">Business</span>
+                  <div className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-3 py-1 rounded-full flex items-center gap-1.5 shadow-md shadow-orange-500/20">
+                    <Flame className="w-3.5 h-3.5 fill-current" />
+                    <span className="text-xs font-bold">Most Popular</span>
+                  </div>
+                </div>
+                <h2 className="text-gray-600 dark:text-gray-300 text-lg font-medium">
+                  Recommended for Sales and Customer Success
+                </h2>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-7xl font-extrabold bg-clip-text text-transparent bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 tracking-tight">$29</span>
+                  <span className="text-gray-500 font-medium text-sm">per seat/month . billed annually</span>
+                </div>
+                <p className="text-gray-500 text-sm font-medium pl-1 flex items-center gap-2">
+                  <span className="line-through opacity-60">$39</span>
+                  <span className="text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded text-xs font-bold">Save 25%</span>
+                  Billed monthly
+                </p>
+              </div>
+
+              <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white h-16 rounded-2xl text-xl font-bold shadow-xl shadow-violet-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] border-t border-white/20">
+                Upgrade Now
+              </Button>
+              <p className="text-center text-xs text-gray-400">14-day money-back guarantee • Cancel anytime</p>
+            </div>
+
+            <div className="relative pl-0 md:pl-10">
+          
+              <div className="space-y-8 bg-white/50 dark:bg-black/20 p-8 rounded-3xl border border-purple-100/50 dark:border-purple-900/20 backdrop-blur-sm">
+                <p className="text-gray-900 dark:text-white font-bold text-lg flex items-center gap-2">
+                  Everything in our Starter plan +
+                </p>
+
+                <div className="space-y-4">
+                  {[
+                    "Unlimited uploads",
+                    "A.I Coaching",
+                    "Deal boards",
+                    "Team Performance Insights",
+                    "Smart tags (Trackers)",
+                    "Hubspot Integration",
+                    "Salesforce Integration"
+                  ].map((feature, i) => (
+                    <motion.div 
+                      key={i} 
+                      className="flex items-center gap-3"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 + (i * 0.1) }}
+                    >
+                      <div className="bg-gradient-to-br from-violet-500 to-purple-600 p-1 rounded-full flex-shrink-0 shadow-sm">
+                        <Check className="w-3.5 h-3.5 text-white" />
+                      </div>
+                      <span className="text-gray-700 dark:text-gray-200 font-medium">{feature}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Pricing Cards Section */}
       <motion.div
         className="grid grid-cols-1 md:grid-cols-3 gap-6"

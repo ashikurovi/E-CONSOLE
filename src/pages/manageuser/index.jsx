@@ -356,7 +356,9 @@ const ManageUsersPage = () => {
             <div className="col-span-4 md:col-span-3 text-right md:text-left">
               Status
             </div>
-            <div className="hidden md:block md:col-span-2 text-right">ID</div>
+            <div className="hidden md:block md:col-span-2 text-center">
+              Actions
+            </div>
           </div>
 
           {/* List Items */}
@@ -418,10 +420,61 @@ const ManageUsersPage = () => {
                     <StatusBadge active={user.isActive} />
                   </div>
 
-                  <div className="hidden md:block md:col-span-2 text-right">
-                    <span className="text-xs font-mono text-gray-400">
-                      #{user.id.split("-")[1]}
-                    </span>
+                  <div
+                    className="hidden md:block md:col-span-2 flex items-center justify-center"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent align="end" className="w-40">
+                        {/* Edit */}
+                        <DropdownMenuItem
+                          onClick={() =>
+                            navigate(`/manage-users/edit/${user.id}`)
+                          }
+                          className="cursor-pointer"
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          <span>Edit</span>
+                        </DropdownMenuItem>
+
+                        {/* Active */}
+                        <DropdownMenuItem
+                          onClick={() => handleActive(user.id)}
+                          className="cursor-pointer text-green-600 focus:text-green-600 focus:bg-green-50 dark:focus:bg-green-900/10"
+                        >
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          <span>Active</span>
+                        </DropdownMenuItem>
+
+                        {/* Inactive */}
+                        <DropdownMenuItem
+                          onClick={() => handleInactive(user.id)}
+                          className="cursor-pointer text-yellow-600 focus:text-yellow-600 focus:bg-yellow-50 dark:focus:bg-yellow-900/10"
+                        >
+                          <XCircle className="mr-2 h-4 w-4" />
+                          <span>Inactive</span>
+                        </DropdownMenuItem>
+
+                        {/* Delete */}
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(user.id)}
+                          className="text-red-600 focus:text-red-600 cursor-pointer focus:bg-red-50 dark:focus:bg-red-900/10"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          <span>Delete</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </motion.div>
               ))
@@ -478,7 +531,7 @@ const ManageUsersPage = () => {
                 <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/80 via-indigo-50/20 to-transparent dark:from-indigo-950/30 dark:via-indigo-950/5 pointer-events-none" />
 
                 {/* Top Actions */}
-                <div className="relative z-10 flex justify-between items-start p-6 pb-2">
+                <div className="relative z-10 flex justify-between items-center p-6 pb-2">
                   <div className="flex items-center gap-2 px-2.5 py-1 bg-white/80 dark:bg-black/20 backdrop-blur-sm rounded-lg border border-gray-100 dark:border-gray-800">
                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
                     <span className="font-mono text-[10px] font-medium text-indigo-600 dark:text-indigo-400">
