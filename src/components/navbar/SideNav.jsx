@@ -216,14 +216,19 @@ function Item({ item, isLast, t }) {
             <NavLink
               key={idx}
               to={child.link}
-              className={({ isActive }) =>
-                `block text-[13px] py-1.5 px-2 rounded-lg transition-colors relative font-bold
+              className={({ isActive }) => {
+                // Custom active check for query params
+                const isExactActive = child.link.includes("?")
+                  ? child.link === location.pathname + location.search
+                  : isActive;
+
+                return `block text-[13px] py-1.5 px-2 rounded-lg transition-colors relative font-bold
                 ${
-                  isActive
+                  isExactActive
                     ? "text-[#8B5CF6] bg-[#8B5CF6]/5"
                     : "text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
-                }`
-              }
+                }`;
+              }}
             >
               {child.title}
             </NavLink>

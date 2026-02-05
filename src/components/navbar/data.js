@@ -88,7 +88,6 @@ export const navSections = [
         icon: ShoppingCart,
       },
 
-
       {
         id: 7.0,
         title: "Credit Notes",
