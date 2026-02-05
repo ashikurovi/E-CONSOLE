@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 // components
 import SubmitButton from "@/components/buttons/SubmitButton";
@@ -21,6 +22,7 @@ import { userLoggedIn } from "@/features/auth/authSlice";
 import { letter, password } from "@/assets/icons/svgIcons";
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
@@ -46,12 +48,12 @@ const LoginPage = () => {
   // Handle successful authentication
   const handleAuthSuccess = (accessToken, refreshToken) => {
     if (!accessToken) {
-      toast.error("Login failed: Access token is missing.");
+      toast.error(t("auth.loginAccessTokenMissing"));
       return;
     }
 
     dispatch(userLoggedIn({ accessToken, refreshToken, rememberMe }));
-    toast.success("You are Successfully Logged In.");
+    toast.success(t("auth.loginSuccess"));
     navigate("/");
   };
 
@@ -69,7 +71,7 @@ const LoginPage = () => {
         responseData?.refreshToken || responseData?.data?.refreshToken;
 
       if (!accessToken) {
-        toast.error("Login failed: Access token is missing.");
+        toast.error(t("auth.loginAccessTokenMissing"));
         return;
       }
 
@@ -80,7 +82,7 @@ const LoginPage = () => {
       toast.error(
         error?.data?.message ||
           error?.message ||
-          "Login Failed! Please try again."
+          t("auth.loginFailedTryAgain")
       );
     }
   };
@@ -93,9 +95,8 @@ const LoginPage = () => {
       <>
         {/* Enhanced Header */}
         <div className="text-center mb-8">
-    
           <p className="text-sm text-gray-500 dark:text-white/60">
-            Sign in to access your admin dashboard
+            {t("auth.loginHeaderSubtitle")}
           </p>
         </div>
 
@@ -105,7 +106,7 @@ const LoginPage = () => {
         >
           <div className="space-y-4">
             <TextField
-              placeholder="Your Email Address"
+              placeholder={t("auth.emailPlaceholderSimple")}
               type="email"
               register={register}
               name="email"
@@ -113,7 +114,7 @@ const LoginPage = () => {
               disabled={isLoading}
             />
             <TextField
-              placeholder="Type your Password"
+              placeholder={t("auth.passwordPlaceholderSimple")}
               register={register}
               name="password"
               type="password"
@@ -129,14 +130,14 @@ const LoginPage = () => {
               setValue={setRememberMe}
             >
               <span className="dark:text-white text-gray-700 text-sm font-medium">
-                Remember Me
+                {t("auth.rememberMeSimple")}
               </span>
             </Checkbox>
             <Link
               to="/forgot-password"
               className="text-sm text-primary dark:text-secondary hover:underline transition-all duration-200 font-medium"
             >
-              Forgot Password?
+              {t("auth.forgotPasswordSimple")}
             </Link>
           </div>
 
@@ -152,10 +153,10 @@ const LoginPage = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  Logging In...
+                  {t("auth.loggingIn")}
                 </span>
               ) : (
-                "Login to Dashboard"
+                t("auth.loginToDashboard")
               )}
             </span>
           </SubmitButton>
@@ -164,7 +165,7 @@ const LoginPage = () => {
         {/* Additional Info */}
         <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
           <p className="text-center text-sm text-gray-500 dark:text-white/50">
-            Protected by enterprise-grade security
+            {t("auth.protectedBySecurity")}
           </p>
         </div>
       </>

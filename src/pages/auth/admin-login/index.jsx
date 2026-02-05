@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +16,7 @@ import ThemeToggle from "@/components/theme/ThemeToggle";
 import { useLoginSystemuserMutation } from "@/features/systemuser/systemuserApiSlice";
 import { useSuperadminLoginMutation } from "@/features/superadminAuth/superadminAuthApiSlice";
 import { userLoggedIn } from "@/features/auth/authSlice";
+import { superadminLoggedIn } from "@/features/superadminAuth/superadminAuthSlice";
 import { decodeJWT } from "@/utils/jwt-decoder";
 
 // icons
@@ -45,6 +47,7 @@ const SLIDER_DATA = [
 ];
 
 const AdminLoginPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { handleSubmit, register } = useForm();
@@ -71,7 +74,7 @@ const AdminLoginPage = () => {
       const loginCredential = data.email || data.name;
 
       if (!data.password) {
-        toast.error("Password is required!");
+        toast.error(t("auth.passwordRequired"));
         return;
       }
 
@@ -94,7 +97,7 @@ const AdminLoginPage = () => {
 
           if (userRole === "SYSTEM_OWNER" || userRole === "EMPLOYEE") {
             dispatch(userLoggedIn({ accessToken, refreshToken, rememberMe }));
-            toast.success("Admin Login Successful!");
+            toast.success(t("auth.adminLoginSuccess"));
             navigate("/");
             return;
           }
@@ -120,15 +123,26 @@ const AdminLoginPage = () => {
       if (accessToken) {
         const { payload } = decodeJWT(accessToken);
 
+        console.log("payload", payload.role);
+
         if (payload.role === "SUPER_ADMIN") {
-          toast.error("Please use Super Admin Portal");
+          // Save superadmin auth state & tokens so SuperAdminPrivateRoute works
+          dispatch(
+            superadminLoggedIn({
+              accessToken,
+              refreshToken,
+              user,
+            }),
+          );
+          toast.success(t("auth.superadminLoginSuccess"));
+          navigate("/superadmin");
           return;
         }
       }
     } catch (error) {
       console.error("Login failed:", error);
       toast.error(
-        error?.data?.message || "Login Failed. Please check your credentials.",
+        error?.data?.message || t("auth.loginFailedGeneric"),
       );
     }
   };
@@ -156,10 +170,10 @@ const AdminLoginPage = () => {
             className="text-center space-y-2"
           >
             <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Welcome Back
+              {t("auth.adminWelcomeBack")}
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-lg">
-              Sign in to your admin dashboard
+              {t("auth.adminSubtitle")}
             </p>
           </motion.div>
 
@@ -173,8 +187,8 @@ const AdminLoginPage = () => {
           >
             <div className="space-y-5">
               <TextField
-                label="Email or Username"
-                placeholder="Enter your email"
+                label={t("auth.emailOrUsername")}
+                placeholder={t("auth.emailPlaceholder")}
                 register={register}
                 name="email"
                 icon={letter}
@@ -182,9 +196,9 @@ const AdminLoginPage = () => {
                 className="bg-slate-50 dark:bg-slate-900/50"
               />
               <TextField
-                label="Password"
+                label={t("auth.passwordLabel")}
                 type="password"
-                placeholder="Enter your password"
+                placeholder={t("auth.passwordPlaceholder")}
                 register={register}
                 name="password"
                 icon={password}
@@ -200,14 +214,14 @@ const AdminLoginPage = () => {
                 setValue={setRememberMe}
               >
                 <span className="ml-2 font-medium text-slate-700 dark:text-slate-300">
-                  Remember me
+                  {t("auth.rememberMe")}
                 </span>
               </Checkbox>
               <a
                 href="/forgot-password"
                 className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 hover:underline transition-all"
               >
-                Forgot password?
+                {t("auth.forgotPassword")}
               </a>
             </div>
 
@@ -215,14 +229,14 @@ const AdminLoginPage = () => {
               isLoading={isLoading}
               className="w-full h-12 text-lg font-semibold shadow-lg shadow-indigo-500/20 rounded-xl hover:scale-[1.02] transition-transform active:scale-[0.98]"
             >
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? t("auth.signingIn") : t("auth.signIn")}
             </SubmitButton>
           </motion.form>
         </div>
         
         {/* Footer */}
         <div className="absolute bottom-8 text-center text-xs text-slate-400 dark:text-slate-500">
-          © {new Date().getFullYear()} SquadCart. All rights reserved.
+          © {new Date().getFullYear()} SquadCart. {t("auth.yearlyCopyright")}
         </div>
       </div>
 

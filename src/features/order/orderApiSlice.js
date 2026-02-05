@@ -17,6 +17,18 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res) => res?.data ?? [],
       providesTags: [{ type: "orders", id: "LIST" }],
     }),
+    getOrdersByCustomer: builder.query({
+      // expects { customerId, params }
+      query: ({ customerId, params }) => ({
+        url: `/orders/customer/${customerId}`,
+        method: "GET",
+        params,
+      }),
+      transformResponse: (res) => res?.data ?? [],
+      providesTags: (result, error, { customerId }) => [
+        { type: "orders", id: `customer-${customerId}` },
+      ],
+    }),
     getOrderStats: builder.query({
       query: (params) => ({ url: "/orders/stats", method: "GET", params }),
       transformResponse: (res) => res?.data ?? {},
@@ -149,6 +161,7 @@ export const orderApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useGetOrdersQuery,
+  useGetOrdersByCustomerQuery,
   useGetOrderStatsQuery,
   useGetOrderQuery,
   useTrackOrderQuery,
