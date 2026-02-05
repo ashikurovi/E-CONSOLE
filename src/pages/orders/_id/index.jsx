@@ -370,6 +370,23 @@ const OrderViewPage = () => {
             </div>
           </div>
 
+          {/* Cancellation Information */}
+          {order.status?.toLowerCase() === "cancelled" && order.cancelNote && (
+            <div className="rounded-2xl bg-white dark:bg-[#242424] border border-red-200 dark:border-red-800 p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-2 bg-red-500 rounded-lg">
+                  <Package className="h-5 w-5 text-white" />
+                </div>
+                <h2 className="text-lg font-bold text-red-700 dark:text-red-400">{t("orders.cancellationReason") || "Cancellation Reason"}</h2>
+              </div>
+              <div>
+                <p className="text-sm text-black dark:text-white mt-1 whitespace-pre-wrap bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-800">
+                  {order.cancelNote}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Shipping Information */}
           {(order.deliveryNote || order.shippingTrackingId || order.shippingProvider || order.deliveryType) && (
             <div className="rounded-2xl bg-white dark:bg-[#242424] border border-black/10 dark:border-white/10 p-6">
