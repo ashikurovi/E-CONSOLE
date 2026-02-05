@@ -17,6 +17,9 @@ import {
   Truck,
   AlertCircle,
   Package,
+  Check,
+  RefreshCw,
+  ChevronRight,
 } from "lucide-react";
 import {
   Dialog,
@@ -588,7 +591,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
           {/* Notifications */}
           <div className="relative">
             <button
-              onClick={() => navigate("/notifications")}
+              onClick={() => setIsNotificationModalOpen(true)}
               className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 transition-colors"
             >
               <Bell className="w-5 h-5" />
@@ -711,14 +714,26 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
             )}
           </div>
 
-          {notifications.length > 0 && (
-            <div className="p-3 border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 flex gap-2">
+          <div className="p-3 border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 flex flex-col gap-2">
+            <button
+              onClick={() => {
+                navigate("/notifications");
+                setIsNotificationModalOpen(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[#976DF7] text-white font-medium hover:bg-[#8250e5] transition-all shadow-md shadow-[#976DF7]/20"
+            >
+              <span>{t("notifications.viewAll")}</span>
+              <ChevronRight className="h-4 w-4" />
+            </button>
+
+            <div className="flex gap-2">
               {newNotificationCount > 0 && (
                 <button
                   onClick={() => markAllAsRead(companyId)}
                   disabled={isMarkingAll}
-                  className="flex-1 text-xs font-medium py-2 rounded-lg bg-white dark:bg-white/10 border border-gray-200 dark:border-transparent hover:bg-gray-50 dark:hover:bg-white/20 transition-colors shadow-sm"
+                  className="flex-1 text-xs font-medium py-2 rounded-lg bg-white dark:bg-white/10 border border-gray-200 dark:border-transparent hover:bg-gray-50 dark:hover:bg-white/20 transition-colors shadow-sm flex items-center justify-center gap-1.5"
                 >
+                  <Check className="h-3.5 w-3.5" />
                   {isMarkingAll
                     ? t("common.processing")
                     : t("notifications.markAllAsRead")}
@@ -729,25 +744,13 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                   refetchAll();
                   refetchOrders();
                 }}
-                className="flex-none px-3 py-2 rounded-lg text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="flex-none px-3 py-2 rounded-lg text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors bg-white dark:bg-white/10 border border-gray-200 dark:border-transparent shadow-sm"
                 title={t("notifications.refresh")}
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  ></path>
-                </svg>
+                <RefreshCw className="w-4 h-4" />
               </button>
             </div>
-          )}
+          </div>
         </DialogContent>
       </Dialog>
     </nav>
