@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CustomerNotifications from "./CustomerNotifications";
+import LanguageSwitcher from "@/components/language/LanguageSwitcher";
 
 const CustomerHeader = ({ onExport }) => {
   const { t } = useTranslation();
@@ -24,6 +25,8 @@ const CustomerHeader = ({ onExport }) => {
       </div>
 
       <div className="flex items-center gap-4">
+        <LanguageSwitcher variant="compact" />
+
         <Button
           variant="outline"
           onClick={onExport}

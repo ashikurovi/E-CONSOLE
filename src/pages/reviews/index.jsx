@@ -1,8 +1,22 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
-import { useGetReviewsQuery } from "@/features/reviews/reviewsApiSlice";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  useGetReviewsQuery,
+  useCreateReviewMutation,
+} from "@/features/reviews/reviewsApiSlice";
+import { useGetProductsQuery } from "@/features/product/productApiSlice";
+import { useGetUsersQuery } from "@/features/user/userApiSlice";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
@@ -19,10 +33,56 @@ function ReviewsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
+  const [createFormOpen, setCreateFormOpen] = useState(false);
+  const [formValues, setFormValues] = useState({
+    productId: "",
+    rating: "",
+    title: "",
+    comment: "",
+    userId: "",
+  });
+  const [createReview, { isLoading: isCreating }] = useCreateReviewMutation();
   const { data: reviews = [], isLoading } = useGetReviewsQuery(
     { companyId: authUser?.companyId },
     { skip: !authUser?.companyId },
   );
+  const { data: products = [], isLoading: isLoadingProducts } = useGetProductsQuery(
+    { companyId: authUser?.companyId },
+    { skip: !authUser?.companyId },
+  );
+  const { data: users = [], isLoading: isLoadingUsers } = useGetUsersQuery(
+    { companyId: authUser?.companyId },
+    { skip: !authUser?.companyId },
+  );
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await createReview({
+        productId: Number(formValues.productId),
+        rating: Number(formValues.rating),
+        title: formValues.title,
+        comment: formValues.comment,
+        userId: formValues.userId ? Number(formValues.userId) : undefined,
+      }).unwrap();
+      setFormValues({
+        productId: "",
+        rating: "",
+        title: "",
+        comment: "",
+        userId: "",
+      });
+      setCreateFormOpen(false);
+    } catch (error) {
+      // handle error silently for now; could add toast
+      console.error("Failed to create review", error);
+    }
+  };
 
   // Calculate Stats
   const stats = useMemo(() => {
@@ -75,12 +135,12 @@ function ReviewsPage() {
   const headers = useMemo(
     () => [
       { header: "ID", field: "id" },
-      { header: t("reviews.product") || "Product", field: "productName" },
-      { header: t("reviews.customer") || "Customer", field: "customerName" },
-      { header: t("reviews.rating") || "Rating", field: "rating" },
-      { header: t("reviews.comment") || "Comment", field: "comment" },
-      { header: t("reviews.status") || "Status", field: "status" },
-      { header: t("reviews.createdAt") || "Created", field: "createdAt" },
+      { header: t("reviews.product"), field: "productName" },
+      { header: t("reviews.customer"), field: "customerName" },
+      { header: t("reviews.rating"), field: "rating" },
+      { header: t("reviews.comment"), field: "comment" },
+      { header: t("reviews.status"), field: "status" },
+      { header: t("reviews.createdAt"), field: "createdAt" },
       {
         header: t("common.actions") || "Actions",
         field: "actions",
@@ -129,11 +189,11 @@ function ReviewsPage() {
         ),
         status: review.reply ? (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-            {t("reviews.replied") || "Replied"}
+            {t("reviews.replied")}
           </span>
         ) : (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-            {t("reviews.pending") || "Pending"}
+            {t("reviews.pending")}
           </span>
         ),
         createdAt: review.createdAt
@@ -148,7 +208,7 @@ function ReviewsPage() {
             className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-white/10"
           >
             <MessageCircle className="w-4 h-4 text-gray-500" />
-            <span className="sr-only">View</span>
+            <span className="sr-only">{t("common.view")}</span>
           </Button>
         ),
       })),
@@ -167,7 +227,140 @@ function ReviewsPage() {
             {t("reviews.subtitle") || "Manage and reply to customer feedback"}
           </p>
         </div>
+        <Button
+          type="button"
+          onClick={() => setCreateFormOpen((prev) => !prev)}
+          className="mt-2 md:mt-0"
+        >
+          {t("reviews.addReview") || "Add Review"}
+        </Button>
       </div>
+
+      {createFormOpen && (
+        <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+            {t("reviews.createTitle") || "Create Review"}
+          </h2>
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSubmit}>
+            <div className="flex flex-col space-y-1">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t("reviews.product") || "Product"}
+              </Label>
+              <Select
+                value={formValues.productId}
+                onValueChange={(value) =>
+                  setFormValues((prev) => ({ ...prev, productId: value }))
+                }
+                disabled={isLoadingProducts}
+              >
+                <SelectTrigger className="h-10 bg-white dark:bg-[#111827] border-gray-300 dark:border-gray-700">
+                  <SelectValue
+                    placeholder={
+                      isLoadingProducts
+                        ? t("common.loading") || "Loading..."
+                        : t("common.select") || "Select"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {products.map((p) => (
+                    <SelectItem key={p.id} value={String(p.id)}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col space-y-1">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Rating (1-5)
+              </Label>
+              <Input
+                type="number"
+                min="1"
+                max="5"
+                step="1"
+                name="rating"
+                value={formValues.rating}
+                onChange={handleChange}
+                className="h-10 bg-white dark:bg-[#111827] border-gray-300 dark:border-gray-700"
+                required
+              />
+            </div>
+            <div className="flex flex-col space-y-1 md:col-span-2">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t("reviews.customer") || "Customer (optional)"}
+              </Label>
+              <Select
+                value={formValues.userId}
+                onValueChange={(value) =>
+                  setFormValues((prev) => ({ ...prev, userId: value }))
+                }
+                disabled={isLoadingUsers}
+              >
+                <SelectTrigger className="h-10 bg-white dark:bg-[#111827] border-gray-300 dark:border-gray-700">
+                  <SelectValue
+                    placeholder={
+                      isLoadingUsers
+                        ? t("common.loading") || "Loading..."
+                        : t("common.select") || "Select (optional)"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {users.map((u) => (
+                    <SelectItem key={u.id} value={String(u.id)}>
+                      {u.name || u.fullName || `User #${u.id}`}{" "}
+                      {u.email ? `(${u.email})` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col space-y-1 md:col-span-2">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Title
+              </Label>
+              <Input
+                type="text"
+                name="title"
+                value={formValues.title}
+                onChange={handleChange}
+                className="h-10 bg-white dark:bg-[#111827] border-gray-300 dark:border-gray-700"
+                required
+              />
+            </div>
+            <div className="flex flex-col space-y-1 md:col-span-2">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Comment
+              </Label>
+              <textarea
+                name="comment"
+                value={formValues.comment}
+                onChange={handleChange}
+                rows={3}
+                className="min-h-[80px] px-3 py-2 rounded-md bg-white dark:bg-[#111827] border border-gray-300 dark:border-gray-700 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <div className="flex items-center gap-3 md:col-span-2 justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setCreateFormOpen(false)}
+                className="border-gray-300 dark:border-gray-700"
+              >
+                {t("common.cancel") || "Cancel"}
+              </Button>
+              <Button type="submit" disabled={isCreating}>
+                {isCreating
+                  ? t("common.saving") || "Saving..."
+                  : t("common.save") || "Save"}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* --- Stats Grid --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

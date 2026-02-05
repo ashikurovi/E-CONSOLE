@@ -10,6 +10,14 @@ import CustomerTableSection from "./components/CustomerTableSection";
 import { exportCustomersToPDF } from "@/utils/pdfExport";
 import { useSelector } from "react-redux";
 import {
+  Users,
+  CheckCircle,
+  XCircle,
+  UserPlus,
+  Ban,
+  ShoppingBag,
+} from "lucide-react";
+import {
   startOfMonth,
   endOfMonth,
   subMonths,
