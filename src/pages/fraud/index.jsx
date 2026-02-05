@@ -1,16 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from "react-router-dom";
 
 const FraudPage = () => {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [fraudData, setFraudData] = useState(null);
 
-  const runCheck = async () => {
-    const phone = phoneNumber?.trim();
+  const runCheck = async (overridePhone) => {
+    const phone = (overridePhone ?? phoneNumber)?.trim();
     if (!phone) {
       toast.error(t("fraud.enterPhoneRequired"));
       return;
@@ -38,6 +40,16 @@ const FraudPage = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const phoneFromQuery = searchParams.get("phone");
+    if (phoneFromQuery) {
+      setPhoneNumber(phoneFromQuery);
+      // Trigger check immediately for this phone
+      runCheck(phoneFromQuery);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const getRiskBadgeColor = (riskColor) => {
     switch (riskColor) {

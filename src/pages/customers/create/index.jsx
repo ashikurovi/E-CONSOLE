@@ -110,7 +110,7 @@ function CreateCustomerPage() {
       }
     } catch (error) {
       console.error("Create customer error:", error);
-      toast.error("An unexpected error occurred");
+      toast.error(t("customers.unexpectedError"));
     }
   };
 
@@ -188,7 +188,7 @@ function CreateCustomerPage() {
                     {t("customers.personalInformation")}
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Basic identification details
+                    {t("customers.basicInfoSubtitle")}
                   </p>
                 </div>
               </div>
@@ -226,7 +226,7 @@ function CreateCustomerPage() {
                     </div>
                   </div>
                   <p className="text-xs text-gray-400 text-center max-w-[120px]">
-                    Allowed *.jpeg, *.jpg, *.png, *.gif
+                    {t("customers.allowedImageTypes")}
                   </p>
                 </div>
 
@@ -234,7 +234,7 @@ function CreateCustomerPage() {
                 <div className="flex-1 space-y-5">
                   <TextField
                     label={t("customers.fullName")}
-                    placeholder="e.g. Robert George"
+                    placeholder={t("customers.fullNamePlaceholder")}
                     register={register}
                     name="name"
                     error={errors.name}
@@ -243,7 +243,7 @@ function CreateCustomerPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <TextField
                       label={t("customers.emailAddress")}
-                      placeholder="john@example.com"
+                      placeholder={t("customers.emailPlaceholder")}
                       register={register}
                       name="email"
                       type="email"
@@ -252,7 +252,7 @@ function CreateCustomerPage() {
                     />
                     <TextField
                       label={t("customers.phoneNumber")}
-                      placeholder="+1 (555) 000-0000"
+                      placeholder={t("customers.phonePlaceholder")}
                       register={register}
                       name="phone"
                       error={errors.phone}
@@ -279,14 +279,14 @@ function CreateCustomerPage() {
                     {t("customers.address")}
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Shipping and billing location
+                    {t("customers.addressSubtitle")}
                   </p>
                 </div>
               </div>
 
               <TextField
                 label={t("customers.completeAddress")}
-                placeholder="Enter full street address, city, state, zip..."
+                placeholder={t("customers.addressPlaceholder")}
                 register={register}
                 name="address"
                 error={errors.address}
@@ -306,24 +306,28 @@ function CreateCustomerPage() {
               className="bg-white dark:bg-[#1a1f26] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 sticky top-28"
             >
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">
-                Status & Visibility
+                {t("customers.statusVisibility")}
               </h3>
 
               <div className="space-y-6">
                 <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-gray-800">
                   <div className="space-y-0.5">
                     <label className="text-base font-semibold text-gray-900 dark:text-white">
-                      Account Status
+                      {t("customers.accountStatus")}
                     </label>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {isActive ? "Customer can log in" : "Account is disabled"}
+                      {isActive
+                        ? t("customers.accountCanLogin")
+                        : t("customers.accountDisabled")}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span
                       className={`text-xs font-bold px-2 py-1 rounded-full ${isActive ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"}`}
                     >
-                      {isActive ? "ACTIVE" : "INACTIVE"}
+                      {isActive
+                        ? t("customers.statusActiveLabel")
+                        : t("customers.statusInactiveLabel")}
                     </span>
                     <Switch
                       checked={isActive}
@@ -336,11 +340,10 @@ function CreateCustomerPage() {
                 <div className="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20">
                   <h4 className="text-sm font-bold text-indigo-900 dark:text-indigo-300 mb-2 flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4" />
-                    Premium Features
+                    {t("customers.premiumFeaturesTitle")}
                   </h4>
                   <p className="text-xs text-indigo-700 dark:text-indigo-400 leading-relaxed">
-                    This customer will automatically be enrolled in the loyalty
-                    program upon creation.
+                    {t("customers.premiumFeaturesDesc")}
                   </p>
                 </div>
               </div>

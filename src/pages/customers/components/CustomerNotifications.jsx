@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { Mail, MessageSquare, Send } from "lucide-react";
 import {
     Dialog,
     DialogTrigger,
@@ -20,6 +22,7 @@ import {
 import { hasPermission, FeaturePermission } from "@/constants/feature-permission";
 
 function CustomerNotifications() {
+    const { t } = useTranslation();
     const { user } = useSelector((state) => state.auth);
     const [isEmailOpen, setIsEmailOpen] = useState(false);
     const [isSmsOpen, setIsSmsOpen] = useState(false);
@@ -67,12 +70,15 @@ function CustomerNotifications() {
 
         try {
             const res = await sendEmail(payload).unwrap();
-            toast.success(res?.message || "Customer email broadcast triggered");
+            toast.success(
+                res?.message || t("customers.notifications.emailSuccessFallback"),
+            );
             resetEmailForm();
             setIsEmailOpen(false);
         } catch (error) {
             toast.error(
-                error?.data?.message || "Failed to trigger customer email broadcast"
+                error?.data?.message ||
+                    t("customers.notifications.emailFailedFallback"),
             );
         }
     };
@@ -84,12 +90,15 @@ function CustomerNotifications() {
 
         try {
             const res = await sendSms(payload).unwrap();
-            toast.success(res?.message || "Customer SMS broadcast triggered");
+            toast.success(
+                res?.message || t("customers.notifications.smsSuccessFallback"),
+            );
             resetSmsForm();
             setIsSmsOpen(false);
         } catch (error) {
             toast.error(
-                error?.data?.message || "Failed to trigger customer SMS broadcast"
+                error?.data?.message ||
+                    t("customers.notifications.smsFailedFallback"),
             );
         }
     };
@@ -99,38 +108,53 @@ function CustomerNotifications() {
             {hasEmailPermission && (
                 <Dialog open={isEmailOpen} onOpenChange={setIsEmailOpen}>
                     <DialogTrigger asChild>
-                        <Button size="sm" variant="outline">
-                            Email Broadcast
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-14 flex items-center gap-2 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#111827] text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-900"
+                        >
+                            <Mail className="w-4 h-4" />
+                            <span>{t("customers.notifications.emailBroadcast")}</span>
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-xl h-[600px]">
+                    <DialogContent className="max-w-xl h-[90vh] overflow-y-auto">
                         <DialogHeader>
-                            <DialogTitle>Broadcast Email to Customers</DialogTitle>
+                            <DialogTitle>
+                                {t("customers.notifications.broadcastEmailTitle")}
+                            </DialogTitle>
                         </DialogHeader>
                         <form
                             onSubmit={handleEmailSubmit(onEmailSubmit)}
                             className="flex flex-col gap-4 mt-4"
                         >
                             <TextField
-                                label="Subject *"
-                                placeholder="Flash Sale Starts Now"
+                                label={t("customers.notifications.subjectLabel")}
+                                placeholder={t(
+                                    "customers.notifications.subjectPlaceholder",
+                                )}
                                 register={registerEmail}
                                 name="subject"
                                 error={emailErrors.subject}
                                 registerOptions={{
-                                    required: "Subject is required",
+                                    required:
+                                        t(
+                                            "customers.notifications.subjectRequired",
+                                        ),
                                 }}
                             />
                             <TextField
-                                label="Body (plain text) *"
-                                placeholder="Plain-text fallback message"
+                                label={t("customers.notifications.bodyLabel")}
+                                placeholder={t(
+                                    "customers.notifications.bodyPlaceholder",
+                                )}
                                 register={registerEmail}
                                 name="body"
                                 error={emailErrors.body}
                                 multiline
                                 rows={4}
                                 registerOptions={{
-                                    required: "Body is required",
+                                    required:
+                                        t("customers.notifications.bodyRequired"),
                                 }}
                             />
                             <Controller
@@ -138,8 +162,12 @@ function CustomerNotifications() {
                                 control={controlEmail}
                                 render={({ field }) => (
                                     <RichTextEditor
-                                        label="HTML (optional)"
-                                        placeholder="Create rich HTML content for your email..."
+                                        label={t(
+                                            "customers.notifications.htmlLabel",
+                                        )}
+                                        placeholder={t(
+                                            "customers.notifications.htmlPlaceholder",
+                                        )}
                                         value={field.value || ""}
                                         onChange={field.onChange}
                                         height="300px"
@@ -157,10 +185,20 @@ function CustomerNotifications() {
                                     }}
                                     disabled={isSendingEmail}
                                 >
-                                    Cancel
+                                    {t("customers.notifications.cancel")}
                                 </Button>
-                                <Button type="submit" disabled={isSendingEmail}>
-                                    {isSendingEmail ? "Sending..." : "Send Email"}
+                                <Button
+                                    variant="outline"
+                                    type="submit"
+                                    className="h-14 px-6 rounded-2xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1f26] font-bold flex items-center gap-2 text-gray-700 dark:text-gray-200 hover:bg-gray-50"
+                                    disabled={isSendingEmail}
+                                >
+                                    <Send className="w-4 h-4" />
+                                    <span>
+                                        {isSendingEmail
+                                            ? t("customers.notifications.sending")
+                                            : t("customers.notifications.sendEmail")}
+                                    </span>
                                 </Button>
                             </DialogFooter>
                         </form>
@@ -171,13 +209,20 @@ function CustomerNotifications() {
             {hasSmsPermission && (
                 <Dialog open={isSmsOpen} onOpenChange={setIsSmsOpen}>
                     <DialogTrigger asChild>
-                        <Button size="sm" variant="outline">
-                            SMS Broadcast
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-14 flex items-center gap-2 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#111827] text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-900"
+                        >
+                            <MessageSquare className="w-4 h-4" />
+                            <span>{t("customers.notifications.smsBroadcast")}</span>
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-xl h-[400px]">
+                    <DialogContent className="max-w-xl h-[90vh] overflow-y-auto">
                         <DialogHeader>
-                            <DialogTitle>Broadcast SMS to Customers</DialogTitle>
+                            <DialogTitle>
+                                {t("customers.notifications.broadcastSmsTitle")}
+                            </DialogTitle>
                         </DialogHeader>
                         <form
                             onSubmit={handleSmsSubmit(onSmsSubmit)}
@@ -185,8 +230,10 @@ function CustomerNotifications() {
                         >
                             <div className="space-y-1">
                                 <TextField
-                                    label="Message *"
-                                    placeholder="Write your message here..."
+                                    label={t("customers.notifications.messageLabel")}
+                                    placeholder={t(
+                                        "customers.notifications.messagePlaceholder",
+                                    )}
                                     register={registerSms}
                                     name="message"
                                     error={smsErrors.message}
@@ -194,15 +241,19 @@ function CustomerNotifications() {
                                     rows={4}
                                     maxLength={480}
                                     registerOptions={{
-                                        required: "Message is required",
+                                        required: t(
+                                            "customers.notifications.messageRequired",
+                                        ),
                                         maxLength: {
                                             value: 480,
-                                            message: "Message cannot exceed 480 characters",
+                                            message: t(
+                                                "customers.notifications.messageMaxLength",
+                                            ),
                                         },
                                     }}
                                 />
                                 <p className="text-xs text-black/50 dark:text-white/50">
-                                    Max 480 characters.
+                                    {t("customers.notifications.messageMaxHint")}
                                 </p>
                             </div>
                             <DialogFooter className="gap-2">
@@ -216,10 +267,17 @@ function CustomerNotifications() {
                                     }}
                                     disabled={isSendingSms}
                                 >
-                                    Cancel
+                                    {t("customers.notifications.cancel")}
                                 </Button>
-                                <Button type="submit" disabled={isSendingSms}>
-                                    {isSendingSms ? "Sending..." : "Send SMS"}
+                                <Button
+                                    variant="outline"
+                                    type="submit"
+                                    className="h-14 px-6 rounded-2xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1f26] font-bold flex items-center gap-2 text-gray-700 dark:text-gray-200 hover:bg-gray-50"
+                                    disabled={isSendingSms}
+                                >
+                                    {isSendingSms
+                                        ? t("customers.notifications.sending")
+                                        : t("customers.notifications.sendSms")}
                                 </Button>
                             </DialogFooter>
                         </form>
