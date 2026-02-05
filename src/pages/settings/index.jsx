@@ -1,14 +1,6 @@
 import React, { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  LayoutGrid,
-  Palette,
-  Bell,
-  UserCircle,
-  Users,
-  DollarSign,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Import Settings Components
@@ -56,15 +48,6 @@ const SettingsPage = () => {
     }
   };
 
-  const menuItems = [
-    { id: "general", label: "General", icon: LayoutGrid },
-    { id: "preferences", label: "Preferences", icon: Palette },
-    { id: "notifications", label: "Notifications", icon: Bell },
-    { id: "account", label: "Account", icon: UserCircle },
-    { id: "permissions", label: "User Permissions", icon: Users },
-    { id: "billings", label: "Billings", icon: DollarSign },
-  ];
-
   return (
     <div className="p-6 max-w-[1400px] mx-auto">
       {/* Header */}
@@ -90,45 +73,9 @@ const SettingsPage = () => {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar Navigation */}
-        <div className="w-full lg:w-64 flex-shrink-0">
-          <nav className="flex flex-col space-y-2">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors w-full text-left relative",
-                    isActive
-                      ? "bg-nexus-primary/10 text-nexus-primary dark:bg-nexus-primary/20 dark:text-nexus-secondary"
-                      : "text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800",
-                  )}
-                >
-                  {isActive && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-nexus-primary dark:bg-nexus-secondary" />
-                  )}
-                  <Icon
-                    className={cn(
-                      "h-5 w-5",
-                      isActive
-                        ? "text-nexus-primary dark:text-nexus-secondary"
-                        : "text-gray-400",
-                    )}
-                  />
-                  {item.label}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
+      <div className="w-full">
         {/* Content Area */}
-        <div className="flex-1 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-8 shadow-sm min-h-[600px]">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-8 shadow-sm min-h-[600px]">
           {renderContent()}
         </div>
       </div>
