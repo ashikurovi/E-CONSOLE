@@ -839,10 +839,14 @@ const OptimizedUpgradePlan = () => {
                                 onClick={() => toggleSection(section.title)}
                                 className="text-purple-600 text-xs font-bold flex items-center gap-1 hover:text-purple-700 bg-white border border-purple-200 px-3 py-1.5 rounded-full shadow-sm hover:shadow transition-all"
                               >
-                                {isSectionExpanded ? "Show Less" : "View Details"}
+                                {isSectionExpanded
+                                  ? "Show Less"
+                                  : "View Details"}
                                 <ChevronRight
                                   className={`w-3 h-3 transition-transform ${
-                                    isSectionExpanded ? "-rotate-90" : "rotate-90"
+                                    isSectionExpanded
+                                      ? "-rotate-90"
+                                      : "rotate-90"
                                   }`}
                                 />
                               </button>
