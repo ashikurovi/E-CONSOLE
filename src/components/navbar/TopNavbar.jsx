@@ -20,13 +20,13 @@ import {
   Check,
   RefreshCw,
   ChevronRight,
+  Settings as SettingsIcon,
 } from "lucide-react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   useGetOrderCreatedNotificationsQuery,
   useGetAllNotificationsQuery,
@@ -101,6 +101,8 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
 
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [notificationTab, setNotificationTab] = useState("all");
+  const [notificationSearch, setNotificationSearch] = useState("");
   const [markAsRead] = useMarkNotificationAsReadMutation();
   const [markAllAsRead, { isLoading: isMarkingAll }] =
     useMarkAllNotificationsAsReadMutation();
@@ -326,6 +328,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
         time: notification.createdAt
           ? moment(notification.createdAt).fromNow()
           : "Just now",
+        createdAt: notification.createdAt,
         icon: icon,
         iconColor: iconColor,
         read: notification.isRead || false,
@@ -342,6 +345,59 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
 
   // Play sound when new unread notifications arrive
   useNotificationSound(newNotificationCount, true);
+
+  // --- Notification Logic for Dropdown ---
+  const getCategory = (type) => {
+    const urgent = [
+      "low_stock",
+      "out_of_stock",
+      "payment_failed",
+      "order_cancelled",
+      "order_refunded",
+    ];
+    const resolved = ["order_delivered", "payment_received", "order_confirmed"];
+    if (urgent.includes(type?.toLowerCase())) return "urgent";
+    if (resolved.includes(type?.toLowerCase())) return "resolved";
+    return "normal";
+  };
+
+  const filteredNotifications = notifications.filter((n) => {
+    const matchesSearch =
+      !notificationSearch ||
+      n.title.toLowerCase().includes(notificationSearch.toLowerCase()) ||
+      n.message.toLowerCase().includes(notificationSearch.toLowerCase());
+
+    if (!matchesSearch) return false;
+    if (notificationTab === "all") return true;
+    return getCategory(n.type) === notificationTab;
+  });
+
+  const counts = {
+    all: notifications.length,
+    urgent: notifications.filter((n) => getCategory(n.type) === "urgent")
+      .length,
+    normal: notifications.filter((n) => getCategory(n.type) === "normal")
+      .length,
+    resolved: notifications.filter((n) => getCategory(n.type) === "resolved")
+      .length,
+  };
+
+  const today = moment().startOf("day");
+  const yesterday = moment().subtract(1, "days").startOf("day");
+
+  const grouped = {
+    Today: [],
+    Yesterday: [],
+    Older: [],
+  };
+
+  filteredNotifications.forEach((n) => {
+    const date = moment(n.createdAt || new Date());
+    if (date.isSameOrAfter(today)) grouped.Today.push(n);
+    else if (date.isSameOrAfter(yesterday)) grouped.Yesterday.push(n);
+    else grouped.Older.push(n);
+  });
+  // ----------------------------------------
 
   // Handle search input change - show results in real-time
   const handleSearchChange = (value) => {
@@ -588,18 +644,156 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
 
           <div className="h-6 w-px bg-gray-200 dark:bg-white/10 mx-1 hidden sm:block"></div>
 
-          {/* Notifications */}
-          <div className="relative">
-            <button
-              onClick={() => setIsNotificationModalOpen(true)}
-              className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 transition-colors"
+          {/* Notifications Popover */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 transition-colors outline-none">
+                <Bell className="w-5 h-5" />
+                {newNotificationCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-[#09090b]"></span>
+                )}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              className="w-[400px] p-0 overflow-hidden border-gray-100 dark:border-gray-800 shadow-2xl bg-white dark:bg-[#09090b]"
             >
-              <Bell className="w-5 h-5" />
-              {newNotificationCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-[#09090b]"></span>
-              )}
-            </button>
-          </div>
+              {/* Header */}
+              <div className="p-4 flex items-center justify-between border-b border-gray-100 dark:border-gray-800">
+                <h3 className="font-semibold text-gray-900 dark:text-white">
+                  Notifications
+                </h3>
+                <div className="flex items-center gap-3">
+                  {newNotificationCount > 0 && (
+                    <button
+                      onClick={() => markAllAsRead(companyId)}
+                      disabled={isMarkingAll}
+                      className="text-xs text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 transition-colors"
+                    >
+                      {isMarkingAll ? "Processing..." : "Mark all as read"}
+                    </button>
+                  )}
+                  <SettingsIcon className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors" />
+                </div>
+              </div>
+
+              {/* Search */}
+              <div className="p-3 border-b border-gray-100 dark:border-gray-800">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search notifications..."
+                    value={notificationSearch}
+                    onChange={(e) => setNotificationSearch(e.target.value)}
+                    className="w-full h-9 pl-9 pr-4 rounded-lg bg-gray-50 dark:bg-white/5 border-none text-sm focus:ring-1 focus:ring-blue-500/50"
+                  />
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div className="flex items-center gap-2 p-3 border-b border-gray-100 dark:border-gray-800 overflow-x-auto no-scrollbar">
+                {[
+                  { id: "all", label: "All" },
+                  { id: "urgent", label: "Urgent" },
+                  { id: "normal", label: "Normal" },
+                  { id: "resolved", label: "Resolved" },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setNotificationTab(tab.id)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+                      notificationTab === tab.id
+                        ? "bg-gray-900 text-white dark:bg-white dark:text-black"
+                        : "bg-gray-50 text-gray-600 hover:bg-gray-100 dark:bg-white/5 dark:text-gray-400 dark:hover:bg-white/10"
+                    }`}
+                  >
+                    {tab.label}
+                    <span
+                      className={`px-1 rounded text-[10px] ${notificationTab === tab.id ? "bg-white/20 text-current" : "bg-black/5 dark:bg-white/10 text-gray-500"}`}
+                    >
+                      {counts[tab.id] < 10
+                        ? `0${counts[tab.id]}`
+                        : counts[tab.id]}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              {/* List */}
+              <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+                {filteredNotifications.length === 0 ? (
+                  <div className="py-12 text-center text-gray-500 text-sm">
+                    No notifications found
+                  </div>
+                ) : (
+                  Object.entries(grouped).map(
+                    ([group, items]) =>
+                      items.length > 0 && (
+                        <React.Fragment key={group}>
+                          <div className="px-4 py-2 text-xs font-medium text-gray-500 bg-gray-50/50 dark:bg-white/5 sticky top-0 backdrop-blur-sm z-10">
+                            {group}
+                          </div>
+                          {items.map((notification) => {
+                            const IconComponent = notification.icon;
+                            return (
+                              <div
+                                key={notification.id}
+                                onClick={async () => {
+                                  if (!notification.read) {
+                                    try {
+                                      await markAsRead({
+                                        id: notification.id,
+                                        companyId,
+                                      }).unwrap();
+                                    } catch (e) {
+                                      console.error(e);
+                                    }
+                                  }
+                                  if (notification.orderId)
+                                    navigate(`/orders/${notification.orderId}`);
+                                }}
+                                className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors border-b border-gray-50 dark:border-gray-800/50 last:border-0 flex gap-3 group"
+                              >
+                                <div
+                                  className={`mt-1 flex-shrink-0 w-2 h-2 rounded-full ${!notification.read ? "bg-yellow-500" : "bg-transparent"}`}
+                                ></div>
+                                <div className="flex-shrink-0">
+                                  <IconComponent
+                                    className={`w-5 h-5 ${notification.iconColor}`}
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 dark:text-white line-clamp-1">
+                                    {notification.title}
+                                  </p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                    {notification.time}
+                                  </p>
+                                </div>
+                                <div className="flex-shrink-0 self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </React.Fragment>
+                      ),
+                  )
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="p-3 border-t border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/5">
+                <button
+                  onClick={() => navigate("/notifications")}
+                  className="w-full py-2 text-sm text-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
+                >
+                  View all notifications
+                </button>
+              </div>
+            </PopoverContent>
+          </Popover>
 
           {/* Profile */}
           <Link to="/settings" className="flex items-center gap-3 pl-2">
@@ -616,143 +810,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
         </div>
       </div>
 
-      {/* Notifications Modal Wrapper - Keeping original logic but clean trigger */}
-      <Dialog
-        open={isNotificationModalOpen}
-        onOpenChange={setIsNotificationModalOpen}
-      >
-        <DialogContent className="max-w-md sm:max-w-lg p-0 gap-0 overflow-hidden bg-white dark:bg-[#09090b] border-gray-100 dark:border-white/10">
-          <DialogHeader className="p-4 border-b border-gray-100 dark:border-white/5">
-            <DialogTitle className="flex items-center gap-2 text-base font-semibold">
-              <Bell className="h-4 w-4 text-blue-500" />
-              {t("notifications.title")}
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="max-h-[60vh] overflow-y-auto p-2 space-y-1 custom-scrollbar">
-            {isLoading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3 opacity-50"></div>
-                <p className="text-xs text-gray-500">
-                  {t("notifications.loading")}
-                </p>
-              </div>
-            ) : notifications.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-12 h-12 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center mx-auto mb-3">
-                  <Bell className="h-5 w-5 text-gray-400" />
-                </div>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {t("notifications.noNotifications")}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  You&apos;re all caught up!
-                </p>
-              </div>
-            ) : (
-              notifications.map((notification) => {
-                const IconComponent = notification.icon;
-                return (
-                  <div
-                    key={notification.id}
-                    onClick={async () => {
-                      if (!notification.read) {
-                        try {
-                          await markAsRead({
-                            id: notification.id,
-                            companyId,
-                          }).unwrap();
-                        } catch (e) {
-                          console.error("Failed to mark as read:", e);
-                        }
-                      }
-                      if (notification.orderId) {
-                        navigate(`/orders/${notification.orderId}`);
-                        setIsNotificationModalOpen(false);
-                      }
-                    }}
-                    className={`p-3 rounded-xl transition-all ${
-                      !notification.read
-                        ? "bg-blue-50/50 dark:bg-blue-500/10 hover:bg-blue-50 dark:hover:bg-blue-500/20"
-                        : "hover:bg-gray-50 dark:hover:bg-white/5"
-                    } cursor-pointer group relative`}
-                  >
-                    <div className="flex gap-3">
-                      <div className="flex-shrink-0 mt-1">
-                        <div
-                          className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                            !notification.read
-                              ? "bg-white dark:bg-white/10 shadow-sm"
-                              : "bg-gray-100 dark:bg-white/5"
-                          } ${notification.iconColor}`}
-                        >
-                          <IconComponent className="h-4 w-4" />
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <h4
-                            className={`text-sm ${!notification.read ? "font-semibold text-gray-900 dark:text-white" : "font-medium text-gray-700 dark:text-gray-300"}`}
-                          >
-                            {notification.title}
-                          </h4>
-                          <span className="text-[10px] text-gray-400 whitespace-nowrap">
-                            {notification.time}
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">
-                          {notification.message}
-                        </p>
-                      </div>
-                      {!notification.read && (
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-
-          <div className="p-3 border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 flex flex-col gap-2">
-            <button
-              onClick={() => {
-                navigate("/notifications");
-                setIsNotificationModalOpen(false);
-              }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[#976DF7] text-white font-medium hover:bg-[#8250e5] transition-all shadow-md shadow-[#976DF7]/20"
-            >
-              <span>{t("notifications.viewAll")}</span>
-              <ChevronRight className="h-4 w-4" />
-            </button>
-
-            <div className="flex gap-2">
-              {newNotificationCount > 0 && (
-                <button
-                  onClick={() => markAllAsRead(companyId)}
-                  disabled={isMarkingAll}
-                  className="flex-1 text-xs font-medium py-2 rounded-lg bg-white dark:bg-white/10 border border-gray-200 dark:border-transparent hover:bg-gray-50 dark:hover:bg-white/20 transition-colors shadow-sm flex items-center justify-center gap-1.5"
-                >
-                  <Check className="h-3.5 w-3.5" />
-                  {isMarkingAll
-                    ? t("common.processing")
-                    : t("notifications.markAllAsRead")}
-                </button>
-              )}
-              <button
-                onClick={() => {
-                  refetchAll();
-                  refetchOrders();
-                }}
-                className="flex-none px-3 py-2 rounded-lg text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors bg-white dark:bg-white/10 border border-gray-200 dark:border-transparent shadow-sm"
-                title={t("notifications.refresh")}
-              >
-                <RefreshCw className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Dialog removed */}
     </nav>
   );
 };
