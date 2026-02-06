@@ -433,9 +433,8 @@ const NotificationsPage = () => {
     },
     {
       label: "Order Updates",
-      value: notifications.filter((n) =>
-        n.type.toLowerCase().includes("order")
-      ).length,
+      value: notifications.filter((n) => n.type.toLowerCase().includes("order"))
+        .length,
       icon: ShoppingCart,
       color: "text-[#976DF7]",
       bg: "bg-[#976DF7]/10 dark:bg-[#976DF7]/20",
@@ -443,9 +442,8 @@ const NotificationsPage = () => {
     },
     {
       label: "Stock Alerts",
-      value: notifications.filter((n) =>
-        n.type.toLowerCase().includes("stock")
-      ).length,
+      value: notifications.filter((n) => n.type.toLowerCase().includes("stock"))
+        .length,
       icon: Package,
       color: "text-orange-500",
       bg: "bg-orange-50 dark:bg-orange-900/20",
@@ -640,7 +638,10 @@ const NotificationsPage = () => {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  markAsRead({ id: notification.id, companyId });
+                                  markAsRead({
+                                    id: notification.id,
+                                    companyId,
+                                  });
                                 }}
                                 className="p-1.5 rounded-lg bg-white dark:bg-gray-700 text-gray-500 hover:text-[#976DF7] shadow-sm border border-gray-100 dark:border-gray-600"
                                 title="Mark as read"
@@ -688,10 +689,11 @@ const NotificationsPage = () => {
                                   {notification.time}
                                 </span>
                                 {notification.orderId && (
-                                    <span className="flex items-center gap-1 text-xs font-medium text-[#976DF7] dark:text-blue-400 bg-[#976DF7]/10 dark:bg-blue-900/20 px-2 py-0.5 rounded-md">
-                                      Order #{String(notification.orderId).slice(-6)}
-                                    </span>
-                                  )}
+                                  <span className="flex items-center gap-1 text-xs font-medium text-[#976DF7] dark:text-blue-400 bg-[#976DF7]/10 dark:bg-blue-900/20 px-2 py-0.5 rounded-md">
+                                    Order #
+                                    {String(notification.orderId).slice(-6)}
+                                  </span>
+                                )}
                               </div>
                             </div>
 
