@@ -53,7 +53,7 @@ const TextField = ({
         ) : (
           <>
             <input
-              type={isPassword && !showPassword ? "password" : type}
+              type={isPassword && showPassword ? "text" : type}
               {...commonProps}
               className={`${fieldClassNames} password-input`}
             />
@@ -67,7 +67,7 @@ const TextField = ({
             className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors z-10 cursor-pointer"
             tabIndex={-1}
           >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
           </button>
         )}
       </div>
