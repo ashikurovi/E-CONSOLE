@@ -22,33 +22,6 @@ import { decodeJWT } from "@/utils/jwt-decoder";
 // icons
 import { letter, password, bolt } from "@/assets/icons/svgIcons";
 
-const GoogleIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <path
-      d="M23.766 12.2764C23.766 11.4607 23.6999 10.6406 23.5588 9.83807H12.24V14.4591H18.7217C18.4528 15.9494 17.5885 17.2678 16.323 18.1056V21.1039H20.19C22.4608 19.0139 23.766 15.9274 23.766 12.2764Z"
-      fill="#4285F4"
-    />
-    <path
-      d="M12.2401 24.0008C15.4766 24.0008 18.2059 22.9382 20.1945 21.1039L16.3275 18.1055C15.2517 18.8375 13.8627 19.252 12.2445 19.252C9.11388 19.252 6.45946 17.1399 5.50705 14.3003H1.5166V17.3912C3.55371 21.4434 7.7029 24.0008 12.2401 24.0008Z"
-      fill="#34A853"
-    />
-    <path
-      d="M5.50253 14.3003C5.00236 12.8099 5.00236 11.1961 5.50253 9.70575V6.61481H1.51649C-0.18551 10.0056 -0.18551 14.0004 1.51649 17.3912L5.50253 14.3003Z"
-      fill="#FBBC05"
-    />
-    <path
-      d="M12.2401 4.74966C13.9509 4.7232 15.6044 5.36697 16.8434 6.54867L20.2695 3.12262C18.1001 1.0855 15.2208 -0.034466 12.2401 0.000808666C7.7029 0.000808666 3.55371 2.55822 1.5166 6.61481L5.50264 9.70575C6.45064 6.86173 9.10947 4.74966 12.2401 4.74966Z"
-      fill="#EA4335"
-    />
-  </svg>
-);
-
-const AppleIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="black">
-    <path d="M17.05 20.28C15.93 21.93 14.68 23.95 12.75 24C10.95 23.95 10.33 22.91 8.28 22.91C6.18 22.91 5.61 23.9 3.86 24C2.08 24.1 0.69 21.57 0.08 18.52C-0.65 14.86 2.08 9.54 5.86 9.44C7.68 9.39 8.79 10.66 10.9 10.66C13.01 10.66 13.88 9.34 15.89 9.39C16.63 9.42 18.7 9.68 19.98 11.55C19.89 11.61 17.72 12.88 17.75 16.3C17.77 19.06 20.15 20.08 20.24 20.11C20.09 20.57 19.46 22.28 18.46 23.75L17.05 20.28ZM12.03 6.33C12.96 5.21 13.56 3.66 13.38 2.12C12.03 2.18 10.42 3.02 9.47 4.14C8.61 5.14 7.89 6.74 8.08 8.24C9.56 8.35 11.13 7.45 12.03 6.33Z" />
-  </svg>
-);
-
 const MockDashboard = () => {
   return (
     <div className="w-full bg-white rounded-3xl p-6 shadow-2xl overflow-hidden font-sans">
@@ -268,24 +241,6 @@ const AdminLoginPage = () => {
                 Enter your credentials to access your account
               </p>
             </motion.div>
-
-            {/* Social Login Buttons */}
-            <div className="flex gap-4 mb-8">
-              <button
-                type="button"
-                className="flex-1 flex items-center justify-center gap-2 h-12 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors font-medium text-slate-700 text-sm"
-              >
-                <GoogleIcon />
-                Log in with Google
-              </button>
-              <button
-                type="button"
-                className="flex-1 flex items-center justify-center gap-2 h-12 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors font-medium text-slate-700 text-sm"
-              >
-                <AppleIcon />
-                Log in with Apple
-              </button>
-            </div>
 
             <div className="relative flex items-center gap-4 mb-8">
               <div className="h-px bg-slate-200 flex-1" />
