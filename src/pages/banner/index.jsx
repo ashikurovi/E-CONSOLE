@@ -21,6 +21,7 @@ import {
   useUpdateBannerMutation,
 } from "@/features/banners/bannersApiSlice";
 import DeleteModal from "@/components/modals/DeleteModal";
+import ConfirmModal from "@/components/modals/ConfirmModal";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 
@@ -32,6 +33,7 @@ const BannerPage = () => {
   const [deleteBanner, { isLoading: isDeletingBanner }] = useDeleteBannerMutation();
   const [updateBanner, { isLoading: isUpdatingBanner }] = useUpdateBannerMutation();
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, banner: null });
+  const [toggleModal, setToggleModal] = useState({ isOpen: false, banner: null, nextIsActive: false });
 
   // Stats Calculation
   const stats = useMemo(() => {
@@ -43,7 +45,7 @@ const BannerPage = () => {
 
     return [
       {
-        label: t("banners.totalBanners") || "Total Banners",
+        label: t("banners.totalBanners"),
         value: total,
         icon: ImageIcon,
         color: "text-blue-600",
@@ -51,7 +53,7 @@ const BannerPage = () => {
         border: "border-blue-200 dark:border-blue-800",
       },
       {
-        label: t("banners.activeBanners") || "Active Banners",
+        label: t("banners.activeBanners"),
         value: active,
         icon: CheckCircle2,
         color: "text-emerald-600",
@@ -59,7 +61,7 @@ const BannerPage = () => {
         border: "border-emerald-200 dark:border-emerald-800",
       },
       {
-        label: t("banners.inactiveBanners") || "Inactive Banners",
+        label: t("banners.inactiveBanners"),
         value: inactive,
         icon: XCircle,
         color: "text-rose-600",
@@ -67,7 +69,7 @@ const BannerPage = () => {
         border: "border-rose-200 dark:border-rose-800",
       },
       {
-        label: t("banners.totalClicks") || "Total Clicks",
+        label: t("banners.totalClicks"),
         value: totalClicks.toLocaleString(),
         icon: MousePointerClick,
         color: "text-purple-600",
@@ -151,21 +153,14 @@ const BannerPage = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={async () => {
-                const res = await updateBanner({ id: b.id, isActive: !b.isActive });
-                if (res?.data) {
-                  toast.success(t("banners.bannerStateUpdated"));
-                } else {
-                  toast.error(t("banners.bannerUpdateFailed"));
-                }
-              }}
+              onClick={() => setToggleModal({ isOpen: true, banner: b, nextIsActive: !b.isActive })}
               disabled={isUpdatingBanner}
               className={`h-8 w-8 rounded-full transition-colors ${
                 b.isActive
                   ? "hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-900/20 dark:hover:text-amber-400"
                   : "hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400"
               }`}
-              title={b.isActive ? "Disable" : "Activate"}
+              title={b.isActive ? t("banners.disable") : t("banners.activate")}
             >
               <Power className="h-4 w-4" />
             </Button>
@@ -191,13 +186,13 @@ const BannerPage = () => {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
         <div className="space-y-2">
           <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gray-900 dark:text-white">
-            Banner{" "}
+            {t("banners.managementTitle")}{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
-              Management
+              {t("banners.managementHighlight")}
             </span>
           </h1>
           <p className="text-gray-500 dark:text-gray-400 font-medium max-w-lg text-base">
-            Create and manage marketing banners to engage your customers and boost sales.
+            {t("banners.managementSubtitle")}
           </p>
         </div>
 
@@ -247,7 +242,7 @@ const BannerPage = () => {
             <Layers className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </div>
           <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-            {t("banners.allBanners") || "All Banners"}
+            {t("banners.allBanners")}
           </h3>
         </div>
 
@@ -278,6 +273,33 @@ const BannerPage = () => {
         description={t("banners.deleteBannerDesc")}
         itemName={deleteModal.banner?.title}
         isLoading={isDeletingBanner}
+      />
+
+      {/* Enable/Disable Confirmation Modal */}
+      <ConfirmModal
+        isOpen={toggleModal.isOpen}
+        onClose={() => setToggleModal({ isOpen: false, banner: null, nextIsActive: false })}
+        onConfirm={async () => {
+          if (!toggleModal.banner) return;
+          const res = await updateBanner({ id: toggleModal.banner.id, isActive: toggleModal.nextIsActive });
+          if (res?.data) {
+            toast.success(t("banners.bannerStateUpdated"));
+            setToggleModal({ isOpen: false, banner: null, nextIsActive: false });
+          } else {
+            toast.error(t("banners.bannerUpdateFailed"));
+          }
+        }}
+        isLoading={isUpdatingBanner}
+        type={toggleModal.nextIsActive ? "success" : "warning"}
+        title={toggleModal.nextIsActive ? t("banners.enableBanner") : t("banners.disableBanner")}
+        description={
+          toggleModal.nextIsActive
+            ? t("banners.enableBannerDesc")
+            : t("banners.disableBannerDesc")
+        }
+        itemName={toggleModal.banner?.title ? `"${toggleModal.banner.title}"` : undefined}
+        confirmText={toggleModal.nextIsActive ? t("common.enable") : t("common.disable")}
+        cancelText={t("common.cancel")}
       />
     </div>
   );

@@ -287,10 +287,12 @@ export default function PromocodeEditPage() {
               onClick={() => navigate("/promocodes")}
               className="cursor-pointer hover:text-indigo-500 transition-colors"
             >
-              Promocodes
+              {t("promocodes.title")}
             </span>
             <span>/</span>
-            <span className="text-indigo-500 font-medium">Edit</span>
+            <span className="text-indigo-500 font-medium">
+              {t("common.edit")}
+            </span>
           </div>
           <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-400 drop-shadow-sm">
             {t("promocodes.editPromocode")}
@@ -345,10 +347,10 @@ export default function PromocodeEditPage() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                  General Information
+                  {t("promocodes.codeDetails")}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  Basic details about the promocode
+                  {t("promocodes.codeDetailsDesc")}
                 </p>
               </div>
             </div>
@@ -361,7 +363,7 @@ export default function PromocodeEditPage() {
                   </div>
                   <TextField
                     label={t("promocodes.code")}
-                    placeholder="e.g. SUMMER2024"
+                    placeholder={t("promocodes.promocodePlaceholder")}
                     register={register}
                     name="code"
                     error={errors.code}
@@ -377,7 +379,7 @@ export default function PromocodeEditPage() {
 
               <TextField
                 label={t("promocodes.descriptionLabel")}
-                placeholder="Internal note about this promotion..."
+                placeholder={t("promocodes.descriptionPlaceholder")}
                 register={register}
                 name="description"
                 error={errors.description}
@@ -399,10 +401,10 @@ export default function PromocodeEditPage() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                  Discount Configuration
+                  {t("promocodes.discountConfiguration")}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  Set how the discount is applied
+                  {t("promocodes.discountConfigurationDesc")}
                 </p>
               </div>
             </div>
@@ -459,13 +461,13 @@ export default function PromocodeEditPage() {
                     <DollarSign className="w-4 h-4" />
                   </div>
                   <h4 className="font-semibold text-sm">
-                    Minimum Requirements
+                    {t("promocodes.usageLimits")}
                   </h4>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <TextField
                     label={t("promocodes.minOrderAmount")}
-                    placeholder="0.00"
+                    placeholder={t("promocodes.minOrderAmountPlaceholder")}
                     register={register}
                     name="minOrderAmount"
                     type="number"
@@ -474,7 +476,7 @@ export default function PromocodeEditPage() {
                   />
                   <TextField
                     label={t("promocodes.maxUses")}
-                    placeholder="Unlimited"
+                    placeholder={t("promocodes.maxUsesPlaceholder")}
                     register={register}
                     name="maxUses"
                     type="number"
@@ -507,17 +509,21 @@ export default function PromocodeEditPage() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                  Status
+                  {t("common.status")}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  {isActive ? "Promocode is active" : "Promocode is inactive"}
+                  {isActive
+                    ? t("promocodes.statusActiveText")
+                    : t("promocodes.statusInactiveText")}
                 </p>
               </div>
             </div>
 
             <div className="bg-gray-50 dark:bg-black/20 rounded-2xl p-4 mb-6">
               <div className="flex items-center justify-between">
-                <span className="font-medium">Active Status</span>
+                <span className="font-medium">
+                  {t("promocodes.activeStatusToggleLabel")}
+                </span>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -528,14 +534,16 @@ export default function PromocodeEditPage() {
                 </label>
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Inactive promocodes cannot be applied during checkout.
+                {t("promocodes.inactiveHint")}
               </p>
             </div>
 
             <div className="border-t border-gray-100 dark:border-gray-800 pt-6">
               <div className="flex items-center gap-2 mb-4">
                 <Clock className="w-4 h-4 text-gray-400" />
-                <h4 className="font-semibold text-sm">Schedule</h4>
+                <h4 className="font-semibold text-sm">
+                  {t("promocodes.schedule")}
+                </h4>
               </div>
               <div className="space-y-4">
                 <TextField
@@ -546,7 +554,7 @@ export default function PromocodeEditPage() {
                   error={errors.startsAt}
                 />
                 <TextField
-                  label="Expires At"
+                  label={t("promocodes.expiresAt")}
                   register={register}
                   name="expiresAt"
                   type="datetime-local"

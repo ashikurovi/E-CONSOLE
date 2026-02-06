@@ -126,7 +126,7 @@ function CreatePromocodePage() {
       isActive: !!data.isActive,
     };
 
-    const res = await createPromocode(payload);
+    const res = await createPromocode({ body: payload });
     if (res?.data) {
       toast.success(t("promocodes.promocodeCreated"));
       reset();

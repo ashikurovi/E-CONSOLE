@@ -1,7 +1,5 @@
-import React, { useMemo } from "react";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
-import "./RichTextEditor.css";
+import React, { useRef } from "react";
+import { Editor } from "@tinymce/tinymce-react";
 
 const RichTextEditor = ({
     placeholder,
@@ -12,59 +10,21 @@ const RichTextEditor = ({
     error,
     disabled = false,
     height = "300px",
+    tinymceApiKey = "mrjzg34xdadqgcqxfqjm0c1ymp23fumthj7ds61a4vlmvlrn",
     ...rest
 }) => {
-
-    // Quill modules configuration
-    const modules = useMemo(
-        () => ({
-            toolbar: [
-                [{ header: [1, 2, 3, 4, 5, 6, false] }],
-                [{ font: [] }],
-                [{ size: [] }],
-                ["bold", "italic", "underline", "strike", "blockquote"],
-                [
-                    { list: "ordered" },
-                    { list: "bullet" },
-                    { indent: "-1" },
-                    { indent: "+1" },
-                ],
-                ["link", "image", "video"],
-                [{ color: [] }, { background: [] }],
-                [{ align: [] }],
-                ["clean"],
-            ],
-            clipboard: {
-                matchVisual: false,
-            },
-        }),
-        []
-    );
-
-    const formats = [
-        "header",
-        "font",
-        "size",
-        "bold",
-        "italic",
-        "underline",
-        "strike",
-        "blockquote",
-        "list",
-        "bullet",
-        "indent",
-        "link",
-        "image",
-        "video",
-        "color",
-        "background",
-        "align",
-    ];
-
     const wrapperClassNames = `flex flex-col gap-2 ${className}`.trim();
 
     const editorClassNames = `rich-text-editor-wrapper ${error ? "rich-text-editor-error" : ""
         } ${disabled ? "opacity-60 cursor-not-allowed" : ""}`.trim();
+
+    const editorRef = useRef(null);
+    const numericHeight =
+        typeof height === "string" ? parseInt(height, 10) || 300 : height || 300;
+
+    const handleEditorChange = (content) => {
+        onChange?.(content);
+    };
 
     return (
         <div className={wrapperClassNames}>
@@ -73,15 +33,45 @@ const RichTextEditor = ({
                     {label}
                 </label>
             )}
-            <div className={editorClassNames} style={{ "--editor-height": height }}>
-                <ReactQuill
-                    theme="snow"
+            <div className={editorClassNames} style={{ height }}>
+                <Editor
+                    apiKey={tinymceApiKey}
+                    onInit={(_evt, editor) => (editorRef.current = editor)}
                     value={value}
-                    onChange={onChange}
-                    modules={modules}
-                    formats={formats}
-                    placeholder={placeholder}
-                    readOnly={disabled}
+                    init={{
+                        height: numericHeight,
+                        menubar: false,
+                        placeholder: placeholder || "",
+                        plugins: [
+                            "advlist",
+                            "autolink",
+                            "lists",
+                            "link",
+                            "image",
+                            "charmap",
+                            "preview",
+                            "anchor",
+                            "searchreplace",
+                            "visualblocks",
+                            "code",
+                            "fullscreen",
+                            "insertdatetime",
+                            "media",
+                            "table",
+                            "help",
+                            "wordcount",
+                        ],
+                        toolbar:
+                            "undo redo | blocks | " +
+                            "bold italic underline forecolor backcolor | alignleft aligncenter " +
+                            "alignright alignjustify | bullist numlist outdent indent | " +
+                            "removeformat | link image table | code fullscreen",
+                        branding: false,
+                        content_style:
+                            "body { font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size:14px }",
+                    }}
+                    disabled={disabled}
+                    onEditorChange={handleEditorChange}
                     {...rest}
                 />
             </div>

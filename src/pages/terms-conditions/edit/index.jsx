@@ -21,22 +21,27 @@ import {
   History,
   Shield,
   Lightbulb,
-  Clock
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const schema = yup.object().shape({
-  content: yup.string().required("Content is required"),
-  version: yup.string().required("Version is required"),
-  isActive: yup.boolean(),
-});
-
 function EditTermsConditionsPage() {
   const { t } = useTranslation();
+  const schema = useMemo(
+    () =>
+      yup.object().shape({
+        content: yup
+          .string()
+          .required(t("termsConditions.validation.contentRequired"))
+          .min(10, t("termsConditions.validation.contentMin")),
+        isActive: yup.boolean(),
+      }),
+    [t],
+  );
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
-  const { data: terms, isLoading: isFetching } = useGetTermsConditionsQuery({ companyId: authUser?.companyId });
-  const latestTerms = terms?.[0];
+  const { data: terms = [], isLoading: isFetching } = useGetTermsConditionsQuery({ companyId: authUser?.companyId });
+  const latestTerms = terms && terms.length > 0 ? terms[0] : null;
   const [updateTermsConditions, { isLoading: isUpdating }] = useUpdateTermsConditionsMutation();
 
   const {
@@ -50,7 +55,6 @@ function EditTermsConditionsPage() {
     resolver: yupResolver(schema),
     defaultValues: {
       content: "",
-      version: "",
       isActive: true,
     },
   });
@@ -61,7 +65,6 @@ function EditTermsConditionsPage() {
     if (latestTerms) {
       reset({
         content: latestTerms.content || "",
-        version: latestTerms.version || "1.0.0",
         isActive: latestTerms.isActive ?? true,
       });
     }
@@ -70,11 +73,11 @@ function EditTermsConditionsPage() {
   const onSubmit = async (data) => {
     try {
       if (!latestTerms?.id && !latestTerms?._id) {
-        toast.error("No terms found to update");
+        toast.error(t("termsConditions.notFound") || "No terms found to update");
         return;
       }
       const id = latestTerms.id || latestTerms._id;
-      await updateTermsConditions({ id, ...data }).unwrap();
+      await updateTermsConditions({ id, body: data }).unwrap();
       toast.success(t("termsConditions.updatedSuccess") || "Terms updated successfully");
       navigate("/terms-conditions");
     } catch (error) {
@@ -115,7 +118,7 @@ function EditTermsConditionsPage() {
                   {t("termsConditions.editTitle")}
                 </h1>
                 <p className="text-gray-500 dark:text-gray-400 font-medium">
-                  Update and maintain your platform's legal documentation
+                  {t("termsConditions.editDesc")}
                 </p>
               </div>
             </div>
@@ -128,13 +131,16 @@ function EditTermsConditionsPage() {
             className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Overview
+            {t("privacyPolicy.backToOverview")}
           </motion.button>
         </motion.div>
 
         {/* No Policy Found State */}
         {!latestTerms && !isFetching && (
-           <motion.div variants={itemVariants} className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-2xl border border-yellow-200 dark:border-yellow-800 text-center">
+           <motion.div
+             variants={itemVariants}
+             className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-2xl border border-yellow-200 dark:border-yellow-800 text-center"
+           >
              <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">{t("termsConditions.notFound")}</h3>
              <p className="text-gray-600 dark:text-gray-400 mb-4">{t("termsConditions.notFoundDesc")}</p>
@@ -142,7 +148,7 @@ function EditTermsConditionsPage() {
                 onClick={() => navigate("/terms-conditions/create")}
                 className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors"
              >
-               Create New Terms
+               {t("termsConditions.create")}
              </button>
            </motion.div>
         )}
@@ -157,46 +163,15 @@ function EditTermsConditionsPage() {
                 <div className="flex items-center gap-2 mb-6 relative z-10">
                   <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
                     <span className="w-1.5 h-6 bg-indigo-500 rounded-full"></span>
-                    Terms Content
+                    {t("termsConditions.contentSectionTitle")}
                   </h2>
                 </div>
 
                 <div className="space-y-6 relative z-10">
-                  {/* Version Input */}
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                      Version Number
-                    </label>
-                    <Controller
-                      name="version"
-                      control={control}
-                      render={({ field }) => (
-                        <div className="relative">
-                          <input
-                            {...field}
-                            type="text"
-                            placeholder="e.g., 2.0.1"
-                            className={`w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black/50 border ${
-                              errors.version ? "border-red-500" : "border-gray-200 dark:border-gray-700"
-                            } focus:outline-none focus:ring-2 focus:ring-indigo-500/50 dark:text-white font-medium transition-all`}
-                          />
-                          <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-                             <span className="text-xs font-bold text-gray-400 bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded">v{field.value || "?"}</span>
-                          </div>
-                        </div>
-                      )}
-                    />
-                    {errors.version && (
-                      <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" /> {errors.version.message}
-                      </p>
-                    )}
-                  </div>
-
                   {/* RichTextEditor */}
                   <div>
                     <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                      Legal Text
+                      {t("privacyPolicy.legalText")}
                     </label>
                     <div className={`rounded-xl overflow-hidden border ${errors.content ? "border-red-500" : "border-gray-200 dark:border-gray-700"} shadow-sm`}>
                       <Controller
@@ -229,15 +204,19 @@ function EditTermsConditionsPage() {
               <motion.div variants={itemVariants} className="bg-white dark:bg-gray-900 rounded-[24px] p-6 shadow-xl border border-gray-100 dark:border-gray-800/50 sticky top-6">
                 <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                  Publishing Status
+                  {t("privacyPolicy.publishingStatus")}
                 </h3>
                 
                 <div className="space-y-4">
                   {/* Active Toggle */}
                   <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-black/20 rounded-2xl border border-gray-100 dark:border-gray-800">
                     <div className="flex flex-col">
-                      <span className="font-bold text-gray-700 dark:text-gray-200">Active Status</span>
-                      <span className="text-xs text-gray-500">Visible to public</span>
+                      <span className="font-bold text-gray-700 dark:text-gray-200">
+                        {t("privacyPolicy.activeStatus")}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {t("privacyPolicy.visibleToPublic")}
+                      </span>
                     </div>
                     <Controller
                       name="isActive"
@@ -267,8 +246,12 @@ function EditTermsConditionsPage() {
                            <History className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         <div>
-                           <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">Current Version</p>
-                           <p className="text-sm font-bold text-gray-800 dark:text-white">v{latestTerms.version || "N/A"}</p>
+                           <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">
+                             {t("privacyPolicy.currentVersion")}
+                           </p>
+                           <p className="text-sm font-bold text-gray-800 dark:text-white">
+                             v{latestTerms.version || t("common.na")}
+                           </p>
                         </div>
                      </div>
                      <div className="flex items-center gap-3">
@@ -276,9 +259,13 @@ function EditTermsConditionsPage() {
                            <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                           <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">Last Modified</p>
+                           <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">
+                             {t("privacyPolicy.lastModified")}
+                           </p>
                            <p className="text-sm font-bold text-gray-800 dark:text-white">
-                             {latestTerms.updatedAt ? new Date(latestTerms.updatedAt).toLocaleDateString() : "Never"}
+                             {latestTerms.updatedAt
+                               ? new Date(latestTerms.updatedAt).toLocaleDateString()
+                               : t("privacyPolicy.never")}
                            </p>
                         </div>
                      </div>
@@ -316,15 +303,15 @@ function EditTermsConditionsPage() {
                 <ul className="space-y-3 text-sm text-indigo-800 dark:text-indigo-200">
                   <li className="flex gap-2">
                     <span className="text-indigo-500">•</span>
-                    <span>Increment version number (e.g., 1.0 → 1.1) for minor changes.</span>
+                    <span>{t("privacyPolicy.bestPractice1")}</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-indigo-500">•</span>
-                    <span>Use clear headings (H1, H2) for readability.</span>
+                    <span>{t("privacyPolicy.bestPractice2")}</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-indigo-500">•</span>
-                    <span>Preview your markdown to ensure correct formatting.</span>
+                    <span>{t("privacyPolicy.bestPractice3")}</span>
                   </li>
                 </ul>
               </motion.div>

@@ -174,3 +174,54 @@ body::-webkit-scrollbar-thumb:hover {
     padding: 10px;
   }
 }
+
+/* PROSE TABLE STYLES - For rich text content with tables */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  display: table;
+  table-layout: auto;
+}
+
+.prose table td,
+.prose table th {
+  border: 1px solid #e5e7eb;
+  padding: 0.75em;
+  text-align: left;
+  vertical-align: top;
+}
+
+html.dark .prose table td,
+html.dark .prose table th {
+  border-color: #374151;
+}
+
+.prose table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+}
+
+html.dark .prose table th {
+  background-color: #1f2937;
+}
+
+.prose table tbody tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+html.dark .prose table tbody tr:nth-child(even) {
+  background-color: #1f2937;
+}
+
+.prose table colgroup col {
+  display: table-column;
+}
+
+.prose table tbody tr:hover {
+  background-color: #f3f4f6;
+}
+
+html.dark .prose table tbody tr:hover {
+  background-color: #374151;
+}

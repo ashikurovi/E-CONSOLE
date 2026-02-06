@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,7 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Download } from "lucide-react";
+import { generateParcelSlip } from "@/utils/parcelSlip";
 
 const OrderActionsDropdown = ({
   order,
@@ -42,6 +44,27 @@ const OrderActionsDropdown = ({
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => navigate(`/orders/${order.id}`)}>
           View Details
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={async () => {
+            try {
+              await generateParcelSlip(order);
+              toast.success(
+                t("orders.parcelSlipGenerated") ||
+                  "Parcel slip generated successfully",
+              );
+            } catch (err) {
+              console.error(err);
+              toast.error(
+                t("orders.parcelSlipFailed") ||
+                  "Failed to generate parcel slip",
+              );
+            }
+          }}
+          className="cursor-pointer"
+        >
+          <Download className="mr-2 h-4 w-4" />
+          {t("orders.printParcelSlip") || "Print Parcel Slip"}
         </DropdownMenuItem>
         {(order.status?.toLowerCase() === "pending" || !order.status) && (
           <DropdownMenuItem onClick={onProcess}>

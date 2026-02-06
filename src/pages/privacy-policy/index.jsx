@@ -30,15 +30,17 @@ const PrivacyPolicyPage = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-                        <span className="text-indigo-500 font-medium">Legal</span>
+                        <span className="text-indigo-500 font-medium">
+                            {t("nav.contentPolicy")}
+                        </span>
                         <span>/</span>
-                        <span>Privacy Policy</span>
+                        <span>{t("privacyPolicy.title")}</span>
                     </div>
                     <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-400 drop-shadow-sm">
                         {t("privacyPolicy.title")}
                     </h1>
                     <p className="text-gray-500 mt-2 text-lg">
-                        Manage your company's privacy policy and data protection guidelines.
+                        {t("privacyPolicy.manageDesc")}
                     </p>
                 </div>
                 <div>
@@ -73,7 +75,7 @@ const PrivacyPolicyPage = () => {
                     </div>
                     <h2 className="text-2xl font-bold mb-3">{t("privacyPolicy.noPolicyFound")}</h2>
                     <p className="text-gray-500 mb-8 max-w-md mx-auto">
-                        You haven't created a privacy policy yet. Create one to ensure your customers understand how their data is handled.
+                        {t("privacyPolicy.notFoundDesc")}
                     </p>
                     <Button
                         onClick={() => navigate("/privacy-policy/create")}
@@ -96,7 +98,9 @@ const PrivacyPolicyPage = () => {
                                 <div className="p-2.5 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
                                     <FileText className="w-5 h-5" />
                                 </div>
-                                <h3 className="font-bold text-lg">Policy Content</h3>
+                                <h3 className="font-bold text-lg">
+                                    {t("privacyPolicy.contentSectionTitle")}
+                                </h3>
                             </div>
                             <div className="p-8">
                                 <div
@@ -118,17 +122,19 @@ const PrivacyPolicyPage = () => {
                         >
                             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                                 <Shield className="w-5 h-5 text-emerald-500" />
-                                Status & Visibility
+                                {t("common.status")}
                             </h3>
                             
                             <div className="space-y-4">
                                 <div className="bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl p-4 border border-emerald-100 dark:border-emerald-900/20">
                                     <div className="flex items-center gap-3 mb-2">
                                         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                        <span className="font-bold text-emerald-700 dark:text-emerald-400">Published & Active</span>
+                                        <span className="font-bold text-emerald-700 dark:text-emerald-400">
+                                            {t("common.active")}
+                                        </span>
                                     </div>
                                     <p className="text-xs text-emerald-600/80 dark:text-emerald-400/70">
-                                        This policy is currently visible to all users on your storefront.
+                                        {t("privacyPolicy.createdSuccess")}
                                     </p>
                                 </div>
                             </div>
@@ -143,7 +149,7 @@ const PrivacyPolicyPage = () => {
                         >
                              <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                                 <Clock className="w-5 h-5 text-violet-500" />
-                                Timeline
+                                {t("common.timeline")}
                             </h3>
 
                             <div className="space-y-6 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-100 dark:before:bg-gray-800">
@@ -152,7 +158,9 @@ const PrivacyPolicyPage = () => {
                                         <Clock className="w-4 h-4" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Last Updated</p>
+                                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">
+                                            {t("privacyPolicy.lastUpdated")}
+                                        </p>
                                         <p className="font-medium text-gray-900 dark:text-white">
                                             {latestPolicy.updatedAt ? new Date(latestPolicy.updatedAt).toLocaleDateString(undefined, {
                                                 year: 'numeric',
@@ -171,7 +179,9 @@ const PrivacyPolicyPage = () => {
                                         <Calendar className="w-4 h-4" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Created On</p>
+                                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">
+                                            {t("privacyPolicy.created")}
+                                        </p>
                                         <p className="font-medium text-gray-900 dark:text-white">
                                             {latestPolicy.createdAt ? new Date(latestPolicy.createdAt).toLocaleDateString(undefined, {
                                                 year: 'numeric',

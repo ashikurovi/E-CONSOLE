@@ -36,7 +36,8 @@ function CreateTermsConditionsPage() {
                 content: data.content,
             };
 
-            const res = await createTermsConditions(payload).unwrap();
+            // API slice expects an object with `body` and optional `params`
+            const res = await createTermsConditions({ body: payload }).unwrap();
             if (res) {
                 toast.success(t("termsConditions.createdSuccess"));
                 reset();
@@ -53,9 +54,16 @@ function CreateTermsConditionsPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-                        <span onClick={() => navigate("/terms-conditions")} className="cursor-pointer hover:text-indigo-500 transition-colors">Terms & Conditions</span>
+                        <span
+                            onClick={() => navigate("/terms-conditions")}
+                            className="cursor-pointer hover:text-indigo-500 transition-colors"
+                        >
+                            {t("termsConditions.title")}
+                        </span>
                         <span>/</span>
-                        <span className="text-indigo-500 font-medium">Create</span>
+                        <span className="text-indigo-500 font-medium">
+                            {t("termsConditions.create")}
+                        </span>
                     </div>
                     <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-400 drop-shadow-sm">
                         {t("termsConditions.createTitle")}
@@ -104,7 +112,9 @@ function CreateTermsConditionsPage() {
                             <div className="p-2.5 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
                                 <FileText className="w-5 h-5" />
                             </div>
-                            <h3 className="font-bold text-lg">Terms Content</h3>
+                            <h3 className="font-bold text-lg">
+                                {t("termsConditions.contentSectionTitle")}
+                            </h3>
                         </div>
                         <div className="p-6">
                             <Controller
@@ -135,29 +145,33 @@ function CreateTermsConditionsPage() {
                     >
                         <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                             <Info className="w-5 h-5 text-indigo-500" />
-                            Help & Tips
+                            {t("termsConditions.helpTipsTitle")}
                         </h3>
                         
                         <div className="space-y-4">
                             <div className="bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl p-4 border border-indigo-100 dark:border-indigo-900/20">
-                                <h4 className="font-semibold text-indigo-700 dark:text-indigo-400 mb-2 text-sm">What to include?</h4>
+                                <h4 className="font-semibold text-indigo-700 dark:text-indigo-400 mb-2 text-sm">
+                                    {t("termsConditions.helpWhatToIncludeTitle")}
+                                </h4>
                                 <ul className="text-xs text-indigo-600/80 dark:text-indigo-400/70 space-y-2 list-disc pl-4">
-                                    <li>Acceptance of terms</li>
-                                    <li>User responsibilities</li>
-                                    <li>Intellectual property rights</li>
-                                    <li>Payment and subscription terms</li>
-                                    <li>Termination clauses</li>
-                                    <li>Limitation of liability</li>
+                                    <li>{t("termsConditions.helpWhatToInclude1")}</li>
+                                    <li>{t("termsConditions.helpWhatToInclude2")}</li>
+                                    <li>{t("termsConditions.helpWhatToInclude3")}</li>
+                                    <li>{t("termsConditions.helpWhatToInclude4")}</li>
+                                    <li>{t("termsConditions.helpWhatToInclude5")}</li>
+                                    <li>{t("termsConditions.helpWhatToInclude6")}</li>
                                 </ul>
                             </div>
 
                             <div className="bg-orange-50 dark:bg-orange-900/10 rounded-2xl p-4 border border-orange-100 dark:border-orange-900/20">
                                 <div className="flex items-center gap-2 mb-2">
                                     <AlertCircle className="w-4 h-4 text-orange-500" />
-                                    <span className="font-bold text-orange-700 dark:text-orange-400 text-sm">Legal Disclaimer</span>
+                                    <span className="font-bold text-orange-700 dark:text-orange-400 text-sm">
+                                        {t("termsConditions.legalDisclaimerTitle")}
+                                    </span>
                                 </div>
                                 <p className="text-xs text-orange-600/80 dark:text-orange-400/70">
-                                    This template is not legal advice. Please consult with a legal professional to ensure your terms and conditions meet all applicable laws and regulations in your jurisdiction.
+                                    {t("termsConditions.legalDisclaimerText")}
                                 </p>
                             </div>
                         </div>
