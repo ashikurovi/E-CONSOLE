@@ -198,14 +198,21 @@ function Item({ item, isLast, t }) {
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center justify-between cursor-pointer group pr-2 mb-1 select-none"
         >
-          <span
-            className={`text-[13px] font-bold transition-colors ${isOpen ? "text-black dark:text-white" : "text-black dark:text-white"}`}
-          >
-            {item.label}
-          </span>
+          <div className="flex items-center gap-3">
+            {item.icon && <item.icon size={16} strokeWidth={1.5} />}
+            <span
+              className={`text-[13px] font-bold transition-colors ${
+                isOpen ? "text-black dark:text-white" : "text-black dark:text-white"
+              }`}
+            >
+              {item.label}
+            </span>
+          </div>
           <ChevronRight
             size={14}
-            className={`text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
+            className={`text-gray-400 transition-transform duration-200 ${
+              isOpen ? "rotate-90" : ""
+            }`}
           />
         </div>
 
@@ -222,7 +229,7 @@ function Item({ item, isLast, t }) {
                   ? child.link === location.pathname + location.search
                   : isActive;
 
-                return `block text-[13px] py-1.5 px-2 rounded-lg transition-colors relative font-bold
+                return `flex items-center gap-2 text-[13px] py-1.5 px-2 rounded-lg transition-colors relative font-medium
                 ${
                   isExactActive
                     ? "text-[#8B5CF6] bg-[#8B5CF6]/5"
@@ -230,7 +237,8 @@ function Item({ item, isLast, t }) {
                 }`;
               }}
             >
-              {child.title}
+              {child.icon && <child.icon size={16} strokeWidth={1.5} />}
+              <span>{child.title}</span>
             </NavLink>
           ))}
         </div>
