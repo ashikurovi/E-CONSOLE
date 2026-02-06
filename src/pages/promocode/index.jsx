@@ -23,6 +23,7 @@ import {
 } from "@/features/promocode/promocodeApiSlice";
 import { useNavigate } from "react-router-dom";
 import DeleteModal from "@/components/modals/DeleteModal";
+import ConfirmModal from "@/components/modals/ConfirmModal";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 
@@ -41,6 +42,11 @@ const PromocodePage = () => {
     isOpen: false,
     promocode: null,
   });
+  const [toggleModal, setToggleModal] = useState({
+    isOpen: false,
+    promocode: null,
+    nextActive: false,
+  });
 
   // Stats Calculation
   const stats = useMemo(() => {
@@ -56,7 +62,7 @@ const PromocodePage = () => {
 
     return [
       {
-        label: t("promocodes.totalPromocodes") || "Total Promocodes",
+        label: t("promocodes.totalPromocodes"),
         value: total,
         icon: Ticket,
         color: "text-blue-600",
@@ -64,7 +70,7 @@ const PromocodePage = () => {
         border: "border-blue-200 dark:border-blue-800",
       },
       {
-        label: t("promocodes.activePromocodes") || "Active Promocodes",
+        label: t("promocodes.activePromocodes"),
         value: active,
         icon: CheckCircle2,
         color: "text-emerald-600",
@@ -72,7 +78,7 @@ const PromocodePage = () => {
         border: "border-emerald-200 dark:border-emerald-800",
       },
       {
-        label: t("promocodes.expiredPromocodes") || "Expired",
+        label: t("promocodes.expiredPromocodes"),
         value: expired,
         icon: CalendarClock,
         color: "text-rose-600",
@@ -80,7 +86,7 @@ const PromocodePage = () => {
         border: "border-rose-200 dark:border-rose-800",
       },
       {
-        label: t("promocodes.totalRedemptions") || "Total Redemptions",
+        label: t("promocodes.totalRedemptions"),
         value: totalUses,
         icon: Percent,
         color: "text-purple-600",
@@ -104,7 +110,7 @@ const PromocodePage = () => {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
-    toast.success(t("common.copied") || "Copied to clipboard");
+    toast.success(t("common.copied"));
   };
 
   const tableData = useMemo(
@@ -154,7 +160,8 @@ const PromocodePage = () => {
                 {valueLabel}
               </span>
               <span className="text-xs text-gray-500 dark:text-gray-400">
-                Min Order: ${Number(p?.minOrderAmount || 0).toFixed(2)}
+                {t("promocodes.minOrderLabel")}{" "}
+                ${Number(p?.minOrderAmount || 0).toFixed(2)}
               </span>
             </div>
           ),
@@ -162,10 +169,14 @@ const PromocodePage = () => {
             <div className="flex flex-col gap-1 w-32">
               <div className="flex justify-between text-xs mb-1">
                 <span className="text-gray-600 dark:text-gray-400">
-                  {p?.currentUses || 0} used
+                  {t("promocodes.usedLabel", {
+                    count: p?.currentUses || 0,
+                  })}
                 </span>
                 {p?.maxUses && (
-                  <span className="text-gray-400">of {p?.maxUses}</span>
+                  <span className="text-gray-400">
+                    {t("promocodes.ofLabel", { count: p?.maxUses })}
+                  </span>
                 )}
               </div>
               {p?.maxUses > 0 && (
@@ -184,9 +195,11 @@ const PromocodePage = () => {
             <div className="flex flex-col text-sm">
               <span className="text-gray-900 dark:text-white">{starts}</span>
               <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                to {expires}
+                {t("promocodes.toLabel")} {expires}
                 {isExpired && (
-                  <span className="text-rose-500 font-medium">(Expired)</span>
+                  <span className="text-rose-500 font-medium">
+                    ({t("promocodes.expiredLabel")})
+                  </span>
                 )}
               </span>
             </div>
@@ -207,20 +220,13 @@ const PromocodePage = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={async () => {
-                  const res = await toggleActive({
-                    id: p.id,
-                    active: !p.isActive,
-                  });
-                  if (res?.data) {
-                    toast.success(t("promocodes.promocodeStateUpdated"));
-                  } else {
-                    toast.error(
-                      res?.error?.data?.message ||
-                        t("promocodes.promocodeUpdateFailed"),
-                    );
-                  }
-                }}
+                onClick={() =>
+                  setToggleModal({
+                    isOpen: true,
+                    promocode: p,
+                    nextActive: !p.isActive,
+                  })
+                }
                 disabled={isToggling}
                 className={`h-8 w-8 rounded-lg ${
                   p?.isActive
@@ -268,8 +274,7 @@ const PromocodePage = () => {
             {t("promocodes.title")}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {t("promocodes.manageDesc") ||
-              "Manage discount codes and promotional campaigns"}
+            {t("promocodes.manageDesc")}
           </p>
         </div>
         <Button
@@ -324,7 +329,7 @@ const PromocodePage = () => {
       >
         <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {t("promocodes.allPromocodes") || "All Promocodes"}
+            {t("promocodes.allPromocodes")}
           </h2>
         </div>
         <div className="p-2">
@@ -356,6 +361,59 @@ const PromocodePage = () => {
         description={t("promocodes.deletePromocodeDesc")}
         itemName={deleteModal.promocode?.code}
         isLoading={isDeleting}
+      />
+
+      {/* Enable/Disable confirmation modal */}
+      <ConfirmModal
+        isOpen={toggleModal.isOpen}
+        onClose={() =>
+          setToggleModal({
+            isOpen: false,
+            promocode: null,
+            nextActive: false,
+          })
+        }
+        onConfirm={async () => {
+          if (!toggleModal.promocode) return;
+          const res = await toggleActive({
+            id: toggleModal.promocode.id,
+            active: toggleModal.nextActive,
+          });
+          if (res?.data) {
+            toast.success(t("promocodes.promocodeStateUpdated"));
+            setToggleModal({
+              isOpen: false,
+              promocode: null,
+              nextActive: false,
+            });
+          } else {
+            toast.error(
+              res?.error?.data?.message ||
+                t("promocodes.promocodeUpdateFailed"),
+            );
+          }
+        }}
+        isLoading={isToggling}
+        type={toggleModal.nextActive ? "success" : "warning"}
+        title={
+          toggleModal.nextActive
+            ? t("promocodes.enablePromocode")
+            : t("promocodes.disablePromocode")
+        }
+        description={
+          toggleModal.nextActive
+            ? t("promocodes.enablePromocodeDesc")
+            : t("promocodes.disablePromocodeDesc")
+        }
+        itemName={
+          toggleModal.promocode?.code
+            ? `"${toggleModal.promocode.code}"`
+            : undefined
+        }
+        confirmText={
+          toggleModal.nextActive ? t("common.enable") : t("common.disable")
+        }
+        cancelText={t("common.cancel")}
       />
     </div>
   );

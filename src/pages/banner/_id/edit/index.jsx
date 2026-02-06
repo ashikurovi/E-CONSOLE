@@ -19,18 +19,18 @@ import {
 } from "lucide-react";
 import TextField from "@/components/input/TextField";
 import FileUpload from "@/components/input/FileUpload";
-import { useUpdateBannerMutation, useGetBannersQuery } from "@/features/banners/bannersApiSlice";
+import { useUpdateBannerMutation, useGetBannerQuery } from "@/features/banners/bannersApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
+import AtomLoader from "@/components/loader/AtomLoader";
 
 function BannerEditPage() {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-  const { data: banners = [] } = useGetBannersQuery({ companyId: user?.companyId });
-  const banner = banners.find((b) => b.id === parseInt(id));
+  const { data: banner, isLoading: isBannerLoading, isFetching: isBannerFetching } = useGetBannerQuery(parseInt(id));
 
   const bannerEditSchema = useMemo(
     () =>
@@ -43,7 +43,19 @@ function BannerEditPage() {
         subtitle: yup.string().max(500, t("banners.validation.subtitleMax")),
         imageUrl: yup.string(),
         buttonText: yup.string().max(50, t("banners.validation.buttonTextMax")),
-        buttonLink: yup.string().required(t("banners.validation.buttonLinkRequired")),
+        buttonLink: yup
+          .string()
+          .nullable()
+          .transform((value, originalValue) => (originalValue === "" ? null : value))
+          .test("url-or-empty", t("banners.validation.urlOrEmpty"), function (value) {
+            if (!value || value.trim() === "") return true;
+            try {
+              new URL(value);
+              return true;
+            } catch {
+              return false;
+            }
+          }),
         order: yup
           .number()
           .typeError(t("banners.validation.orderNumber"))
@@ -60,13 +72,13 @@ function BannerEditPage() {
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
     resolver: yupResolver(bannerEditSchema),
     defaultValues: {
-      title: banner?.title || "",
-      subtitle: banner?.subtitle || "",
-      imageUrl: banner?.imageUrl || "",
-      buttonText: banner?.buttonText || "",
-      buttonLink: banner?.buttonLink || "",
-      isActive: Boolean(banner?.isActive),
-      order: banner?.order ?? 1,
+      title: "",
+      subtitle: "",
+      imageUrl: "",
+      buttonText: "",
+      buttonLink: "",
+      isActive: true,
+      order: 1,
     },
   });
 
@@ -83,6 +95,7 @@ function BannerEditPage() {
         isActive: Boolean(banner.isActive),
         order: banner.order ?? 1,
       });
+      setImageFile(null); // Clear any previously selected file
     }
   }, [banner, reset]);
 
@@ -109,12 +122,11 @@ function BannerEditPage() {
     }
 
     const payload = {
-      id: banner.id,
       title: data.title,
-      subtitle: data.subtitle,
+      subtitle: data.subtitle || undefined,
       imageUrl: imageUrl,
-      buttonText: data.buttonText,
-      buttonLink: data.buttonLink,
+      buttonText: data.buttonText || undefined,
+      buttonLink: data.buttonLink || undefined,
       isActive: Boolean(data.isActive),
       order: parseInt(data.order, 10) || 0,
     };
@@ -132,6 +144,14 @@ function BannerEditPage() {
       toast.error(t("common.failed"));
     }
   };
+
+  if (isBannerLoading || isBannerFetching) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <AtomLoader />
+      </div>
+    );
+  }
 
   if (!banner) {
     return (
@@ -183,7 +203,7 @@ function BannerEditPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
+        <form key={banner?.id} onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
           {/* Left Column: Main Info */}
           <div className="lg:col-span-2 space-y-8">
             {/* Banner Content Card */}
@@ -264,7 +284,7 @@ function BannerEditPage() {
                   name="image"
                   accept="image/*"
                   onChange={setImageFile}
-                  value={banner?.imageUrl}
+                  value={watch("imageUrl") || banner?.imageUrl}
                 />
 
                 <div className="relative">

@@ -75,63 +75,81 @@ export const generateParcelSlip = async (order, options = {}) => {
 
   const w = doc.internal.pageSize.getWidth();
   const h = doc.internal.pageSize.getHeight();
-  const margin = 5;
-  let y = margin;
+
+  // Layout metrics
+  const margin = 7; // inner content margin for nicer breathing room
+  let y = margin + 12; // will be reset after header
 
   // Black and white design for easy printing
   const black = "#000000";
   const white = "#ffffff";
 
   // Header: Company name + logo
+  const headerHeight = 24;
+  const headerTop = 0;
+  const headerLeft = 0;
+  const headerWidth = w;
+
   doc.setFillColor(white);
-  doc.rect(0, 0, w, 25, "F");
-  doc.setDrawColor(black);
-  doc.setLineWidth(0.5);
-  doc.rect(0, 0, w, 25, "S");
+  doc.rect(headerLeft, headerTop, headerWidth, headerHeight, "F");
 
   if (companyLogo) {
     try {
-      doc.addImage(companyLogo, "PNG", margin, 3, 18, 18);
+      doc.addImage(companyLogo, "PNG", headerLeft + 3, headerTop + 3, 18, 18);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
       doc.setTextColor(black);
-      doc.text(companyName, margin + 20, 12);
+      doc.text(companyName, headerLeft + 24, headerTop + 11);
     } catch {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
       doc.setTextColor(black);
-      doc.text(companyName, margin, 12);
+      doc.text(companyName, headerLeft + 3, headerTop + 11);
     }
   } else {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(black);
-    doc.text(companyName, margin, 12);
+    doc.text(companyName, headerLeft + 3, headerTop + 11);
   }
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.text(`Courier: ${courierName}`, margin, 20);
-  y = 28;
+  doc.text(`Courier: ${courierName}`, headerLeft + 3, headerTop + 19);
+
+  // QR code in header, right aligned
+  const qrSize = 18;
+  const qrX = headerLeft + headerWidth - qrSize - 3;
+  const qrY = headerTop + 3;
+  doc.addImage(qrDataUrl, "PNG", qrX, qrY, qrSize, qrSize);
+  doc.setFontSize(7);
+  doc.text("Scan to track", qrX + qrSize / 2, qrY + qrSize + 4, {
+    align: "center",
+  });
+
+  // Start content just under header, aligned to inner margin
+  y = headerTop + headerHeight + 5;
 
   // DELIVER TO (Client address)
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
-  doc.text("DELIVER TO:", margin, y);
-  y += 5;
+  doc.text("DELIVER TO", margin, y);
+  y += 6;
+
+  const addressBoxLeft = margin;
+  const addressBoxWidth = w - margin * 2;
+
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  const addrLines = doc.splitTextToSize(`${clientName}\n${clientAddress}${clientPhone ? `\n${clientPhone}` : ""}`, w - margin * 2);
+  const addrLines = doc.splitTextToSize(
+    `${clientName}\n${clientAddress}${clientPhone ? `\n${clientPhone}` : ""}`,
+    addressBoxWidth - 4,
+  );
   addrLines.forEach((line) => {
-    doc.text(line, margin, y);
+    doc.text(line, addressBoxLeft + 2, y);
     y += 4;
   });
-  y += 3;
-
-  // QR code (top right) - for tracking when scanned
-  doc.addImage(qrDataUrl, "PNG", w - margin - 22, 28, 22, 22);
-  doc.setFontSize(7);
-  doc.text("Scan to track", w - margin - 11, 53, { align: "center" });
+  y += 2;
 
   // Estimate delivery time
   doc.setFont("helvetica", "bold");
@@ -142,10 +160,12 @@ export const generateParcelSlip = async (order, options = {}) => {
   y += 8;
 
   // Barcode
-  doc.addImage(barcodeDataUrl, "PNG", margin, y, w - margin * 2, 18);
+  const barcodeWidth = w - margin * 2;
+  const barcodeHeight = 18;
+  doc.addImage(barcodeDataUrl, "PNG", margin, y, barcodeWidth, barcodeHeight);
   y += 22;
   doc.setFontSize(7);
-  doc.text(`ID: ${trackingId}`, w / 2, y, { align: "center" });
+  doc.text(`Tracking ID: ${trackingId}`, w / 2, y, { align: "center" });
   y += 6;
 
   // Company terms (short)
