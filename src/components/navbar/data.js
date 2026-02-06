@@ -24,8 +24,18 @@ import {
   BookOpen,
   Lock,
   BarChart,
+  CheckCircle2,
+  XCircle,
+  ShieldCheck,
+  SlidersHorizontal,
+  Bell,
+  CreditCard,
+  User,
 } from "lucide-react";
 import { FeaturePermission } from "@/constants/feature-permission";
+import { UserSearchIcon } from "lucide-react";
+import { Settings2Icon } from "lucide-react";
+import { Settings2 } from "lucide-react";
 
 // Navigation organized by sections and workflow
 // title: used for iconMap lookup; tKey: translation key for i18n
@@ -293,7 +303,7 @@ export const navSections = [
         tKey: "nav.manageUsers",
         link: "/manage-users",
         permission: FeaturePermission.STAFF,
-        icon: Users,
+        icon: UserSearchIcon,
         children: [
           {
             title: "All Users",
@@ -303,22 +313,27 @@ export const navSections = [
           {
             title: "Active",
             link: "/manage-users?tab=active",
+            icon: CheckCircle2,
           },
           {
             title: "Inactive",
             link: "/manage-users?tab=inactive",
+            icon: XCircle,
           },
           {
             title: "System Owner",
             link: "/manage-users?tab=system-owner",
+            icon: Shield,
           },
           {
             title: "Admins",
             link: "/manage-users?tab=admins",
+            icon: ShieldCheck,
           },
           {
             title: "Employees",
             link: "/manage-users?tab=employees",
+            icon: Briefcase,
           },
         ],
       },
@@ -327,27 +342,32 @@ export const navSections = [
         title: "Settings",
         tKey: "nav.settings",
         link: "/settings",
-        icon: Settings,
+        icon: Settings2,
         children: [
           {
             title: "General",
             link: "/settings?tab=general",
+            icon: Settings,
           },
           {
             title: "Preferences",
             link: "/settings?tab=preferences",
-          },
-          {
-            title: "Notifications",
-            link: "/settings?tab=notifications",
+            icon: SlidersHorizontal,
           },
           {
             title: "Account",
             link: "/settings?tab=account",
+            icon: User,
           },
           {
             title: "Billings",
             link: "/settings?tab=billings",
+            icon: CreditCard,
+          },
+          {
+            title: "Notifications",
+            link: "/settings?tab=notifications",
+            icon: Bell,
           },
         ],
       },
