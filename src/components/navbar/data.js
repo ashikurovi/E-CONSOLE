@@ -13,7 +13,6 @@ import {
   Megaphone,
   Image,
   Shield,
-  Server,
   LifeBuoy,
   Sparkles,
   MessageSquare,
@@ -34,11 +33,25 @@ import {
   Bike,
   Rocket,
   PackageCheck,
+  PieChart,
+  ClipboardList,
+  Receipt,
+  FileStack,
+  Repeat,
+  Box,
+  Tags,
+  Warehouse,
+  Contact,
+  Flag,
+  Ticket,
+  Gift,
+  ScrollText,
+  Undo2,
+  UserCog,
+  Plug,
+  Settings2,
 } from "lucide-react";
 import { FeaturePermission } from "@/constants/feature-permission";
-import { UserSearchIcon } from "lucide-react";
-import { Settings2Icon } from "lucide-react";
-import { Settings2 } from "lucide-react";
 
 // Navigation organized by sections and workflow
 // title: used for iconMap lookup; tKey: translation key for i18n
@@ -82,7 +95,7 @@ export const navSections = [
         title: "Statistics",
         tKey: "nav.statistics",
         link: "/statistics",
-        icon: Star,
+        icon: PieChart,
       },
     ],
   },
@@ -98,7 +111,7 @@ export const navSections = [
         tKey: "nav.order",
         link: "/orders",
         permission: FeaturePermission.ORDERS,
-        icon: ShoppingCart,
+        icon: ClipboardList,
       },
 
       {
@@ -107,7 +120,7 @@ export const navSections = [
         tKey: "nav.creditNotes",
         link: "/credit-notes",
         permission: FeaturePermission.ORDERS,
-        icon: FileText,
+        icon: Receipt,
       },
       {
         id: 7.5,
@@ -152,7 +165,7 @@ export const navSections = [
     id: "invoices",
     title: "Invoice Management",
     tKey: "Invoice Management",
-    icon: FileText,
+    icon: FileStack,
     items: [
       {
         id: 6.51,
@@ -168,7 +181,7 @@ export const navSections = [
         tKey: "Recurring Invoices",
         link: "/recurring-invoices",
         permission: FeaturePermission.ORDERS,
-        icon: FileText,
+        icon: Repeat,
       },
     ],
   },
@@ -184,7 +197,7 @@ export const navSections = [
         tKey: "nav.product",
         link: "/products",
         permission: FeaturePermission.PRODUCTS,
-        icon: Package,
+        icon: Box,
       },
       {
         id: 7,
@@ -192,7 +205,7 @@ export const navSections = [
         tKey: "nav.categories",
         link: "/categories",
         permission: FeaturePermission.CATEGORY,
-        icon: FileText,
+        icon: Tags,
       },
       {
         id: 7.5,
@@ -200,7 +213,7 @@ export const navSections = [
         tKey: "nav.inventory",
         link: "/inventory",
         permission: FeaturePermission.PRODUCTS,
-        icon: Package,
+        icon: Warehouse,
       },
       {
         id: 8,
@@ -224,7 +237,7 @@ export const navSections = [
         tKey: "nav.customers",
         link: "/customers",
         permission: FeaturePermission.CUSTOMERS,
-        icon: Users,
+        icon: Contact,
       },
       {
         id: 9.5,
@@ -248,7 +261,7 @@ export const navSections = [
         tKey: "nav.banners",
         link: "/banners",
         permission: FeaturePermission.SETTINGS,
-        icon: Megaphone,
+        icon: Flag,
       },
       {
         id: 11,
@@ -256,14 +269,14 @@ export const navSections = [
         tKey: "nav.promocodes",
         link: "/promocodes",
         permission: FeaturePermission.SETTINGS,
-        icon: Megaphone,
+        icon: Ticket,
       },
       {
         id: 11.5,
         title: "Banners & Offers",
         tKey: "nav.bannersOffers",
         link: "/banners-offers",
-        icon: Megaphone,
+        icon: Gift,
       },
     ],
   },
@@ -287,7 +300,7 @@ export const navSections = [
         tKey: "nav.termsConditions",
         link: "/terms-conditions",
         permission: FeaturePermission.TERMS_CONDITIONS,
-        icon: FileText,
+        icon: ScrollText,
       },
       {
         id: 14,
@@ -295,7 +308,7 @@ export const navSections = [
         tKey: "nav.refundPolicy",
         link: "/refund-policy",
         permission: FeaturePermission.REFUND_POLICY,
-        icon: FileText,
+        icon: Undo2,
       },
     ],
   },
@@ -311,7 +324,7 @@ export const navSections = [
         tKey: "nav.manageUsers",
         link: "/manage-users",
         permission: FeaturePermission.STAFF,
-        icon: UserSearchIcon,
+        icon: UserCog,
         children: [
           {
             title: "All Users",
@@ -407,7 +420,7 @@ export const navSections = [
         title: "Connected Apps",
         tKey: "nav.connectedApps",
         link: "/connected-apps",
-        icon: LayoutGrid,
+        icon: Plug,
       },
     ],
   },
