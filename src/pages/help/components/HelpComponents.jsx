@@ -4,20 +4,20 @@ import { cn } from "@/lib/utils";
 
 export function StatusBadge({ status }) {
   const styles = {
-    open: "text-emerald-600 bg-emerald-50 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800",
+    open: "text-emerald-700 bg-emerald-50 border-emerald-200 ring-1 ring-emerald-600/20 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400",
     pending:
-      "text-purple-600 bg-purple-50 border-purple-100 dark:bg-purple-900/20 dark:border-purple-800",
+      "text-violet-700 bg-violet-50 border-violet-200 ring-1 ring-violet-600/20 dark:bg-violet-900/30 dark:border-violet-800 dark:text-violet-400",
     closed:
-      "text-blue-600 bg-blue-50 border-blue-100 dark:bg-blue-900/20 dark:border-blue-800",
+      "text-blue-700 bg-blue-50 border-blue-200 ring-1 ring-blue-600/20 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400",
     "on hold":
-      "text-orange-600 bg-orange-50 border-orange-100 dark:bg-orange-900/20 dark:border-orange-800",
+      "text-orange-700 bg-orange-50 border-orange-200 ring-1 ring-orange-600/20 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-400",
   };
   const style = styles[status?.toLowerCase()] || styles.open;
 
   return (
     <span
       className={cn(
-        "px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize",
+        "px-3 py-1 rounded-full text-xs font-semibold border capitalize shadow-sm",
         style
       )}
     >

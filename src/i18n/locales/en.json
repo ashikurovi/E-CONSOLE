@@ -676,11 +676,7 @@
       "noPhone": "No phone",
       "relatedInvoice": "Related Invoice",
       "invoiceAmount": "Invoice Amount",
-<<<<<<< HEAD
       "orderNotes": "Order Notes",
-=======
-      "orderNotes": "Order Cancel Comment",
->>>>>>> api
       "reasonForReturn": "Reason for Return",
       "noNotesProvided": "No notes provided.",
       "noReasonProvided": "No reason provided.",
