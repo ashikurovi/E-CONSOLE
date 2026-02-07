@@ -202,7 +202,9 @@ function Item({ item, isLast, t }) {
             {item.icon && <item.icon size={16} strokeWidth={1.5} />}
             <span
               className={`text-[13px] font-bold transition-colors ${
-                isOpen ? "text-black dark:text-white" : "text-black dark:text-white"
+                isOpen
+                  ? "text-black dark:text-white"
+                  : "text-black dark:text-white"
               }`}
             >
               {item.label}
@@ -368,29 +370,30 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
             <div className="flex justify-center mb-2">
               <Link
                 to="/"
-                className={`p-2 rounded-xl   transition-colors ${
+                className={`p-3 rounded-xl transition-all duration-300 ${
                   location.pathname === "/"
-                    ? "bg-[#8B5CF6] text-white shadow-lg shadow-purple-500/25"
-                    : "text-gray-400 hover:text-purple-600"
+                    ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-indigo-500/30"
+                    : "text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-white/5"
                 }`}
               >
-                <LayoutDashboard size={24} />
+                <LayoutDashboard size={24} strokeWidth={1.5} />
               </Link>
             </div>
           ) : (
             <Link
               to="/"
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group relative overflow-hidden ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${
                 location.pathname === "/"
-                  ? "bg-[#8B5CF6] text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
-                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-black dark:hover:text-white"
+                  ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-1 ring-white/20"
+                  : "text-gray-600 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-white/5 hover:text-indigo-600 dark:hover:text-white"
               }`}
             >
               {location.pathname === "/" && (
                 <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
               )}
               <LayoutDashboard
-                size={20}
+                size={22}
+                strokeWidth={1.5}
                 className={`relative z-10 ${
                   location.pathname === "/" ? "text-white" : ""
                 }`}
