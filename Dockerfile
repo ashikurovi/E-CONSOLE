@@ -8,6 +8,11 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 5173
+# Build for production
+RUN npm run build
 
-CMD ["npm", "run", "dev", "--", "--host"]
+# Expose the port (Railway will map this)
+EXPOSE 4173
+
+# Start the preview server
+CMD ["npm", "run", "preview"]
