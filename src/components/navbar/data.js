@@ -31,6 +31,9 @@ import {
   Bell,
   CreditCard,
   User,
+  Bike,
+  Rocket,
+  PackageCheck,
 } from "lucide-react";
 import { FeaturePermission } from "@/constants/feature-permission";
 import { UserSearchIcon } from "lucide-react";
@@ -108,27 +111,32 @@ export const navSections = [
       },
       {
         id: 7.5,
-        title: "Steadfast Courier",
-        tKey: "nav.steadfastCourier",
-        link: "/steadfast",
-        permission: FeaturePermission.STEARDFAST,
+        title: "Courier",
+        tKey: "nav.courier",
         icon: Truck,
-      },
-      {
-        id: 7.6,
-        title: "Pathao Courier",
-        tKey: "nav.pathaoCourier",
-        link: "/pathao",
-        permission: FeaturePermission.PATHAO,
-        icon: Truck,
-      },
-      {
-        id: 7.7,
-        title: "RedX Courier",
-        tKey: "nav.redxCourier",
-        link: "/redx",
-        permission: FeaturePermission.REDX,
-        icon: Truck,
+        children: [
+          {
+            title: "Steadfast Courier",
+            tKey: "nav.steadfastCourier",
+            link: "/steadfast",
+            permission: FeaturePermission.STEARDFAST,
+            icon: PackageCheck,
+          },
+          {
+            title: "Pathao Courier",
+            tKey: "nav.pathaoCourier",
+            link: "/pathao",
+            permission: FeaturePermission.PATHAO,
+            icon: Bike,
+          },
+          {
+            title: "RedX Courier",
+            tKey: "nav.redxCourier",
+            link: "/redx",
+            permission: FeaturePermission.REDX,
+            icon: Rocket,
+          },
+        ],
       },
       {
         id: 7.8,

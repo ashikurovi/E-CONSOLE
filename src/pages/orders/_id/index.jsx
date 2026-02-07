@@ -110,7 +110,7 @@ const OrderViewPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
+      <div className="rounded-2xl w-full bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Button
