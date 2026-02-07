@@ -95,7 +95,7 @@ const PathaoPage = () => {
             <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] dark:from-[#8B5CF6] dark:to-[#7C3AED] bg-clip-text text-transparent">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
               {t("pathao.title", "Pathao Courier")}
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">

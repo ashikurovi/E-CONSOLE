@@ -201,16 +201,14 @@ const BulkCreateOrder = () => {
     }
   };
 
-  const clearFile = () => {
-    setFile(null);
-    setOrders([]);
-    setResults(null);
-    document.getElementById("file-input").value = "";
-  };
+  const cardClass =
+    "bg-white dark:bg-[#1a1f26] rounded-[24px] border border-gray-100 dark:border-gray-800 p-6 shadow-sm";
+  const titleClass =
+    "text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2";
 
   return (
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Premium Header - Pathao Style */}
         <div className="mb-10">
           <div className="flex items-center gap-4 mb-4">
@@ -222,32 +220,26 @@ const BulkCreateOrder = () => {
                 {t("pathao.bulkCreateOrders")}
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-1 text-base">
-                {t("pathao.bulkCreateOrdersDesc") || "Upload a CSV file to create multiple orders at once"}
+                {t("pathao.bulkCreateOrdersDesc") ||
+                  "Upload a CSV file to create multiple orders at once"}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="space-y-7">
-          {/* Instructions Card */}
-          <Card className="border-2 border-[#8B5CF6]/20 dark:border-[#8B5CF6]/10 rounded-[24px] overflow-hidden shadow-xl shadow-[#8B5CF6]/5">
-            <CardHeader className="border-b-2 border-[#8B5CF6]/10 dark:border-[#8B5CF6]/5 bg-white/50 dark:bg-gray-950/50 pb-6">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] rounded-xl shadow-md shadow-[#8B5CF6]/20">
-                  <Sparkles className="h-6 w-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <CardTitle className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-                    {t("pathao.howToUseBulkOrder")}
-                  </CardTitle>
-                  <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
-                    Follow these simple steps to create orders in bulk
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <ol className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Input */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className={cardClass}>
+              <h3 className={titleClass}>
+                <Sparkles className="w-5 h-5 text-[#8B5CF6]" />
+                {t("pathao.howToUseBulkOrder")}
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                Follow these simple steps to create orders in bulk
+              </p>
+
+              <ol className="space-y-4 mb-8">
                 <li className="flex items-start gap-4">
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center text-sm font-bold shadow-md shadow-[#8B5CF6]/20">
                     1
@@ -269,7 +261,8 @@ const BulkCreateOrder = () => {
                     3
                   </div>
                   <p className="text-[15px] text-gray-700 dark:text-gray-300 pt-1">
-                    {t("pathao.bulkOrderStep3") || "Upload the completed CSV file"}
+                    {t("pathao.bulkOrderStep3") ||
+                      "Upload the completed CSV file"}
                   </p>
                 </li>
                 <li className="flex items-start gap-4">
@@ -277,241 +270,197 @@ const BulkCreateOrder = () => {
                     4
                   </div>
                   <p className="text-[15px] text-gray-700 dark:text-gray-300 pt-1">
-                    {t("pathao.bulkOrderStep4") || "Review and submit your orders"}
+                    {t("pathao.bulkOrderStep4") ||
+                      "Review and submit your orders"}
                   </p>
                 </li>
               </ol>
-            </CardContent>
-          </Card>
 
-          {/* Download Template Button */}
-          <div>
-            <Button
-              onClick={downloadTemplate}
-              className="group h-14 px-8 text-base font-semibold bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] hover:from-[#7C3AED] hover:to-[#6D28D9] text-white rounded-2xl transition-all duration-300 shadow-xl shadow-[#8B5CF6]/20 hover:shadow-2xl hover:shadow-[#8B5CF6]/30"
-            >
-              <Download className="mr-3 h-5 w-5 group-hover:translate-y-0.5 transition-transform duration-300" />
-              {t("pathao.downloadCsvTemplate")}
-            </Button>
+              <div className="flex flex-wrap gap-4">
+                <Button
+                  onClick={downloadTemplate}
+                  className="group h-12 px-6 text-base font-semibold bg-white dark:bg-gray-900 border-2 border-[#8B5CF6]/20 text-[#8B5CF6] hover:bg-[#8B5CF6]/5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
+                >
+                  <Download className="mr-2 h-5 w-5 group-hover:translate-y-0.5 transition-transform duration-300" />
+                  {t("pathao.downloadCsvTemplate")}
+                </Button>
+
+                <div className="relative">
+                  <input
+                    id="file-input"
+                    type="file"
+                    accept=".csv"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <Button
+                    onClick={() =>
+                      document.getElementById("file-input").click()
+                    }
+                    className="group h-12 px-6 text-base font-semibold bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] hover:from-[#7C3AED] hover:to-[#6D28D9] text-white rounded-xl transition-all duration-300 shadow-lg shadow-[#8B5CF6]/20 hover:shadow-xl hover:shadow-[#8B5CF6]/30"
+                  >
+                    <Upload className="mr-2 h-5 w-5 group-hover:-translate-y-0.5 transition-transform duration-300" />
+                    {t("pathao.uploadCsvFile")}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Orders Preview */}
+            {orders.length > 0 && (
+              <div className={cardClass}>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className={titleClass + " mb-0"}>
+                    <FileText className="w-5 h-5 text-[#8B5CF6]" />
+                    {t("pathao.previewOrders", { count: orders.length })}
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    onClick={clearFile}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                  >
+                    <XCircle className="w-5 h-5 mr-2" />
+                    {t("common.clear")}
+                  </Button>
+                </div>
+
+                <div className="border rounded-xl overflow-hidden border-gray-200 dark:border-gray-800 mb-6">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                      <thead className="bg-gray-50 dark:bg-gray-900">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Merchant Order ID
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Recipient
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Phone
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Amount
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white dark:bg-gray-950/50 divide-y divide-gray-200 dark:divide-gray-800">
+                        {orders.slice(0, 5).map((order, index) => (
+                          <tr key={index}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                              {order.merchant_order_id}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                              {order.recipient_name}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                              {order.recipient_phone}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                              {order.amount_to_collect}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {orders.length > 5 && (
+                    <div className="bg-gray-50 dark:bg-gray-900 px-6 py-3 text-sm text-gray-500 dark:text-gray-400 text-center border-t border-gray-200 dark:border-gray-800">
+                      {t("pathao.andMoreOrders", { count: orders.length - 5 })}
+                    </div>
+                  )}
+                </div>
+
+                <Button
+                  onClick={handleSubmit}
+                  disabled={isLoading}
+                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-[#8B5CF6] via-[#7C3AED] to-[#8B5CF6] hover:from-[#7C3AED] hover:via-[#8B5CF6] hover:to-[#7C3AED] text-white rounded-xl shadow-xl shadow-[#8B5CF6]/20 hover:shadow-2xl hover:shadow-[#8B5CF6]/30 transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {isLoading && (
+                    <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                  )}
+                  {!isLoading && (
+                    <CheckCircle className="mr-3 h-6 w-6 group-hover:rotate-12 transition-transform duration-300" />
+                  )}
+                  {t("pathao.createOrdersCount", { count: orders.length })}
+                </Button>
+              </div>
+            )}
           </div>
 
-          {/* Upload Section */}
-          <Card className="border-2 border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950/50 rounded-[24px] overflow-hidden shadow-sm">
-            <CardHeader className="border-b-2 border-gray-100 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 pb-5">
-              <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">
-                {t("pathao.uploadCsvFile")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="border-2 border-dashed border-[#8B5CF6]/20 dark:border-[#8B5CF6]/30 rounded-2xl p-12 text-center hover:bg-[#8B5CF6]/5 dark:hover:bg-[#8B5CF6]/10 hover:border-[#8B5CF6]/50 dark:hover:border-[#8B5CF6]/50 transition-all duration-300 cursor-pointer">
-                <input
-                  id="file-input"
-                  type="file"
-                  accept=".csv"
-                  onChange={handleFileChange}
-                  className="hidden"
-                  disabled={parsing || isLoading}
-                />
-                <label
-                  htmlFor="file-input"
-                  className="cursor-pointer flex flex-col items-center gap-4 w-full h-full"
-                >
-                  <div className="p-5 bg-gradient-to-br from-[#8B5CF6]/10 to-[#8B5CF6]/20 dark:from-[#8B5CF6]/20 dark:to-[#8B5CF6]/10 rounded-2xl">
-                    <Upload className="h-10 w-10 text-[#8B5CF6]" />
-                  </div>
-                  <div>
-                    <p className="text-base font-semibold text-gray-900 dark:text-white mb-1">
-                      {t("pathao.clickToUploadCsv")}
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {t("pathao.orDragAndDrop")}
-                    </p>
-                  </div>
-                </label>
-              </div>
+          {/* Right Column - Results */}
+          <div className="lg:col-span-1">
+            {results ? (
+              <div className={`${cardClass} h-full`}>
+                <h4 className="text-md font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-emerald-500" />
+                  {t("pathao.results")}
+                </h4>
 
-              {file && (
-                <div className="mt-6 p-5 bg-gradient-to-r from-emerald-50 to-emerald-50/50 dark:from-emerald-900/20 dark:to-emerald-900/10 border-2 border-emerald-200 dark:border-emerald-800 rounded-2xl flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
-                      <FileText className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100 dark:border-emerald-900/30 text-center">
+                    <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                      {results.successful}
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
-                        {file.name}
-                      </p>
-                      <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
-                        {orders.length} orders detected
-                      </p>
+                    <div className="text-xs font-medium text-emerald-800 dark:text-emerald-300 uppercase tracking-wider mt-1">
+                      {t("pathao.successful")}
                     </div>
                   </div>
-                  <button
-                    onClick={clearFile}
-                    className="px-4 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-xl transition-colors duration-200"
-                  >
-                    {t("pathao.remove")}
-                  </button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Orders Preview */}
-          {orders.length > 0 && (
-            <Card className="border-2 border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950/50 rounded-[24px] overflow-hidden shadow-sm">
-              <CardHeader className="border-b-2 border-gray-100 dark:border-gray-800 bg-gradient-to-r from-[#8B5CF6]/5 to-white dark:from-[#8B5CF6]/10 dark:to-gray-900 pb-5">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">
-                    {t("pathao.ordersPreview", { count: orders.length })}
-                  </CardTitle>
-                  <div className="px-4 py-2 bg-[#8B5CF6] text-white text-sm font-bold rounded-full shadow-lg shadow-[#8B5CF6]/20">
-                    {orders.length} Orders
+                  <div className="p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-900/30 text-center">
+                    <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                      {results.failed}
+                    </div>
+                    <div className="text-xs font-medium text-red-800 dark:text-red-300 uppercase tracking-wider mt-1">
+                      {t("pathao.failed")}
+                    </div>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="max-h-96 overflow-y-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0 z-10">
-                      <tr>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">#</th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">{t("pathao.orderId")}</th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">{t("pathao.recipient")}</th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">{t("customers.phone")}</th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">{t("pathao.city")}</th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">{t("pathao.amountToCollect")}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                      {orders.map((order, index) => (
-                        <tr
-                          key={index}
-                          className="hover:bg-[#8B5CF6]/5 dark:hover:bg-[#8B5CF6]/10 transition-colors duration-150"
+
+                {results.details && results.details.length > 0 && (
+                  <div className="bg-gray-50 dark:bg-[#111418] rounded-xl p-4 border border-gray-200 dark:border-gray-800 overflow-hidden">
+                    <h5 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">
+                      Error Details
+                    </h5>
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar">
+                      {results.details.map((detail, idx) => (
+                        <div
+                          key={idx}
+                          className="text-xs text-red-600 dark:text-red-400 p-2 bg-red-50/50 dark:bg-red-900/10 rounded border border-red-100 dark:border-red-900/20"
                         >
-                          <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{index + 1}</td>
-                          <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">{order.merchant_order_id}</td>
-                          <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{order.recipient_name}</td>
-                          <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{order.recipient_phone}</td>
-                          <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                            {cities.find(c => c.city_id === order.recipient_city)?.city_name || order.recipient_city}
-                          </td>
-                          <td className="px-6 py-4 font-semibold text-[#8B5CF6]">৳{order.amount_to_collect}</td>
-                        </tr>
+                          {typeof detail === "string"
+                            ? detail
+                            : JSON.stringify(detail)}
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Submit Button */}
-          {orders.length > 0 && (
-            <div className="flex gap-4">
-              <Button
-                onClick={handleSubmit}
-                disabled={isLoading}
-                className="group flex-1 h-16 text-lg font-bold bg-gradient-to-r from-[#8B5CF6] via-[#7C3AED] to-[#8B5CF6] hover:from-[#7C3AED] hover:via-[#8B5CF6] hover:to-[#7C3AED] text-white rounded-2xl shadow-xl shadow-[#8B5CF6]/20 hover:shadow-2xl hover:shadow-[#8B5CF6]/30 transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-              >
-                {isLoading && <Loader2 className="mr-3 h-6 w-6 animate-spin" />}
-                {!isLoading && <CheckCircle className="mr-3 h-6 w-6 group-hover:rotate-12 transition-transform duration-300" />}
-                {t("pathao.createOrdersCount", { count: orders.length })}
-              </Button>
-              <Button
-                onClick={clearFile}
-                disabled={isLoading}
-                className="h-16 px-8 text-lg font-semibold border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-2xl transition-all duration-300"
-              >
-                {t("common.cancel")}
-              </Button>
-            </div>
-          )}
-
-          {/* Results */}
-          {results && (
-            <Card className={`border-2 rounded-[24px] overflow-hidden ${
-              results.success
-                ? "bg-gradient-to-br from-emerald-50 via-white to-emerald-50 dark:from-emerald-900/20 dark:via-gray-900 dark:to-emerald-900/10 border-emerald-200 dark:border-emerald-800"
-                : "bg-gradient-to-br from-red-50 via-white to-red-50 dark:from-red-900/20 dark:via-gray-900 dark:to-red-900/10 border-red-200 dark:border-red-800"
-            }`}>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className={`p-3 rounded-xl ${
-                    results.success
-                      ? "bg-emerald-100 dark:bg-emerald-900/30"
-                      : "bg-red-100 dark:bg-red-900/30"
-                  }`}>
-                    {results.success ? (
-                      <CheckCircle className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-                    ) : (
-                      <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
-                    )}
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h4 className={`text-xl font-bold mb-3 ${
-                      results.success
-                        ? "text-emerald-900 dark:text-emerald-100"
-                        : "text-red-900 dark:text-red-100"
-                    }`}>
-                      {results.success ? t("pathao.bulkOrderCreated") : t("pathao.bulkOrderFailed")}
-                    </h4>
+                )}
 
-                    {results.success && (
-                      <div className="space-y-2 text-[15px] text-emerald-800 dark:text-emerald-200">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold">
-                            {t("pathao.totalOrders")}:
-                          </span>
-                          <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full font-bold">
-                            {results.total}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold">
-                            {t("pathao.successful")}:
-                          </span>
-                          <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full font-bold">
-                            {results.successful}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold">
-                            {t("pathao.failed")}:
-                          </span>
-                          <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded-full font-bold">
-                            {results.failed}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {!results.success && (
-                      <p className="text-red-700 dark:text-red-300 text-sm mt-2">
-                        {results.error}
-                      </p>
-                    )}
-
-                    {results.details?.length > 0 && (
-                      <div className="mt-4 p-4 bg-white/50 dark:bg-gray-950/30 rounded-xl border border-red-200 dark:border-red-800 max-h-40 overflow-y-auto">
-                        <ul className="list-disc pl-5 space-y-1">
-                          {results.details.map((error, idx) => (
-                            <li
-                              key={idx}
-                              className="text-sm text-red-600 dark:text-red-400"
-                            >
-                              {typeof error === "string"
-                                ? error
-                                : JSON.stringify(error)}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                <Button
+                  onClick={() => {
+                    setFile(null);
+                    setOrders([]);
+                    document.getElementById("file-input").value = "";
+                    setResults(null);
+                  }}
+                  className="w-full mt-6 bg-gray-900 dark:bg-gray-800 text-white rounded-xl h-12 hover:bg-gray-800 dark:hover:bg-gray-700"
+                >
+                  {t("pathao.uploadNewFile")}
+                </Button>
+              </div>
+            ) : (
+              <div
+                className={`${cardClass} h-full flex flex-col items-center justify-center text-center p-8 opacity-60`}
+              >
+                <Package className="w-16 h-16 text-gray-300 dark:text-gray-700 mb-4" />
+                <p className="text-gray-500 dark:text-gray-400 font-medium">
+                  {t(
+                    "pathao.resultsPlaceholder",
+                    "Results will appear here after submission",
+                  )}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
