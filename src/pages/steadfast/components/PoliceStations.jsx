@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { useGetPoliceStationsQuery } from "@/features/steadfast/steadfastApiSlice";
 import ReusableTable from "@/components/table/reusable-table";
+import { Building2 } from "lucide-react";
 
 const PoliceStations = () => {
   const { t } = useTranslation();
@@ -18,18 +19,18 @@ const PoliceStations = () => {
   const getHeaders = () => {
     if (policeStations.length === 0) {
       return [
-        { header: t("steadfast.name"), field: "name" },
-        { header: t("steadfast.address"), field: "address" },
-        { header: t("steadfast.phone"), field: "phone" },
+        { header: t("steadfast.name", "Name"), field: "name" },
+        { header: t("steadfast.address", "Address"), field: "address" },
+        { header: t("steadfast.phone", "Phone"), field: "phone" },
       ];
     }
 
     const firstItem = policeStations[0];
     if (!firstItem || typeof firstItem !== "object") {
       return [
-        { header: t("steadfast.name"), field: "name" },
-        { header: t("steadfast.address"), field: "address" },
-        { header: t("steadfast.phone"), field: "phone" },
+        { header: t("steadfast.name", "Name"), field: "name" },
+        { header: t("steadfast.address", "Address"), field: "address" },
+        { header: t("steadfast.phone", "Phone"), field: "phone" },
       ];
     }
     return Object.keys(firstItem).map((key) => ({
@@ -58,20 +59,29 @@ const PoliceStations = () => {
       })
     : [];
 
-  return (
-    <div>
-      <h3 className="text-lg font-semibold mb-4">{t("steadfast.policeStationsTitle")}</h3>
-      <p className="text-sm text-black/60 dark:text-white/60 mb-4">
-        {t("steadfast.policeStationsDesc")}
-      </p>
+  const cardClass = "bg-white dark:bg-[#1a1f26] rounded-[24px] border border-gray-100 dark:border-gray-800 p-6 shadow-sm";
 
-      <ReusableTable
-        data={tableData}
-        headers={headers}
-        total={policeStations.length}
-        isLoading={isLoading}
-        py="py-2"
-      />
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <Building2 className="w-6 h-6 text-purple-500" />
+          {t("steadfast.policeStationsTitle", "Police Stations")}
+        </h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          {t("steadfast.policeStationsDesc", "View available police stations for delivery")}
+        </p>
+      </div>
+
+      <div className={cardClass}>
+        <ReusableTable
+          data={tableData}
+          headers={headers}
+          total={policeStations.length}
+          isLoading={isLoading}
+          py="py-3"
+        />
+      </div>
     </div>
   );
 };
