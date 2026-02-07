@@ -9,6 +9,7 @@ import { useCreateProductMutation } from "@/features/product/productApiSlice";
 import { useGetCategoriesQuery } from "@/features/category/categoryApiSlice";
 import useImageUpload from "@/hooks/useImageUpload";
 import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
 import {
   ProductFormHeader,
   ProductCoverImageSection,
@@ -337,18 +338,23 @@ function CreateProductPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20">
       <ProductFormHeader
         title={t("productForm.addNewProduct")}
         backLabel={t("productForm.backToProductList")}
       />
 
-      <div className="max-w-[1600px] mx-auto p-6 pt-8">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8"
+      >
         <form
           onSubmit={handleSubmit((d) => onSubmit(d, { asDraft: false }))}
-          className="grid grid-cols-12 gap-8"
+          className="grid grid-cols-12 gap-6 lg:gap-8"
         >
-          <div className="col-span-12 lg:col-span-8 space-y-8">
+          <div className="col-span-12 lg:col-span-8 space-y-6 lg:space-y-8">
             
             <ProductCoverImageSection
               thumbnailFile={thumbnailFile}
@@ -416,7 +422,7 @@ function CreateProductPage() {
             <ProductPricingSection register={register} errors={errors} />
           </div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 }

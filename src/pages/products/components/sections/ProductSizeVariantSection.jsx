@@ -49,7 +49,7 @@ export default function ProductSizeVariantSection({
           <button
             type="button"
             onClick={() => setIsAddingSize(true)}
-            className="w-12 h-12 rounded-xl flex items-center justify-center font-medium bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 hover:text-indigo-600 transition-colors"
+            className="w-12 h-12 rounded-xl flex items-center justify-center font-medium bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 hover:text-indigo-600 transition-colors shadow-sm hover:shadow-md"
           >
             <Plus className="w-5 h-5" />
           </button>
@@ -60,7 +60,7 @@ export default function ProductSizeVariantSection({
               type="text"
               autoFocus
               placeholder={t("productForm.enterSize")}
-              className="w-24 px-3 py-2 rounded-lg border-2 border-indigo-600 text-center font-medium outline-none bg-white dark:bg-slate-900 text-slate-900 text-sm"
+              className="w-24 h-12 px-3 rounded-xl border-2 border-indigo-600 text-center font-medium outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm shadow-md"
               value={newSizeValue}
               onChange={(e) => setNewSizeValue(e.target.value)}
               onBlur={() => {

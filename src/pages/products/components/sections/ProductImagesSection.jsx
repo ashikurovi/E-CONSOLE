@@ -23,13 +23,13 @@ export default function ProductImagesSection({
         </p>
       </div>
       <div className="col-span-12 lg:col-span-8">
-        <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-          <div className="flex flex-wrap gap-4 mb-4">
-            <div className="w-32 h-32 border-2 border-dashed border-indigo-200 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center text-center cursor-pointer hover:bg-indigo-50/50 dark:hover:bg-slate-800 transition-colors relative shrink-0 group">
-              <div className="w-8 h-8 mb-2 text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Plus className="w-5 h-5" />
+        <div className="p-6 md:p-8 bg-white dark:bg-slate-900 rounded-[24px] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-300">
+          <div className="flex flex-wrap gap-4 mb-6">
+            <div className="w-36 h-36 border-2 border-dashed border-indigo-200 dark:border-indigo-500/20 rounded-[20px] flex flex-col items-center justify-center text-center cursor-pointer hover:bg-indigo-50/50 dark:hover:bg-indigo-500/5 hover:border-indigo-400 dark:hover:border-indigo-500/50 transition-all duration-300 relative shrink-0 group">
+              <div className="w-10 h-10 mb-2.5 text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300">
+                <Plus className="w-6 h-6" />
               </div>
-              <span className="text-xs font-semibold text-indigo-600">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                 {t("productForm.uploadFile")}
               </span>
               <input
@@ -50,13 +50,13 @@ export default function ProductImagesSection({
                 className="absolute inset-0 opacity-0 cursor-pointer"
               />
             </div>
-            <div className="flex-1 min-w-[200px] flex gap-2 items-center">
+            <div className="flex-1 min-w-[200px] flex gap-3 items-center">
               <input
                 type="url"
                 value={imageUrlInput}
                 onChange={(e) => setImageUrlInput(e.target.value)}
                 placeholder={t("productForm.orPasteImageUrlPlaceholder")}
-                className="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none text-sm text-slate-900 dark:text-slate-50"
+                className="flex-1 h-12 px-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && imageUrlInput?.trim()) {
                     e.preventDefault();
@@ -92,7 +92,7 @@ export default function ProductImagesSection({
                   }
                 }}
                 disabled={!imageUrlInput?.trim()}
-                className="shrink-0"
+                className="shrink-0 h-12 px-6 rounded-xl border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 font-semibold transition-all"
               >
                 {t("productForm.add")}
               </Button>
@@ -104,22 +104,22 @@ export default function ProductImagesSection({
                 (img.file || img.url) && (
                   <div
                     key={i}
-                    className="w-32 h-32 bg-slate-100 rounded-xl relative group overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0"
+                    className="w-36 h-36 bg-slate-100 dark:bg-slate-800 rounded-[20px] relative group overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0 shadow-sm hover:shadow-md transition-all"
                   >
                     <img
                       src={
                         img.file ? URL.createObjectURL(img.file) : img.url
                       }
                       alt=""
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <button
                         type="button"
                         onClick={() => removeImage(i)}
-                        className="p-2 bg-white text-red-600 rounded-lg shadow-sm hover:bg-red-50 transition-colors"
+                        className="p-2.5 bg-white text-red-500 rounded-full shadow-lg hover:bg-red-50 hover:scale-110 transition-all"
                       >
-                        <X className="w-4 h-4" />
+                        <X className="w-5 h-5" />
                       </button>
                     </div>
                   </div>

@@ -20,20 +20,20 @@ export default function ProductCoverImageSection({
           {t("productForm.coverImageHint")}
         </p>
       </div>
-      <div className="col-span-12 lg:col-span-8 space-y-3">
-        <div className="w-full h-48 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border-2 border-dashed border-indigo-200 dark:border-slate-700 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-indigo-50/50 transition-colors group relative overflow-hidden">
+      <div className="col-span-12 lg:col-span-8 space-y-4">
+        <div className="w-full h-52 bg-slate-50 dark:bg-slate-900/30 rounded-[24px] border-2 border-dashed border-indigo-200 dark:border-indigo-500/20 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-indigo-50/50 dark:hover:bg-indigo-500/5 hover:border-indigo-400 dark:hover:border-indigo-500/50 transition-all duration-300 group relative overflow-hidden shadow-sm hover:shadow-md">
           {!thumbnailFile && !thumbnailUrl ? (
-            <>
-              <div className="w-12 h-12 mb-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm flex items-center justify-center text-indigo-500">
-                <ImageIcon className="w-6 h-6" />
+            <div className="flex flex-col items-center p-6">
+              <div className="w-14 h-14 mb-4 bg-white dark:bg-slate-800 rounded-2xl shadow-md shadow-indigo-100 dark:shadow-none flex items-center justify-center text-indigo-500 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                <ImageIcon className="w-7 h-7" />
               </div>
-              <h3 className="text-base font-semibold text-indigo-600 mb-1">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1.5 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                 {t("productForm.uploadCoverImage")}
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-sm text-slate-400 dark:text-slate-500 max-w-[200px]">
                 {t("productForm.dragDropOrClick")}
               </p>
-            </>
+            </div>
           ) : (
             <div className="absolute inset-0 w-full h-full group">
               <img
@@ -81,7 +81,7 @@ export default function ProductCoverImageSection({
               if (e.target.value) setThumbnailFile(null);
             }}
             placeholder={t("productForm.imageUrlPlaceholder")}
-            className="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flex-1 h-12 px-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
           />
         </div>
       </div>

@@ -25,7 +25,7 @@ export default function ProductCategorySection({
           options={categoryOptions}
           setSelectedOption={setCategoryOption}
           className="w-full max-w-xs"
-          triggerClassName="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 focus:border-indigo-600 outline-none font-medium text-left flex justify-between items-center text-sm"
+          triggerClassName="w-full h-14 px-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none font-medium text-left flex justify-between items-center text-sm transition-all shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700"
         >
           {categoryOption?.label || t("productForm.selectCategory")}
         </Dropdown>

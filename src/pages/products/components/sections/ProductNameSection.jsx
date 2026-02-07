@@ -17,7 +17,7 @@ export default function ProductNameSection({ register, errors }) {
       <div className="col-span-12 lg:col-span-8">
         <input
           {...register("name")}
-          className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none font-medium transition-all"
+          className="w-full h-14 px-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none font-medium transition-all shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 placeholder:text-slate-400"
           placeholder={t("productForm.productNamePlaceholder")}
         />
         {errors.name && (

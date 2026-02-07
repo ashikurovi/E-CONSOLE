@@ -22,7 +22,7 @@ export default function ProductShippingSection({ register, errors }) {
                 step="0.01"
                 min="0"
                 placeholder={t("productForm.weightPlaceholder")}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none font-medium text-slate-900 dark:text-slate-50"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none font-medium transition-all duration-200"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">
                 kg <ChevronLeft className="inline w-3 h-3 rotate-270" />
@@ -42,7 +42,7 @@ export default function ProductShippingSection({ register, errors }) {
                   step="0.01"
                   min="0"
                   placeholder={t("productForm.dimensionPlaceholder")}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none text-center font-medium text-slate-900 dark:text-slate-50"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none font-medium text-center transition-all duration-200"
                 />
               </div>
               <div>
@@ -53,7 +53,7 @@ export default function ProductShippingSection({ register, errors }) {
                   step="0.01"
                   min="0"
                   placeholder={t("productForm.dimensionPlaceholder")}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none text-center font-medium text-slate-900 dark:text-slate-50"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none font-medium text-center transition-all duration-200"
                 />
               </div>
               <div>
@@ -64,7 +64,7 @@ export default function ProductShippingSection({ register, errors }) {
                   step="0.01"
                   min="0"
                   placeholder={t("productForm.dimensionPlaceholder")}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none text-center font-medium text-slate-900 dark:text-slate-50"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none font-medium text-center transition-all duration-200"
                 />
               </div>
             </div>
