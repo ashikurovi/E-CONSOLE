@@ -33,17 +33,27 @@ const SidebarMenu = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
-  const visibleNavSections = navSections
+  // Wait for user so employee role gets correct permission filtering (avoid showing all nav while loading)
+  const visibleNavSections =
+    isLoadingUser || !user
+      ? []
+      : navSections
     .map((section) => ({
       ...section,
       items: section.items
-        .filter((item) => hasPermission(user, item.permission))
+        .filter(
+          (item) =>
+            hasPermission(user, item.permission) ||
+            (item?.children?.length &&
+              item.children.some((child) => hasPermission(user, child.permission)))
+        )
         .map((item) => ({
           ...item,
           children: item?.children?.filter((child) =>
             hasPermission(user, child.permission)
           ),
-        })),
+        }))
+        .filter((item) => (item.children?.length ? item.children.length > 0 : true)),
     }))
     .filter((section) => section.items.length > 0);
 

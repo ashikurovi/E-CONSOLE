@@ -1,118 +1,117 @@
-import React from "react";
-import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { useForm } from "react-hook-form";
+import { useSelector, useDispatch } from "react-redux";
+import toast from "react-hot-toast";
+import { userDetailsFetched } from "@/features/auth/authSlice";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Bell, Mail, MessageCircle, Loader2 } from "lucide-react";
+import { useUpdateSystemuserMutation } from "@/features/systemuser/systemuserApiSlice";
 
-const NotificationSettings = () => {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Notifications</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Get notified what's happening right now, you can turn off at any time</p>
-      </div>
+const NotificationSettings = ({ user: userFromApi }) => {
+    const { t } = useTranslation();
+    const dispatch = useDispatch();
+    const authUser = useSelector((state) => state.auth.user);
+    const userId = authUser?.userId || authUser?.sub || authUser?.id;
+    const user = userFromApi ?? authUser ?? null;
 
-      <div className="space-y-8">
-        {/* Email Notifications */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          <div className="md:col-span-4">
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">Email Notifications</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              Substance can send you email notifications for any new direct messages
-            </p>
-          </div>
-          <div className="md:col-span-8 space-y-6">
-            <div className="flex items-center gap-2 mb-4">
-               <Switch defaultChecked id="email-notif" className="data-[state=checked]:bg-nexus-primary" />
-               <Label htmlFor="email-notif" className="text-base font-medium">On</Label>
+    const [updateSystemuser, { isLoading: isSaving }] = useUpdateSystemuserMutation();
+
+    const { register, handleSubmit, reset } = useForm({
+        defaultValues: {
+            email: "",
+            whatsapp: "",
+        },
+    });
+
+    useEffect(() => {
+        if (!user) return;
+        const config = user.notificationConfig;
+        reset({
+            email: config?.email ?? "",
+            whatsapp: config?.whatsapp ?? "",
+        });
+    }, [user, reset]);
+
+    const onSubmit = async (data) => {
+        if (!userId) {
+            toast.error(t("settings.userIdNotFound"));
+            return;
+        }
+        try {
+            const payload = {
+                notificationConfig: {
+                    email: data.email?.trim() || null,
+                    whatsapp: data.whatsapp?.trim() || null,
+                },
+            };
+            await updateSystemuser({ id: userId, ...payload }).unwrap();
+            dispatch(userDetailsFetched(payload));
+            toast.success(t("settings.notificationConfigSaved") || "Notification settings saved");
+        } catch (e) {
+            toast.error(e?.data?.message || (t("settings.notificationConfigFailed") || "Failed to save"));
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            <div>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <Bell className="h-5 w-5 text-nexus-primary" />
+                    {t("settings.notifications") || "Notifications"}
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    {t("settings.notificationConfigDesc") || "Configure where to receive notifications (email and WhatsApp). Follows backend notificationConfig."}
+                </p>
             </div>
-            
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <Checkbox id="news" defaultChecked className="mt-1 data-[state=checked]:bg-nexus-primary data-[state=checked]:border-nexus-primary" />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor="news" className="text-base font-medium">News and Update Settings</Label>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    The latest news about the latest features and software update settings
-                  </p>
-                </div>
-              </div>
 
-              <div className="flex items-start gap-3">
-                <Checkbox id="tips" className="mt-1" />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor="tips" className="text-base font-medium">Tips and Tutorials</Label>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Tips and tricks in order to increase your performance efficiency
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Checkbox id="offer" defaultChecked className="mt-1 data-[state=checked]:bg-nexus-primary data-[state=checked]:border-nexus-primary" />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor="offer" className="text-base font-medium">Offer and Promotions</Label>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Promotions about software package prices and about the latest discounts
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+            <Card className="border border-gray-100 dark:border-gray-800">
+                <CardHeader className="pb-3">
+                    <CardTitle className="text-base font-semibold">
+                        {t("settings.notificationChannels") || "Notification channels"}
+                    </CardTitle>
+                    <CardDescription>
+                        {t("settings.notificationChannelsDesc") || "Email and WhatsApp used for alerts and updates."}
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                <Mail className="h-4 w-4" />
+                                {t("settings.notificationEmail") || "Notification email"}
+                            </label>
+                            <input
+                                type="email"
+                                {...register("email")}
+                                placeholder="notifications@example.com"
+                                className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-nexus-primary"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                <MessageCircle className="h-4 w-4" />
+                                {t("settings.notificationWhatsapp") || "WhatsApp number"}
+                            </label>
+                            <input
+                                type="text"
+                                {...register("whatsapp")}
+                                placeholder="+8801712345678"
+                                className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-nexus-primary"
+                            />
+                        </div>
+                        <div className="pt-2">
+                            <Button type="submit" disabled={isSaving}>
+                                {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                                {isSaving ? (t("common.saving") || "Saving...") : (t("common.save") || "Save")}
+                            </Button>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
         </div>
-
-        <div className="border-t border-gray-200 dark:border-gray-800"></div>
-
-        {/* More Activity */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          <div className="md:col-span-4">
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">More Activity</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              Substance can send you email notifications for any new direct messages
-            </p>
-          </div>
-          <div className="md:col-span-8 space-y-6">
-            <div className="flex items-center gap-2 mb-4">
-               <Switch defaultChecked id="more-activity" className="data-[state=checked]:bg-nexus-primary" />
-               <Label htmlFor="more-activity" className="text-base font-medium">On</Label>
-            </div>
-
-            <RadioGroup defaultValue="important" className="space-y-4">
-              <div className="flex items-start gap-3">
-                <RadioGroupItem value="all" id="all" className="mt-1 text-nexus-primary border-nexus-primary" />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor="all" className="text-base font-medium">All Reminders & Activity</Label>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Notify me all system activities and reminders that have been created
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <RadioGroupItem value="activity" id="activity" className="mt-1 text-nexus-primary border-nexus-primary" />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor="activity" className="text-base font-medium">Activity only</Label>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Only notify me we have the latest activity updates about increasing or decreasing data
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <RadioGroupItem value="important" id="important" className="mt-1 text-nexus-primary border-nexus-primary" />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor="important" className="text-base font-medium">Important Reminder only</Label>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Only notify me all the reminders that have been made
-                  </p>
-                </div>
-              </div>
-            </RadioGroup>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default NotificationSettings;

@@ -38,6 +38,7 @@ export const systemuserApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { id }) => [
         { type: "systemuser", id },
         { type: "systemuser", id: "LIST" },
+        "my-profile",
       ],
     }),
 
@@ -55,6 +56,19 @@ export const systemuserApiSlice = apiSlice.injectEndpoints({
         headers: { "Content-Type": "application/json;charset=UTF-8" },
         body,
       }),
+    }),
+
+    // Revert package to previous (fallback when payment fails/cancelled)
+    revertPackage: builder.mutation({
+      query: (id) => ({
+        url: `/systemuser/${id}/revert-package`,
+        method: "PATCH",
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: "systemuser", id },
+        { type: "systemuser", id: "LIST" },
+        "my-profile",
+      ],
     }),
 
     // Assign permissions to system user
@@ -127,6 +141,7 @@ export const {
   useUpdateSystemuserMutation,
   useDeleteSystemuserMutation,
   useLoginSystemuserMutation,
+  useRevertPackageMutation,
   useAssignPermissionsMutation,
   useGetPermissionsQuery,
   useCreateSystemOwnerMutation,

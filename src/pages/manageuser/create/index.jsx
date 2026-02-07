@@ -1,21 +1,23 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/input/TextField";
-import { ArrowLeft, Save, UserPlus, Shield, Building, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Save, UserPlus, Shield, Building } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
+import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
+import { useCreateSystemuserMutation } from "@/features/systemuser/systemuserApiSlice";
 
 const CreateUserPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  
-  const isLoading = false;
+  const { data: currentUser } = useGetCurrentUserQuery();
+  const [createSystemuser, { isLoading: isSubmitting }] = useCreateSystemuserMutation();
 
   const createUserSchema = useMemo(
     () =>
@@ -37,10 +39,6 @@ const CreateUserPage = () => {
         role: yup
           .string()
           .required("Role is required"),
-        image: yup
-          .string()
-          .url("Must be a valid URL")
-          .nullable(),
         password: yup
           .string()
           .required(t("manageUsers.validation.passwordRequired"))
@@ -52,7 +50,7 @@ const CreateUserPage = () => {
     [t]
   );
 
-  const { register, control, handleSubmit, formState: { errors } } = useForm({
+  const { register, control, handleSubmit, setValue, formState: { errors } } = useForm({
     resolver: yupResolver(createUserSchema),
     defaultValues: {
       name: "",
@@ -60,52 +58,34 @@ const CreateUserPage = () => {
       email: "",
       phone: "",
       role: "EMPLOYEE",
-      image: "",
       password: "",
       isActive: true,
     },
   });
 
-  const onSubmit = async (data) => {
-    // Mock submission to match the structure in index.jsx
-    const newUser = {
-      id: `USR-${Math.floor(Math.random() * 1000)}`,
-      name: data.name,
-      companyName: data.companyName,
-      email: data.email,
-      phone: data.phone,
-      role: data.role,
-      permissions: getPermissionsForRole(data.role),
-      isActive: data.isActive,
-      image: data.image || null,
-      joinedDate: new Date().toISOString().split('T')[0],
-      lastActive: "Just now",
-      activities: [
-        { 
-          id: 1, 
-          text: "Account created", 
-          time: "Just now", 
-          type: "system" 
-        }
-      ]
-    };
-    
-    console.log("Creating User:", newUser); // For debugging/verification
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success(t("manageUsers.userCreated"));
-    navigate("/manage-users");
-  };
+  // Auto-fill company name from auth/me (logged-in user)
+  useEffect(() => {
+    const company = currentUser?.companyName ?? currentUser?.company?.name ?? "";
+    if (company) {
+      setValue("companyName", company);
+    }
+  }, [currentUser, setValue]);
 
-  const getPermissionsForRole = (role) => {
-    switch(role) {
-      case "SYSTEM_OWNER": return ["ALL_ACCESS"];
-      case "SUPER_ADMIN": return ["MANAGE_USERS", "VIEW_REPORTS", "MANAGE_SETTINGS"];
-      case "MANAGER": return ["MANAGE_ORDERS", "VIEW_CUSTOMERS", "VIEW_REPORTS"];
-      case "EMPLOYEE": return ["VIEW_ORDERS", "MANAGE_PRODUCTS"];
-      default: return [];
+  const onSubmit = async (data) => {
+    try {
+      await createSystemuser({
+        name: data.name,
+        companyName: data.companyName,
+        email: data.email,
+        phone: data.phone,
+        role: data.role,
+        password: data.password,
+        isActive: data.isActive,
+      }).unwrap();
+      toast.success(t("manageUsers.userCreated"));
+      navigate("/manage-users");
+    } catch (err) {
+      toast.error(err?.data?.message || err?.data?.error || t("manageUsers.userCreateFailed"));
     }
   };
 
@@ -191,7 +171,7 @@ const CreateUserPage = () => {
                 />
               </div>
 
-              {/* Role & Image */}
+              {/* Role */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="flex flex-col gap-2">
                   <label className="text-gray-700 dark:text-gray-300 text-sm font-medium ml-1">Role</label>
@@ -211,16 +191,6 @@ const CreateUserPage = () => {
                   </div>
                   {errors.role && <span className="text-red-500 text-xs ml-1 font-medium">{errors.role.message}</span>}
                 </div>
-
-                <TextField
-                  label="Profile Image URL"
-                  placeholder="https://..."
-                  register={register}
-                  name="image"
-                  error={errors.image}
-                  className="rounded-xl"
-                  icon={<ImageIcon className="h-4 w-4" />}
-                />
               </div>
 
               {/* Password */}
@@ -272,7 +242,7 @@ const CreateUserPage = () => {
                   type="button"
                   variant="outline"
                   onClick={() => navigate("/manage-users")}
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                   className="w-full justify-start rounded-xl h-12 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
@@ -281,11 +251,11 @@ const CreateUserPage = () => {
                 <Button
                   type="submit"
                   form="create-user-form"
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                   className="w-full justify-start rounded-xl h-12 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-lg shadow-indigo-500/20 border-0"
                 >
                   <Save className="mr-2 h-4 w-4" />
-                  {isLoading ? t("common.saving") : t("common.create")}
+                  {isSubmitting ? t("common.saving") : t("common.create")}
                 </Button>
               </div>
             </div>

@@ -43,19 +43,34 @@ export const FeaturePermission = Object.freeze({
   PATHAO_COURIER_CONFIGURATION:"PATHAO_COURIER_CONFIGURATION",
   STEADFAST_COURIER_CONFIGURATION:"STEADFAST_COURIER_CONFIGURATION",
   REDX_COURIER_CONFIGURATION:"REDX_COURIER_CONFIGURATION",
-
-  
+  MANAGE_REVIEW: "MANAGE_REVIEW",
 });
 
+// Values the backend accepts for assign-permissions; filter payload to this set when saving
+export const API_ALLOWED_PERMISSION_VALUES = Object.freeze([
+  "PRODUCTS", "ORDERS", "STEARDFAST", "PATHAO", "REDX", "NOTIFICATIONS",
+  "EMAIL_NOTIFICATIONS", "WHATSAPP_NOTIFICATIONS", "SMS_NOTIFICATIONS",
+  "ORDERS_ITEM", "CATEGORY", "CUSTOMERS", "REPORTS", "SETTINGS", "STAFF",
+  "SMS_CONFIGURATION", "EMAIL_CONFIGURATION", "PAYMENT_METHODS", "PAYMENT_GATEWAYS",
+  "PAYMENT_STATUS", "PAYMENT_TRANSACTIONS", "PROMOCODES", "HELP", "BANNERS",
+  "FRUAD_CHECKER", "MANAGE_USERS", "DASHBOARD", "REVENUE", "NEW_CUSTOMERS",
+  "REPEAT_PURCHASE_RATE", "AVERAGE_ORDER_VALUE", "STATS", "LOG_ACTIVITY",
+  "PATHAO_COURIER", "STEADFAST_COURIER", "REDX_COURIER",
+  "PATHAO_COURIER_CONFIGURATION", "STEADFAST_COURIER_CONFIGURATION", "REDX_COURIER_CONFIGURATION",
+  "REVIEW", "MANAGE_REVIEW",
+]);
+
 export const hasPermission = (user, permission) => {
+  // Employee: only show/access routes they have explicit permission for
+  if (user?.role === "EMPLOYEE") {
+    if (!permission) return false;
+    const directPermissions = Array.isArray(user?.permissions) ? user.permissions : [];
+    return directPermissions.includes(permission);
+  }
+  // System owner / others: no permission required = allow; otherwise check package features or permissions
   if (!permission) return true;
-  
-  // Check user.permissions first (for EMPLOYEE role and direct permissions)
-  // Then fall back to user.package.features (for SYSTEM_OWNER role)
   const directPermissions = Array.isArray(user?.permissions) ? user.permissions : [];
   const packageFeatures = Array.isArray(user?.package?.features) ? user.package.features : [];
-  
-  // Combine both sources and check if permission exists
   const allPermissions = [...new Set([...directPermissions, ...packageFeatures])];
   return allPermissions.includes(permission);
 };

@@ -118,6 +118,7 @@ export const apiSlice = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: [
     "auth",
+    "my-profile",
     "categories",
     "products",
     "users",

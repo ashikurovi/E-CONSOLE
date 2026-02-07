@@ -47,7 +47,7 @@ export const invoiceApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: [{ type: "invoice", id: "LIST" }],
     }),
 
-    // Verify bank payment
+    // Verify bank payment (updates invoice to PAID and applies package upgrade)
     verifyBankPayment: builder.mutation({
       query: (id) => ({
         url: `/invoice/payment/bank/verify/${id}`,
@@ -56,6 +56,7 @@ export const invoiceApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, id) => [
         { type: "invoice", id },
         { type: "invoice", id: "LIST" },
+        "my-profile",
       ],
     }),
 

@@ -1,435 +1,139 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import {
   Check,
   Book,
   Flame,
-  Eye,
-  Trash2,
+  Download,
   ChevronRight,
   CheckCircle2,
   X,
+  RotateCcw,
 } from "lucide-react";
+import toast from "react-hot-toast";
+import { generateInvoicePDF } from "@/pages/superadmin/invoice/InvoicePDFGenerator";
 import { motion, AnimatePresence } from "framer-motion";
+import { useGetPackagesQuery } from "@/features/package/packageApiSlice";
+import { API_ALLOWED_PERMISSION_VALUES } from "@/constants/feature-permission";
+import { PaymentModal } from "./components";
+import { useRevertPackageMutation } from "@/features/systemuser/systemuserApiSlice";
+import { userDetailsFetched } from "@/features/auth/authSlice";
+import {
+  useGetInvoicesQuery,
+  useCreateInvoiceMutation,
+  useInitiateBkashPaymentMutation,
+  useSubmitBankPaymentMutation,
+} from "@/features/invoice/invoiceApiSlice";
+
+// Format permission key for display (e.g. MANAGE_USERS -> "Manage users")
+const featureLabel = (key) => {
+  if (!key || typeof key !== "string") return key;
+  return key
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toLowerCase())
+    .replace(/^./, (c) => c.toUpperCase());
+};
+
+// Format price from API (string "999.00" or number) for display
+const formatPrice = (value) => {
+  if (value == null || value === "") return "—";
+  const num = typeof value === "string" ? parseFloat(value) : value;
+  if (Number.isNaN(num)) return "—";
+  return num % 1 === 0 ? String(num) : num.toFixed(2);
+};
 
 const OptimizedUpgradePlan = () => {
-  const [selectedPlanIndex, setSelectedPlanIndex] = useState(2);
+  const dispatch = useDispatch();
+  const currentUser = useSelector((state) => state.auth?.user);
+  const userPackageId = currentUser?.packageId ?? currentUser?.package?.id;
+  const [revertPackage, { isLoading: isReverting }] = useRevertPackageMutation();
+  const [createInvoice] = useCreateInvoiceMutation();
+  const [initiateBkashPayment] = useInitiateBkashPaymentMutation();
+  const [submitBankPayment] = useSubmitBankPaymentMutation();
+
+  const {
+    data: packagesFromApi,
+    isLoading: packagesLoading,
+    isError: packagesError,
+    error: packagesErrorDetail,
+    refetch: refetchPackages,
+  } = useGetPackagesQuery(undefined, { refetchOnMountOrArgChange: true });
+  // Support both: API returns array directly (after transform) or { statusCode, message, data: [] }
+  const packagesList = (() => {
+    if (Array.isArray(packagesFromApi)) return packagesFromApi;
+    if (packagesFromApi?.data && Array.isArray(packagesFromApi.data)) return packagesFromApi.data;
+    return [];
+  })();
+
+  const {
+    data: invoicesFromApi,
+    isLoading: invoicesLoading,
+  } = useGetInvoicesQuery(undefined, { refetchOnMountOrArgChange: true });
+  const invoicesList = (() => {
+    if (Array.isArray(invoicesFromApi)) return invoicesFromApi;
+    if (invoicesFromApi?.data && Array.isArray(invoicesFromApi.data)) return invoicesFromApi.data;
+    return [];
+  })();
+
+  const [selectedPlanIndex, setSelectedPlanIndex] = useState(0);
   const [selectedRows, setSelectedRows] = useState(new Set());
 
-  const plans = [
-    {
-      name: "Basic Plan",
-      subtitle: "Suitable plan for starter business",
-      price: "99.99",
-      features: [
-        "Customers Segmentations",
-        "Google Integrations",
-        "Activity Reminder",
-      ],
-      buttonText: "Choose Plan",
-      color: "bg-white",
-      border: "border-gray-200",
-    },
-    {
-      name: "Enterprise Plan",
-      subtitle: "Best plan for mid-sized businesses",
-      price: "119.99",
-      features: [
-        "Get a Basic Plans",
-        "Access All Feature",
-        "Get 1 TB Cloud Storage",
-      ],
-      buttonText: "Choose Plan",
-      color: "bg-white",
-      border: "border-gray-200",
-    },
-    {
-      name: "Your Current Packages",
-      subtitle: "Suitable plan for starter",
-      price: "149.99",
-      features: [
-        "Get Enterprise Plan",
-        "Access All Feature",
-        "Get 2 TB Cloud Storage",
-      ],
-      buttonText: "Active plan",
-      color: "bg-gradient-to-br from-purple-600 to-purple-700",
-      border: "border-purple-600",
-      badge: "Most Popular",
-    },
-  ];
+  const plans = useMemo(() => {
+    return packagesList.map((pkg) => {
+      const isUserPackage =
+        pkg.id === userPackageId ||
+        (userPackageId != null && Number(pkg.id) === Number(userPackageId));
+      // API returns price/discountPrice as strings e.g. "999.00", "799.00"
+      const rawPrice = pkg.price != null ? pkg.price : null;
+      const rawDiscount = pkg.discountPrice != null ? pkg.discountPrice : null;
+      const price =
+        rawDiscount != null && String(rawDiscount).trim() !== ""
+          ? String(rawDiscount)
+          : rawPrice != null && String(rawPrice).trim() !== ""
+            ? String(rawPrice)
+            : "—";
+      const features = Array.isArray(pkg.features) ? [...pkg.features] : [];
+      return {
+        id: pkg.id,
+        name: pkg.name || "Package",
+        subtitle: pkg.description || "",
+        price,
+        rawPrice: rawPrice != null ? String(rawPrice) : null,
+        rawDiscount: rawDiscount != null ? String(rawDiscount) : null,
+        features: features.length ? features : ["—"],
+        buttonText: isUserPackage ? "Active plan" : "Choose Plan",
+        badge: isUserPackage ? "Current" : (pkg.isFeatured ? "Popular" : null),
+        isUserPackage,
+      };
+    });
+  }, [packagesList, userPackageId]);
 
-  const comparisonSections = [
-    {
-      title: "Data",
-      rows: [
-        {
-          name: "Email Credits",
-          basic: "200/month",
-          pro: "Unlimited",
-          custom: "Unlimited",
-        },
-        {
-          name: "Direct Dials",
-          basic: false,
-          pro: "50/month",
-          custom: "Custom",
-        },
-        {
-          name: "Record Selection Limit",
-          basic: "25",
-          pro: "25",
-          custom: "50,000",
-        },
-        {
-          name: "Linkedin Extension",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "CSV Export",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Basic Filters",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Advanced Filters",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Scoring Engine",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Enrichment",
-          basic: false,
-          pro: false,
-          custom: true,
-        },
-        {
-          name: "Job Change Alerts",
-          basic: false,
-          pro: false,
-          custom: true,
-        },
-        {
-          name: "Mobile Phone Numbers",
-          basic: false,
-          pro: "Included",
-          custom: "Included",
-        },
-        {
-          name: "Personal Emails",
-          basic: "Limited",
-          pro: "Included",
-          custom: "Included",
-        },
-        {
-          name: "Technology Stack Data",
-          basic: false,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Intent Signals",
-          basic: false,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Org Charts",
-          basic: false,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Funding Data",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "News & Alerts",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Competitor Intelligence",
-          basic: false,
-          pro: false,
-          custom: true,
-        },
-        {
-          name: "Technographics",
-          basic: false,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "SEO Keywords",
-          basic: false,
-          pro: false,
-          custom: true,
-        },
-      ],
-    },
-    {
-      title: "Automation",
-      rows: [
-        {
-          name: "Number of Sequences",
-          basic: "Unlimited",
-          pro: "Unlimited",
-          custom: "Unlimited",
-        },
-        {
-          name: "Daily Emails Sending Limit",
-          basic: "Unlimited",
-          pro: "Unlimited",
-          custom: "Unlimited",
-        },
-        {
-          name: "Email Integration",
-          basic: "All Providers",
-          pro: "All Providers",
-          custom: "All Providers",
-        },
-        {
-          name: "Outreach & Salesloft Integration",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Gmail Extension",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Open, Click & Meeting Tracking",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Basic Sequencing",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Advanced Sequencing",
-          basic: false,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Custom Fields",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Rules Engine Process Builder",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        { name: "Dialer", basic: false, pro: true, custom: true },
-        {
-          name: "Advanced Dialer",
-          basic: false,
-          pro: false,
-          custom: true,
-        },
-        {
-          name: "Account Based Automation",
-          basic: false,
-          pro: false,
-          custom: true,
-        },
-        {
-          name: "Sendgrid Integration",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Multi-channel Sequences",
-          basic: false,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "AI Email Writer",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "LinkedIn Automation",
-          basic: false,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Task Automation",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Meeting Scheduler",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Video Personalization",
-          basic: false,
-          pro: false,
-          custom: true,
-        },
-      ],
-    },
-    {
-      title: "CRM",
-      rows: [
-        {
-          name: "Salesforce Extension",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Opportunities",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Pull CRM (Salesforce & Hubspot)",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "HubSpot Integration",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Pipedrive Integration",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Zoho CRM Integration",
-          basic: false,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Dynamics 365 Integration",
-          basic: false,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Custom Field Mapping",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Auto-Create Leads",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Duplicate Detection",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Activity Sync",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Note Sync",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Call Logging",
-          basic: false,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Task Sync",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Opportunity Sync",
-          basic: false,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Account Sync",
-          basic: true,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "CRM Reports",
-          basic: false,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "ROI Analytics",
-          basic: false,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "Team Performance",
-          basic: false,
-          pro: true,
-          custom: true,
-        },
-        {
-          name: "API Rate Limits",
-          basic: "Standard",
-          pro: "High",
-          custom: "Unlimited",
-        },
-      ],
-    },
-  ];
+  // Select user's package by default when plans load
+  useEffect(() => {
+    if (plans.length && userPackageId != null) {
+      const idx = plans.findIndex((p) => p.id === userPackageId);
+      if (idx >= 0) setSelectedPlanIndex(idx);
+    }
+  }, [plans.length, userPackageId, plans]);
+
+  // Logged-in user's current package (for hero section)
+  const currentPlan = useMemo(
+    () => plans.find((p) => p.isUserPackage) || null,
+    [plans]
+  );
+
+  // Comparison rows: one per feature permission, each plan gets ✓/✗
+  const comparisonRows = useMemo(() => {
+    return API_ALLOWED_PERMISSION_VALUES.map((perm) => ({
+      name: featureLabel(perm),
+      planValues: plans.map((p) => (p.features || []).includes(perm)),
+    }));
+  }, [plans]);
+
+  const comparisonSections = useMemo(
+    () => [{ title: "Features", rows: comparisonRows }],
+    [comparisonRows]
+  );
 
   const renderComparisonValue = (value) => {
     if (value === true) {
@@ -453,33 +157,178 @@ const OptimizedUpgradePlan = () => {
     return <span className="text-sm font-medium text-gray-600">{value}</span>;
   };
 
-  const billingHistory = [
-    {
-      id: "01",
-      invoice: "Invoice#129810",
-      date: "25 Dec 2023",
-      amount: "$149.99",
-      plan: "Professional Plan",
-      status: "Success",
-    },
-    {
-      id: "02",
-      invoice: "Invoice#129811",
-      date: "05 Jul 2023",
-      amount: "$149.99",
-      plan: "Professional Plan",
-      status: "Success",
-    },
-  ];
+  // Build billing history from API invoices (package-type only for this page, or all)
+  const billingHistory = useMemo(() => {
+    return invoicesList.map((inv, index) => {
+      const planName =
+        plans.find((p) => p.id === inv.packageId)?.name ||
+        (inv.packageId ? `Plan #${inv.packageId}` : "—");
+      const created = inv.createdAt ? new Date(inv.createdAt) : null;
+      const dateStr = created
+        ? created.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "—";
+      const amount = inv.totalAmount != null ? formatPrice(inv.totalAmount) : "—";
+      const status =
+        inv.status === "paid"
+          ? "Success"
+          : inv.status
+            ? String(inv.status).charAt(0).toUpperCase() + String(inv.status).slice(1)
+            : "—";
+      return {
+        id: String(inv.id),
+        invoice: inv.invoiceNumber || `Invoice#${inv.id}`,
+        date: dateStr,
+        amount: `৳${amount}`,
+        plan: planName,
+        status,
+        raw: inv,
+      };
+    });
+  }, [invoicesList, plans]);
+
+  const totalPaidFromInvoices = useMemo(() => {
+    return billingHistory
+      .filter((b) => b.raw?.status === "paid")
+      .reduce((sum, b) => sum + parseFloat(b.raw?.totalAmount || 0), 0);
+  }, [billingHistory]);
 
   const [isExpanded, setIsExpanded] = useState(true);
-  const [expandedSections, setExpandedSections] = useState({});
+  const [showAllFeatures, setShowAllFeatures] = useState(false);
 
-  const toggleSection = (sectionTitle) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [sectionTitle]: !prev[sectionTitle],
-    }));
+  // Payment modal (when clicking "Choose Plan")
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [planForPayment, setPlanForPayment] = useState(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("bkash");
+  const [bankPaymentData, setBankPaymentData] = useState({
+    bankName: "",
+    accLastDigit: "",
+  });
+  const [isLoadingBkash, setIsLoadingBkash] = useState(false);
+  const [isLoadingBank, setIsLoadingBank] = useState(false);
+
+  const openPaymentModal = (plan) => {
+    if (plan?.buttonText === "Choose Plan") {
+      setPlanForPayment(plan);
+      setSelectedPaymentMethod("bkash");
+      setBankPaymentData({ bankName: "", accLastDigit: "" });
+      setShowPaymentModal(true);
+    }
+  };
+
+  const closePaymentModal = () => {
+    setShowPaymentModal(false);
+    setPlanForPayment(null);
+  };
+
+  const handleDownloadInvoice = (invoice) => {
+    try {
+      const invoiceWithCustomer = {
+        ...invoice,
+        customer: invoice.customer || {
+          name: currentUser?.name,
+          email: currentUser?.email,
+          companyName: currentUser?.companyName,
+          companyId: currentUser?.companyId,
+          phone: currentUser?.phone,
+          branchLocation: currentUser?.branchLocation,
+          paymentInfo: currentUser?.paymentInfo,
+        },
+      };
+      generateInvoicePDF(invoiceWithCustomer);
+      toast.success("Invoice downloaded");
+    } catch (err) {
+      console.error("Invoice download failed:", err);
+      toast.error("Failed to download invoice");
+    }
+  };
+
+  const handleBkashPayment = async () => {
+    if (!currentUser?.id || !planForPayment?.id) return;
+    setIsLoadingBkash(true);
+    try {
+      const amount = parseFloat(planForPayment.price);
+      if (Number.isNaN(amount) || amount <= 0) {
+        throw new Error("Invalid plan price");
+      }
+      const createRes = await createInvoice({
+        customerId: currentUser.id,
+        packageId: planForPayment.id,
+        totalAmount: amount,
+        paidAmount: 0,
+        amountType: "package",
+        status: "pending",
+      }).unwrap();
+      const invoice = Array.isArray(createRes) ? createRes[0] : createRes;
+      const invoiceId = invoice?.id ?? createRes?.id;
+      if (!invoiceId) throw new Error("Invoice not created");
+      const initRes = await initiateBkashPayment({ invoiceId }).unwrap();
+      const bkashURL = initRes?.bkashURL ?? initRes?.data?.bkashURL;
+      if (bkashURL) {
+        closePaymentModal();
+        window.location.href = bkashURL;
+        return;
+      }
+      throw new Error("bKash URL not received");
+    } catch (err) {
+      console.error("bKash payment failed:", err);
+      setIsLoadingBkash(false);
+    }
+  };
+
+  const handleBankPayment = async () => {
+    if (!currentUser?.id || !planForPayment?.id) return;
+    setIsLoadingBank(true);
+    try {
+      const amount = parseFloat(planForPayment.price);
+      if (Number.isNaN(amount) || amount <= 0) {
+        throw new Error("Invalid plan price");
+      }
+      const createRes = await createInvoice({
+        customerId: currentUser.id,
+        packageId: planForPayment.id,
+        totalAmount: amount,
+        paidAmount: 0,
+        amountType: "package",
+        status: "pending",
+      }).unwrap();
+      const invoice = Array.isArray(createRes) ? createRes[0] : createRes;
+      const invoiceId = invoice?.id ?? createRes?.id;
+      if (!invoiceId) throw new Error("Invoice not created");
+      await submitBankPayment({
+        invoiceId,
+        bankName: bankPaymentData.bankName,
+        accLastDigit: bankPaymentData.accLastDigit,
+      }).unwrap();
+      closePaymentModal();
+    } catch (err) {
+      console.error("Bank payment submit failed:", err);
+    } finally {
+      setIsLoadingBank(false);
+    }
+  };
+
+  const paymentInvoice = useMemo(() => {
+    if (!planForPayment) return null;
+    return {
+      invoiceNumber: `Plan-${planForPayment.id}`,
+      dueAmount: planForPayment.price,
+      totalAmount: planForPayment.price,
+    };
+  }, [planForPayment]);
+
+  const hasPreviousPackage = currentUser?.previousPackageId != null;
+  const handleRevertToPreviousPlan = async () => {
+    if (!currentUser?.id || !hasPreviousPackage) return;
+    try {
+      const result = await revertPackage(currentUser.id).unwrap();
+      dispatch(userDetailsFetched(result));
+    } catch (err) {
+      console.error("Revert package failed:", err);
+    }
   };
 
   const toggleRowSelection = (index) => {
@@ -493,38 +342,71 @@ const OptimizedUpgradePlan = () => {
   };
 
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 1 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
+        staggerChildren: 0.08,
+        delayChildren: 0,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 1, y: 0 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: "easeOut" },
+      transition: { duration: 0.3, ease: "easeOut" },
     },
   };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <motion.div
+      {/* Revert to previous plan (fallback) banner */}
+      {hasPreviousPackage && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-7xl mx-auto px-8 md:px-12 pt-6"
+        >
+          <div className="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-amber-800 dark:text-amber-200 font-medium flex items-center gap-2">
+              <RotateCcw className="w-4 h-4 flex-shrink-0" />
+              Your last upgrade wasn’t completed. Revert to your previous plan?
+            </p>
+            <button
+              type="button"
+              onClick={handleRevertToPreviousPlan}
+              disabled={isReverting}
+              className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold disabled:opacity-60 flex items-center gap-2"
+            >
+              {isReverting ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Reverting...
+                </>
+              ) : (
+                <>
+                  <RotateCcw className="w-4 h-4" />
+                  Revert to previous plan
+                </>
+              )}
+            </button>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Section 1: Hero / Current package */}
+      <motion.section
         className="bg-white p-8 md:p-12 max-w-7xl mx-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        {/* Top Featured Card */}
-        <div className="mb-12 rounded-3xl bg-gradient-to-r from-gray-50 to-gray-100 p-8 md:p-12 border border-gray-200">
+        <div className="rounded-3xl bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-900/50 p-8 md:p-12 border border-gray-200 dark:border-gray-700">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {/* Left side */}
+            {/* Left side – package name & price */}
             <motion.div
               className="space-y-6"
               initial={{ opacity: 0, x: -30 }}
@@ -532,72 +414,107 @@ const OptimizedUpgradePlan = () => {
               transition={{ delay: 0.2 }}
             >
               <div className="flex items-center gap-3 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 text-orange-600 rounded-lg text-xs font-bold border border-orange-200">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-lg text-xs font-bold border border-orange-200 dark:border-orange-700">
                   BUSINESS
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-full text-xs font-bold shadow-lg shadow-purple-600/20">
-                  <Flame className="w-3.5 h-3.5" />
-                  Most Popular
-                </span>
+                {currentPlan && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-full text-xs font-bold shadow-lg shadow-purple-600/20">
+                    <Flame className="w-3.5 h-3.5" />
+                    {currentPlan.badge === "Current" ? "Current plan" : "Most Popular"}
+                  </span>
+                )}
               </div>
 
               <div>
-                <h2 className="text-gray-600 text-lg font-semibold mb-4">
-                  Your Current Packages
+                <h2 className="text-gray-600 dark:text-gray-400 text-lg font-semibold mb-1">
+                  Your current package
                 </h2>
+                {currentPlan?.subtitle && (
+                  <p className="text-gray-500 dark:text-gray-500 text-sm">
+                    {currentPlan.subtitle}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-black text-gray-900">$29</span>
-                  <span className="text-gray-600 text-sm font-medium">
+                  <span className="text-5xl font-black text-gray-900 dark:text-white">
+                    {currentPlan?.price != null && currentPlan.price !== "—"
+                      ? `$${formatPrice(currentPlan.price)}`
+                      : "—"}
+                  </span>
+                  <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">
                     per seat/month · billed annually
                   </span>
                 </div>
-                <p className="text-gray-600 text-sm flex items-center gap-2">
-                  <span className="line-through opacity-60">$39</span>
-                  <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2 py-0.5 rounded text-xs font-bold border border-green-200">
-                    Save 25%
-                  </span>
-                  Billed monthly
-                </p>
+                {currentPlan && currentPlan.price !== "—" && (
+                  <p className="text-gray-600 dark:text-gray-400 text-sm flex items-center gap-2 flex-wrap">
+                    {(currentPlan.rawPrice && currentPlan.rawDiscount && parseFloat(currentPlan.rawDiscount) < parseFloat(currentPlan.rawPrice)) ||
+                    (currentUser?.package?.price != null && currentUser.package.discountPrice != null) ? (
+                      <>
+                        <span className="line-through opacity-60">
+                          ${formatPrice(currentPlan.rawPrice || currentUser?.package?.price)}
+                        </span>
+                        <span className="inline-flex items-center gap-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded text-xs font-bold border border-green-200 dark:border-green-800">
+                          Save{" "}
+                          {Math.round(
+                            (1 -
+                              parseFloat(currentPlan.rawDiscount || currentUser?.package?.discountPrice) /
+                                parseFloat(currentPlan.rawPrice || currentUser?.package?.price)) *
+                              100
+                          )}
+                          %
+                        </span>
+                      </>
+                    ) : null}
+                    Billed monthly
+                  </p>
+                )}
               </div>
 
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-purple-600/20 transition-all"
+                onClick={() =>
+                  document.getElementById("plans")?.scrollIntoView?.({ behavior: "smooth" })
+                }
               >
-                Upgrade Now
+                {currentPlan ? "Compare & upgrade" : "View plans"}
               </motion.button>
 
-              <p className="text-center text-xs text-gray-500">
+              <p className="text-center text-xs text-gray-500 dark:text-gray-400">
                 14-day money-back guarantee · Cancel anytime
               </p>
             </motion.div>
 
-            {/* Right side */}
+            {/* Right side – package features */}
             <motion.div
-              className="bg-white rounded-2xl p-6 space-y-4"
+              className="bg-white dark:bg-gray-800/50 rounded-2xl p-6 space-y-4 border border-gray-100 dark:border-gray-700"
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <p className="text-gray-900 font-bold text-base flex items-center gap-2">
-                <span className="text-purple-600">✓</span> Everything in our
-                Starter plan +
+              <p className="text-gray-900 dark:text-white font-bold text-base flex items-center gap-2">
+                <span className="text-purple-600">✓</span>
+                {currentPlan
+                  ? `${currentPlan.name} includes:`
+                  : "Everything in our plans:"}
               </p>
 
               <div className="space-y-3">
-                {[
-                  "Unlimited uploads",
-                  "A.I Coaching",
-                  "Deal boards",
-                  "Team Performance Insights",
-                  "Smart tags (Trackers)",
-                  "Hubspot Integration",
-                  "Salesforce Integration",
-                ].map((feature, i) => (
+                {(currentPlan?.features?.length
+                  ? currentPlan.features.filter((f) => f !== "—")
+                  : [
+                      "Unlimited uploads",
+                      "A.I Coaching",
+                      "Deal boards",
+                      "Team Performance Insights",
+                      "Smart tags (Trackers)",
+                      "Hubspot Integration",
+                      "Salesforce Integration",
+                    ]
+                ).map((feature, i) => (
                   <motion.div
                     key={i}
                     className="flex items-center gap-3"
@@ -605,9 +522,11 @@ const OptimizedUpgradePlan = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 + i * 0.08 }}
                   >
-                    <div className="w-2 h-2 rounded-full bg-purple-600 flex-shrink-0"></div>
-                    <span className="text-gray-700 text-sm font-medium">
-                      {feature}
+                    <div className="w-2 h-2 rounded-full bg-purple-600 flex-shrink-0" />
+                    <span className="text-gray-700 dark:text-gray-300 text-sm font-medium">
+                      {typeof feature === "string" && feature.length > 2
+                        ? featureLabel(feature)
+                        : feature}
                     </span>
                   </motion.div>
                 ))}
@@ -615,10 +534,57 @@ const OptimizedUpgradePlan = () => {
             </motion.div>
           </div>
         </div>
+      </motion.section>
 
-        {/* Pricing Cards */}
+      {/* Section 2: Pricing Cards */}
+      <motion.section
+        className="bg-white p-8 md:p-12 max-w-7xl mx-auto"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+      >
+        {packagesLoading ? (
+          <motion.div
+            className="flex items-center justify-center py-20"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <div className="text-gray-500 dark:text-gray-400">Loading packages…</div>
+          </motion.div>
+        ) : packagesError ? (
+          <motion.div
+            className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 p-12 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <p className="text-red-700 dark:text-red-300 font-medium mb-2">
+              Failed to load packages
+            </p>
+            <p className="text-sm text-red-600 dark:text-red-400 mb-4">
+              {packagesErrorDetail?.data?.message ||
+                packagesErrorDetail?.error ||
+                "Check your connection and try again."}
+            </p>
+            <button
+              type="button"
+              onClick={() => refetchPackages()}
+              className="px-4 py-2 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700"
+            >
+              Retry
+            </button>
+          </motion.div>
+        ) : !plans.length ? (
+          <motion.div
+            className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-12 text-center text-gray-500 dark:text-gray-400"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            No packages available. Contact support to add plans.
+          </motion.div>
+        ) : (
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
+          id="plans"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -628,7 +594,7 @@ const OptimizedUpgradePlan = () => {
 
             return (
               <motion.div
-                key={index}
+                key={plan.id ?? index}
                 layout
                 onClick={() => setSelectedPlanIndex(index)}
                 whileHover={{ y: -8 }}
@@ -637,13 +603,19 @@ const OptimizedUpgradePlan = () => {
                 className={`rounded-2xl p-8 cursor-pointer border-2 transition-all duration-300 relative overflow-hidden ${
                   isActive
                     ? "bg-gradient-to-br from-purple-600 to-purple-700 border-purple-600 text-white shadow-xl shadow-purple-600/20"
-                    : "bg-white border-gray-200 hover:border-purple-300 shadow-sm hover:shadow-md"
+                    : plan.isUserPackage
+                      ? "bg-white border-purple-400 shadow-md hover:shadow-lg ring-2 ring-purple-200"
+                      : "bg-white border-gray-200 hover:border-purple-300 shadow-sm hover:shadow-md"
                 }`}
               >
                 {/* Badge */}
                 {plan.badge && (
                   <motion.div
-                    className="absolute top-6 right-6 inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 text-white rounded-full text-xs font-bold backdrop-blur-sm"
+                    className={`absolute top-6 right-6 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                      plan.isUserPackage && !isActive
+                        ? "bg-purple-600 text-white"
+                        : "bg-white/20 text-white backdrop-blur-sm"
+                    }`}
                     initial={{ scale: 0, rotate: -180 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ type: "spring", delay: 0.3 }}
@@ -676,16 +648,24 @@ const OptimizedUpgradePlan = () => {
                 >
                   <div className="flex items-baseline gap-1 mb-1">
                     <span
-                      className={`text-4xl font-black ${isActive ? "text-white" : "text-gray-900"}`}
+                      className={`text-4xl font-black ${isActive ? "text-white" : "text-gray-900 dark:text-white"}`}
                     >
-                      ${plan.price}
+                      ${formatPrice(plan.price)}
                     </span>
                     <span
-                      className={`text-sm ${isActive ? "text-purple-100" : "text-gray-500"}`}
+                      className={`text-sm ${isActive ? "text-purple-100" : "text-gray-500 dark:text-gray-400"}`}
                     >
                       /year
                     </span>
                   </div>
+                  {plan.rawPrice && plan.rawDiscount && parseFloat(plan.rawDiscount) < parseFloat(plan.rawPrice) && (
+                    <p className={`text-sm flex items-center gap-2 mt-1 ${isActive ? "text-purple-100" : "text-gray-500 dark:text-gray-400"}`}>
+                      <span className="line-through opacity-70">${formatPrice(plan.rawPrice)}</span>
+                      <span className="inline-flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-1.5 py-0.5 rounded text-xs font-bold">
+                        Save {Math.round((1 - parseFloat(plan.rawDiscount) / parseFloat(plan.rawPrice)) * 100)}%
+                      </span>
+                    </p>
+                  )}
                 </motion.div>
 
                 {/* Features */}
@@ -717,7 +697,7 @@ const OptimizedUpgradePlan = () => {
                           isActive ? "text-white" : "text-gray-700"
                         }`}
                       >
-                        {feature}
+                        {typeof feature === "string" && feature.length > 2 ? featureLabel(feature) : feature}
                       </span>
                     </motion.div>
                   ))}
@@ -725,6 +705,7 @@ const OptimizedUpgradePlan = () => {
 
                 {/* Button */}
                 <motion.button
+                  type="button"
                   className={`w-full py-3 rounded-xl font-bold text-base transition-all ${
                     isActive
                       ? "bg-white text-purple-600 hover:bg-purple-50"
@@ -735,6 +716,10 @@ const OptimizedUpgradePlan = () => {
                   transition={{ delay: 0.4 }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openPaymentModal(plan);
+                  }}
                 >
                   {isActive ? `✓ ${plan.buttonText}` : plan.buttonText}
                 </motion.button>
@@ -742,10 +727,18 @@ const OptimizedUpgradePlan = () => {
             );
           })}
         </motion.div>
+        )}
+      </motion.section>
 
-        {/* Feature Comparison Section */}
+      {/* Section 3: Feature Comparison */}
+      <motion.section
+        className="bg-white p-8 md:p-12 max-w-7xl mx-auto"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
         <motion.div
-          className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-12"
+          className="bg-white rounded-2xl border border-gray-200 overflow-hidden"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
@@ -767,25 +760,35 @@ const OptimizedUpgradePlan = () => {
           <div className="overflow-x-auto">
             <div className="w-full min-w-[800px]">
               {/* Table Header */}
-              <div className="grid grid-cols-4 bg-gray-100/50 border-b border-gray-200">
+              <div
+                className="grid bg-gray-100/50 border-b border-gray-200"
+                style={{ gridTemplateColumns: `minmax(180px, 1fr) repeat(${plans.length}, minmax(100px, 1fr))` }}
+              >
                 <div className="p-4 font-bold text-gray-900 flex items-center">
                   <span className="text-purple-600 font-bold text-sm bg-purple-50 px-2 py-1 rounded">
-                    Data
+                    Feature
                   </span>
                 </div>
-                {["Starter", "Premium", "Enterprise"].map((plan) => (
+                {plans.map((plan, idx) => (
                   <div
-                    key={plan}
-                    className="p-4 text-center font-bold text-gray-900 bg-gray-50/50"
+                    key={plan.id ?? idx}
+                    className={`p-4 text-center font-bold text-gray-900 bg-gray-50/50 border-l border-gray-100 ${
+                      plan.isUserPackage ? "bg-purple-50/80 text-purple-800" : ""
+                    }`}
                   >
-                    {plan}
+                    {plan.name}
+                    {plan.isUserPackage && (
+                      <span className="block text-xs font-normal text-purple-600 mt-0.5">
+                        Your plan
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
 
-              {/* Sections */}
+              {/* Rows: one per feature permission */}
               <AnimatePresence>
-                {isExpanded && (
+                {isExpanded && plans.length > 0 && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
@@ -793,68 +796,43 @@ const OptimizedUpgradePlan = () => {
                     transition={{ duration: 0.3 }}
                     className="overflow-hidden"
                   >
-                    {comparisonSections.map((section, sectionIdx) => {
-                      const isSectionExpanded = expandedSections[section.title];
-                      const visibleRows = isSectionExpanded
-                        ? section.rows
-                        : section.rows.slice(0, 10);
-                      const hasMore = section.rows.length > 10;
-
-                      return (
-                        <div key={sectionIdx}>
-                          {/* Section Header */}
-                          <div className="bg-blue-50/30 border-y border-gray-200 p-3 px-4">
-                            <h4 className="font-bold text-blue-600 text-sm">
-                              {section.title}
-                            </h4>
+                    <div className="divide-y divide-gray-100">
+                      {(showAllFeatures ? comparisonRows : comparisonRows.slice(0, 15)).map((row, rowIdx) => (
+                        <div
+                          key={rowIdx}
+                          className="grid hover:bg-gray-50/50 transition-colors"
+                          style={{ gridTemplateColumns: `minmax(180px, 1fr) repeat(${plans.length}, minmax(100px, 1fr))` }}
+                        >
+                          <div className="p-4 py-3 text-sm font-medium text-gray-700 flex items-center">
+                            {row.name}
                           </div>
-
-                          {/* Rows */}
-                          <div className="divide-y divide-gray-100">
-                            {visibleRows.map((row, rowIdx) => (
-                              <div
-                                key={rowIdx}
-                                className="grid grid-cols-4 hover:bg-gray-50/50 transition-colors"
-                              >
-                                <div className="p-4 py-3 text-sm font-medium text-gray-700 flex items-center">
-                                  {row.name}
-                                </div>
-                                <div className="p-4 py-3 text-center flex items-center justify-center border-l border-gray-50">
-                                  {renderComparisonValue(row.basic)}
-                                </div>
-                                <div className="p-4 py-3 text-center flex items-center justify-center border-l border-gray-50">
-                                  {renderComparisonValue(row.pro)}
-                                </div>
-                                <div className="p-4 py-3 text-center flex items-center justify-center border-l border-gray-50">
-                                  {renderComparisonValue(row.custom)}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* View Details Button */}
-                          {hasMore && (
-                            <div className="p-3 bg-gray-50/30 flex justify-center border-t border-gray-100">
-                              <button
-                                onClick={() => toggleSection(section.title)}
-                                className="text-purple-600 text-xs font-bold flex items-center gap-1 hover:text-purple-700 bg-white border border-purple-200 px-3 py-1.5 rounded-full shadow-sm hover:shadow transition-all"
-                              >
-                                {isSectionExpanded
-                                  ? "Show Less"
-                                  : "View Details"}
-                                <ChevronRight
-                                  className={`w-3 h-3 transition-transform ${
-                                    isSectionExpanded
-                                      ? "-rotate-90"
-                                      : "rotate-90"
-                                  }`}
-                                />
-                              </button>
+                          {(row.planValues || []).map((value, planIdx) => (
+                            <div
+                              key={planIdx}
+                              className={`p-4 py-3 text-center flex items-center justify-center border-l border-gray-50 ${
+                                plans[planIdx]?.isUserPackage ? "bg-purple-50/30" : ""
+                              }`}
+                            >
+                              {renderComparisonValue(value)}
                             </div>
-                          )}
+                          ))}
                         </div>
-                      );
-                    })}
+                      ))}
+                    </div>
+                    {comparisonRows.length > 15 && (
+                      <div className="p-3 bg-gray-50/30 flex justify-center border-t border-gray-100">
+                        <button
+                          type="button"
+                          onClick={() => setShowAllFeatures((v) => !v)}
+                          className="text-purple-600 text-xs font-bold flex items-center gap-1 hover:text-purple-700 bg-white border border-purple-200 px-3 py-1.5 rounded-full shadow-sm hover:shadow transition-all"
+                        >
+                          {showAllFeatures ? "Show less" : "View all features"}
+                          <ChevronRight
+                            className={`w-3 h-3 transition-transform ${showAllFeatures ? "-rotate-90" : "rotate-90"}`}
+                          />
+                        </button>
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -879,13 +857,20 @@ const OptimizedUpgradePlan = () => {
             </button>
           </div>
         </motion.div>
+      </motion.section>
 
-        {/* Billing History Section */}
+      {/* Section 4: Billing History */}
+      <motion.section
+        className="bg-white p-8 md:p-12 max-w-7xl mx-auto"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+      >
         <motion.div
           className="bg-white rounded-2xl border border-gray-200 overflow-hidden"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
           {/* Header */}
           <div className="p-8 border-b border-gray-200 flex items-center justify-between">
@@ -946,9 +931,22 @@ const OptimizedUpgradePlan = () => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 <AnimatePresence>
-                  {billingHistory.map((item, index) => (
+                  {invoicesLoading ? (
+                    <tr>
+                      <td colSpan={8} className="p-8 text-center text-gray-500">
+                        Loading invoices...
+                      </td>
+                    </tr>
+                  ) : billingHistory.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="p-8 text-center text-gray-500">
+                        No invoices yet.
+                      </td>
+                    </tr>
+                  ) : (
+                  billingHistory.map((item, index) => (
                     <motion.tr
-                      key={index}
+                      key={item.id}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20 }}
@@ -977,36 +975,42 @@ const OptimizedUpgradePlan = () => {
                       </td>
                       <td className="p-4 text-gray-700">{item.plan}</td>
                       <td className="p-4">
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
-                          <Check className="w-3 h-3" />
+                        <span
+                          className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${
+                            item.raw?.status === "paid"
+                              ? "bg-green-100 text-green-700"
+                              : item.raw?.status === "pending"
+                                ? "bg-amber-100 text-amber-700"
+                                : item.raw?.status === "cancelled" || item.raw?.status === "failed"
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {item.raw?.status === "paid" && <Check className="w-3 h-3" />}
                           {item.status}
                         </span>
                       </td>
                       <td className="p-4">
                         <motion.div
-                          className="flex items-center justify-end gap-2"
+                          className="flex items-center justify-end"
                           initial={{ opacity: 0, x: 10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.1 + 0.2 }}
                         >
                           <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                            type="button"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleDownloadInvoice(item.raw)}
+                            className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
                           >
-                            <Eye className="w-4 h-4" />
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
+                            <Download className="w-4 h-4" />
+                            Download invoice
                           </motion.button>
                         </motion.div>
                       </td>
                     </motion.tr>
-                  ))}
+                  )))}
                 </AnimatePresence>
               </tbody>
             </table>
@@ -1039,7 +1043,9 @@ const OptimizedUpgradePlan = () => {
               <p className="text-xs text-gray-500 uppercase font-semibold">
                 Total Paid
               </p>
-              <p className="text-3xl font-bold text-green-600 mt-2">$299.98</p>
+              <p className="text-3xl font-bold text-green-600 mt-2">
+                ৳{totalPaidFromInvoices.toFixed(2)}
+              </p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -1053,7 +1059,21 @@ const OptimizedUpgradePlan = () => {
             </motion.div>
           </motion.div>
         </motion.div>
-      </motion.div>
+      </motion.section>
+
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={closePaymentModal}
+        invoice={paymentInvoice}
+        selectedPaymentMethod={selectedPaymentMethod}
+        onPaymentMethodChange={setSelectedPaymentMethod}
+        bankPaymentData={bankPaymentData}
+        onBankPaymentDataChange={setBankPaymentData}
+        onBkashPayment={handleBkashPayment}
+        onBankPayment={handleBankPayment}
+        isLoadingBkash={isLoadingBkash}
+        isLoadingBank={isLoadingBank}
+      />
     </div>
   );
 };

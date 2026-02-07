@@ -4,59 +4,54 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar, Eye, EyeOff } from "lucide-react";
 
-const AccountSettings = () => {
+const AccountSettings = ({ user: userFromApi }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const user = userFromApi ?? null;
+  const displayName = user?.name ?? "";
+  const email = user?.email ?? "";
+  const phone = user?.phone ?? "";
+  const avatarUrl = user?.companyLogo ?? user?.photo ?? null;
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Account</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Get notified what's happening right now, you can turn off at any time</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Your account details from the server</p>
       </div>
 
       <div className="space-y-8">
-        {/* My Profile */}
+        {/* My Profile - data from API */}
         <div>
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">My Profile</h3>
           
           <div className="flex items-center gap-4 mb-6">
-            <div className="h-16 w-16 rounded-full overflow-hidden bg-gray-200">
-               {/* Mock Avatar */}
-               <img src="https://github.com/shadcn.png" alt="Avatar" className="h-full w-full object-cover" />
-            </div>
-            <div className="flex gap-2">
-              <Button className="bg-nexus-primary hover:bg-nexus-primary/90 text-white px-6">
-                Upload new
-              </Button>
-              <Button variant="outline" className="text-gray-700 border-gray-200 hover:bg-gray-50 px-6">
-                Delete
-              </Button>
+            <div className="h-16 w-16 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
+               {avatarUrl ? (
+                 <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+               ) : (
+                 <div className="h-full w-full flex items-center justify-center text-gray-500 text-xl font-medium">
+                   {displayName ? displayName.charAt(0).toUpperCase() : "?"}
+                 </div>
+               )}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
-              <Input id="firstName" defaultValue="Alexandro" className="h-11" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input id="lastName" defaultValue="Bernard" className="h-11" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input id="phone" defaultValue="+123 4232 1312" className="h-11" />
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" value={displayName} readOnly className="h-11 bg-gray-50 dark:bg-gray-800" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
-              <Input id="email" defaultValue="alexandrobern@mail.com" className="h-11" />
+              <Input id="email" type="email" value={email} readOnly className="h-11 bg-gray-50 dark:bg-gray-800" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="dob">Birth of Date</Label>
-              <div className="relative">
-                <Input id="dob" defaultValue="20-12-2019" className="h-11 pr-10" />
-                <Calendar className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
-              </div>
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input id="phone" value={phone} readOnly className="h-11 bg-gray-50 dark:bg-gray-800" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="companyName">Company</Label>
+              <Input id="companyName" value={user?.companyName ?? ""} readOnly className="h-11 bg-gray-50 dark:bg-gray-800" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
