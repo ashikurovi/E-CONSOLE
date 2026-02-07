@@ -22,6 +22,7 @@ import {
   ChevronRight,
   Settings as SettingsIcon,
   X,
+  MoreVertical,
 } from "lucide-react";
 import {
   Popover,
@@ -447,10 +448,10 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
         <div className="flex items-center gap-3 w-full">
           {/* Mobile Menu Toggle - Visible on tablet */}
           <div className="md:hidden">
-            <IconButton
+            <MoreVertical
               icon={Menu}
               onClick={() => setIsMobileMenuOpen(true)}
-              className="!bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg p-2"
+              className="!bg-transparent !text-black dark:!text-white hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg p-2 "
             />
           </div>
 
@@ -826,12 +827,12 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
           <IconButton
             icon={Menu}
             onClick={() => setIsMobileMenuOpen(true)}
-            className="!bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg p-2"
+            className="!bg-transparent !text-black dark:!text-white hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg p-2"
           />
           <IconButton
             icon={Search}
             onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-            className="!bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg p-2"
+            className="!bg-transparent !text-black dark:!text-white hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg p-2"
           />
         </div>
 
@@ -868,7 +869,8 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
             </PopoverTrigger>
             <PopoverContent
               align="end"
-              className="w-[calc(100vw-2rem)] p-0 overflow-hidden border-gray-100 dark:border-gray-800 shadow-2xl bg-white dark:bg-[#09090b] rounded-2xl"
+              sideOffset={8}
+              className="w-[calc(100vw-3rem)] mr-2 p-0 overflow-hidden border-gray-100 dark:border-gray-800 shadow-2xl bg-white dark:bg-[#09090b] rounded-2xl"
             >
               {/* Header */}
               <div className="p-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-800">
