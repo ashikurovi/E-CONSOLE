@@ -1,23 +1,21 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/input/TextField";
-import { ArrowLeft, Save, UserCog, Shield, Building, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Save, UserCog, Shield, Building } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
+import { useGetSystemuserQuery, useUpdateSystemuserMutation } from "@/features/systemuser/systemuserApiSlice";
 
 const EditUserPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  
-  // Mock State
-  const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState(null);
-  const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const { data: user, isLoading: isLoadingUser, isError, error } = useGetSystemuserQuery(id, { skip: !id });
+  const [updateSystemuser, { isLoading }] = useUpdateSystemuserMutation();
 
   const editUserSchema = useMemo(() => yup.object().shape({
     name: yup
@@ -39,10 +37,6 @@ const EditUserPage = () => {
     role: yup
       .string()
       .required("Role is required"),
-    image: yup
-      .string()
-      .url("Must be a valid URL")
-      .nullable(),
     password: yup
       .string()
       .nullable()
@@ -54,26 +48,6 @@ const EditUserPage = () => {
       .required("Status is required"),
   }), []);
 
-  // Simulate fetching user data
-  useEffect(() => {
-    setIsLoadingUser(true);
-    // Simulate API delay
-    const timer = setTimeout(() => {
-      setUser({
-        id: id,
-        name: "Mock User",
-        companyName: "SquadCart Inc.",
-        email: "admin@squadcart.com",
-        phone: "+1 (555) 123-4567",
-        role: "SYSTEM_OWNER",
-        image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-        isActive: true,
-      });
-      setIsLoadingUser(false);
-    }, 600);
-    return () => clearTimeout(timer);
-  }, [id]);
-
   const { register, control, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(editUserSchema),
     defaultValues: {
@@ -83,22 +57,28 @@ const EditUserPage = () => {
       email: "",
       phone: "",
       role: "EMPLOYEE",
-      image: "",
       password: "",
       isActive: true,
     },
   });
 
   useEffect(() => {
+    if (isError) {
+      toast.error(error?.data?.message || error?.data?.error || "User not found");
+      navigate("/manage-users");
+    }
+  }, [isError, error, navigate]);
+
+  useEffect(() => {
     if (user) {
+      const companyName = user.companyName ?? user.company?.name ?? "";
       reset({
         id: user.id,
         name: user.name || "",
-        companyName: user.companyName || "",
+        companyName: companyName || "",
         email: user.email || "",
         phone: user.phone || "",
         role: user.role || "EMPLOYEE",
-        image: user.image || "",
         password: "",
         isActive: user.isActive ?? true,
       });
@@ -106,14 +86,24 @@ const EditUserPage = () => {
   }, [user, reset]);
 
   const onSubmit = async (data) => {
-    setIsLoading(true);
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsLoading(false);
-    toast.success("System user updated");
-    navigate("/manage-users");
+    try {
+      const payload = {
+        name: data.name,
+        companyName: data.companyName,
+        email: data.email,
+        phone: data.phone,
+        role: data.role,
+        isActive: data.isActive,
+      };
+      if (data.password?.trim()) {
+        payload.password = data.password.trim();
+      }
+      await updateSystemuser({ id, ...payload }).unwrap();
+      toast.success("System user updated");
+      navigate("/manage-users");
+    } catch (err) {
+      toast.error(err?.data?.message || err?.data?.error || "Failed to update user");
+    }
   };
 
   if (isLoadingUser) {
@@ -123,6 +113,10 @@ const EditUserPage = () => {
         <div className="h-64 w-full bg-gray-200 dark:bg-gray-800 rounded-2xl animate-pulse" />
       </div>
     );
+  }
+
+  if (isError || !user) {
+    return null;
   }
 
   return (
@@ -207,7 +201,7 @@ const EditUserPage = () => {
                 />
               </div>
 
-              {/* Role & Image */}
+              {/* Role */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="flex flex-col gap-2">
                   <label className="text-gray-700 dark:text-gray-300 text-sm font-medium ml-1">Role</label>
@@ -227,16 +221,6 @@ const EditUserPage = () => {
                   </div>
                   {errors.role && <span className="text-red-500 text-xs ml-1 font-medium">{errors.role.message}</span>}
                 </div>
-
-                <TextField
-                  label="Profile Image URL"
-                  placeholder="https://..."
-                  register={register}
-                  name="image"
-                  error={errors.image}
-                  className="rounded-xl"
-                  icon={<ImageIcon className="h-4 w-4" />}
-                />
               </div>
 
               {/* Password & Status */}

@@ -5,7 +5,15 @@ export const packageApiSlice = apiSlice.injectEndpoints({
     // List all packages
     getPackages: builder.query({
       query: () => ({ url: "/package", method: "GET" }),
-      transformResponse: (res) => res?.data || res,
+      // API response: { statusCode: 200, message: "...", data: [ { id, name, description, price, discountPrice, features, ... } ] }
+      transformResponse: (res) => {
+        if (!res) return [];
+        if (Array.isArray(res)) return res;
+        if (res?.data && Array.isArray(res.data)) return res.data;
+        if (res?.data?.data && Array.isArray(res.data.data)) return res.data.data;
+        if (Array.isArray(res?.packages)) return res.packages;
+        return [];
+      },
       providesTags: [{ type: "package", id: "LIST" }],
     }),
 

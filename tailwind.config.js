@@ -51,8 +51,8 @@ export default {
           5: "hsl(var(--chart-5))",
         },
         nexus: {
-          primary: "#5347CE",
-          secondary: "#887CFD",
+          primary: "var(--nexus-primary, #5347CE)",
+          secondary: "var(--nexus-secondary, #887CFD)",
           blue: "#4896FE",
           teal: "#16C8C7",
         },

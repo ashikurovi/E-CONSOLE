@@ -3,9 +3,9 @@ import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
 
 // Import Settings Components
-import GeneralSettings from "./components/GeneralSettings";
 import PreferencesSettings from "./components/PreferencesSettings";
 import NotificationSettings from "./components/NotificationSettings";
 import AccountSettings from "./components/AccountSettings";
@@ -17,13 +17,14 @@ import ProfileSettings from "./components/ProfileSettings";
 
 const SettingsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const activeTab = searchParams.get("tab") || "general";
+    const activeTab = searchParams.get("tab") || "profile";
     const { t } = useTranslation();
+    const { data: currentUser, isLoading: isLoadingUser } = useGetCurrentUserQuery();
 
     // Redirect to default tab if none provided
     useEffect(() => {
         if (!searchParams.get("tab")) {
-            setSearchParams({ tab: "general" }, { replace: true });
+            setSearchParams({ tab: "profile" }, { replace: true });
         }
     }, [searchParams, setSearchParams]);
 
@@ -32,7 +33,6 @@ const SettingsPage = () => {
     };
 
     const tabs = [
-        { id: "general", label: "General" },
         { id: "profile", label: "Profile" },
         { id: "preferences", label: "Preferences" },
         { id: "notifications", label: "Notifications" },
@@ -44,27 +44,32 @@ const SettingsPage = () => {
     ];
 
     const renderContent = () => {
+        if (isLoadingUser && (activeTab === "profile" || activeTab === "account" || activeTab === "courier" || activeTab === "domain" || activeTab === "billings" || activeTab === "notifications")) {
+            return (
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <div className="animate-spin h-10 w-10 border-2 border-nexus-primary border-t-transparent rounded-full" />
+                </div>
+            );
+        }
         switch (activeTab) {
-            case "general":
-                return <GeneralSettings />;
             case "profile":
-                return <ProfileSettings />;
+                return <ProfileSettings user={currentUser} />;
             case "preferences":
                 return <PreferencesSettings />;
             case "notifications":
-                return <NotificationSettings />;
+                return <NotificationSettings user={currentUser} />;
             case "account":
-                return <AccountSettings />;
+                return <AccountSettings user={currentUser} />;
             case "permissions":
                 return <UserPermissionSettings />;
             case "courier":
-                return <CourierSettings />;
+                return <CourierSettings user={currentUser} />;
             case "domain":
-                return <DomainSettings />;
+                return <DomainSettings user={currentUser} />;
             case "billings":
-                return <BillingSettings />;
+                return <BillingSettings user={currentUser} />;
             default:
-                return <GeneralSettings />;
+                return <ProfileSettings user={currentUser} />;
         }
     };
 

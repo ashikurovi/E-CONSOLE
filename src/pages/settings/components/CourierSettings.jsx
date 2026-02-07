@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
@@ -6,65 +6,87 @@ import toast from "react-hot-toast";
 import { userDetailsFetched } from "@/features/auth/authSlice";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Truck, Key } from "lucide-react";
+import { Truck, Key, Loader2 } from "lucide-react";
 import { hasPermission, FeaturePermission } from "@/constants/feature-permission";
 import { useUpdateSystemuserMutation } from "@/features/systemuser/systemuserApiSlice";
 
-const CourierSettings = () => {
+const CourierSettings = ({ user: userFromApi }) => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const authUser = useSelector((state) => state.auth.user);
     const userId = authUser?.userId || authUser?.sub || authUser?.id;
-    const user = authUser || null;
+    const user = userFromApi ?? authUser ?? null;
 
-    const [updateSystemuser, { isLoading: isUpdating }] = useUpdateSystemuserMutation();
+    const [updateSystemuser] = useUpdateSystemuserMutation();
+    const [savingCourier, setSavingCourier] = React.useState(null);
 
     const { register: registerPathao, handleSubmit: handleSubmitPathao, reset: resetPathao } = useForm({
         defaultValues: {
-            clientId: user?.pathaoConfig?.clientId || "",
-            clientSecret: user?.pathaoConfig?.clientSecret || "",
+            clientId: "",
+            clientSecret: "",
         },
     });
 
     const { register: registerSteadfast, handleSubmit: handleSubmitSteadfast, reset: resetSteadfast } = useForm({
         defaultValues: {
-            apiKey: user?.steadfastConfig?.apiKey || "",
-            secretKey: user?.steadfastConfig?.secretKey || "",
+            apiKey: "",
+            secretKey: "",
         },
     });
 
     const { register: registerRedX, handleSubmit: handleSubmitRedX, reset: resetRedX } = useForm({
         defaultValues: {
-            token: user?.redxConfig?.token || "",
-            sandbox: user?.redxConfig?.sandbox !== false,
+            token: "",
+            sandbox: false,
         },
     });
+
+    useEffect(() => {
+        if (!user) return;
+        resetPathao({
+            clientId: user.pathaoConfig?.clientId || "",
+            clientSecret: user.pathaoConfig?.clientSecret || "",
+        });
+    }, [user, resetPathao]);
+
+    useEffect(() => {
+        if (!user) return;
+        resetSteadfast({
+            apiKey: user.steadfastConfig?.apiKey || "",
+            secretKey: user.steadfastConfig?.secretKey || "",
+        });
+    }, [user, resetSteadfast]);
+
+    useEffect(() => {
+        if (!user) return;
+        resetRedX({
+            token: user.redxConfig?.token || "",
+            sandbox: user.redxConfig?.sandbox !== false,
+        });
+    }, [user, resetRedX]);
 
     const onSubmitPathao = async (data) => {
         if (!userId) {
             toast.error(t("settings.userIdNotFound"));
             return;
         }
-
+        setSavingCourier("pathao");
         try {
             const payload = {
                 pathaoConfig: {
-                    clientId: data.clientId,
-                    clientSecret: data.clientSecret,
+                    clientId: data.clientId || "",
+                    clientSecret: data.clientSecret || "",
                 },
             };
-
-            const res = await updateSystemuser({ id: userId, ...payload });
-            if (res?.data) {
-                localStorage.setItem("pathaoClientId", data.clientId);
-                localStorage.setItem("pathaoClientSecret", data.clientSecret);
-                dispatch(userDetailsFetched(payload));
-                toast.success(t("pathao.credentialsSaved"));
-            } else {
-                toast.error(res?.error?.data?.message || t("pathao.credentialsFailed"));
-            }
+            await updateSystemuser({ id: userId, ...payload }).unwrap();
+            localStorage.setItem("pathaoClientId", data.clientId);
+            localStorage.setItem("pathaoClientSecret", data.clientSecret);
+            dispatch(userDetailsFetched(payload));
+            toast.success(t("pathao.credentialsSaved"));
         } catch (e) {
-            toast.error(t("pathao.credentialsFailed"));
+            toast.error(e?.data?.message || t("pathao.credentialsFailed"));
+        } finally {
+            setSavingCourier(null);
         }
     };
 
@@ -73,26 +95,23 @@ const CourierSettings = () => {
             toast.error(t("settings.userIdNotFound"));
             return;
         }
-
+        setSavingCourier("steadfast");
         try {
             const payload = {
                 steadfastConfig: {
-                    apiKey: data.apiKey,
-                    secretKey: data.secretKey,
+                    apiKey: data.apiKey || "",
+                    secretKey: data.secretKey || "",
                 },
             };
-
-            const res = await updateSystemuser({ id: userId, ...payload });
-            if (res?.data) {
-                localStorage.setItem("steadfastApiKey", data.apiKey);
-                localStorage.setItem("steadfastSecretKey", data.secretKey);
-                dispatch(userDetailsFetched(payload));
-                toast.success(t("steadfast.credentialsSaved"));
-            } else {
-                toast.error(res?.error?.data?.message || t("steadfast.credentialsFailed"));
-            }
+            await updateSystemuser({ id: userId, ...payload }).unwrap();
+            localStorage.setItem("steadfastApiKey", data.apiKey);
+            localStorage.setItem("steadfastSecretKey", data.secretKey);
+            dispatch(userDetailsFetched(payload));
+            toast.success(t("steadfast.credentialsSaved"));
         } catch (e) {
-            toast.error(t("steadfast.credentialsFailed"));
+            toast.error(e?.data?.message || t("steadfast.credentialsFailed"));
+        } finally {
+            setSavingCourier(null);
         }
     };
 
@@ -101,26 +120,23 @@ const CourierSettings = () => {
             toast.error(t("settings.userIdNotFound"));
             return;
         }
-
+        setSavingCourier("redx");
         try {
             const payload = {
                 redxConfig: {
-                    token: data.token,
+                    token: data.token || "",
                     sandbox: data.sandbox === true,
                 },
             };
-
-            const res = await updateSystemuser({ id: userId, ...payload });
-            if (res?.data) {
-                localStorage.setItem("redxToken", data.token);
-                localStorage.setItem("redxSandbox", data.sandbox ? "true" : "false");
-                dispatch(userDetailsFetched(payload));
-                toast.success(t("redx.credentialsSaved"));
-            } else {
-                toast.error(res?.error?.data?.message || t("redx.credentialsFailed"));
-            }
+            await updateSystemuser({ id: userId, ...payload }).unwrap();
+            localStorage.setItem("redxToken", data.token);
+            localStorage.setItem("redxSandbox", data.sandbox ? "true" : "false");
+            dispatch(userDetailsFetched(payload));
+            toast.success(t("redx.credentialsSaved"));
         } catch (e) {
-            toast.error(t("redx.credentialsFailed"));
+            toast.error(e?.data?.message || t("redx.credentialsFailed"));
+        } finally {
+            setSavingCourier(null);
         }
     };
 
@@ -163,9 +179,9 @@ const CourierSettings = () => {
                                     />
                                 </div>
                                 <div className="pt-2">
-                                    <Button type="submit" className="w-full" disabled={isUpdating}>
-                                        <Key className="h-4 w-4 mr-2" />
-                                        {isUpdating ? t("common.saving") : t("createEdit.savePathaoCredentials")}
+                                    <Button type="submit" className="w-full" disabled={savingCourier === "pathao"}>
+                                        {savingCourier === "pathao" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Key className="h-4 w-4 mr-2" />}
+                                        {savingCourier === "pathao" ? t("common.saving") : t("createEdit.savePathaoCredentials")}
                                     </Button>
                                 </div>
                                 <div className="text-xs text-black/50 dark:text-white/50 mt-2">
@@ -209,9 +225,9 @@ const CourierSettings = () => {
                                     />
                                 </div>
                                 <div className="pt-2">
-                                    <Button type="submit" className="w-full" disabled={isUpdating}>
-                                        <Key className="h-4 w-4 mr-2" />
-                                        {isUpdating ? t("common.saving") : t("createEdit.saveSteadfastCredentials")}
+                                    <Button type="submit" className="w-full" disabled={savingCourier === "steadfast"}>
+                                        {savingCourier === "steadfast" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Key className="h-4 w-4 mr-2" />}
+                                        {savingCourier === "steadfast" ? t("common.saving") : t("createEdit.saveSteadfastCredentials")}
                                     </Button>
                                 </div>
                                 <div className="text-xs text-black/50 dark:text-white/50 mt-2">
@@ -255,9 +271,9 @@ const CourierSettings = () => {
                                     </label>
                                 </div>
                                 <div className="pt-2">
-                                    <Button type="submit" className="w-full" disabled={isUpdating}>
-                                        <Key className="h-4 w-4 mr-2" />
-                                        {isUpdating ? t("common.saving") : t("redx.saveCredentials")}
+                                    <Button type="submit" className="w-full" disabled={savingCourier === "redx"}>
+                                        {savingCourier === "redx" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Key className="h-4 w-4 mr-2" />}
+                                        {savingCourier === "redx" ? t("common.saving") : t("redx.saveCredentials")}
                                     </Button>
                                 </div>
                                 <div className="text-xs text-black/50 dark:text-white/50 mt-2">

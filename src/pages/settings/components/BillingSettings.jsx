@@ -7,9 +7,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CreditCard, Clock, CheckCircle, XCircle, Download, FileText } from "lucide-react";
 import { generateInvoicePDF } from "@/pages/superadmin/invoice/InvoicePDFGenerator";
 
-const BillingSettings = () => {
+const BillingSettings = ({ user: userFromApi }) => {
     const { t } = useTranslation();
-    const user = useSelector((state) => state.auth.user);
+    const authUser = useSelector((state) => state.auth.user);
+    const user = userFromApi ?? authUser ?? null;
 
     const handleDownloadInvoicePDF = (invoice) => {
         try {

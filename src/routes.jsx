@@ -112,35 +112,67 @@ export const routes = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <DashboardPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.DASHBOARD}>
+            <DashboardPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/ai-report",
-        element: <AiReportPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.DASHBOARD}>
+            <AiReportPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/media",
-        element: <MediaPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.DASHBOARD}>
+            <MediaPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/ai-live-feed",
-        element: <AiLiveFeedPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.DASHBOARD}>
+            <AiLiveFeedPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/ai-sales-direction",
-        element: <AiSalesDirectionPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.DASHBOARD}>
+            <AiSalesDirectionPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/statistics",
-        element: <StatisticsPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.STATS}>
+            <StatisticsPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/connected-apps",
-        element: <ConnectedAppsPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.REPORTS}>
+            <ConnectedAppsPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/banners-offers",
-        element: <BannersOffersPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.SETTINGS}>
+            <BannersOffersPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/categories",
@@ -604,7 +636,11 @@ export const routes = createBrowserRouter([
       },
       {
         path: "/upgrade-plan",
-        element: <UpgradePlanPage />, // always accessible
+        element: (
+          <PermissionRoute permission={FeaturePermission.SETTINGS}>
+            <UpgradePlanPage />
+          </PermissionRoute>
+        ),
       },
     ],
   },

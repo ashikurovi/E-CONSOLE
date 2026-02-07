@@ -3,9 +3,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, Check, Shield } from "lucide-react";
-import { FeaturePermission } from "@/constants/feature-permission";
+import { FeaturePermission, API_ALLOWED_PERMISSION_VALUES } from "@/constants/feature-permission";
 import { motion } from "framer-motion";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useGetPermissionsQuery, useAssignPermissionsMutation } from "@/features/systemuser/systemuserApiSlice";
+import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
+
+// Normalize permission to string code (backend may send string or { code, name, value })
+const toPermissionCode = (p) =>
+  typeof p === "string" ? p : (p?.code ?? p?.name ?? p?.value ?? "");
 
 // Group permissions by category for better UX
 const PERMISSION_GROUPS = {
@@ -64,54 +69,49 @@ const PermissionManagerPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [selectedPermissions, setSelectedPermissions] = useState([]);
-  const [isLoadingPermissions, setIsLoadingPermissions] = useState(true);
-  const [isAssigning, setIsAssigning] = useState(false);
 
-  // Mock Current User (System Owner with all permissions)
-  const currentUser = useMemo(() => ({
-    id: "owner-1",
-    role: "SYSTEM_OWNER",
-    permissions: Object.values(PERMISSION_GROUPS).flatMap(group => group.map(p => p.value))
-  }), []);
+  const { data: permissionsData, isLoading: isLoadingPermissions } = useGetPermissionsQuery(id, {
+    skip: !id,
+  });
+  const { data: currentUser } = useGetCurrentUserQuery();
+  const [assignPermissions, { isLoading: isAssigning }] = useAssignPermissionsMutation();
 
-  // Simulate fetching initial permissions
-  useEffect(() => {
-    setIsLoadingPermissions(true);
-    const timer = setTimeout(() => {
-      // Mock initial permissions for the user
-      setSelectedPermissions([
-        FeaturePermission.DASHBOARD,
-        FeaturePermission.PRODUCTS,
-        FeaturePermission.ORDERS,
-        FeaturePermission.CUSTOMERS
-      ]);
-      setIsLoadingPermissions(false);
-    }, 800);
-    return () => clearTimeout(timer);
-  }, [id]);
-
-  // Get current user's permissions (System Owner's permissions from their package)
-  const currentUserPermissions = useMemo(() => {
-    return currentUser?.permissions || [];
+  // System Owner's permissions: same logic as hasPermission – combine permissions + package.features, normalize to codes
+  const systemOwnerPermissionCodes = useMemo(() => {
+    const direct = Array.isArray(currentUser?.permissions) ? currentUser.permissions : [];
+    const fromPackage = Array.isArray(currentUser?.package?.features) ? currentUser.package.features : [];
+    const all = [...direct, ...fromPackage];
+    const codes = all.map(toPermissionCode).filter(Boolean);
+    return new Set(codes);
   }, [currentUser]);
 
-  // Filter permission groups to only show permissions the System Owner has
+  // Only show permissions that the System Owner has (same as system owner's list)
   const availablePermissionGroups = useMemo(() => {
-    if (!currentUserPermissions || currentUserPermissions.length === 0) {
-      return PERMISSION_GROUPS;
-    }
-
     const filtered = {};
     Object.entries(PERMISSION_GROUPS).forEach(([groupName, permissions]) => {
       const availablePermissions = permissions.filter((p) =>
-        currentUserPermissions.includes(p.value)
+        systemOwnerPermissionCodes.has(p.value)
       );
       if (availablePermissions.length > 0) {
         filtered[groupName] = availablePermissions;
       }
     });
     return filtered;
-  }, [currentUserPermissions]);
+  }, [systemOwnerPermissionCodes]);
+
+  // Load permissions from API: only keep API-allowed and only those the System Owner can assign
+  useEffect(() => {
+    if (permissionsData?.permissions) {
+      const allowedSet = new Set(API_ALLOWED_PERMISSION_VALUES);
+      const normalized = permissionsData.permissions.map(toPermissionCode).filter(Boolean);
+      setSelectedPermissions((prev) => {
+        const valid = normalized.filter(
+          (p) => allowedSet.has(p) && systemOwnerPermissionCodes.has(p)
+        );
+        return valid.length ? valid : prev;
+      });
+    }
+  }, [permissionsData, systemOwnerPermissionCodes]);
 
   const handlePermissionToggle = (permission) => {
     setSelectedPermissions((prev) =>
@@ -147,16 +147,14 @@ const PermissionManagerPage = () => {
   };
 
   const handleSubmit = async () => {
-    setIsAssigning(true);
+    const allowedSet = new Set(API_ALLOWED_PERMISSION_VALUES);
+    const permissionsToSend = selectedPermissions.filter((p) => allowedSet.has(p));
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await assignPermissions({ id, permissions: permissionsToSend }).unwrap();
       toast.success("Permissions assigned successfully");
       navigate("/manage-users");
     } catch (error) {
-      toast.error("Failed to assign permissions");
-    } finally {
-      setIsAssigning(false);
+      toast.error(error?.data?.message || "Failed to assign permissions");
     }
   };
 
@@ -234,6 +232,16 @@ const PermissionManagerPage = () => {
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="h-48 bg-gray-100 dark:bg-gray-800 rounded-[24px] animate-pulse" />
           ))}
+        </div>
+      ) : Object.keys(availablePermissionGroups).length === 0 ? (
+        <div className="rounded-[24px] border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/30 p-8 text-center">
+          <Shield className="h-12 w-12 mx-auto text-gray-400 dark:text-gray-500 mb-3" />
+          <p className="text-gray-600 dark:text-gray-400 font-medium">
+            Only permissions that the System Owner has can be assigned.
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+            No assignable permissions are available from your account.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
