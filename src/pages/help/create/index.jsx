@@ -29,7 +29,7 @@ function CreateHelpPage() {
           .max(500, t("help.validation.issueMax"))
           .trim(),
       }),
-    [t]
+    [t],
   );
   const {
     register,
@@ -59,7 +59,7 @@ function CreateHelpPage() {
   };
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
+    <div className="rounded-xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
       <div className="flex items-center gap-4 mb-6">
         <Button
           variant="ghost"
@@ -70,26 +70,31 @@ function CreateHelpPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold">{t("help.createHelpTicket")}</h1>
+          <h1 className="text-2xl font-semibold">
+            {t("help.createHelpTicket")}
+          </h1>
           <p className="text-sm text-black/60 dark:text-white/60 mt-1">
             {t("help.createHelpTicketDesc")}
           </p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-4">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-6 mt-4"
+      >
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
             <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
               {t("help.contactInformation")}
             </h3>
           </div>
-          <TextField 
-            label={t("help.yourEmail")} 
-            placeholder={t("help.emailPlaceholder")} 
-            type="email" 
-            register={register} 
-            name="email" 
+          <TextField
+            label={t("help.yourEmail")}
+            placeholder={t("help.emailPlaceholder")}
+            type="email"
+            register={register}
+            name="email"
             error={errors.email?.message}
           />
         </div>
@@ -100,22 +105,31 @@ function CreateHelpPage() {
               {t("help.issueDetails")}
             </h3>
           </div>
-          <TextField 
-            label={t("help.issueDescription")} 
-            placeholder={t("help.issuePlaceholder")} 
-            multiline 
-            rows={4} 
-            register={register} 
-            name="issue" 
+          <TextField
+            label={t("help.issueDescription")}
+            placeholder={t("help.issuePlaceholder")}
+            multiline
+            rows={4}
+            register={register}
+            name="issue"
             error={errors.issue?.message}
           />
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-          <Button variant="ghost" type="button" onClick={() => navigate("/help")} className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400">
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={() => navigate("/help")}
+            className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
+          >
             {t("common.cancel")}
           </Button>
-          <Button type="submit" disabled={isCreating} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
+          <Button
+            type="submit"
+            disabled={isCreating}
+            className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white"
+          >
             {isCreating ? t("common.creating") : t("common.create")}
           </Button>
         </div>

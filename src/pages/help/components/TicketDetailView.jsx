@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
 import { StatusBadge } from "./HelpComponents";
 import { KNOWLEDGE_BASE, TICKETS, USERS } from "../data";
 
@@ -26,16 +27,19 @@ export default function TicketDetailView({
   selectedTicketId,
   setSelectedTicketId,
 }) {
-  const selectedTicket = TICKETS.find((t) => t.id === selectedTicketId) || TICKETS[0];
+  const selectedTicket =
+    TICKETS.find((t) => t.id === selectedTicketId) || TICKETS[0];
   const requester = USERS.find((u) => u.id === selectedTicket?.requesterId);
 
   return (
-    <div className="flex h-full bg-gray-100 dark:bg-gray-900 rounded-3xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-800">
+    <div className="flex h-full bg-white dark:bg-[#1a1f26] rounded-[24px] overflow-hidden shadow-xl border border-gray-200 dark:border-gray-800">
       {/* Left Sidebar - Ticket List */}
-      <div
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
         className={cn(
           "w-80 flex-shrink-0 bg-white dark:bg-[#1a1f26] border-r border-gray-200 dark:border-gray-800 flex flex-col transition-all duration-300 hidden md:flex",
-          !sidebarOpen && "w-0 overflow-hidden border-none"
+          !sidebarOpen && "w-0 overflow-hidden border-none",
         )}
       >
         <div className="p-4 border-b border-gray-200 dark:border-gray-800">
@@ -43,21 +47,23 @@ export default function TicketDetailView({
             variant="ghost"
             size="sm"
             onClick={() => setActiveView("list")}
-            className="gap-2 text-gray-500"
+            className="gap-2 text-gray-500 hover:text-gray-900 dark:hover:text-white"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back
+            Back to List
           </Button>
         </div>
 
         <div className="p-4">
-          <h3 className="font-bold text-gray-900 dark:text-white mb-4">Communications</h3>
-          <div className="relative mb-4">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            Communications <span className="text-xs font-normal text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">{TICKETS.length}</span>
+          </h3>
+          <div className="relative mb-4 group">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-violet-500 transition-colors" />
             <input
               type="text"
               placeholder="Search conversations..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
             />
           </div>
         </div>
@@ -68,16 +74,25 @@ export default function TicketDetailView({
             const isSelected = ticket.id === selectedTicketId;
 
             return (
-              <div
+              <motion.div
+                layoutId={`ticket-${ticket.id}`}
                 key={ticket.id}
                 onClick={() => setSelectedTicketId(ticket.id)}
                 className={cn(
-                  "p-4 border-b border-gray-100 dark:border-gray-800 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors",
-                  isSelected && "bg-blue-50 dark:bg-blue-900/20 border-l-4 border-l-blue-600"
+                  "p-4 border-b border-gray-50 dark:border-gray-800/50 cursor-pointer transition-all relative",
+                  isSelected 
+                    ? "bg-violet-50/50 dark:bg-violet-900/10" 
+                    : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
                 )}
               >
+                {isSelected && (
+                  <motion.div 
+                    layoutId="active-indicator"
+                    className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-violet-500 to-indigo-500" 
+                  />
+                )}
                 <div className="flex justify-between items-start mb-1">
-                  <div className="font-semibold text-sm text-gray-900 dark:text-white truncate max-w-[180px]">
+                  <div className={cn("font-semibold text-sm truncate max-w-[180px]", isSelected ? "text-violet-700 dark:text-violet-300" : "text-gray-900 dark:text-white")}>
                     {user?.company || user?.name || "Unknown"}
                   </div>
                   <span className="text-xs text-gray-500">
@@ -87,18 +102,20 @@ export default function TicketDetailView({
 
                 <div className="flex items-center gap-2 mt-1">
                   <StatusBadge status={ticket.status} />
-                  <span className="text-xs text-gray-400">#{ticket.id.replace("#", "")}</span>
+                  <span className="text-xs text-gray-400">
+                    #{ticket.id.replace("#", "")}
+                  </span>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
-      </div>
+      </motion.div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-[#1a1f26]">
+      <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-[#1a1f26] relative z-0">
         {/* Header */}
-        <div className="h-16 px-4 md:px-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-[#1a1f26]">
+        <div className="h-16 px-4 md:px-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-white/80 dark:bg-[#1a1f26]/80 backdrop-blur-md sticky top-0 z-10">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -113,68 +130,83 @@ export default function TicketDetailView({
               variant="ghost"
               size="icon"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="hidden md:flex"
+              className="hidden md:flex text-gray-500 hover:text-gray-900 dark:hover:text-white"
             >
-              {sidebarOpen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              {sidebarOpen ? (
+                <Minimize2 className="w-4 h-4" />
+              ) : (
+                <Maximize2 className="w-4 h-4" />
+              )}
             </Button>
 
             <div className="flex flex-col">
-              <h2 className="text-base font-bold text-gray-900 dark:text-white">
-                {selectedTicket.id} • {selectedTicket.subject}
+              <h2 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                {selectedTicket.subject}
+                <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] text-gray-500 font-mono">
+                  {selectedTicket.id}
+                </span>
               </h2>
-              <span className="text-xs text-gray-500">
-                Requested by {requester?.name || "Unknown"} via WhatsApp
+              <span className="text-xs text-gray-500 flex items-center gap-1">
+                Requested by <span className="font-medium text-gray-700 dark:text-gray-300">{requester?.name || "Unknown"}</span> via WhatsApp
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2">
-              <Phone className="w-4 h-4" />
+            <Button variant="outline" size="sm" className="gap-2 rounded-xl h-9 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+              <Phone className="w-3.5 h-3.5" />
               Call
             </Button>
-            <Button variant="outline" size="sm">
-              Close
+            <Button variant="outline" size="sm" className="rounded-xl h-9 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-red-600 hover:text-red-700 dark:text-red-400">
+              Close Ticket
             </Button>
           </div>
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/30 dark:bg-black/20">
           {selectedTicket.messages?.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-gray-400">
-              <Inbox className="w-16 h-16 mb-4 opacity-40" />
+              <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+                <Inbox className="w-10 h-10 opacity-40" />
+              </div>
               <p>No messages yet</p>
             </div>
           ) : (
-            selectedTicket.messages.map((msg) => {
+            selectedTicket.messages.map((msg, index) => {
               const isMe = msg.senderId === "me";
               const sender = isMe
                 ? { name: "You", avatar: null }
-                : USERS.find((u) => u.id === msg.senderId) || { name: "Customer", avatar: null };
+                : USERS.find((u) => u.id === msg.senderId) || {
+                    name: "Customer",
+                    avatar: null,
+                  };
 
               return (
-                <div
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
                   key={msg.id}
                   className={cn(
-                    "flex gap-4 max-w-3xl",
-                    isMe ? "ml-auto flex-row-reverse" : ""
+                    "flex gap-4 max-w-3xl group",
+                    isMe ? "ml-auto flex-row-reverse" : "",
                   )}
                 >
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 pt-1">
                     {isMe ? (
-                      <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-md shadow-indigo-500/20">
                         YOU
                       </div>
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-700 dark:text-gray-200 font-bold text-xs">
+                      <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-200 font-bold text-xs shadow-sm">
                         {sender.name?.[0]?.toUpperCase() || "?"}
                       </div>
                     )}
                   </div>
 
                   <div className="flex flex-col">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className={cn("flex items-center gap-2 mb-1", isMe ? "justify-end" : "")}>
                       <span className="text-sm font-semibold text-gray-900 dark:text-white">
                         {sender.name}
                       </span>
@@ -185,31 +217,37 @@ export default function TicketDetailView({
 
                     <div
                       className={cn(
-                        "p-4 rounded-2xl text-sm leading-relaxed shadow-sm",
+                        "p-5 rounded-2xl text-sm leading-relaxed shadow-sm max-w-xl",
                         isMe
-                          ? "bg-blue-600 text-white rounded-tr-none"
-                          : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-tl-none"
+                          ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white rounded-tr-none shadow-indigo-500/10"
+                          : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-tl-none border border-gray-100 dark:border-gray-700",
                       )}
                     >
                       {msg.content || msg.text}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })
           )}
         </div>
 
         {/* Input Area */}
-        <div className="border-t border-gray-200 dark:border-gray-800 p-4">
+        <div className="border-t border-gray-200 dark:border-gray-800 p-4 bg-white dark:bg-[#1a1f26]">
           {selectedTicket.messages?.length > 0 &&
             selectedTicket.messages.at(-1)?.senderId !== "me" && (
-              <div className="flex flex-wrap gap-2 mb-3">
-                <div className="text-xs text-gray-500 font-medium">Suggested replies:</div>
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-wrap gap-2 mb-3"
+              >
+                <div className="text-xs text-gray-500 font-medium py-1">
+                  AI Suggested:
+                </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 text-xs rounded-full bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+                  className="h-7 text-xs rounded-full bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100 dark:bg-violet-900/20 dark:text-violet-300 dark:border-violet-800"
                 >
                   <Sparkles className="w-3 h-3 mr-1" />
                   Request ID proof
@@ -217,28 +255,36 @@ export default function TicketDetailView({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 text-xs rounded-full"
+                  className="h-7 text-xs rounded-full border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
-                  Ask for screenshot of error
+                  Ask for screenshot
                 </Button>
-              </div>
+              </motion.div>
             )}
 
-          <div className="relative">
+          <div className="relative group">
             <textarea
               placeholder="Type your reply..."
-              className="w-full p-4 pr-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[76px]"
+              className="w-full p-4 pr-32 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 min-h-[80px] transition-all"
               rows={3}
             />
             <div className="absolute bottom-3 right-3 flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 text-gray-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl transition-colors"
+              >
                 <Smile className="w-5 h-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 text-gray-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl transition-colors"
+              >
                 <Paperclip className="w-5 h-5" />
               </Button>
-              <Button className="h-9 w-9 rounded-full bg-blue-600 hover:bg-blue-700 text-white">
-                <Send className="w-4 h-4" />
+              <Button className="h-9 px-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-indigo-500/20 transition-all hover:scale-105 active:scale-95">
+                <Send className="w-4 h-4 mr-2" /> Send
               </Button>
             </div>
           </div>
@@ -246,19 +292,21 @@ export default function TicketDetailView({
       </div>
 
       {/* Right Sidebar - Knowledge Base */}
-      <div className="w-80 flex-shrink-0 bg-gray-50 dark:bg-[#111827] border-l border-gray-200 dark:border-gray-800 flex flex-col hidden xl:flex">
+      <div className="w-80 flex-shrink-0 bg-gray-50/50 dark:bg-[#111827]/50 border-l border-gray-200 dark:border-gray-800 flex flex-col hidden xl:flex">
         <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-          <h3 className="font-bold text-gray-900 dark:text-white mb-4">Knowledge Base</h3>
-          <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            Knowledge Base
+          </h3>
+          <div className="relative group">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-violet-500 transition-colors" />
             <input
               type="text"
               placeholder="Search articles..."
-              className="w-full pl-10 pr-12 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-12 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all shadow-sm"
             />
             <Button
               size="icon"
-              className="absolute right-1 top-1 h-8 w-8 bg-black dark:bg-white text-white dark:text-black rounded-lg"
+              className="absolute right-1 top-1 h-8 w-8 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:scale-105 transition-transform"
             >
               <span className="text-lg leading-none">+</span>
             </Button>
@@ -266,32 +314,35 @@ export default function TicketDetailView({
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {KNOWLEDGE_BASE.map((article) => (
-            <div
+          {KNOWLEDGE_BASE.map((article, i) => (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + i * 0.05 }}
               key={article.id}
-              className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer"
+              className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-violet-200 dark:hover:border-violet-800 transition-all cursor-pointer group"
             >
               <div className="flex items-start justify-between mb-2">
                 <div
                   className={cn(
-                    "p-2 rounded-lg",
+                    "p-2 rounded-xl transition-colors",
                     article.category === "Infrastructure"
-                      ? "bg-purple-100 text-purple-600 dark:bg-purple-900/30"
+                      ? "bg-purple-100 text-purple-600 dark:bg-purple-900/30 group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50"
                       : article.category === "User Guide"
-                      ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30"
-                      : article.category === "Sales"
-                      ? "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30"
-                      : "bg-green-100 text-green-600 dark:bg-green-900/30"
+                        ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50"
+                        : article.category === "Sales"
+                          ? "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 group-hover:bg-yellow-200 dark:group-hover:bg-yellow-900/50"
+                          : "bg-green-100 text-green-600 dark:bg-green-900/30 group-hover:bg-green-200 dark:group-hover:bg-green-900/50",
                   )}
                 >
                   <BookOpen className="w-4 h-4" />
                 </div>
-                <Button variant="ghost" size="icon" className="h-6 w-6">
+                <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity">
                   <MoreHorizontal className="w-4 h-4 text-gray-400" />
                 </Button>
               </div>
 
-              <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
+              <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-1 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
                 {article.title}
               </h4>
               <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
@@ -299,12 +350,12 @@ export default function TicketDetailView({
               </p>
 
               <div className="flex items-center justify-between text-[10px] text-gray-500">
-                <span className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
+                <span className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md font-medium">
                   {article.category}
                 </span>
                 <span>{article.date || "Recent"}</span>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

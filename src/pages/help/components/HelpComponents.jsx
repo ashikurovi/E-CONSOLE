@@ -1,5 +1,11 @@
 import React from "react";
-import { ArrowLeft, LayoutGrid } from "lucide-react";
+import { 
+  ArrowUp, 
+  ArrowDown, 
+  Minus, 
+  ChevronsUp,
+  LayoutGrid
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function StatusBadge({ status }) {
@@ -17,7 +23,7 @@ export function StatusBadge({ status }) {
   return (
     <span
       className={cn(
-        "px-3 py-1 rounded-full text-xs font-semibold border capitalize shadow-sm",
+        "px-2.5 py-0.5 rounded-full text-[11px] font-bold border capitalize shadow-sm tracking-wide",
         style
       )}
     >
@@ -28,21 +34,35 @@ export function StatusBadge({ status }) {
 
 export function PriorityIcon({ priority }) {
   const p = priority?.toLowerCase();
-  if (p === "highest" || p === "high")
+  
+  if (p === "highest") {
     return (
-      <div className="text-red-500">
-        <ArrowLeft className="w-4 h-4 rotate-90" />
+      <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+        <ChevronsUp className="w-4 h-4" />
       </div>
     );
-  if (p === "medium")
+  }
+  
+  if (p === "high") {
     return (
-      <div className="text-yellow-500">
-        <LayoutGrid className="w-3 h-3" />
+      <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400">
+        <ArrowUp className="w-4 h-4" />
       </div>
     );
+  }
+  
+  if (p === "medium") {
+    return (
+      <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400">
+        <Minus className="w-4 h-4" />
+      </div>
+    );
+  }
+  
+  // low
   return (
-    <div className="text-blue-500">
-      <ArrowLeft className="w-4 h-4 -rotate-90" />
+    <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+      <ArrowDown className="w-4 h-4" />
     </div>
   );
 }
