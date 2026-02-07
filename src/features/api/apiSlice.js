@@ -4,7 +4,7 @@ import { getTokens } from "@/hooks/useToken";
 import { getSuperadminTokens } from "@/features/superadminAuth/superadminAuthSlice";
 import { API_BASE_URL, API_CONFIG } from "@/config/api";
 
-const BASE_URL = API_BASE_URL;
+const BASE_URL = 'https://squadcart-backend.up.railway.app';
 const MAX_RETRY_COUNT = API_CONFIG.retryCount;
 
 // 🔹 Base query with Authorization header
@@ -118,6 +118,7 @@ export const apiSlice = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: [
     "auth",
+    "my-profile",
     "categories",
     "products",
     "users",

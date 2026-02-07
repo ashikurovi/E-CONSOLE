@@ -31,25 +31,35 @@ const BagIcon = (props) => (
 );
 
 /**
- * Filter navigation items based on user permissions
+ * Filter navigation items based on user permissions.
+ * Employee: only items with explicit permission; show parent if any child has permission.
  */
 const getFilteredNav = (user) => {
+  if (!user) return [];
   return navSections
     .map((section) => ({
       id: section.id,
       title: section.title,
       tKey: section.tKey,
-      icon: section.icon, // Ensure icon is passed
+      icon: section.icon,
       items: section.items
-        .filter((item) => hasPermission(user, item.permission))
+        .filter(
+          (item) =>
+            hasPermission(user, item.permission) ||
+            (item?.children?.length &&
+              item.children.some((child) => hasPermission(user, child.permission)))
+        )
         .map((item) => ({
           label: item.title,
           tKey: item.tKey,
           to: item.link,
           icon: item.icon,
           badge: item.title === "Review" ? "02" : undefined,
-          children: item.children, // Pass children if any
-        })),
+          children: item?.children?.filter((child) =>
+            hasPermission(user, child.permission)
+          ),
+        }))
+        .filter((item) => (item.children?.length ? item.children.length > 0 : true)),
     }))
     .filter((section) => section.items.length > 0);
 };

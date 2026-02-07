@@ -10,12 +10,12 @@ import FileUpload from "@/components/input/FileUpload";
 import useImageUpload from "@/hooks/useImageUpload";
 import { useUpdateSystemuserMutation } from "@/features/systemuser/systemuserApiSlice";
 
-const ProfileSettings = () => {
+const ProfileSettings = ({ user: userFromApi }) => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const authUser = useSelector((state) => state.auth.user);
     const userId = authUser?.userId || authUser?.sub || authUser?.id;
-    const user = authUser || null;
+    const user = userFromApi ?? authUser ?? null;
 
     const [updateSystemuser, { isLoading: isUpdating }] = useUpdateSystemuserMutation();
     const [logoFile, setLogoFile] = useState(null);

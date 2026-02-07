@@ -27,150 +27,53 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import toast from "react-hot-toast";
+import {
+  useGetSystemusersQuery,
+  useDeleteSystemuserMutation,
+  useUpdateSystemuserMutation,
+} from "@/features/systemuser/systemuserApiSlice";
+import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
+import { hasPermission, FeaturePermission } from "@/constants/feature-permission";
 
-// --- Mock Data ---
-const MOCK_USERS = [
-  {
-    id: "USR-001",
-    name: "Alex Morgan",
-    companyName: "SquadCart Inc.",
-    email: "owner@squadcart.com",
-    phone: "+1 (555) 123-4567",
-    role: "SYSTEM_OWNER",
-    permissions: ["ALL_ACCESS"],
-    isActive: true,
-    image:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-    joinedDate: "2023-01-15",
-    lastActive: "Just now",
-    activities: [
-      {
-        id: 1,
-        text: "Updated system settings",
-        time: "10 mins ago",
-        type: "system",
-      },
-      {
-        id: 2,
-        text: "Created new banner campaign",
-        time: "2 hours ago",
-        type: "create",
-      },
-      {
-        id: 3,
-        text: "Exported monthly reports",
-        time: "Yesterday",
-        type: "export",
-      },
-    ],
-  },
-  {
-    id: "USR-002",
-    name: "Sarah Chen",
-    companyName: "Tech Solutions Ltd",
-    email: "admin@techsolutions.com",
-    phone: "+1 (555) 987-6543",
-    role: "SUPER_ADMIN",
-    permissions: ["MANAGE_USERS", "VIEW_REPORTS"],
-    isActive: true,
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-    joinedDate: "2023-03-22",
-    lastActive: "1 hour ago",
-    activities: [
-      {
-        id: 1,
-        text: "Resolved ticket #442",
-        time: "1 hour ago",
-        type: "resolve",
-      },
-      { id: 2, text: "Changed password", time: "3 days ago", type: "security" },
-    ],
-  },
-  {
-    id: "USR-003",
-    name: "Michael Ross",
-    companyName: "Global Logistics",
-    email: "mike.ops@logistics.com",
-    phone: "+1 (555) 789-0123",
-    role: "EMPLOYEE",
-    permissions: ["VIEW_ORDERS", "MANAGE_SHIPPING"],
-    isActive: false,
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-    joinedDate: "2023-06-10",
-    lastActive: "5 days ago",
-    activities: [
-      {
-        id: 1,
-        text: "Account deactivated",
-        time: "5 days ago",
-        type: "system",
-      },
-      {
-        id: 2,
-        text: "Failed login attempt",
-        time: "6 days ago",
-        type: "security",
-      },
-    ],
-  },
-  {
-    id: "USR-004",
-    name: "Emily Davis",
-    companyName: "Creative Design Co",
-    email: "emily@creative.com",
-    phone: "+1 (555) 456-7890",
-    role: "EMPLOYEE",
-    permissions: ["MANAGE_PRODUCTS"],
-    isActive: true,
-    image:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-    joinedDate: "2023-08-05",
-    lastActive: "2 mins ago",
-    activities: [
-      {
-        id: 1,
-        text: "Uploaded 5 new product images",
-        time: "2 mins ago",
-        type: "create",
-      },
-      {
-        id: 2,
-        text: "Edited category 'Summer Collection'",
-        time: "30 mins ago",
-        type: "update",
-      },
-    ],
-  },
-  {
-    id: "USR-005",
-    name: "David Kim",
-    companyName: "Retail Giants",
-    email: "david.k@retail.com",
-    phone: "+1 (555) 222-3333",
-    role: "MANAGER",
-    permissions: ["MANAGE_ORDERS", "VIEW_CUSTOMERS"],
-    isActive: true,
-    image: null,
-    joinedDate: "2023-11-12",
-    lastActive: "1 day ago",
-    activities: [
-      {
-        id: 1,
-        text: "Approved refund for Order #992",
-        time: "1 day ago",
-        type: "update",
-      },
-    ],
-  },
-];
+// Normalize API user to UI shape (image, joinedDate, lastActive, permissions, activities)
+function normalizeUser(u) {
+  const createdAt = u.createdAt
+    ? new Date(u.createdAt).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : "—";
+  return {
+    ...u,
+    id: u.id,
+    name: u.name ?? "—",
+    email: u.email ?? "—",
+    phone: u.phone ?? "—",
+    companyName: u.companyName ?? "—",
+    role: u.role ?? null,
+    isActive: u.isActive ?? true,
+    image: u.photo ?? u.image ?? null,
+    joinedDate: createdAt,
+    lastActive: u.lastActiveAt ?? "—",
+    permissions: Array.isArray(u.permissions) ? u.permissions : [],
+    activities: Array.isArray(u.activities) ? u.activities : [],
+  };
+}
 
 // --- Components ---
 
@@ -218,26 +121,41 @@ const RoleBadge = ({ role }) => {
 const ManageUsersPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [users, setUsers] = useState(MOCK_USERS);
-  const [selectedUserId, setSelectedUserId] = useState(MOCK_USERS[0].id);
+  const { data: currentUser } = useGetCurrentUserQuery();
+  const canManageUsers = hasPermission(currentUser, FeaturePermission.MANAGE_USERS);
+  const { data: apiData, isLoading, isError, error } = useGetSystemusersQuery();
+  const [deleteSystemuser, { isLoading: isDeleting }] = useDeleteSystemuserMutation();
+  const [updateSystemuser, { isLoading: isUpdating }] = useUpdateSystemuserMutation();
+
+  const rawList = apiData?.data ?? apiData ?? [];
+  const users = useMemo(
+    () => (Array.isArray(rawList) ? rawList.map(normalizeUser) : []),
+    [rawList],
+  );
+
+  const [selectedUserId, setSelectedUserId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Select first user when list loads
+  useEffect(() => {
+    if (users.length > 0 && !selectedUserId) {
+      setSelectedUserId(users[0].id);
+    }
+    if (users.length === 0) {
+      setSelectedUserId(null);
+    }
+  }, [users, selectedUserId]);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const TAB_MAPPING = {
     "all-users": "All Users",
     active: "Active",
     inactive: "Inactive",
-    "system-owner": "System Owner",
-    admins: "Admins",
-    employees: "Employees",
   };
   const REVERSE_TAB_MAPPING = {
     "All Users": "all-users",
     Active: "active",
     Inactive: "inactive",
-    "System Owner": "system-owner",
-    Admins: "admins",
-    Employees: "employees",
   };
 
   const activeTab = TAB_MAPPING[searchParams.get("tab")] || "All Users";
@@ -265,27 +183,63 @@ const ManageUsersPage = () => {
             ? user.isActive
             : activeTab === "Inactive"
               ? !user.isActive
-              : activeTab === "System Owner"
-                ? user.role === "SYSTEM_OWNER"
-                : activeTab === "Admins"
-                  ? ["SUPER_ADMIN", "MANAGER"].includes(user.role)
-                  : activeTab === "Employees"
-                    ? user.role === "EMPLOYEE"
-                    : true;
+              : true;
       return matchesSearch && matchesTab;
     });
   }, [users, searchTerm, activeTab]);
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      setUsers((prev) => prev.filter((u) => u.id !== id));
-      if (selectedUserId === id) {
-        setSelectedUserId(null);
-        setShowMobileDetail(false);
+  const [actionUserId, setActionUserId] = useState(null); // id being acted on (delete/active/inactive)
+  const [confirmModal, setConfirmModal] = useState({
+    open: false,
+    action: null, // 'delete' | 'active' | 'inactive'
+    user: null,   // { id, name, email }
+  });
+
+  const closeConfirmModal = () => {
+    setConfirmModal({ open: false, action: null, user: null });
+  };
+
+  const handleDeleteClick = (user) => {
+    setConfirmModal({ open: true, action: "delete", user: { id: user.id, name: user.name, email: user.email } });
+  };
+
+  const handleActiveClick = (user) => {
+    setConfirmModal({ open: true, action: "active", user: { id: user.id, name: user.name, email: user.email } });
+  };
+
+  const handleInactiveClick = (user) => {
+    setConfirmModal({ open: true, action: "inactive", user: { id: user.id, name: user.name, email: user.email } });
+  };
+
+  const handleConfirmSubmit = async () => {
+    const { action, user } = confirmModal;
+    if (!user) return;
+    const id = user.id;
+    setActionUserId(id);
+    try {
+      if (action === "delete") {
+        await deleteSystemuser(id).unwrap();
+        if (selectedUserId === id) {
+          setSelectedUserId(users.find((u) => u.id !== id)?.id ?? null);
+          setShowMobileDetail(false);
+        }
+        toast.success("User deleted successfully");
+      } else if (action === "active") {
+        await updateSystemuser({ id, isActive: true }).unwrap();
+        toast.success("User set to active");
+      } else if (action === "inactive") {
+        await updateSystemuser({ id, isActive: false }).unwrap();
+        toast.success("User set to inactive");
       }
-      toast.success("User deleted successfully");
+      closeConfirmModal();
+    } catch (err) {
+      toast.error(err?.data?.message || (action === "delete" ? "Failed to delete user" : "Failed to update user"));
+    } finally {
+      setActionUserId(null);
     }
   };
+
+  const isBusy = (id) => actionUserId === id;
 
   // Mobile detail view handler
   const handleUserClick = (id) => {
@@ -295,6 +249,28 @@ const ManageUsersPage = () => {
       setShowMobileDetail(true);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen p-4 md:p-6 flex flex-col items-center justify-center">
+        <div className="animate-spin h-10 w-10 border-2 border-indigo-500 border-t-transparent rounded-full" />
+        <p className="mt-4 text-sm text-gray-500">Loading users...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen p-4 md:p-6 flex flex-col items-center justify-center">
+        <p className="text-red-500 text-sm">
+          {error?.data?.message || "Failed to load users"}
+        </p>
+        <p className="mt-2 text-gray-500 text-xs">
+          Check your connection and try again.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen  p-4 md:p-6 lg:h-screen lg:overflow-hidden flex flex-col">
@@ -313,15 +289,17 @@ const ManageUsersPage = () => {
             </p>
           </div>
         </div>
-        <div className="flex gap-3">
-          <Button
-            onClick={() => navigate("/manage-users/create")}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-500/20"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add User
-          </Button>
-        </div>
+        {canManageUsers && (
+          <div className="flex gap-3">
+            <Button
+              onClick={() => navigate("/manage-users/create")}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-500/20"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add User
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Main Layout Grid */}
@@ -356,9 +334,11 @@ const ManageUsersPage = () => {
             <div className="col-span-4 md:col-span-3 text-right md:text-left">
               Status
             </div>
-            <div className="hidden md:block md:col-span-2 text-center">
-              Actions
-            </div>
+            {canManageUsers && (
+              <div className="hidden md:block md:col-span-2 text-center">
+                Actions
+              </div>
+            )}
           </div>
 
           {/* List Items */}
@@ -420,62 +400,79 @@ const ManageUsersPage = () => {
                     <StatusBadge active={user.isActive} />
                   </div>
 
-                  <div
-                    className="hidden md:block md:col-span-2 flex items-center justify-center"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
+                  {canManageUsers && (
+                    <div
+                      className="hidden md:block md:col-span-2 flex items-center justify-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
 
-                      <DropdownMenuContent align="end" className="w-40">
-                        {/* Edit */}
-                        <DropdownMenuItem
-                          onClick={() =>
-                            navigate(`/manage-users/edit/${user.id}`)
-                          }
-                          className="cursor-pointer"
-                        >
-                          <Edit className="mr-2 h-4 w-4" />
-                          <span>Edit</span>
-                        </DropdownMenuItem>
+                        <DropdownMenuContent align="end" className="w-40">
+                          {/* Edit */}
+                          <DropdownMenuItem
+                            onClick={() =>
+                              navigate(`/manage-users/edit/${user.id}`)
+                            }
+                            className="cursor-pointer"
+                            disabled={isBusy(user.id)}
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            <span>Edit</span>
+                          </DropdownMenuItem>
 
-                        {/* Active */}
-                        <DropdownMenuItem
-                          onClick={() => handleActive(user.id)}
-                          className="cursor-pointer text-green-600 focus:text-green-600 focus:bg-green-50 dark:focus:bg-green-900/10"
-                        >
-                          <CheckCircle className="mr-2 h-4 w-4" />
-                          <span>Active</span>
-                        </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              navigate(`/manage-users/permissions/${user.id}`)
+                            }
+                            className="cursor-pointer"
+                            disabled={isBusy(user.id)}
+                          >
+                            <Shield className="mr-2 h-4 w-4" />
+                            <span>Permissions</span>
+                          </DropdownMenuItem>
 
-                        {/* Inactive */}
-                        <DropdownMenuItem
-                          onClick={() => handleInactive(user.id)}
-                          className="cursor-pointer text-yellow-600 focus:text-yellow-600 focus:bg-yellow-50 dark:focus:bg-yellow-900/10"
-                        >
-                          <XCircle className="mr-2 h-4 w-4" />
-                          <span>Inactive</span>
-                        </DropdownMenuItem>
+                          {/* Active */}
+                          <DropdownMenuItem
+                            onClick={() => handleActiveClick(user)}
+                            disabled={isBusy(user.id) || user.isActive}
+                            className="cursor-pointer text-green-600 focus:text-green-600 focus:bg-green-50 dark:focus:bg-green-900/10"
+                          >
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            <span>{isBusy(user.id) ? "..." : "Active"}</span>
+                          </DropdownMenuItem>
 
-                        {/* Delete */}
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(user.id)}
-                          className="text-red-600 focus:text-red-600 cursor-pointer focus:bg-red-50 dark:focus:bg-red-900/10"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          <span>Delete</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                          {/* Inactive */}
+                          <DropdownMenuItem
+                            onClick={() => handleInactiveClick(user)}
+                            disabled={isBusy(user.id) || !user.isActive}
+                            className="cursor-pointer text-yellow-600 focus:text-yellow-600 focus:bg-yellow-50 dark:focus:bg-yellow-900/10"
+                          >
+                            <XCircle className="mr-2 h-4 w-4" />
+                            <span>{isBusy(user.id) ? "..." : "Inactive"}</span>
+                          </DropdownMenuItem>
+
+                          {/* Delete */}
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteClick(user)}
+                            disabled={isBusy(user.id)}
+                            className="text-red-600 focus:text-red-600 cursor-pointer focus:bg-red-50 dark:focus:bg-red-900/10"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            <span>{isBusy(user.id) ? "..." : "Delete"}</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  )}
                 </motion.div>
               ))
             ) : (
@@ -538,35 +535,55 @@ const ManageUsersPage = () => {
                       ID: {selectedUser.id}
                     </span>
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 rounded-full hover:bg-white/80 dark:hover:bg-black/20"
-                      >
-                        <MoreHorizontal className="h-4 w-4 text-gray-500" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem
-                        onClick={() =>
-                          navigate(`/manage-users/edit/${selectedUser.id}`)
-                        }
-                        className="cursor-pointer"
-                      >
-                        <Edit className="mr-2 h-4 w-4" />
-                        <span>Edit User</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleDelete(selectedUser.id)}
-                        className="text-red-600 focus:text-red-600 cursor-pointer focus:bg-red-50 dark:focus:bg-red-900/10"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        <span>Delete User</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {canManageUsers && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 rounded-full hover:bg-white/80 dark:hover:bg-black/20"
+                        >
+                          <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem
+                          onClick={() =>
+                            navigate(`/manage-users/edit/${selectedUser.id}`)
+                          }
+                          className="cursor-pointer"
+                          disabled={isBusy(selectedUser.id)}
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          <span>Edit User</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleActiveClick(selectedUser)}
+                          disabled={isBusy(selectedUser.id) || selectedUser.isActive}
+                          className="cursor-pointer text-green-600 focus:text-green-600 focus:bg-green-50 dark:focus:bg-green-900/10"
+                        >
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          <span>Set Active</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleInactiveClick(selectedUser)}
+                          disabled={isBusy(selectedUser.id) || !selectedUser.isActive}
+                          className="cursor-pointer text-yellow-600 focus:text-yellow-600 focus:bg-yellow-50 dark:focus:bg-yellow-900/10"
+                        >
+                          <XCircle className="mr-2 h-4 w-4" />
+                          <span>Set Inactive</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteClick(selectedUser)}
+                          disabled={isBusy(selectedUser.id)}
+                          className="text-red-600 focus:text-red-600 cursor-pointer focus:bg-red-50 dark:focus:bg-red-900/10"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          <span>Delete User</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
 
                 {/* Profile Section */}
@@ -676,7 +693,7 @@ const ManageUsersPage = () => {
                       SYSTEM ACCESS
                     </h4>
                     <span className="px-2 py-0.5 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 text-[10px] font-bold rounded-md uppercase tracking-wide border border-purple-100 dark:border-purple-900/30">
-                      Level {selectedUser.permissions.length}
+                      Level {selectedUser.permissions?.length ?? 0}
                     </span>
                   </div>
 
@@ -686,14 +703,20 @@ const ManageUsersPage = () => {
                     </div>
                     <div className="relative z-10">
                       <div className="flex flex-wrap gap-2 mb-4">
-                        {selectedUser.permissions.map((perm, idx) => (
-                          <span
-                            key={idx}
-                            className="inline-flex items-center px-2 py-1 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[10px] font-medium text-gray-600 dark:text-gray-300 shadow-sm"
-                          >
-                            {perm.replace(/_/g, " ")}
-                          </span>
-                        ))}
+                        {(selectedUser.permissions ?? []).map((perm, idx) => {
+                          const label =
+                            typeof perm === "string"
+                              ? perm
+                              : perm?.name ?? perm?.code ?? "—";
+                          return (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center px-2 py-1 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[10px] font-medium text-gray-600 dark:text-gray-300 shadow-sm"
+                            >
+                              {String(label).replace(/_/g, " ")}
+                            </span>
+                          );
+                        })}
                       </div>
                       <div className="space-y-1.5">
                         <div className="flex justify-between text-[10px] font-medium text-gray-500">
@@ -719,51 +742,95 @@ const ManageUsersPage = () => {
                   <div className="relative pl-2">
                     <div className="absolute left-[11px] top-2 bottom-2 w-[1px] bg-gray-200 dark:bg-gray-800" />
                     <div className="space-y-6">
-                      {selectedUser.activities?.map((activity, idx) => (
-                        <div key={idx} className="relative pl-6 group">
-                          <div
-                            className={`absolute left-[7px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-[#1a1f26] shadow-sm transition-transform group-hover:scale-125 ${
-                              activity.type === "system"
-                                ? "bg-red-500"
-                                : activity.type === "create"
-                                  ? "bg-emerald-500"
-                                  : "bg-blue-500"
-                            }`}
-                          />
-                          <div className="flex flex-col gap-1">
-                            <span className="text-[10px] font-mono text-gray-400 uppercase tracking-tight">
-                              {activity.time}
-                            </span>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 font-medium leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                              {activity.text}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                      {(selectedUser.activities ?? []).length === 0 ? (
+                        <p className="text-xs text-gray-400 pl-6">No activity logs</p>
+                      ) : (
+                        (selectedUser.activities ?? []).map((activity, idx) => {
+                          const time =
+                            activity.time ??
+                            activity.createdAt ??
+                            activity.timestamp ??
+                            "—";
+                          const text =
+                            activity.text ??
+                            activity.description ??
+                            activity.action ??
+                            "—";
+                          const type = activity.type ?? activity.action ?? "";
+                          return (
+                            <div key={activity.id ?? idx} className="relative pl-6 group">
+                              <div
+                                className={`absolute left-[7px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-[#1a1f26] shadow-sm transition-transform group-hover:scale-125 ${
+                                  type === "system"
+                                    ? "bg-red-500"
+                                    : type === "create"
+                                      ? "bg-emerald-500"
+                                      : "bg-blue-500"
+                                }`}
+                              />
+                              <div className="flex flex-col gap-1">
+                                <span className="text-[10px] font-mono text-gray-400 uppercase tracking-tight">
+                                  {typeof time === "string"
+                                    ? time
+                                    : time?.toLocaleString?.() ?? "—"}
+                                </span>
+                                <p className="text-sm text-gray-700 dark:text-gray-300 font-medium leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                  {text}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Action Footer */}
-              <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] space-y-3 z-10">
-                <Button
-                  className="w-full bg-nexus-primary hover:bg-nexus-primary/90 text-white rounded-xl shadow-lg shadow-indigo-500/20 h-11 font-medium transition-all active:scale-[0.98]"
-                  onClick={() =>
-                    navigate(`/manage-users/edit/${selectedUser.id}`)
-                  }
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Modify System Access
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 h-10 rounded-xl font-medium transition-all active:scale-[0.98]"
-                  onClick={() => handleDelete(selectedUser.id)}
-                >
-                  Revoke User Access
-                </Button>
-              </div>
+              {canManageUsers && (
+                <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] space-y-3 z-10">
+                  <Button
+                    className="w-full bg-nexus-primary hover:bg-nexus-primary/90 text-white rounded-xl shadow-lg shadow-indigo-500/20 h-11 font-medium transition-all active:scale-[0.98]"
+                    onClick={() =>
+                      navigate(`/manage-users/edit/${selectedUser.id}`)
+                    }
+                    disabled={isBusy(selectedUser.id)}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Modify System Access
+                  </Button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="ghost"
+                      className="text-green-600 hover:bg-green-50 dark:hover:bg-green-900/10 h-10 rounded-xl font-medium"
+                      onClick={() => handleActiveClick(selectedUser)}
+                      disabled={isBusy(selectedUser.id) || selectedUser.isActive}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-1" />
+                      {isBusy(selectedUser.id) ? "..." : "Active"}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/10 h-10 rounded-xl font-medium"
+                      onClick={() => handleInactiveClick(selectedUser)}
+                      disabled={isBusy(selectedUser.id) || !selectedUser.isActive}
+                    >
+                      <XCircle className="h-4 w-4 mr-1" />
+                      {isBusy(selectedUser.id) ? "..." : "Inactive"}
+                    </Button>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    className="w-full text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 h-10 rounded-xl font-medium transition-all active:scale-[0.98]"
+                    onClick={() => handleDeleteClick(selectedUser)}
+                    disabled={isBusy(selectedUser.id)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {isBusy(selectedUser.id) ? "..." : "Revoke User Access"}
+                  </Button>
+                </div>
+              )}
             </motion.div>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-gray-400 bg-white dark:bg-[#1a1f26] rounded-[24px] border border-gray-100 dark:border-gray-800 p-8 text-center">
@@ -871,26 +938,112 @@ const ManageUsersPage = () => {
               </div>
             </div>
 
-            <div className="p-4 border-t border-gray-100 dark:border-gray-800 space-y-3">
-              <Button
-                className="w-full bg-indigo-600 text-white rounded-xl py-6"
-                onClick={() =>
-                  navigate(`/manage-users/edit/${selectedUser.id}`)
-                }
-              >
-                Edit Details
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full text-red-600"
-                onClick={() => handleDelete(selectedUser.id)}
-              >
-                Remove User
-              </Button>
-            </div>
+            {canManageUsers && (
+              <div className="p-4 border-t border-gray-100 dark:border-gray-800 space-y-3">
+                <Button
+                  className="w-full bg-indigo-600 text-white rounded-xl py-6"
+                  onClick={() =>
+                    navigate(`/manage-users/edit/${selectedUser.id}`)
+                  }
+                  disabled={isBusy(selectedUser.id)}
+                >
+                  Edit Details
+                </Button>
+                <Button
+                  className="w-full bg-indigo-600 text-white rounded-xl py-6"
+                  onClick={() =>
+                    navigate(`/manage-users/permissions/${selectedUser.id}`)
+                  }
+                  disabled={isBusy(selectedUser.id)}
+                >
+                  Permissions
+                </Button>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="outline"
+                    className="text-green-600 border-green-200 rounded-xl py-6"
+                    onClick={() => handleActiveClick(selectedUser)}
+                    disabled={isBusy(selectedUser.id) || selectedUser.isActive}
+                  >
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                    {isBusy(selectedUser.id) ? "..." : "Active"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="text-yellow-600 border-yellow-200 rounded-xl py-6"
+                    onClick={() => handleInactiveClick(selectedUser)}
+                    disabled={isBusy(selectedUser.id) || !selectedUser.isActive}
+                  >
+                    <XCircle className="h-4 w-4 mr-1" />
+                    {isBusy(selectedUser.id) ? "..." : "Inactive"}
+                  </Button>
+                </div>
+                <Button
+                  variant="ghost"
+                  className="w-full text-red-600"
+                  onClick={() => handleDeleteClick(selectedUser)}
+                  disabled={isBusy(selectedUser.id)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  {isBusy(selectedUser.id) ? "..." : "Remove User"}
+                </Button>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Confirmation modal for Delete / Active / Inactive */}
+      <Dialog open={confirmModal.open} onOpenChange={(open) => !open && closeConfirmModal()}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {confirmModal.action === "delete" &&
+                t("manageUsers.deleteConfirm", { email: confirmModal.user?.email ?? "" })}
+              {confirmModal.action === "active" && t("manageUsers.activeConfirmTitle")}
+              {confirmModal.action === "inactive" && t("manageUsers.inactiveConfirmTitle")}
+            </DialogTitle>
+            <DialogDescription>
+              {confirmModal.action === "delete" && t("manageUsers.deleteConfirmDesc")}
+              {confirmModal.action === "active" && t("manageUsers.activeConfirmDesc")}
+              {confirmModal.action === "inactive" && t("manageUsers.inactiveConfirmDesc")}
+            </DialogDescription>
+          </DialogHeader>
+          {confirmModal.user && (
+            <p className="text-sm text-gray-700 dark:text-gray-300">
+              <span className="font-medium">{confirmModal.user.name}</span>
+              {confirmModal.user.email && (
+                <span className="text-gray-500 dark:text-gray-400"> — {confirmModal.user.email}</span>
+              )}
+            </p>
+          )}
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={closeConfirmModal} disabled={!!actionUserId}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant={confirmModal.action === "delete" ? "destructive" : "default"}
+              onClick={handleConfirmSubmit}
+              disabled={!!actionUserId}
+              className={
+                confirmModal.action === "delete"
+                  ? "bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
+                  : confirmModal.action === "active"
+                    ? "bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+                    : ""
+              }
+            >
+              {actionUserId
+                ? t("common.processing")
+                : confirmModal.action === "delete"
+                  ? t("common.delete")
+                  : confirmModal.action === "active"
+                    ? t("common.active")
+                    : t("manageUsers.setInactive")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

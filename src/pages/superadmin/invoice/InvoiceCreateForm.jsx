@@ -151,6 +151,9 @@ const InvoiceCreateForm = () => {
             amountType: data.amountType,
             status: data.status,
         };
+        if (data.packageId) {
+            payload.packageId = parseInt(data.packageId);
+        }
 
         // Add bank payment if provided
         if (showBankPayment && data.bankName) {

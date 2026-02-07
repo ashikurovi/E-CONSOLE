@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
@@ -8,19 +8,22 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useSelector } from 'react-redux';
 import { useAddCustomDomainMutation } from '@/features/devops/devopsApiSlice'; // We need to create this slice
 
-const DomainSettings = () => {
+const DomainSettings = ({ user: userFromApi }) => {
   const { t } = useTranslation();
   const [addCustomDomain, { isLoading }] = useAddCustomDomainMutation();
-  const user = useSelector((state) => state.auth.user);
-  
-  // Assuming user has a 'tenantId' or we use their ID if 1:1 mapping
+  const authUser = useSelector((state) => state.auth.user);
+  const user = userFromApi ?? authUser ?? null;
   const tenantId = user?.tenantId || user?.companyId; 
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     defaultValues: {
-      domain: user?.customDomain || ''
+      domain: ''
     }
   });
+
+  useEffect(() => {
+    reset({ domain: user?.customDomain ?? '' });
+  }, [user?.customDomain, reset]);
 
   const onSubmit = async (data) => {
     try {
