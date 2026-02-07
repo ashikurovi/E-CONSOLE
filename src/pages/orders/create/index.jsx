@@ -12,7 +12,22 @@ import { useCreateOrderMutation } from "@/features/order/orderApiSlice";
 import { useGetProductsQuery } from "@/features/product/productApiSlice";
 import { useGetUsersQuery } from "@/features/user/userApiSlice";
 import { useSelector } from "react-redux";
-import { ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  User,
+  Box,
+  CreditCard,
+  Truck,
+  ShoppingCart,
+  Plus,
+  Trash2,
+  Save,
+  X,
+  Package,
+  CheckCircle2,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 const CreateOrderPage = () => {
   const { t } = useTranslation();
@@ -22,20 +37,25 @@ const CreateOrderPage = () => {
   const orderSchema = useMemo(
     () =>
       yup.object().shape({
-        customerName: yup
-          .string()
-          .when('$hasCustomer', {
-            is: false,
-            then: (schema) => schema.required(t("orders.validation.customerNameRequired")).min(2, t("orders.validation.nameMin")).max(100, t("orders.validation.nameMax")).trim(),
-            otherwise: (schema) => schema.trim(),
-          }),
-        customerPhone: yup
-          .string()
-          .when('$hasCustomer', {
-            is: false,
-            then: (schema) => schema.max(20, t("orders.validation.phoneMax")).matches(/^[+\d\s()-]*$/, t("orders.validation.phoneValid")).trim(),
-            otherwise: (schema) => schema.trim(),
-          }),
+        customerName: yup.string().when("$hasCustomer", {
+          is: false,
+          then: (schema) =>
+            schema
+              .required(t("orders.validation.customerNameRequired"))
+              .min(2, t("orders.validation.nameMin"))
+              .max(100, t("orders.validation.nameMax"))
+              .trim(),
+          otherwise: (schema) => schema.trim(),
+        }),
+        customerPhone: yup.string().when("$hasCustomer", {
+          is: false,
+          then: (schema) =>
+            schema
+              .max(20, t("orders.validation.phoneMax"))
+              .matches(/^[+\d\s()-]*$/, t("orders.validation.phoneValid"))
+              .trim(),
+          otherwise: (schema) => schema.trim(),
+        }),
         customerEmail: yup
           .string()
           .transform((v) => (v === "" ? undefined : v))
@@ -52,15 +72,15 @@ const CreateOrderPage = () => {
           .max(500, t("orders.validation.shippingAddressMax"))
           .trim(),
       }),
-    [t]
+    [t],
   );
-  
+
   const form = useForm({
     resolver: yupResolver(orderSchema),
     mode: "onChange",
     context: { hasCustomer: !!selectedCustomer },
   });
-  
+
   const {
     register,
     handleSubmit,
@@ -69,34 +89,44 @@ const CreateOrderPage = () => {
     clearErrors,
     trigger,
   } = form;
-  
+
   // Clear validation errors and re-validate when customer selection changes
   useEffect(() => {
     if (selectedCustomer) {
-      clearErrors(['customerName', 'customerPhone']);
+      clearErrors(["customerName", "customerPhone"]);
     }
     trigger();
   }, [selectedCustomer, clearErrors, trigger]);
-  
+
   const [createOrder, { isLoading }] = useCreateOrderMutation();
   const { user } = useSelector((state) => state.auth);
-  const { data: products = [] } = useGetProductsQuery({ companyId: user?.companyId });
+  const { data: products = [] } = useGetProductsQuery({
+    companyId: user?.companyId,
+  });
   const { data: users = [] } = useGetUsersQuery({ companyId: user?.companyId });
 
   const productOptions = useMemo(
-    () => products.map((p) => ({ label: `${p.name ?? p.title} (${p.sku ?? "-"})`, value: p.id })),
-    [products]
+    () =>
+      products.map((p) => ({
+        label: `${p.name ?? p.title} (${p.sku ?? "-"})`,
+        value: p.id,
+      })),
+    [products],
   );
   const customerOptions = useMemo(
-    () => users.map((u) => ({ label: `${u.name ?? "-"} (${u.email ?? "-"})`, value: u.id })),
-    [users]
+    () =>
+      users.map((u) => ({
+        label: `${u.name ?? "-"} (${u.email ?? "-"})`,
+        value: u.id,
+      })),
+    [users],
   );
   const paymentOptions = useMemo(
     () => [
       { label: t("orders.paymentDirect"), value: "DIRECT" },
       { label: t("orders.paymentCod"), value: "COD" },
     ],
-    [t]
+    [t],
   );
   const [selectedPayment, setSelectedPayment] = useState(paymentOptions[0]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -104,45 +134,71 @@ const CreateOrderPage = () => {
   const [items, setItems] = useState([]);
 
   const addItem = () => {
-    if (!selectedProduct || !itemQty || itemQty <= 0) return toast.error(t("orders.selectProductAndQty"));
+    if (!selectedProduct || !itemQty || itemQty <= 0)
+      return toast.error(t("orders.selectProductAndQty"));
     const exists = items.find((it) => it.productId === selectedProduct.value);
     if (exists) {
       setItems((prev) =>
         prev.map((it) =>
-          it.productId === selectedProduct.value ? { ...it, quantity: it.quantity + itemQty } : it
-        )
+          it.productId === selectedProduct.value
+            ? { ...it, quantity: it.quantity + itemQty }
+            : it,
+        ),
       );
     } else {
       setItems((prev) => [
         ...prev,
-        { productId: selectedProduct.value, name: selectedProduct.label, quantity: itemQty },
+        {
+          productId: selectedProduct.value,
+          name: selectedProduct.label,
+          quantity: itemQty,
+        },
       ]);
     }
     setSelectedProduct(null);
     setItemQty(1);
   };
 
-  const removeItem = (pid) => setItems((prev) => prev.filter((it) => it.productId !== pid));
+  const removeItem = (pid) =>
+    setItems((prev) => prev.filter((it) => it.productId !== pid));
 
   const onSubmit = async (data) => {
     if (items.length === 0) {
-      toast.error(t("orders.addAtLeastOneItem"));
+      toast.error(
+        t("orders.addAtLeastOneItem", "Please add at least one item"),
+      );
       return;
     }
-    
+
     // Manual validation: if no customer selected, customerName is required
-    if (!selectedCustomer && (!data.customerName || data.customerName.trim().length < 2)) {
-      toast.error(t("orders.customerNameRequiredMin"));
+    if (
+      !selectedCustomer &&
+      (!data.customerName || data.customerName.trim().length < 2)
+    ) {
+      toast.error(
+        t("orders.customerNameRequiredMin", "Customer name is required"),
+      );
       return;
     }
 
     const payload = {
       customerId: selectedCustomer?.value || undefined,
-      customerName: !selectedCustomer ? data.customerName || undefined : undefined,
-      customerEmail: !selectedCustomer ? data.customerEmail || undefined : undefined,
-      customerPhone: !selectedCustomer ? data.customerPhone || undefined : undefined,
-      customerAddress: !selectedCustomer ? data.customerAddress || undefined : undefined,
-      items: items.map((it) => ({ productId: it.productId, quantity: it.quantity })),
+      customerName: !selectedCustomer
+        ? data.customerName || undefined
+        : undefined,
+      customerEmail: !selectedCustomer
+        ? data.customerEmail || undefined
+        : undefined,
+      customerPhone: !selectedCustomer
+        ? data.customerPhone || undefined
+        : undefined,
+      customerAddress: !selectedCustomer
+        ? data.customerAddress || undefined
+        : undefined,
+      items: items.map((it) => ({
+        productId: it.productId,
+        quantity: it.quantity,
+      })),
       shippingAddress: data.shippingAddress || undefined,
       paymentMethod: selectedPayment?.value,
     };
@@ -150,184 +206,401 @@ const CreateOrderPage = () => {
     const params = { companyId: user?.companyId };
     const res = await createOrder({ body: payload, params });
     if (res?.data) {
-      toast.success(t("orders.orderCreated"));
+      toast.success(t("orders.orderCreated", "Order created successfully!"));
       reset();
       setItems([]);
       setSelectedCustomer(null);
       setSelectedPayment(paymentOptions[0]);
       navigate("/orders");
     } else {
-      toast.error(res?.error?.data?.message || t("orders.orderCreateFailed"));
+      toast.error(
+        res?.error?.data?.message ||
+          t("orders.orderCreateFailed", "Failed to create order"),
+      );
     }
   };
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate("/orders")}
-          className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-semibold">{t("orders.createOrder")}</h1>
-          <p className="text-sm text-black/60 dark:text-white/60 mt-1">
-            {t("createEdit.createOrderDesc")}
-          </p>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="max-w-[1600px] mx-auto space-y-8"
+    >
+      {/* Header Section */}
+      <div className="relative rounded-[12px] overflow-hidden bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-900 dark:to-violet-900 p-8 md:p-12 shadow-2xl shadow-indigo-500/20">
+        <div className="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
+          <ShoppingCart className="w-64 h-64 text-white" />
+        </div>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/orders")}
+                className="rounded-full bg-white/20 hover:bg-white/30 text-white border border-white/20 transition-all duration-300"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+                {t("orders.createOrder", "Create Order")}
+              </h1>
+            </div>
+            <p className="text-indigo-100 text-lg max-w-xl font-medium pl-14">
+              {t(
+                "createEdit.createOrderDesc",
+                "Create a new order for your customers efficiently.",
+              )}
+            </p>
+          </div>
+          <div className="flex gap-3 pl-14 md:pl-0">
+            <div className="px-6 py-3 rounded-[20px] bg-white/10 border border-white/20 backdrop-blur-md flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                <Package className="w-5 h-5 text-emerald-300" />
+              </div>
+              <div>
+                <p className="text-xs text-indigo-200 uppercase font-bold tracking-wider">
+                  Stock Status
+                </p>
+                <p className="text-white font-bold">
+                  {products.length} Products
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit, (errors) => {
-        // Log validation errors for debugging
-        if (Object.keys(errors).length > 0) {
-          console.log("Form validation errors:", errors);
-          const firstError = Object.values(errors)[0];
-          if (firstError?.message) {
-            toast.error(firstError.message);
+      <form
+        onSubmit={handleSubmit(onSubmit, (errors) => {
+          if (Object.keys(errors).length > 0) {
+            console.log("Form validation errors:", errors);
+            const firstError = Object.values(errors)[0];
+            if (firstError?.message) {
+              toast.error(firstError.message);
+            }
           }
-        }
-      })} className="space-y-6">
-        {/* Customer selection */}
-        <div className="fl gap-3">
-          <Dropdown
-            name={t("orders.customer")}
-            options={customerOptions}
-            setSelectedOption={setSelectedCustomer}
-          >
-            {selectedCustomer ? selectedCustomer.label : t("orders.selectCustomer")}
-          </Dropdown>
-          <Dropdown
-            name={t("orders.paymentMethod")}
-            options={paymentOptions}
-            setSelectedOption={setSelectedPayment}
-          >
-            {selectedPayment ? selectedPayment.label : t("orders.paymentMethod")}
-          </Dropdown>
-        </div>
+        })}
+        className="grid grid-cols-1 xl:grid-cols-12 gap-8"
+      >
+        {/* Left Column: Customer & Items */}
+        <div className="xl:col-span-8 space-y-8">
+          {/* Customer Section */}
+          <div className="relative group">
+            {/* Background Layer with Overflow Hidden for Decoration */}
+            <div className="absolute inset-0 bg-white dark:bg-slate-800 rounded-[32px] border border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none overflow-hidden pointer-events-none">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl -mr-16 -mt-16 transition-all duration-500 group-hover:bg-indigo-500/10" />
+            </div>
 
-        {/* Manual customer info (used only if no selectedCustomer) */}
-        {!selectedCustomer && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            <TextField
-              label={t("orders.customerName")}
-              placeholder={t("orders.customerPlaceholder")}
-              register={register}
-              name="customerName"
-              error={errors.customerName?.message}
-            />
-            <TextField
-              label={t("orders.customerEmail")}
-              placeholder={t("orders.emailPlaceholder")}
-              type="email"
-              register={register}
-              name="customerEmail"
-              error={errors.customerEmail?.message}
-            />
-            <TextField
-              label={t("orders.customerPhone")}
-              placeholder={t("orders.phonePlaceholder")}
-              register={register}
-              name="customerPhone"
-              error={errors.customerPhone?.message}
-            />
-            <TextField
-              label={t("orders.customerAddress")}
-              placeholder={t("orders.addressPlaceholder")}
-              register={register}
-              name="customerAddress"
-              error={errors.customerAddress?.message}
-            />
-          </div>
-        )}
+            {/* Content Layer (Unclipped for Dropdowns) */}
+            <div className="relative z-10 p-8 py-12">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 rounded-[18px] bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm">
+                  <User className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                    {t("orders.customerDetails", "Customer Details")}
+                  </h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">
+                    {t(
+                      "orders.customerDetailsDesc",
+                      "Select existing or enter new customer",
+                    )}
+                  </p>
+                </div>
+              </div>
 
-        {/* Shipping address */}
-        <TextField
-          label={t("orders.shippingAddress")}
-          placeholder={t("orders.shippingPlaceholder")}
-          register={register}
-          name="shippingAddress"
-          error={errors.shippingAddress?.message}
-        />
-
-        {/* Items composer */}
-        <div className="rounded-xl border border-gray-100 dark:border-gray-800 p-3">
-          <div className="fl gap-3">
-            <Dropdown
-              name={t("orders.product")}
-              options={productOptions}
-              setSelectedOption={setSelectedProduct}
-            >
-              {selectedProduct ? selectedProduct.label : t("orders.selectProduct")}
-            </Dropdown>
-            <input
-              type="number"
-              min={1}
-              value={itemQty}
-              onChange={(e) => {
-                const value = e.target.value;
-                const numValue = parseInt(value, 10);
-                if (!isNaN(numValue) && numValue > 0) {
-                  setItemQty(numValue);
-                } else if (value === "" || value === null || value === undefined) {
-                  setItemQty(1);
-                }
-              }}
-              onBlur={(e) => {
-                const value = e.target.value;
-                const numValue = parseInt(value, 10);
-                if (isNaN(numValue) || numValue < 1) {
-                  setItemQty(1);
-                }
-              }}
-              className="border border-gray-100 dark:border-white/20 bg-gray-50 dark:bg-[#1a1f26] dark:bg-white/10 px-3 py-2 rounded-md w-28 outline-none"
-              placeholder={t("orders.qty")}
-            />
-            <Button type="button" variant="outline" onClick={addItem}>
-              {t("orders.addItem")}
-            </Button>
-          </div>
-
-          <div className="mt-3 space-y-2">
-            {items.length === 0 ? (
-              <p className="text-sm opacity-60">{t("orders.noItemsAdded")}</p>
-            ) : (
-              items.map((it) => (
-                <div key={it.productId} className="fl justify-between border border-black/5 dark:border-gray-800 rounded-md px-3 py-2">
-                  <span className="text-sm">{it.name}</span>
-                  <div className="fl gap-3">
-                    <span className="text-sm">{t("orders.qty")}: {it.quantity}</span>
-                    <Button variant="ghost" size="sm" onClick={() => removeItem(it.productId)}>
-                      {t("orders.remove")}
-                    </Button>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">
+                      {t("orders.customer", "Customer")}
+                    </label>
+                    <div className="relative">
+                      <Dropdown
+                        name={t("orders.customer", "Customer")}
+                        options={customerOptions}
+                        setSelectedOption={setSelectedCustomer}
+                        className="w-full"
+                      >
+                        {selectedCustomer
+                          ? selectedCustomer.label
+                          : t("orders.selectCustomer", "Select Customer")}
+                      </Dropdown>
+                    </div>
                   </div>
                 </div>
-              ))
-            )}
+
+                {/* Manual Customer Fields */}
+                <AnimatePresence>
+                  {!selectedCustomer && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100 dark:border-slate-700">
+                        <TextField
+                          label={t("orders.customerName", "Customer Name")}
+                          placeholder={t(
+                            "orders.customerPlaceholder",
+                            "Enter customer name",
+                          )}
+                          register={register}
+                          name="customerName"
+                          error={errors.customerName?.message}
+                          className="bg-slate-50 dark:bg-slate-900/50 h-14 rounded-xl border-slate-200 dark:border-slate-700 focus:border-indigo-500"
+                        />
+                        <TextField
+                          label={t("orders.customerEmail", "Customer Email")}
+                          placeholder={t(
+                            "orders.emailPlaceholder",
+                            "Enter email address",
+                          )}
+                          type="email"
+                          register={register}
+                          name="customerEmail"
+                          error={errors.customerEmail?.message}
+                          className="bg-slate-50 dark:bg-slate-900/50 h-14 rounded-xl border-slate-200 dark:border-slate-700 focus:border-indigo-500"
+                        />
+                        <TextField
+                          label={t("orders.customerPhone", "Phone Number")}
+                          placeholder={t(
+                            "orders.phonePlaceholder",
+                            "Enter phone number",
+                          )}
+                          register={register}
+                          name="customerPhone"
+                          error={errors.customerPhone?.message}
+                          className="bg-slate-50 dark:bg-slate-900/50 h-14 rounded-xl border-slate-200 dark:border-slate-700 focus:border-indigo-500"
+                        />
+                        <TextField
+                          label={t("orders.customerAddress", "Address")}
+                          placeholder={t(
+                            "orders.addressPlaceholder",
+                            "Enter full address",
+                          )}
+                          register={register}
+                          name="customerAddress"
+                          error={errors.customerAddress?.message}
+                          className="bg-slate-50 dark:bg-slate-900/50 h-14 rounded-xl border-slate-200 dark:border-slate-700 focus:border-indigo-500"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+
+          {/* Items Section */}
+          <div className="bg-white dark:bg-slate-800 rounded-[32px] p-8 border border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-12 rounded-[18px] bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm">
+                <Box className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                  {t("orders.products", "Products")}
+                </h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">
+                  {t("orders.productsDesc", "Add products to the order")}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[24px] border border-slate-200 dark:border-slate-700">
+                <div className="flex flex-col md:flex-row gap-4 items-end">
+                  <div className="flex-1 space-y-2 w-full">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">
+                      {t("orders.selectProduct", "Select Product")}
+                    </label>
+                    <Dropdown
+                      name={t("orders.product", "Product")}
+                      options={productOptions}
+                      setSelectedOption={setSelectedProduct}
+                    >
+                      {selectedProduct
+                        ? selectedProduct.label
+                        : t("orders.selectProduct", "Select Product")}
+                    </Dropdown>
+                  </div>
+                  <div className="w-full md:w-32 space-y-2">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">
+                      {t("orders.qty", "Qty")}
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={itemQty}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const numValue = parseInt(value, 10);
+                        if (!isNaN(numValue) && numValue > 0) {
+                          setItemQty(numValue);
+                        } else if (value === "") {
+                          setItemQty(1);
+                        }
+                      }}
+                      className="w-full h-[52px] px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center font-bold text-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={addItem}
+                    className="h-[52px] px-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-500/20 w-full md:w-auto"
+                  >
+                    <Plus className="w-5 h-5 mr-2" />
+                    {t("orders.addItem", "Add Item")}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Items List */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider ml-1 mb-2">
+                  {t("orders.orderItems", "Order Items")} ({items.length})
+                </h4>
+                <AnimatePresence mode="popLayout">
+                  {items.length === 0 ? (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-center py-12 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-[24px]"
+                    >
+                      <ShoppingCart className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                      <p className="text-slate-500 font-medium">
+                        {t("orders.noItemsAdded", "No items added yet.")}
+                      </p>
+                    </motion.div>
+                  ) : (
+                    items.map((it) => (
+                      <motion.div
+                        layout
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        key={it.productId}
+                        className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-[20px] shadow-sm hover:shadow-md transition-all group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-lg">
+                            {it.quantity}x
+                          </div>
+                          <div>
+                            <p className="font-bold text-slate-900 dark:text-white">
+                              {it.name}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              Product ID: {it.productId}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeItem(it.productId)}
+                          className="text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </Button>
+                      </motion.div>
+                    ))
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-          <Button 
-            type="button" 
-            variant="ghost" 
-            className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400" 
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              navigate("/orders");
-            }}
-          >
-            {t("common.cancel")}
-          </Button>
-          <Button type="submit" disabled={isLoading} className="bg-black dark:bg-black hover:bg-black/80 dark:hover:bg-black/80 text-white">
-            {isLoading ? t("orders.creating") : t("orders.createOrder")}
-          </Button>
+        {/* Right Column: Sidebar */}
+        <div className="xl:col-span-4 space-y-8">
+          {/* Payment & Shipping Card */}
+          <div className="bg-white dark:bg-slate-800 rounded-[32px] p-8 border border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none sticky top-8">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
+              <CreditCard className="w-6 h-6 text-indigo-600" />
+              {t("orders.paymentAndShipping", "Payment & Shipping")}
+            </h3>
+
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">
+                  {t("orders.paymentMethod", "Payment Method")}
+                </label>
+                <Dropdown
+                  name={t("orders.paymentMethod", "Payment Method")}
+                  options={paymentOptions}
+                  setSelectedOption={setSelectedPayment}
+                >
+                  {selectedPayment
+                    ? selectedPayment.label
+                    : t("orders.paymentMethod", "Payment Method")}
+                </Dropdown>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">
+                  {t("orders.shippingAddress", "Shipping Address")}
+                </label>
+                <textarea
+                  {...register("shippingAddress")}
+                  placeholder={t(
+                    "orders.shippingPlaceholder",
+                    "Enter shipping address (optional)",
+                  )}
+                  className="w-full h-32 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none transition-all"
+                />
+                {errors.shippingAddress && (
+                  <p className="text-red-500 text-sm ml-1">
+                    {errors.shippingAddress.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="pt-6 border-t border-slate-100 dark:border-slate-700">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-slate-500 font-medium">
+                    {t("orders.totalItems", "Total Items")}
+                  </span>
+                  <span className="text-slate-900 dark:text-white font-bold text-lg">
+                    {items.length}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center mb-6">
+                  <span className="text-slate-500 font-medium">
+                    {t("orders.totalQuantity", "Total Quantity")}
+                  </span>
+                  <span className="text-slate-900 dark:text-white font-bold text-lg">
+                    {items.reduce((acc, curr) => acc + curr.quantity, 0)}
+                  </span>
+                </div>
+
+                <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full h-12 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-base shadow-lg shadow-indigo-500/30 dark:shadow-none transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center gap-2">
+                           <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                           {t("orders.creating", "Creating...")}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                           <CheckCircle2 className="w-5 h-5" />
+                           {t("orders.createOrder", "Create Order")}
+                        </div>
+                      )}
+                    </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 };
 
