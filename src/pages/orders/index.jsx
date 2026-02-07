@@ -15,7 +15,6 @@ import {
   useRefundOrderMutation,
 } from "@/features/order/orderApiSlice";
 import DeleteModal from "@/components/modals/DeleteModal";
-import OrdersSearchBar from "./components/OrdersSearchBar";
 import OrdersHeader from "./components/OrdersHeader";
 import OrdersStats from "./components/OrdersStats";
 import OrdersTableSection from "./components/OrdersTableSection";
@@ -103,7 +102,17 @@ const OrdersPage = () => {
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const tabs = ["All", "Pending", "Processing", "Paid", "Shipped", "Delivered", "Cancelled", "Refunded", "Unpaid"];
+  const tabs = [
+    "All",
+    "Pending",
+    "Processing",
+    "Paid",
+    "Shipped",
+    "Delivered",
+    "Cancelled",
+    "Refunded",
+    "Unpaid",
+  ];
 
   // Calculate counts for each tab using stats API data
   const tabCounts = useMemo(() => {
@@ -127,32 +136,35 @@ const OrdersPage = () => {
     searchQuery,
     sortBy,
     sortOrder,
-    dateRange
+    dateRange,
   );
 
   // Helper function to translate order status
-  const getStatusLabel = useCallback((status) => {
-    if (!status) return t("common.na");
-    const statusLower = status.toLowerCase();
-    switch (statusLower) {
-      case "pending":
-        return t("orders.filterPending") || status;
-      case "processing":
-        return t("orders.filterProcessing") || status;
-      case "paid":
-        return t("orders.filterPaid") || status;
-      case "shipped":
-        return t("orders.filterShipped") || status;
-      case "delivered":
-        return t("orders.filterDelivered") || status;
-      case "cancelled":
-        return t("orders.filterCancelled") || status;
-      case "refunded":
-        return t("orders.filterRefunded") || status;
-      default:
-        return status;
-    }
-  }, [t]);
+  const getStatusLabel = useCallback(
+    (status) => {
+      if (!status) return t("common.na");
+      const statusLower = status.toLowerCase();
+      switch (statusLower) {
+        case "pending":
+          return t("orders.filterPending") || status;
+        case "processing":
+          return t("orders.filterProcessing") || status;
+        case "paid":
+          return t("orders.filterPaid") || status;
+        case "shipped":
+          return t("orders.filterShipped") || status;
+        case "delivered":
+          return t("orders.filterDelivered") || status;
+        case "cancelled":
+          return t("orders.filterCancelled") || status;
+        case "refunded":
+          return t("orders.filterRefunded") || status;
+        default:
+          return status;
+      }
+    },
+    [t],
+  );
 
   // Use custom hook for table data
   const handleShipModalOpen = useCallback((order) => {
@@ -172,7 +184,7 @@ const OrdersPage = () => {
     setCancelModal,
     setRefundModal,
     setPartialPaymentModal,
-    setDeleteModal
+    setDeleteModal,
   );
 
   // Handler functions
@@ -363,14 +375,19 @@ const OrdersPage = () => {
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")),
+      ...rows.map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      ),
     ].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    link.setAttribute("download", `orders_${new Date().toISOString().split("T")[0]}.csv`);
+    link.setAttribute(
+      "download",
+      `orders_${new Date().toISOString().split("T")[0]}.csv`,
+    );
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
@@ -381,17 +398,14 @@ const OrdersPage = () => {
 
   return (
     <div className="min-h-screen bg-[#fafafa] dark:bg-neutral-950 p-6 space-y-8">
-      <OrdersSearchBar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-      />
-
       <OrdersHeader
         dateRange={dateRange}
         setDateRange={setDateRange}
         showDatePicker={showDatePicker}
         setShowDatePicker={setShowDatePicker}
         handleExport={handleExport}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
       />
 
       <OrdersStats stats={stats} />
@@ -448,7 +462,9 @@ const OrdersPage = () => {
         isOpen={barcodeScanModal.isOpen}
         onClose={() => setBarcodeScanModal({ isOpen: false, value: "" })}
         value={barcodeScanModal.value}
-        setValue={(val) => setBarcodeScanModal((prev) => ({ ...prev, value: val }))}
+        setValue={(val) =>
+          setBarcodeScanModal((prev) => ({ ...prev, value: val }))
+        }
         onScan={handleBarcodeScan}
         isLoading={isBarcodeScanning}
       />

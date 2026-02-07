@@ -344,7 +344,7 @@ function CreateProductPage() {
         backLabel={t("productForm.backToProductList")}
       />
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -355,7 +355,6 @@ function CreateProductPage() {
           className="grid grid-cols-12 gap-6 lg:gap-8"
         >
           <div className="col-span-12 lg:col-span-8 space-y-6 lg:space-y-8">
-            
             <ProductCoverImageSection
               thumbnailFile={thumbnailFile}
               thumbnailUrl={thumbnailUrl}

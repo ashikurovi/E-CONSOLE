@@ -30,7 +30,7 @@ const OrdersTableSection = ({
   const { t } = useTranslation();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-2">
       {/* Search Results Info */}
       {searchQuery.trim() && (
         <div className="flex items-center justify-between px-4 py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl">
