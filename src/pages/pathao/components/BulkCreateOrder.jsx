@@ -7,15 +7,31 @@ import {
 } from "@/features/pathao/pathaoApiSlice";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Upload, Download, FileText, AlertCircle, CheckCircle, XCircle, Loader2, Package, Sparkles } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  Upload,
+  Download,
+  FileText,
+  AlertCircle,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  Package,
+  Sparkles,
+} from "lucide-react";
 
 const BulkCreateOrder = () => {
   const { t } = useTranslation();
   const [createBulkOrders, { isLoading }] = useCreateBulkOrdersMutation();
   const { data: storesData } = useGetStoresQuery();
   const { data: citiesData } = useGetCitiesQuery();
-  
+
   const [file, setFile] = useState(null);
   const [orders, setOrders] = useState([]);
   const [results, setResults] = useState(null);
@@ -59,7 +75,9 @@ const BulkCreateOrder = () => {
       const text = await selectedFile.text();
       const parsedOrders = parseCSV(text);
       setOrders(parsedOrders);
-      toast.success(t("pathao.parsedOrdersSuccess", { count: parsedOrders.length }));
+      toast.success(
+        t("pathao.parsedOrdersSuccess", { count: parsedOrders.length }),
+      );
     } catch (error) {
       toast.error(t("pathao.parseCsvFailed"));
       console.error("Parse error:", error);
@@ -71,7 +89,7 @@ const BulkCreateOrder = () => {
 
   const parseCSV = (text) => {
     const lines = text.trim().split("\n");
-    const headers = lines[0].split(",").map(h => h.trim());
+    const headers = lines[0].split(",").map((h) => h.trim());
     const parsedOrders = [];
 
     for (let i = 1; i < lines.length; i++) {
@@ -81,23 +99,25 @@ const BulkCreateOrder = () => {
       const order = {};
       headers.forEach((header, index) => {
         let value = values[index]?.trim().replace(/^"|"$/g, "");
-        
+
         // Convert numeric fields
-        if ([
-          "store_id",
-          "recipient_city",
-          "recipient_zone",
-          "recipient_area",
-          "delivery_type",
-          "item_type",
-          "item_quantity",
-          "amount_to_collect"
-        ].includes(header)) {
+        if (
+          [
+            "store_id",
+            "recipient_city",
+            "recipient_zone",
+            "recipient_area",
+            "delivery_type",
+            "item_type",
+            "item_quantity",
+            "amount_to_collect",
+          ].includes(header)
+        ) {
           value = Number(value);
         } else if (header === "item_weight") {
           value = parseFloat(value);
         }
-        
+
         order[header] = value;
       });
 
@@ -111,13 +131,20 @@ const BulkCreateOrder = () => {
     const errors = [];
     orders.forEach((order, index) => {
       if (!order.store_id) errors.push(`Row ${index + 2}: Missing store_id`);
-      if (!order.merchant_order_id) errors.push(`Row ${index + 2}: Missing merchant_order_id`);
-      if (!order.recipient_name) errors.push(`Row ${index + 2}: Missing recipient_name`);
-      if (!order.recipient_phone) errors.push(`Row ${index + 2}: Missing recipient_phone`);
-      if (!order.recipient_address) errors.push(`Row ${index + 2}: Missing recipient_address`);
-      if (!order.recipient_city) errors.push(`Row ${index + 2}: Missing recipient_city`);
-      if (!order.recipient_zone) errors.push(`Row ${index + 2}: Missing recipient_zone`);
-      if (!order.recipient_area) errors.push(`Row ${index + 2}: Missing recipient_area`);
+      if (!order.merchant_order_id)
+        errors.push(`Row ${index + 2}: Missing merchant_order_id`);
+      if (!order.recipient_name)
+        errors.push(`Row ${index + 2}: Missing recipient_name`);
+      if (!order.recipient_phone)
+        errors.push(`Row ${index + 2}: Missing recipient_phone`);
+      if (!order.recipient_address)
+        errors.push(`Row ${index + 2}: Missing recipient_address`);
+      if (!order.recipient_city)
+        errors.push(`Row ${index + 2}: Missing recipient_city`);
+      if (!order.recipient_zone)
+        errors.push(`Row ${index + 2}: Missing recipient_zone`);
+      if (!order.recipient_area)
+        errors.push(`Row ${index + 2}: Missing recipient_area`);
     });
     return errors;
   };
@@ -137,11 +164,11 @@ const BulkCreateOrder = () => {
 
     try {
       const result = await createBulkOrders({ orders }).unwrap();
-      
+
       if (result.code === 200 || result.type === "success") {
         const successCount = result.data?.success_count || orders.length;
         const failedCount = result.data?.failed_count || 0;
-        
+
         setResults({
           success: true,
           total: orders.length,
@@ -150,18 +177,22 @@ const BulkCreateOrder = () => {
           details: result.data?.details || [],
         });
 
-        toast.success(t("pathao.bulkOrderCreated") + ` ${successCount} ${t("pathao.successful")}, ${failedCount} ${t("pathao.failed")}`);
-        
+        toast.success(
+          t("pathao.bulkOrderCreated") +
+            ` ${successCount} ${t("pathao.successful")}, ${failedCount} ${t("pathao.failed")}`,
+        );
+
         // Reset form
         setFile(null);
         setOrders([]);
         document.getElementById("file-input").value = "";
       }
     } catch (error) {
-      const errorMessage = error?.data?.message || t("pathao.bulkOrderCreateFailed");
+      const errorMessage =
+        error?.data?.message || t("pathao.bulkOrderCreateFailed");
       toast.error(errorMessage);
       console.error("Bulk order error:", error);
-      
+
       setResults({
         success: false,
         error: errorMessage,
@@ -178,12 +209,12 @@ const BulkCreateOrder = () => {
   };
 
   return (
-    <div className="min-h-screen  py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
-        {/* Premium Header */}
+        {/* Premium Header - Pathao Style */}
         <div className="mb-10">
           <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] rounded-2xl">
+            <div className="p-3 bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] rounded-2xl shadow-lg shadow-[#8B5CF6]/20">
               <Package className="h-7 w-7 text-white" />
             </div>
             <div>
@@ -199,10 +230,10 @@ const BulkCreateOrder = () => {
 
         <div className="space-y-7">
           {/* Instructions Card */}
-          <Card className="border-2 border-[#8B5CF6]/20  rounded-3xl overflow-hidden">
-            <CardHeader className="border-b-2 border-[#8B5CF6]/10 bg-white/50 dark:bg-gray-950/50 pb-6">
+          <Card className="border-2 border-[#8B5CF6]/20 dark:border-[#8B5CF6]/10 rounded-[24px] overflow-hidden shadow-xl shadow-[#8B5CF6]/5">
+            <CardHeader className="border-b-2 border-[#8B5CF6]/10 dark:border-[#8B5CF6]/5 bg-white/50 dark:bg-gray-950/50 pb-6">
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] rounded-xl">
+                <div className="p-3 bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] rounded-xl shadow-md shadow-[#8B5CF6]/20">
                   <Sparkles className="h-6 w-6 text-white" />
                 </div>
                 <div className="flex-1">
@@ -218,7 +249,7 @@ const BulkCreateOrder = () => {
             <CardContent className="pt-6">
               <ol className="space-y-4">
                 <li className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center text-sm font-bold">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center text-sm font-bold shadow-md shadow-[#8B5CF6]/20">
                     1
                   </div>
                   <p className="text-[15px] text-gray-700 dark:text-gray-300 pt-1">
@@ -226,7 +257,7 @@ const BulkCreateOrder = () => {
                   </p>
                 </li>
                 <li className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center text-sm font-bold">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center text-sm font-bold shadow-md shadow-[#8B5CF6]/20">
                     2
                   </div>
                   <p className="text-[15px] text-gray-700 dark:text-gray-300 pt-1">
@@ -234,7 +265,7 @@ const BulkCreateOrder = () => {
                   </p>
                 </li>
                 <li className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center text-sm font-bold">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center text-sm font-bold shadow-md shadow-[#8B5CF6]/20">
                     3
                   </div>
                   <p className="text-[15px] text-gray-700 dark:text-gray-300 pt-1">
@@ -242,7 +273,7 @@ const BulkCreateOrder = () => {
                   </p>
                 </li>
                 <li className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center text-sm font-bold">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center text-sm font-bold shadow-md shadow-[#8B5CF6]/20">
                     4
                   </div>
                   <p className="text-[15px] text-gray-700 dark:text-gray-300 pt-1">
@@ -257,7 +288,7 @@ const BulkCreateOrder = () => {
           <div>
             <Button
               onClick={downloadTemplate}
-              className="group h-14 px-8 text-base font-semibold bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] hover:from-[#7C3AED] hover:to-[#6D28D9] text-white rounded-2xl transition-all duration-300"
+              className="group h-14 px-8 text-base font-semibold bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] hover:from-[#7C3AED] hover:to-[#6D28D9] text-white rounded-2xl transition-all duration-300 shadow-xl shadow-[#8B5CF6]/20 hover:shadow-2xl hover:shadow-[#8B5CF6]/30"
             >
               <Download className="mr-3 h-5 w-5 group-hover:translate-y-0.5 transition-transform duration-300" />
               {t("pathao.downloadCsvTemplate")}
@@ -265,14 +296,14 @@ const BulkCreateOrder = () => {
           </div>
 
           {/* Upload Section */}
-          <Card className="border-2 border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950/50 rounded-3xl overflow-hidden">
+          <Card className="border-2 border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950/50 rounded-[24px] overflow-hidden shadow-sm">
             <CardHeader className="border-b-2 border-gray-100 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 pb-5">
               <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">
                 {t("pathao.uploadCsvFile")}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="border-2 border-dashed border-[#8B5CF6]/30 rounded-2xl p-12 text-center hover:bg-[#8B5CF6]/5 hover:border-[#8B5CF6]/50 transition-all duration-300 cursor-pointer">
+              <div className="border-2 border-dashed border-[#8B5CF6]/20 dark:border-[#8B5CF6]/30 rounded-2xl p-12 text-center hover:bg-[#8B5CF6]/5 dark:hover:bg-[#8B5CF6]/10 hover:border-[#8B5CF6]/50 dark:hover:border-[#8B5CF6]/50 transition-all duration-300 cursor-pointer">
                 <input
                   id="file-input"
                   type="file"
@@ -285,7 +316,7 @@ const BulkCreateOrder = () => {
                   htmlFor="file-input"
                   className="cursor-pointer flex flex-col items-center gap-4 w-full h-full"
                 >
-                  <div className="p-5 bg-gradient-to-br from-[#8B5CF6]/10 to-[#7C3AED]/10 rounded-2xl">
+                  <div className="p-5 bg-gradient-to-br from-[#8B5CF6]/10 to-[#8B5CF6]/20 dark:from-[#8B5CF6]/20 dark:to-[#8B5CF6]/10 rounded-2xl">
                     <Upload className="h-10 w-10 text-[#8B5CF6]" />
                   </div>
                   <div>
@@ -327,13 +358,13 @@ const BulkCreateOrder = () => {
 
           {/* Orders Preview */}
           {orders.length > 0 && (
-            <Card className="border-2 border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950/50 rounded-3xl overflow-hidden">
+            <Card className="border-2 border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950/50 rounded-[24px] overflow-hidden shadow-sm">
               <CardHeader className="border-b-2 border-gray-100 dark:border-gray-800 bg-gradient-to-r from-[#8B5CF6]/5 to-white dark:from-[#8B5CF6]/10 dark:to-gray-900 pb-5">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">
                     {t("pathao.ordersPreview", { count: orders.length })}
                   </CardTitle>
-                  <div className="px-4 py-2 bg-[#8B5CF6] text-white text-sm font-bold rounded-full">
+                  <div className="px-4 py-2 bg-[#8B5CF6] text-white text-sm font-bold rounded-full shadow-lg shadow-[#8B5CF6]/20">
                     {orders.length} Orders
                   </div>
                 </div>
@@ -380,16 +411,16 @@ const BulkCreateOrder = () => {
               <Button
                 onClick={handleSubmit}
                 disabled={isLoading}
-                className="group flex-1 h-14 text-base font-bold bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] hover:from-[#7C3AED] hover:to-[#6D28D9] text-white rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group flex-1 h-16 text-lg font-bold bg-gradient-to-r from-[#8B5CF6] via-[#7C3AED] to-[#8B5CF6] hover:from-[#7C3AED] hover:via-[#8B5CF6] hover:to-[#7C3AED] text-white rounded-2xl shadow-xl shadow-[#8B5CF6]/20 hover:shadow-2xl hover:shadow-[#8B5CF6]/30 transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                {isLoading && <Loader2 className="mr-3 h-5 w-5 animate-spin" />}
-                {!isLoading && <CheckCircle className="mr-3 h-5 w-5 group-hover:scale-110 transition-transform duration-300" />}
+                {isLoading && <Loader2 className="mr-3 h-6 w-6 animate-spin" />}
+                {!isLoading && <CheckCircle className="mr-3 h-6 w-6 group-hover:rotate-12 transition-transform duration-300" />}
                 {t("pathao.createOrdersCount", { count: orders.length })}
               </Button>
               <Button
                 onClick={clearFile}
                 disabled={isLoading}
-                className="h-14 px-8 text-base font-semibold border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-2xl transition-all duration-300"
+                className="h-16 px-8 text-lg font-semibold border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-2xl transition-all duration-300"
               >
                 {t("common.cancel")}
               </Button>
@@ -398,7 +429,7 @@ const BulkCreateOrder = () => {
 
           {/* Results */}
           {results && (
-            <Card className={`border-2 rounded-3xl overflow-hidden ${
+            <Card className={`border-2 rounded-[24px] overflow-hidden ${
               results.success
                 ? "bg-gradient-to-br from-emerald-50 via-white to-emerald-50 dark:from-emerald-900/20 dark:via-gray-900 dark:to-emerald-900/10 border-emerald-200 dark:border-emerald-800"
                 : "bg-gradient-to-br from-red-50 via-white to-red-50 dark:from-red-900/20 dark:via-gray-900 dark:to-red-900/10 border-red-200 dark:border-red-800"
@@ -424,40 +455,53 @@ const BulkCreateOrder = () => {
                     }`}>
                       {results.success ? t("pathao.bulkOrderCreated") : t("pathao.bulkOrderFailed")}
                     </h4>
-                    
+
                     {results.success && (
                       <div className="space-y-2 text-[15px] text-emerald-800 dark:text-emerald-200">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold">{t("pathao.totalOrders")}:</span>
-                          <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full font-bold">{results.total}</span>
+                          <span className="font-semibold">
+                            {t("pathao.totalOrders")}:
+                          </span>
+                          <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full font-bold">
+                            {results.total}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold">{t("pathao.successful")}:</span>
-                          <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full font-bold">{results.successful}</span>
+                          <span className="font-semibold">
+                            {t("pathao.successful")}:
+                          </span>
+                          <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full font-bold">
+                            {results.successful}
+                          </span>
                         </div>
-                        {results.failed > 0 && (
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold">{t("pathao.failed")}:</span>
-                            <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 rounded-full font-bold">{results.failed}</span>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">
+                            {t("pathao.failed")}:
+                          </span>
+                          <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded-full font-bold">
+                            {results.failed}
+                          </span>
+                        </div>
                       </div>
                     )}
 
                     {!results.success && (
-                      <p className="text-[15px] font-medium text-red-800 dark:text-red-200">
+                      <p className="text-red-700 dark:text-red-300 text-sm mt-2">
                         {results.error}
                       </p>
                     )}
 
-                    {results.details && results.details.length > 0 && (
-                      <div className="mt-4 p-4 bg-white/50 dark:bg-gray-950/50 rounded-xl border border-gray-200 dark:border-gray-800">
-                        <p className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">{t("pathao.details")}:</p>
-                        <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                          {results.details.map((detail, index) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <span className="text-[#8B5CF6] mt-1">•</span>
-                              <span>{detail}</span>
+                    {results.details?.length > 0 && (
+                      <div className="mt-4 p-4 bg-white/50 dark:bg-gray-950/30 rounded-xl border border-red-200 dark:border-red-800 max-h-40 overflow-y-auto">
+                        <ul className="list-disc pl-5 space-y-1">
+                          {results.details.map((error, idx) => (
+                            <li
+                              key={idx}
+                              className="text-sm text-red-600 dark:text-red-400"
+                            >
+                              {typeof error === "string"
+                                ? error
+                                : JSON.stringify(error)}
                             </li>
                           ))}
                         </ul>
@@ -468,96 +512,6 @@ const BulkCreateOrder = () => {
               </CardContent>
             </Card>
           )}
-
-          {/* CSV Format Reference */}
-          <Card className="border-2 border-gray-100 dark:border-gray-800 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 rounded-3xl overflow-hidden">
-            <CardHeader className="border-b-2 border-gray-100 dark:border-gray-800 pb-5">
-              <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">
-                {t("pathao.csvFormatReference")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-5 text-[15px]">
-                <div>
-                  <p className="font-bold text-[#8B5CF6] mb-3 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></span>
-                    {t("pathao.requiredFields")}:
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 ml-4">
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                      <code className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">store_id</code>
-                      <span className="text-xs text-gray-500">(numeric)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                      <code className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">merchant_order_id</code>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                      <code className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">recipient_name</code>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                      <code className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">recipient_phone</code>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                      <code className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">recipient_address</code>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                      <code className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">recipient_city</code>
-                      <span className="text-xs text-gray-500">(ID)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                      <code className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">recipient_zone</code>
-                      <span className="text-xs text-gray-500">(ID)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                      <code className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">recipient_area</code>
-                      <span className="text-xs text-gray-500">(ID)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                      <code className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">delivery_type</code>
-                      <span className="text-xs text-gray-500">(48/12)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                      <code className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">item_type</code>
-                      <span className="text-xs text-gray-500">(1/2)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                      <code className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">item_quantity</code>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                      <code className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">item_weight</code>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                      <code className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">amount_to_collect</code>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <p className="font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                    {t("pathao.optionalFields")}:
-                  </p>
-                  <div className="flex flex-wrap gap-3 ml-4">
-                    <code className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg text-gray-700 dark:text-gray-300">item_description</code>
-                    <code className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg text-gray-700 dark:text-gray-300">special_instruction</code>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

@@ -15,7 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Dropdown from "@/components/dropdown/dropdown";
 import { useSelector } from "react-redux";
-import { Loader2, AlertCircle, ChevronDown, Package, User, MapPin, Store, Truck, FileText, CheckCircle2 } from "lucide-react";
+import { Loader2, AlertCircle, ChevronDown, Package, User, MapPin, Store, Truck, FileText, CheckCircle2, DollarSign, Scale, Layers } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const CreateOrder = () => {
   const { t } = useTranslation();
@@ -230,87 +231,90 @@ const CreateOrder = () => {
   const selectIconClass = "absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500 pointer-events-none transition-transform duration-200 group-focus-within:rotate-180";
 
   return (
-    <div className="min-h-screen  py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
-        {/* Premium Header */}
-        <div className="mb-10">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-gradient-to-br from-black to-gray-800 dark:from-white dark:to-gray-200 rounded-2xl shadow-lg">
-              <Truck className="h-7 w-7 text-white dark:text-black" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-gray-100 dark:via-white dark:to-gray-100 bg-clip-text text-transparent">
-                {t("pathao.createNewOrder")}
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1 text-base">
-                {t("pathao.createNewOrderDesc") || "Fill in the details below to create a new delivery order"}
-              </p>
-            </div>
+    <div className="max-w-[1600px] mx-auto">
+      {/* Header Section */}
+      <div className="mb-8">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="p-3 bg-gradient-to-br from-black to-gray-800 dark:from-white dark:to-gray-200 rounded-2xl shadow-lg">
+            <Truck className="h-7 w-7 text-white dark:text-black" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-gray-100 dark:via-white dark:to-gray-100 bg-clip-text text-transparent">
+              {t("pathao.createNewOrder")}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1 text-base">
+              {t("pathao.createNewOrderDesc") || "Fill in the details below to create a new delivery order"}
+            </p>
           </div>
         </div>
+      </div>
 
-        {/* Order Selection Card - Premium Design */}
-        <Card className="mb-8 border-2 border-blue-100 dark:border-blue-900/50 bg-gradient-to-br from-blue-50/50 via-white to-blue-50/30 dark:from-blue-950/20 dark:via-gray-900 dark:to-blue-950/10 shadow-xl shadow-blue-100/20 dark:shadow-blue-900/10 rounded-3xl overflow-hidden">
-          <CardHeader className="border-b-2 border-blue-100/50 dark:border-blue-900/30 bg-white/50 dark:bg-gray-950/50 pb-6">
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 rounded-xl shadow-lg">
-                <FileText className="h-6 w-6 text-white" />
+      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Left Column - Main Info */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          {/* Order Selection Card */}
+          <Card className="border-2 border-blue-100 dark:border-blue-900/50 bg-gradient-to-br from-blue-50/50 via-white to-blue-50/30 dark:from-blue-950/20 dark:via-gray-900 dark:to-blue-950/10 shadow-xl shadow-blue-100/20 dark:shadow-blue-900/10 rounded-3xl overflow-hidden">
+            <CardHeader className="border-b-2 border-blue-100/50 dark:border-blue-900/30 bg-white/50 dark:bg-gray-950/50 pb-6">
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 rounded-xl shadow-lg">
+                  <FileText className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                    {t("pathao.selectProcessingOrder")}
+                  </CardTitle>
+                  <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+                    Quick fill your form by selecting an existing processing order
+                  </CardDescription>
+                </div>
               </div>
-              <div className="flex-1">
-                <CardTitle className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-                  {t("pathao.selectProcessingOrder")}
-                </CardTitle>
-                <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
-                  Quick fill your form by selecting an existing processing order
-                </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              {isLoadingOrders ? (
+                <div className="flex items-center gap-3 text-base text-blue-600 dark:text-blue-400 py-4">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className="font-medium">{t("pathao.loadingProcessingOrders")}</span>
+                </div>
+              ) : orderOptions.length === 0 ? (
+                <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-200 dark:border-amber-800/30 rounded-2xl">
+                  <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                    {t("pathao.noProcessingOrders")}
+                  </p>
+                </div>
+              ) : (
+                <Dropdown
+                  name="order"
+                  options={orderOptions}
+                  setSelectedOption={handleOrderSelect}
+                  className="rounded-2xl bg-white dark:bg-gray-950 border-2 border-blue-200 dark:border-blue-800 shadow-lg hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200"
+                >
+                  {selectedOrder?.label || t("pathao.selectOrderPlaceholder")}
+                </Dropdown>
+              )}
+            </CardContent>
+          </Card>
+          
+          {/* Store Warning */}
+          {stores.length === 0 && (
+            <div className="p-5 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/10 dark:to-amber-900/10 border-2 border-yellow-200 dark:border-yellow-800/30 rounded-2xl flex items-start gap-4 shadow-lg">
+              <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl">
+                <AlertCircle className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
               </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-            {isLoadingOrders ? (
-              <div className="flex items-center gap-3 text-base text-blue-600 dark:text-blue-400 py-4">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <span className="font-medium">{t("pathao.loadingProcessingOrders")}</span>
-              </div>
-            ) : orderOptions.length === 0 ? (
-              <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-200 dark:border-amber-800/30 rounded-2xl">
-                <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-                <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                  {t("pathao.noProcessingOrders")}
+              <div>
+                <p className="text-base font-semibold text-yellow-900 dark:text-yellow-200">
+                  {t("pathao.noStoresFound")}
+                </p>
+                <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                  Please configure your store settings before creating orders
                 </p>
               </div>
-            ) : (
-              <Dropdown
-                name="order"
-                options={orderOptions}
-                setSelectedOption={handleOrderSelect}
-                className="rounded-2xl bg-white dark:bg-gray-950 border-2 border-blue-200 dark:border-blue-800 shadow-lg hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200"
-              >
-                {selectedOrder?.label || t("pathao.selectOrderPlaceholder")}
-              </Dropdown>
-            )}
-          </CardContent>
-        </Card>
-        
-        {stores.length === 0 && (
-          <div className="mb-8 p-5 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/10 dark:to-amber-900/10 border-2 border-yellow-200 dark:border-yellow-800/30 rounded-2xl flex items-start gap-4 shadow-lg">
-            <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl">
-              <AlertCircle className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
             </div>
-            <div>
-              <p className="text-base font-semibold text-yellow-900 dark:text-yellow-200">
-                {t("pathao.noStoresFound")}
-              </p>
-              <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                Please configure your store settings before creating orders
-              </p>
-            </div>
-          </div>
-        )}
+          )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-7">
           {/* Store & Order Info Section */}
-          <Card className="border-2 border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950/50  rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300">
+          <Card className="border-2 border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950/50 rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300">
             <CardHeader className="border-b-2 border-gray-100 dark:border-gray-800 bg-gradient-to-r from-purple-50/50 to-white dark:from-purple-950/20 dark:to-gray-950 pb-5">
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-400 dark:to-purple-500 rounded-xl shadow-lg">
@@ -517,7 +521,7 @@ const CreateOrder = () => {
             </CardContent>
           </Card>
 
-          {/* Item Details Section */}
+          {/* Parcel Description Card */}
           <Card className="border-2 border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950/50 shadow-xl rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300">
             <CardHeader className="border-b-2 border-gray-100 dark:border-gray-800 bg-gradient-to-r from-orange-50/50 to-white dark:from-orange-950/20 dark:to-gray-950 pb-5">
               <div className="flex items-center gap-3">
@@ -525,91 +529,11 @@ const CreateOrder = () => {
                   <Package className="h-5 w-5 text-white" />
                 </div>
                 <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">
-                  {t("pathao.itemDetails")}
+                  {t("pathao.parcelDetails")}
                 </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-8 pt-8 pb-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1 mb-3 block">
-                    {t("pathao.deliveryType")} <span className="text-red-500">*</span>
-                  </label>
-                  <div className={selectWrapperClass}>
-                    <select
-                      {...register("delivery_type", { required: t("pathao.deliveryTypeRequired") })}
-                      className={selectClassName}
-                    >
-                      <option value={48}>{t("pathao.normalDelivery")}</option>
-                      <option value={12}>{t("pathao.onDemandDelivery")}</option>
-                    </select>
-                    <ChevronDown className={selectIconClass} />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1 mb-3 block">
-                    {t("pathao.itemType")} <span className="text-red-500">*</span>
-                  </label>
-                  <div className={selectWrapperClass}>
-                    <select
-                      {...register("item_type", { required: t("pathao.itemTypeRequired") })}
-                      className={selectClassName}
-                    >
-                      <option value={1}>{t("pathao.document")}</option>
-                      <option value={2}>{t("pathao.parcel")}</option>
-                    </select>
-                    <ChevronDown className={selectIconClass} />
-                  </div>
-                </div>
-
-                <TextField
-                  label={t("pathao.itemQuantity")}
-                  name="item_quantity"
-                  type="number"
-                  register={register}
-                  registerOptions={{
-                    required: t("pathao.quantityRequired"),
-                    min: { value: 1, message: t("pathao.minQuantity") },
-                  }}
-                  placeholder="1"
-                  error={errors.item_quantity}
-                  inputClassName="bg-white dark:bg-gray-950/50 border-2 border-gray-100 dark:border-gray-800 rounded-2xl h-[56px] px-5 text-[15px] font-medium focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-white hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200"
-                  className="gap-3"
-                />
-
-                <TextField
-                  label={t("pathao.itemWeight")}
-                  name="item_weight"
-                  type="number"
-                  step="0.1"
-                  register={register}
-                  registerOptions={{
-                    required: t("pathao.weightRequired"),
-                    min: { value: 0.1, message: t("pathao.minWeight") },
-                  }}
-                  placeholder="0.5"
-                  error={errors.item_weight}
-                  inputClassName="bg-white dark:bg-gray-950/50 border-2 border-gray-100 dark:border-gray-800 rounded-2xl h-[56px] px-5 text-[15px] font-medium focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-white hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200"
-                  className="gap-3"
-                />
-
-                <TextField
-                  label={t("pathao.amountToCollect")}
-                  name="amount_to_collect"
-                  type="number"
-                  register={register}
-                  registerOptions={{
-                    required: t("pathao.amountRequired"),
-                    min: { value: 0, message: t("pathao.amountMin") },
-                  }}
-                  placeholder="1000"
-                  error={errors.amount_to_collect}
-                  inputClassName="bg-white dark:bg-gray-950/50 border-2 border-gray-100 dark:border-gray-800 rounded-2xl h-[56px] px-5 text-[15px] font-medium focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-white hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200"
-                  className="gap-3"
-                />
-              </div>
-
               <TextField
                 label={t("pathao.itemDescription")}
                 name="item_description"
@@ -635,29 +559,127 @@ const CreateOrder = () => {
               />
             </CardContent>
           </Card>
+        </div>
 
-          {/* Submit Button - Premium */}
-          <div className="flex justify-end pt-6 pb-12">
-            <Button 
-              type="submit" 
-              disabled={isLoading || isShipping} 
-              className="group relative w-full md:w-auto min-w-[280px] h-14 text-base font-bold bg-gradient-to-r from-black via-gray-900 to-black hover:from-gray-900 hover:via-black hover:to-gray-900 text-white dark:from-white dark:via-gray-100 dark:to-white dark:text-black dark:hover:from-gray-100 dark:hover:via-white dark:hover:to-gray-100 rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-            >
-              {(isLoading || isShipping) ? (
-                <>
-                  <Loader2 className="mr-3 h-5 w-5 animate-spin" />
-                  {isLoading ? t("pathao.creatingOrder") : t("pathao.updatingStatus")}
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="mr-3 h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
-                  {t("pathao.createPathaoOrder")}
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
-      </div>
+        {/* Right Column - Shipping & Actions */}
+        <div className="lg:col-span-1 space-y-6 sticky top-6">
+          <Card className="border-2 border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950/50 shadow-xl rounded-3xl overflow-hidden">
+            <CardHeader className="border-b-2 border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 pb-5">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-gray-900 dark:bg-white rounded-xl shadow-md">
+                  <Layers className="h-5 w-5 text-white dark:text-gray-900" />
+                </div>
+                <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">
+                  {t("pathao.shippingOptions")}
+                </CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6 pb-6">
+              <div>
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1 mb-2 block">
+                  {t("pathao.deliveryType")} <span className="text-red-500">*</span>
+                </label>
+                <div className={selectWrapperClass}>
+                  <select
+                    {...register("delivery_type", { required: t("pathao.deliveryTypeRequired") })}
+                    className={cn(selectClassName, "h-12")}
+                  >
+                    <option value={48}>{t("pathao.normalDelivery")}</option>
+                    <option value={12}>{t("pathao.onDemandDelivery")}</option>
+                  </select>
+                  <ChevronDown className={selectIconClass} />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1 mb-2 block">
+                  {t("pathao.itemType")} <span className="text-red-500">*</span>
+                </label>
+                <div className={selectWrapperClass}>
+                  <select
+                    {...register("item_type", { required: t("pathao.itemTypeRequired") })}
+                    className={cn(selectClassName, "h-12")}
+                  >
+                    <option value={1}>{t("pathao.document")}</option>
+                    <option value={2}>{t("pathao.parcel")}</option>
+                  </select>
+                  <ChevronDown className={selectIconClass} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <TextField
+                  label={t("pathao.itemQuantity")}
+                  name="item_quantity"
+                  type="number"
+                  register={register}
+                  registerOptions={{
+                    required: t("pathao.quantityRequired"),
+                    min: { value: 1, message: t("pathao.minQuantity") },
+                  }}
+                  placeholder="1"
+                  error={errors.item_quantity}
+                  inputClassName="bg-white dark:bg-gray-950/50 border-2 border-gray-100 dark:border-gray-800 rounded-2xl h-12 px-4 text-[15px] font-medium"
+                />
+
+                <TextField
+                  label={t("pathao.itemWeight")}
+                  name="item_weight"
+                  type="number"
+                  step="0.1"
+                  register={register}
+                  registerOptions={{
+                    required: t("pathao.weightRequired"),
+                    min: { value: 0.1, message: t("pathao.minWeight") },
+                  }}
+                  placeholder="0.5"
+                  error={errors.item_weight}
+                  inputClassName="bg-white dark:bg-gray-950/50 border-2 border-gray-100 dark:border-gray-800 rounded-2xl h-12 px-4 text-[15px] font-medium"
+                />
+              </div>
+
+              <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1 mb-2 block flex items-center gap-2">
+                   <DollarSign className="w-4 h-4 text-green-500" />
+                   {t("pathao.amountToCollect")}
+                 </label>
+                 <TextField
+                  name="amount_to_collect"
+                  type="number"
+                  register={register}
+                  registerOptions={{
+                    required: t("pathao.amountRequired"),
+                    min: { value: 0, message: t("pathao.amountMin") },
+                  }}
+                  placeholder="1000"
+                  error={errors.amount_to_collect}
+                  inputClassName="bg-white dark:bg-gray-950/50 border-2 border-green-100 dark:border-green-900/30 rounded-2xl h-14 px-5 text-lg font-bold text-green-700 dark:text-green-400 focus:ring-green-500"
+                  className="mt-0"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Submit Button */}
+          <Button 
+            type="submit" 
+            disabled={isLoading || isShipping} 
+            className="group relative w-full h-16 text-lg font-bold bg-gradient-to-r from-[#8B5CF6] via-[#7C3AED] to-[#8B5CF6] hover:from-[#7C3AED] hover:via-[#8B5CF6] hover:to-[#7C3AED] text-white rounded-2xl shadow-xl shadow-[#8B5CF6]/20 hover:shadow-2xl hover:shadow-[#8B5CF6]/30 transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            {(isLoading || isShipping) ? (
+              <>
+                <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                {isLoading ? t("pathao.creatingOrder") : t("pathao.updatingStatus")}
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="mr-3 h-6 w-6 group-hover:rotate-12 transition-transform duration-300" />
+                {t("pathao.createPathaoOrder")}
+              </>
+            )}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 };
