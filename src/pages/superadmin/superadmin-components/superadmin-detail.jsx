@@ -16,57 +16,60 @@ const SuperAdminSuperadminDetailPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold">Super Admin Detail</h1>
-          <p className="text-sm text-black/60 dark:text-white/60">
-            View detailed information about this super admin account.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate("/superadmin/superadmins")}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Super Admins
-          </Button>
+      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight mb-2">Super Admin Detail</h1>
+            <p className="text-violet-100 text-lg max-w-2xl">
+              View detailed information about this super admin account.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/superadmin/superadmins")}
+              className="bg-white text-violet-600 hover:bg-violet-50 border-0 shadow-lg shadow-black/10"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Super Admins
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5">
-        {isLoading && <p className="text-sm">Loading super admin details…</p>}
+      <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xl shadow-slate-200/50 dark:shadow-black/20">
+        {isLoading && <p className="text-sm text-slate-500">Loading super admin details...</p>}
 
         {error && (
-          <p className="text-sm text-red-500">
+          <p className="text-sm text-rose-500">
             Failed to load super admin details.
           </p>
         )}
 
         {!isLoading && !error && !superadmin && (
-          <p className="text-sm text-red-500">
+          <p className="text-sm text-rose-500">
             Super admin not found or no longer available.
           </p>
         )}
 
         {!isLoading && !error && superadmin && (
-          <div className="space-y-6 text-sm">
+          <div className="space-y-8 text-sm">
             {/* Profile Photo Section */}
             {superadmin.photo && (
               <div className="space-y-4">
-                <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-                  <User className="h-4 w-4" />
-                  <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                  <div className="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center">
+                    <User className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
                     Profile Photo
                   </h3>
                 </div>
-                <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-3 bg-black/5 dark:bg-white/5 inline-block">
+                <div className="border border-slate-200 dark:border-slate-800 rounded-[24px] p-2 bg-slate-50 dark:bg-slate-900 inline-block shadow-lg shadow-slate-200/50 dark:shadow-black/20">
                   <img
                     src={superadmin.photo}
                     alt="Profile"
-                    className="h-32 w-32 object-cover rounded-lg"
+                    className="h-32 w-32 object-cover rounded-[20px]"
                     onError={(e) => {
                       e.target.style.display = "none";
                     }}
@@ -77,42 +80,44 @@ const SuperAdminSuperadminDetailPage = () => {
 
             {/* Basic Information Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-                <User className="h-4 w-4" />
-                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
-                  Basic Information
-                </h3>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <div>
-                  <p className="text-xs text-black/60 dark:text-white/60">ID</p>
-                  <p className="font-semibold">{superadmin.id ?? "-"}</p>
+              <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                  <div className="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center">
+                    <User className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                    Basic Information
+                  </h3>
                 </div>
-                <div>
-                  <p className="text-xs text-black/60 dark:text-white/60">Name</p>
-                  <p className="font-semibold">{superadmin.name ?? "-"}</p>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">ID</p>
+                  <p className="font-semibold text-slate-900 dark:text-white">{superadmin.id ?? "-"}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-black/60 dark:text-white/60">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Name</p>
+                  <p className="font-semibold text-slate-900 dark:text-white">{superadmin.name ?? "-"}</p>
+                </div>
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
                     Designation
                   </p>
-                  <p className="font-medium">
+                  <p className="font-medium text-slate-900 dark:text-white">
                     {superadmin.designation ?? "-"}
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs text-black/60 dark:text-white/60">Role</p>
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Role</p>
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-500/20">
                     {superadmin.role || "SUPER_ADMIN"}
                   </span>
                 </div>
-                <div>
-                  <p className="text-xs text-black/60 dark:text-white/60">Status</p>
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Status</p>
                   <span
-                    className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+                    className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border ${
                       superadmin.isActive
-                        ? "bg-green-500/10 text-green-600 dark:text-green-400"
-                        : "bg-red-500/10 text-red-600 dark:text-red-400"
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                        : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
                     }`}
                   >
                     {superadmin.isActive ? "Active" : "Inactive"}
@@ -124,60 +129,66 @@ const SuperAdminSuperadminDetailPage = () => {
             {/* Permissions Section */}
             {superadmin.permissions && superadmin.permissions.length > 0 && (
               <div className="space-y-4">
-                <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-                  <Shield className="h-4 w-4" />
-                  <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                  <div className="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center">
+                    <Shield className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
                     Permissions
                   </h3>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {superadmin.permissions.map((permission, index) => (
-                    <span
-                      key={index}
-                      className="text-xs px-2 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded"
-                    >
-                      {permission}
-                    </span>
-                  ))}
+                <div className="p-6 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                  <div className="flex flex-wrap gap-2">
+                    {superadmin.permissions.map((permission, index) => (
+                      <span
+                        key={index}
+                        className="text-xs px-3 py-1.5 bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 rounded-lg font-medium"
+                      >
+                        {permission}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Timestamps Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-                <Calendar className="h-4 w-4" />
-                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+              <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                <div className="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center">
+                  <Calendar className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
                   Activity Timeline
                 </h3>
               </div>
               <div className="grid md:grid-cols-3 gap-4">
-                <div>
-                  <p className="text-xs text-black/60 dark:text-white/60">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
                     Created At
                   </p>
-                  <p className="text-xs font-medium">
+                  <p className="font-semibold text-slate-900 dark:text-white">
                     {superadmin.createdAt
                       ? new Date(superadmin.createdAt).toLocaleString()
                       : "-"}
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs text-black/60 dark:text-white/60">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
                     Last Updated
                   </p>
-                  <p className="text-xs font-medium">
+                  <p className="font-semibold text-slate-900 dark:text-white">
                     {superadmin.updatedAt
                       ? new Date(superadmin.updatedAt).toLocaleString()
                       : "-"}
                   </p>
                 </div>
                 {superadmin.deletedAt && (
-                  <div>
-                    <p className="text-xs text-black/60 dark:text-white/60">
+                  <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20">
+                    <p className="text-xs font-medium text-rose-500 dark:text-rose-400 mb-1">
                       Deleted At
                     </p>
-                    <p className="text-xs font-medium text-red-600 dark:text-red-400">
+                    <p className="font-semibold text-rose-600 dark:text-rose-400">
                       {new Date(superadmin.deletedAt).toLocaleString()}
                     </p>
                   </div>

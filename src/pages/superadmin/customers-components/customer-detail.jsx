@@ -96,34 +96,35 @@ const SuperAdminCustomerDetailPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold">Customer detail</h1>
-          <p className="text-sm text-black/60 dark:text-white/60">
-            Review details for a single customer system user.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsPasswordModalOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <Key className="h-4 w-4" />
-            Access Website
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate("/superadmin/customers")}
-          >
-            Back to customers
-          </Button>
+      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight mb-2">Customer Detail</h1>
+            <p className="text-violet-100 text-lg max-w-2xl">
+              Review details for a single customer system user.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsPasswordModalOpen(true)}
+              className="flex items-center gap-2 bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white"
+            >
+              <Key className="h-4 w-4" />
+              Access Website
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/superadmin/customers")}
+              className="bg-white text-violet-600 hover:bg-violet-50 border-0 shadow-lg shadow-black/10"
+            >
+              Back to customers
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5">
+      <div className="rounded-[24px] bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6 shadow-sm">
         {isLoading && <p className="text-sm">Loading customer…</p>}
 
         {!isLoading && !user && (

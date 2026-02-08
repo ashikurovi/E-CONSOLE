@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { superadminLoggedOut } from "@/features/superadminAuth/superadminAuthSlice";
 import toast from "react-hot-toast";
-import { LogOut } from "lucide-react";
+import { LogOut, Bell } from "lucide-react";
 import LanguageSwitcher from "@/components/language/LanguageSwitcher";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 
@@ -20,28 +20,40 @@ const SuperAdminTopNavbar = () => {
   };
 
   return (
-    <header className="w-full bg-white/80 dark:bg-[#121212]/80 backdrop-blur border-b border-gray-100 dark:border-gray-800">
-      <div className="px-4 py-3 flex items-center justify-between">
+    <header className="w-full">
+      <div className="px-6 py-4 flex items-center justify-between">
         <div className="flex flex-col">
-          <span className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
+          <span className="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400 mb-0.5">
             {t("superadmin.title")}
           </span>
-          <span className="text-sm font-semibold">{t("superadmin.controlCenter")}</span>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+            {t("superadmin.controlCenter")}
+          </h1>
         </div>
-        <div className="flex items-center gap-4">
-          <ThemeToggle variant="compact" />
-          <LanguageSwitcher variant="compact" />
-          <div className="flex items-center gap-2 text-xs text-black/60 dark:text-white/60">
-            <span className="hidden sm:inline">{t("superadmin.environment")}:</span>
-            <span className="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-              {t("superadmin.production")}
+        
+        <div className="flex items-center gap-3 md:gap-4">
+          <div className="hidden md:flex items-center px-3 py-1.5 rounded-full bg-violet-50 dark:bg-violet-500/10 border border-violet-100 dark:border-violet-500/20 text-xs font-medium text-violet-700 dark:text-violet-300">
+            <span className="relative flex h-2 w-2 mr-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
             </span>
+            {t("superadmin.production")}
           </div>
+
+          <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block mx-1" />
+
+          <ThemeToggle variant="ghost" className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white" />
+          
+          <button className="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-all">
+            <Bell className="w-5 h-5" />
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-[#09090b]" />
+          </button>
+
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 text-white hover:bg-violet-700 transition-all shadow-lg shadow-violet-200 dark:shadow-violet-900/20 font-medium text-sm"
           >
-            <LogOut className="w-3.5 h-3.5" />
+            <LogOut className="w-4 h-4" />
             <span className="hidden sm:inline">{t("common.logout")}</span>
           </button>
         </div>

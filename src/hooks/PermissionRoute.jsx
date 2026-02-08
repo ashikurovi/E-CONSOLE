@@ -19,6 +19,11 @@ const PermissionRoute = ({ children, permission, redirectTo = "/" }) => {
     );
   }
 
+  // If user fetch failed or user is missing (e.g. backend down), redirect to login
+  // if (!user) {
+  // return <Navigate state={{ from: location }} to="/login" replace />;
+  // }
+
   const allowed = hasPermission(user, permission);
 
   if (!allowed) {
@@ -30,5 +35,3 @@ const PermissionRoute = ({ children, permission, redirectTo = "/" }) => {
 };
 
 export default PermissionRoute;
-
-

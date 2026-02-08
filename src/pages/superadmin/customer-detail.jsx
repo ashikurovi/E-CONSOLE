@@ -19,8 +19,8 @@ const SuperAdminCustomerDetailPage = () => {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                    <h1 className="text-2xl font-semibold">Customer detail</h1>
-                    <p className="text-sm text-black/60 dark:text-white/60">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Customer detail</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                         Review details for a single customer system user.
                     </p>
                 </div>
@@ -28,16 +28,17 @@ const SuperAdminCustomerDetailPage = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => navigate("/superadmin/customers")}
+                    className="border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl"
                 >
                     Back to customers
                 </Button>
             </div>
 
-            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5">
-                {isLoading && <p className="text-sm">Loading customer…</p>}
+            <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+                {isLoading && <p className="text-sm text-slate-500">Loading customer…</p>}
 
                 {!isLoading && !user && (
-                    <p className="text-sm text-red-500">
+                    <p className="text-sm text-rose-500">
                         Customer not found or no longer available.
                     </p>
                 )}
@@ -46,50 +47,50 @@ const SuperAdminCustomerDetailPage = () => {
                     <div className="space-y-6 text-sm">
                         {/* Basic Information Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-                                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide">
                                     Basic Information
                                 </h3>
                             </div>
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                 <div>
-                                    <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
                                         Name
                                     </label>
-                                    <p className="font-semibold">{user.name ?? "-"}</p>
+                                    <p className="font-semibold text-slate-900 dark:text-white">{user.name ?? "-"}</p>
                                 </div>
                                 <div>
-                                    <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
                                         Email
                                     </label>
-                                    <p className="font-medium break-all">
+                                    <p className="font-medium break-all text-slate-900 dark:text-white">
                                         {user.email ?? "-"}
                                     </p>
                                 </div>
                                 <div>
-                                    <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
                                         Company Name
                                     </label>
-                                    <p className="font-medium">
+                                    <p className="font-medium text-slate-900 dark:text-white">
                                         {user.companyName ?? "-"}
                                     </p>
                                 </div>
                                 <div>
-                                    <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
                                         Company ID
                                     </label>
-                                    <p className="font-medium">
+                                    <p className="font-medium text-slate-900 dark:text-white">
                                         {user.companyId ?? "-"}
                                     </p>
                                 </div>
                                 <div>
-                                    <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
                                         Status
                                     </label>
-                                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+                                    <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
                                         user.isActive 
-                                            ? "bg-green-500/10 text-green-600 dark:text-green-400" 
-                                            : "bg-red-500/10 text-red-600 dark:text-red-400"
+                                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" 
+                                            : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20"
                                     }`}>
                                         {user.isActive ? "Active" : "Inactive"}
                                     </span>
@@ -99,22 +100,22 @@ const SuperAdminCustomerDetailPage = () => {
 
                         {/* Permissions Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-                                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+                            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide">
                                     Permissions
                                 </h3>
                             </div>
-                            <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-3 bg-black/5 dark:bg-white/5 text-xs">
+                            <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-4 bg-slate-50 dark:bg-slate-800/50 text-xs">
                                 {Array.isArray(user.permissions) && user.permissions.length > 0 ? (
                                     <div className="flex flex-wrap gap-2">
                                         {user.permissions.map((permission, index) => (
-                                            <span key={index} className="px-2 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded">
+                                            <span key={index} className="px-2.5 py-1 bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 rounded-md">
                                                 {permission}
                                             </span>
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-black/50 dark:text-white/50">No permissions assigned</p>
+                                    <p className="text-slate-500 dark:text-slate-400">No permissions assigned</p>
                                 )}
                             </div>
                         </div>

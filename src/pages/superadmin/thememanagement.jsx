@@ -42,7 +42,7 @@ const ThemeManagementPage = () => {
         () =>
             themes.map((theme) => ({
                 id: (
-                    <span className="font-semibold text-purple-600 dark:text-purple-400">
+                    <span className="font-semibold text-violet-600 dark:text-violet-400">
                         #{theme.id}
                     </span>
                 ),
@@ -51,7 +51,7 @@ const ThemeManagementPage = () => {
                         href={theme.domainUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline text-sm"
+                        className="flex items-center gap-1 text-violet-600 dark:text-violet-400 hover:underline text-sm font-medium"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {theme.domainUrl.length > 30 
@@ -60,53 +60,53 @@ const ThemeManagementPage = () => {
                         <ExternalLink className="h-3 w-3" />
                     </a>
                 ) : (
-                    <span className="text-black/40 dark:text-white/40">-</span>
+                    <span className="text-slate-400">-</span>
                 ),
                 logo: theme.logo ? (
                     <div className="flex items-center gap-2">
                         <img
                             src={theme.logo}
                             alt="Logo"
-                            className="h-8 w-8 object-contain rounded border border-gray-100 dark:border-gray-800"
+                            className="h-8 w-8 object-contain rounded border border-slate-200 dark:border-slate-700"
                             onError={(e) => {
                                 e.target.style.display = 'none';
                             }}
                         />
-                        <span className="text-xs text-green-600 dark:text-green-400">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 font-medium">
                             Available
                         </span>
                     </div>
                 ) : (
-                    <span className="text-black/40 dark:text-white/40">-</span>
+                    <span className="text-slate-400">-</span>
                 ),
                 primaryColor: theme.primaryColorCode ? (
                     <div className="flex items-center gap-2">
                         <div
-                            className="w-6 h-6 rounded border border-black/20 dark:border-white/20"
+                            className="w-6 h-6 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
                             style={{ backgroundColor: theme.primaryColorCode }}
                         ></div>
-                        <span className="text-xs font-mono font-semibold">
+                        <span className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
                             {theme.primaryColorCode}
                         </span>
                     </div>
                 ) : (
-                    <span className="text-black/40 dark:text-white/40">-</span>
+                    <span className="text-slate-400">-</span>
                 ),
                 secondaryColor: theme.secondaryColorCode ? (
                     <div className="flex items-center gap-2">
                         <div
-                            className="w-6 h-6 rounded border border-black/20 dark:border-white/20"
+                            className="w-6 h-6 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
                             style={{ backgroundColor: theme.secondaryColorCode }}
                         ></div>
-                        <span className="text-xs font-mono font-semibold">
+                        <span className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
                             {theme.secondaryColorCode}
                         </span>
                     </div>
                 ) : (
-                    <span className="text-black/40 dark:text-white/40">-</span>
+                    <span className="text-slate-400">-</span>
                 ),
                 createdAt: (
-                    <span className="text-xs text-black/60 dark:text-white/60">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
                         {formatDate(theme.createdAt)}
                     </span>
                 ),
@@ -117,7 +117,7 @@ const ThemeManagementPage = () => {
                             size="icon"
                             onClick={() => setViewingTheme(theme)}
                             title="View details"
-                            className="border-slate-300"
+                            className="h-8 w-8 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                         >
                             <Eye className="h-4 w-4" />
                         </Button>
@@ -126,12 +126,12 @@ const ThemeManagementPage = () => {
                             size="icon"
                             onClick={() => setEditingTheme(theme)}
                             title="Edit"
-                            className="bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
+                            className="h-8 w-8 text-violet-600 border-violet-200 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20"
                         >
                             <Pencil className="h-4 w-4" />
                         </Button>
                         <Button
-                            variant="destructive"
+                            variant="outline"
                             size="icon"
                             onClick={async () => {
                                 if (!window.confirm(`Delete theme ${theme.domainUrl || `#${theme.id}`}? This action cannot be undone.`))
@@ -145,7 +145,7 @@ const ThemeManagementPage = () => {
                             }}
                             disabled={isDeleting}
                             title="Delete"
-                            className="bg-red-500 hover:bg-red-600 text-white"
+                            className="h-8 w-8 text-red-500 border-red-200 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20"
                         >
                             <Trash2 className="h-4 w-4" />
                         </Button>
@@ -158,61 +158,65 @@ const ThemeManagementPage = () => {
     return (
         <div className="space-y-6">
             {/* Page header */}
-            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 flex flex-col gap-2">
-                <h1 className="text-2xl font-semibold">Theme Management</h1>
-                <p className="text-sm text-black/60 dark:text-white/60">
-                    Create and manage themes for your e-commerce platform. Configure domain URLs, logos, and branding colors.
-                </p>
+            <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight mb-2">Theme Management</h1>
+                        <p className="text-violet-100 text-lg max-w-2xl">
+                            Create and manage themes for your e-commerce platform. Configure domain URLs, logos, and branding colors.
+                        </p>
+                    </div>
+                </div>
             </div>
 
             {/* Statistics cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
-                    <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
+                <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-sm hover:shadow-md transition-shadow">
+                    <p className="text-xs uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400">
                         Total Themes
                     </p>
-                    <p className="mt-1 text-2xl font-semibold">{themes.length}</p>
+                    <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{themes.length}</p>
                 </div>
-                <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
-                    <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
+                <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-sm hover:shadow-md transition-shadow">
+                    <p className="text-xs uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400">
                         With Domain URL
                     </p>
-                    <p className="mt-1 text-2xl font-semibold">
+                    <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
                         {themes.filter((t) => t.domainUrl).length}
                     </p>
                 </div>
-                <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
-                    <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
+                <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-sm hover:shadow-md transition-shadow">
+                    <p className="text-xs uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400">
                         With Logo
                     </p>
-                    <p className="mt-1 text-2xl font-semibold">
+                    <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
                         {themes.filter((t) => t.logo).length}
                     </p>
                 </div>
-                <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
-                    <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
+                <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-sm hover:shadow-md transition-shadow">
+                    <p className="text-xs uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400">
                         With Primary Color
                     </p>
-                    <p className="mt-1 text-2xl font-semibold">
+                    <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
                         {themes.filter((t) => t.primaryColorCode).length}
                     </p>
                 </div>
-                <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
-                    <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
+                <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-sm hover:shadow-md transition-shadow">
+                    <p className="text-xs uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400">
                         With Secondary Color
                     </p>
-                    <p className="mt-1 text-2xl font-semibold">
+                    <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
                         {themes.filter((t) => t.secondaryColorCode).length}
                     </p>
                 </div>
             </div>
 
             {/* Themes table */}
-            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 overflow-hidden">
-                <div className="px-4 py-3 border-b border-black/5 dark:border-gray-800 flex items-center justify-between">
+            <div className="rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
+                <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                     <div>
-                        <h2 className="text-sm font-medium">All Themes</h2>
-                        <p className="text-xs text-black/60 dark:text-white/60">
+                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">All Themes</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
                             Manage themes and branding configurations.
                         </p>
                     </div>
@@ -220,14 +224,15 @@ const ThemeManagementPage = () => {
                         <ThemeCreateForm />
                     </div>
                 </div>
-                <div className="p-4">
+                <div className="p-0">
                     <ReusableTable
                         data={tableData}
                         headers={headers}
-                        py="py-3"
+                        py="py-4"
                         total={themes.length}
                         isLoading={isLoading}
                         searchable={false}
+                        headerClassName="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400"
                     />
                 </div>
             </div>

@@ -21,6 +21,7 @@ const SuperAdminSideNav = () => {
       labelKey: "superadmin.overview",
       to: "/superadmin",
       Icon: LayoutDashboard,
+      end: true, // Only active if exact match
     },
     {
       labelKey: "superadmin.earnings",
@@ -61,49 +62,66 @@ const SuperAdminSideNav = () => {
   ];
 
   return (
-    <aside className="sticky left-0 top-0 h-screen w-64 bg-white dark:bg-slate-950 text-gray-800 dark:text-gray-100 border-r border-gray-200 dark:border-slate-800 flex flex-col">
+    <div className="h-full flex flex-col py-4">
       {/* Brand */}
-      <div className="flex items-center justify-between px-4 h-14 border-b border-gray-200 dark:border-slate-800">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-md bg-emerald-500 text-white grid place-items-center text-xs font-bold">
-            SA
-          </div>
-          <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold">
-              {t("superadmin.title")}
-            </span>
-            <span className="text-[11px] text-gray-500 dark:text-slate-400">
-              {t("superadmin.globalControl")}
-            </span>
-          </div>
+      <div className="px-6 mb-8 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white grid place-items-center shadow-lg shadow-violet-500/20">
+          <Shield className="w-6 h-6" />
+        </div>
+        <div className="flex flex-col">
+          <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white">
+            SquadCart
+          </span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400">
+            Super Admin
+          </span>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-3">
-        <div className="px-4 pb-2 text-[11px] tracking-wide text-gray-500 dark:text-slate-400 uppercase">
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
+        <div className="px-4 pb-2 text-[11px] font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase">
           {t("superadmin.mainSections")}
         </div>
-        <div className="space-y-1 px-2">
-          {items.map(({ labelKey, to, Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors
-                 ${isActive ? "bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white" : "text-gray-600 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-900 hover:text-gray-900 dark:hover:text-white"}`
-              }
-            >
-              <Icon className="w-4 h-4 text-gray-500 dark:text-slate-400" />
-              <span>{t(labelKey)}</span>
-            </NavLink>
-          ))}
-        </div>
+        
+        {items.map(({ labelKey, to, Icon, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            className={({ isActive }) =>
+              `group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
+               ${
+                 isActive
+                   ? "bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300"
+                   : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200"
+               }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <Icon
+                  className={`w-5 h-5 transition-colors duration-200 ${
+                    isActive
+                      ? "text-violet-600 dark:text-violet-400"
+                      : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300"
+                  }`}
+                  strokeWidth={isActive ? 2 : 1.5}
+                />
+                <span>{t(labelKey)}</span>
+                {isActive && (
+                  <div className="ml-auto w-1.5 h-1.5 rounded-full bg-violet-600 dark:bg-violet-400 shadow-[0_0_8px_rgba(139,92,246,0.5)]" />
+                )}
+              </>
+            )}
+          </NavLink>
+        ))}
       </nav>
-      <div className="px-4 py-3 border-t border-gray-200 dark:border-slate-800">
-        <LanguageSwitcher variant="compact" />
+
+      <div className="px-6 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/50">
+        <LanguageSwitcher variant="full" />
       </div>
-    </aside>
+    </div>
   );
 };
 

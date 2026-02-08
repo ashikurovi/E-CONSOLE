@@ -17,27 +17,29 @@ const SuperAdminSupportDetailPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold">Support ticket detail</h1>
-          <p className="text-sm text-black/60 dark:text-white/60">
-            Review the full context of a single support request.
-          </p>
+      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight mb-2">Support Ticket Detail</h1>
+            <p className="text-violet-100 text-lg max-w-2xl">
+              Review the full context of a single support request.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/superadmin/support")}
+            className="bg-white text-violet-600 hover:bg-violet-50 border-0 shadow-lg shadow-black/10"
+          >
+            Back to list
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => navigate("/superadmin/support")}
-        >
-          Back to list
-        </Button>
       </div>
 
-      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5">
-        {isLoading && <p className="text-sm">Loading ticket…</p>}
+      <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+        {isLoading && <p className="text-sm text-slate-500">Loading ticket…</p>}
 
         {!isLoading && !ticket && (
-          <p className="text-sm text-red-500">
+          <p className="text-sm text-rose-500">
             Ticket not found or no longer available.
           </p>
         )}
@@ -46,46 +48,46 @@ const SuperAdminSupportDetailPage = () => {
           <div className="space-y-6 text-sm">
             {/* Ticket Information Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+              <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide">
                   Ticket Information
                 </h3>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 <div>
-                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                  <label className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
                     Ticket ID
                   </label>
-                  <p className="font-semibold">#{ticket.id}</p>
+                  <p className="font-semibold text-slate-900 dark:text-white">#{ticket.id}</p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                  <label className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
                     Email
                   </label>
-                  <p className="font-medium break-all">
+                  <p className="font-medium break-all text-slate-900 dark:text-white">
                     {ticket.email ?? "-"}
                   </p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                  <label className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
                     Status
                   </label>
-                  <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+                  <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
                     ticket.status === 'resolved' 
-                      ? "bg-green-500/10 text-green-600 dark:text-green-400" 
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" 
                       : ticket.status === 'closed'
-                      ? "bg-gray-500/10 text-gray-600 dark:text-gray-400"
-                      : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+                      ? "bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20"
+                      : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
                   }`}>
                     {ticket.status?.replace("_", " ") ?? "-"}
                   </span>
                 </div>
                 {ticket.companyId && (
                   <div>
-                    <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
                       Company ID
                     </label>
-                    <p className="font-medium">{ticket.companyId}</p>
+                    <p className="font-medium text-slate-900 dark:text-white">{ticket.companyId}</p>
                   </div>
                 )}
               </div>
@@ -93,13 +95,13 @@ const SuperAdminSupportDetailPage = () => {
 
             {/* Issue Description Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+              <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide">
                   Issue Description
                 </h3>
               </div>
-              <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-4 bg-black/5 dark:bg-white/5">
-                <p className="text-sm whitespace-pre-wrap leading-relaxed">
+              <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-4 bg-slate-50 dark:bg-slate-800/50">
+                <p className="text-sm whitespace-pre-wrap leading-relaxed text-slate-700 dark:text-slate-300">
                   {ticket.issue ?? "-"}
                 </p>
               </div>
@@ -107,17 +109,17 @@ const SuperAdminSupportDetailPage = () => {
 
             {/* Timeline Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+              <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide">
                   Timeline
                 </h3>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                  <label className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
                     Created At
                   </label>
-                  <p className="text-xs font-medium">
+                  <p className="text-xs font-medium text-slate-900 dark:text-white">
                     {ticket.createdAt
                       ? new Date(ticket.createdAt).toLocaleString()
                       : "-"}
@@ -125,10 +127,10 @@ const SuperAdminSupportDetailPage = () => {
                 </div>
                 {ticket.updatedAt && (
                   <div>
-                    <label className="text-xs font-medium text-black/60 dark:text-white/60 block mb-1">
+                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
                       Last Updated
                     </label>
-                    <p className="text-xs font-medium">
+                    <p className="text-xs font-medium text-slate-900 dark:text-white">
                       {new Date(ticket.updatedAt).toLocaleString()}
                     </p>
                   </div>

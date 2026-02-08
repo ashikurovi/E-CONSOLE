@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
-import { DollarSign, Users, Headset, FileText, CheckCircle, Clock, XCircle } from "lucide-react";
-import StatCard from "@/components/cards/stat-card";
+import { DollarSign, Users, Headset, ArrowUpRight, TrendingUp, TrendingDown, Activity, CreditCard } from "lucide-react";
 import { useGetOverviewQuery } from "@/features/overview/overviewApiSlice";
+import { Link } from "react-router-dom";
 
 const SuperAdminOverviewPage = () => {
   const { data: overviewData, isLoading } = useGetOverviewQuery();
@@ -29,7 +29,7 @@ const SuperAdminOverviewPage = () => {
           value: "$0",
           delta: "+0%",
           icon: DollarSign,
-          tone: "green",
+          tone: "violet",
           description: "Overall revenue across all stores",
         },
         {
@@ -45,7 +45,7 @@ const SuperAdminOverviewPage = () => {
           value: "0",
           delta: "+0%",
           icon: Headset,
-          tone: "default",
+          tone: "rose",
           description: "Conversations waiting for agent response",
         },
       ];
@@ -58,7 +58,7 @@ const SuperAdminOverviewPage = () => {
         value: formatCurrency(kpiData.totalEarnings),
         delta: formatPercentage(kpiData.totalEarningsDelta || 0),
         icon: DollarSign,
-        tone: "green",
+        tone: "violet",
         description: "Overall revenue across all stores",
       },
       {
@@ -74,258 +74,146 @@ const SuperAdminOverviewPage = () => {
         value: String(kpiData.openSupportTickets || 0),
         delta: formatPercentage(kpiData.openSupportTicketsDelta || 0),
         icon: Headset,
-        tone: "default",
+        tone: "rose",
         description: "Conversations waiting for agent response",
       },
     ];
   }, [overviewData]);
 
-  const quickLinks = [
-    {
-      label: "View Earnings Dashboard",
-      href: "/superadmin/earnings",
-      description: "See detailed revenue, orders and payments analytics.",
-    },
-    {
-      label: "Manage Customers",
-      href: "/superadmin/customers",
-      description: "View, filter and manage all customer accounts.",
-    },
-    {
-      label: "Support Inbox",
-      href: "/superadmin/support",
-      description: "Review help center tickets and reply to users.",
-    },
-
-  ];
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-in fade-in duration-500">
       {/* Page header */}
-      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold">Super Admin Overview</h1>
-        <p className="text-sm text-black/60 dark:text-white/60">
-          High level control panel with earnings overview, customers, and support in one place.
-        </p>
+      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
+        <div className="absolute top-0 right-0 p-4 opacity-10">
+          <Activity className="w-64 h-64 -rotate-12" />
+        </div>
+        <div className="relative z-10 max-w-2xl">
+          <h1 className="text-3xl font-bold tracking-tight mb-3">Welcome back, Super Admin</h1>
+          <p className="text-violet-100 text-lg">
+            Here's what's happening across the platform today. You have <span className="font-semibold text-white">{overviewData?.kpis?.openSupportTickets || 0} new support tickets</span> requiring attention.
+          </p>
+        </div>
       </div>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {kpis.map((item, index) => (
           <div
             key={index}
-            className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4 flex flex-col gap-3"
+            className="group relative overflow-hidden rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 transition-all shadow-xl shadow-slate-200/50 dark:shadow-none hover:shadow-2xl hover:-translate-y-1 duration-300"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
-                  {item.title}
-                </p>
-                <p className="mt-1 text-xl font-semibold">{item.value}</p>
+            <div className="flex items-start justify-between mb-6">
+              <div className={`p-3 rounded-2xl transition-transform duration-300 group-hover:scale-110 ${
+                item.tone === "violet" ? "bg-violet-50 text-violet-600 dark:bg-violet-900/20 dark:text-violet-400" :
+                item.tone === "blue" ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400" :
+                "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400"
+              }`}>
+                <item.icon className="w-6 h-6" />
               </div>
-              <div className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/10 flex items-center justify-center">
-                <item.icon className="w-5 h-5" />
-              </div>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span
-                className={`px-2 py-0.5 rounded-full font-medium ${item.tone === "green"
-                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
-                  : item.tone === "red"
-                    ? "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300"
-                    : item.tone === "blue"
-                      ? "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300"
-                      : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200"
-                  }`}
-              >
+              <span className={`flex items-center gap-1 text-sm font-medium px-2.5 py-1 rounded-full ${
+                item.delta.startsWith("+") 
+                  ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400" 
+                  : "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400"
+              }`}>
+                {item.delta.startsWith("+") ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
                 {item.delta}
               </span>
-              <span className="text-black/50 dark:text-white/60">{item.description}</span>
+            </div>
+            
+            <div>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                {item.title}
+              </p>
+              <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+                {item.value}
+              </h3>
+              <p className="text-sm text-slate-400 dark:text-slate-500">
+                {item.description}
+              </p>
             </div>
           </div>
         ))}
       </div>
 
       {/* Two-column layout: customers + support */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Customers summary */}
-        <section className="xl:col-span-2 rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
-          <div className="flex items-center justify-between mb-3">
+        <section className="xl:col-span-2 rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-lg font-medium">Our Customers</h2>
-              <p className="text-xs text-black/60 dark:text-white/60">
-                Snapshot of recent customer activity across the platform.
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Customer Activity</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                Snapshot of recent customer growth and retention.
               </p>
             </div>
-            <a
-              href="/customers"
-              className="text-xs px-3 py-1 rounded-lg bg-black text-white hover:bg-black/90"
+            <Link
+              to="/superadmin/customers"
+              className="flex items-center gap-2 text-sm font-semibold text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 transition-colors"
             >
               View all customers
-            </a>
+              <ArrowUpRight className="w-4 h-4" />
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-xl bg-gray-50 dark:bg-black/30 p-4">
-              <p className="text-xs text-black/60 dark:text-white/60">New customers (7 days)</p>
-              <p className="mt-1 text-lg font-semibold">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 transition-transform hover:scale-[1.02]">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">New (7 days)</p>
+              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
                 {overviewData?.customers?.newCustomersLast7Days || 0}
               </p>
-              <p className="mt-1 text-xs text-emerald-500">
+              <p className="mt-2 text-xs font-medium text-emerald-500">
                 {overviewData?.customers?.newCustomersLast7Days > 0 ? "+12.3% vs last week" : "No new customers yet"}
               </p>
             </div>
-            <div className="rounded-xl bg-gray-50 dark:bg-black/30 p-4">
-              <p className="text-xs text-black/60 dark:text-white/60">Returning customers</p>
-              <p className="mt-1 text-lg font-semibold">
+            <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 transition-transform hover:scale-[1.02]">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Retention Rate</p>
+              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
                 {overviewData?.customers?.returningCustomersPercentage || 0}%
               </p>
-              <p className="mt-1 text-xs text-emerald-500">
+              <p className="mt-2 text-xs font-medium text-emerald-500">
                 {overviewData?.customers?.returningCustomersPercentage > 50 ? "Healthy loyalty segment" : "Building loyalty"}
               </p>
             </div>
-            <div className="rounded-xl bg-gray-50 dark:bg-black/30 p-4">
-              <p className="text-xs text-black/60 dark:text-white/60">At-risk customers</p>
-              <p className="mt-1 text-lg font-semibold">
+            <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 transition-transform hover:scale-[1.02]">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">At-Risk</p>
+              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
                 {overviewData?.customers?.atRiskCustomers || 0}
               </p>
-              <p className="mt-1 text-xs text-rose-400">
-                {overviewData?.customers?.atRiskCustomers > 0 ? "Need win-back campaigns" : "No at-risk customers"}
+              <p className="mt-2 text-xs font-medium text-rose-500">
+                {overviewData?.customers?.atRiskCustomers > 0 ? "Action needed" : "Great job!"}
               </p>
             </div>
           </div>
         </section>
 
         {/* Support */}
-        <section className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-md font-medium flex items-center gap-2">
-                <Headset className="w-4 h-4" />
-                Support
-              </h2>
-              <a
-                href="/help"
-                className="text-xs px-2 py-1 rounded-lg bg-black text-white hover:bg-black/90"
-              >
-                Go to help center
-              </a>
-            </div>
-            <ul className="space-y-2 text-xs text-black/70 dark:text-white/70">
-              <li className="flex items-center justify-between">
-                <span>New tickets today</span>
-                <span className="font-medium">{overviewData?.support?.newTicketsToday || 0}</span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span>Waiting for reply</span>
-                <span className={`font-medium ${(overviewData?.support?.waitingForReply || 0) > 0 ? 'text-amber-400' : ''}`}>
-                  {overviewData?.support?.waitingForReply || 0}
-                </span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span>Average first response time</span>
-                <span className="font-medium">{overviewData?.support?.averageResponseTime || "N/A"}</span>
-              </li>
-            </ul>
+        <section className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 flex flex-col h-full shadow-xl shadow-slate-200/50 dark:shadow-none">
+          <div className="flex items-center justify-between mb-6">
+             <h2 className="text-xl font-bold text-slate-900 dark:text-white">Support</h2>
+             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400">
+               {overviewData?.kpis?.openSupportTickets || 0} Pending
+             </span>
+          </div>
+          
+          <div className="flex-1 flex flex-col justify-center items-center text-center p-4">
+             <div className="w-16 h-16 rounded-full bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center mb-4 animate-pulse">
+               <Headset className="w-8 h-8 text-violet-600 dark:text-violet-400" />
+             </div>
+             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Help Center Inbox</h3>
+             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-[200px]">
+               Review and respond to customer inquiries efficiently.
+             </p>
+             <Link 
+               to="/superadmin/support" 
+               className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors shadow-lg shadow-violet-200 dark:shadow-none"
+             >
+               Go to Inbox
+             </Link>
           </div>
         </section>
       </div>
-
-      {/* Invoices summary */}
-      <section className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h2 className="text-lg font-medium">Invoice Overview</h2>
-            <p className="text-xs text-black/60 dark:text-white/60">
-              Summary of all invoices across the platform.
-            </p>
-          </div>
-          <a
-            href="/superadmin/invoice"
-            className="text-xs px-3 py-1 rounded-lg bg-black text-white hover:bg-black/90"
-          >
-            View all invoices
-          </a>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          {/* Total Invoices */}
-          <div className="rounded-xl bg-gray-50 dark:bg-black/30 p-4">
-            <div className="flex items-center justify-between mb-2">
-              <FileText className="w-5 h-5 text-blue-500" />
-              <span className="text-xs text-black/60 dark:text-white/60">Total</span>
-            </div>
-            <p className="text-2xl font-semibold">{overviewData?.invoices?.totalInvoices || 0}</p>
-            <p className="text-xs text-black/60 dark:text-white/60 mt-1">
-              +{overviewData?.invoices?.newInvoicesLast7Days || 0} in last 7 days
-            </p>
-          </div>
-
-          {/* Paid Invoices */}
-          <div className="rounded-xl bg-gray-50 dark:bg-black/30 p-4">
-            <div className="flex items-center justify-between mb-2">
-              <CheckCircle className="w-5 h-5 text-emerald-500" />
-              <span className="text-xs text-black/60 dark:text-white/60">Paid</span>
-            </div>
-            <p className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
-              {overviewData?.invoices?.paidInvoices || 0}
-            </p>
-            <p className="text-xs text-black/60 dark:text-white/60 mt-1">
-              {formatCurrency(overviewData?.invoices?.totalPaidAmount || 0)} collected
-            </p>
-          </div>
-
-          {/* Pending Invoices */}
-          <div className="rounded-xl bg-gray-50 dark:bg-black/30 p-4">
-            <div className="flex items-center justify-between mb-2">
-              <Clock className="w-5 h-5 text-amber-500" />
-              <span className="text-xs text-black/60 dark:text-white/60">Pending</span>
-            </div>
-            <p className="text-2xl font-semibold text-amber-600 dark:text-amber-400">
-              {overviewData?.invoices?.pendingInvoices || 0}
-            </p>
-            <p className="text-xs text-black/60 dark:text-white/60 mt-1">
-              {formatCurrency(overviewData?.invoices?.totalPendingAmount || 0)} awaiting
-            </p>
-          </div>
-
-          {/* Payment Success Rate */}
-          <div className="rounded-xl bg-gray-50 dark:bg-black/30 p-4">
-            <div className="flex items-center justify-between mb-2">
-              <XCircle className="w-5 h-5 text-rose-500" />
-              <span className="text-xs text-black/60 dark:text-white/60">Success Rate</span>
-            </div>
-            <p className="text-2xl font-semibold">
-              {overviewData?.invoices?.paidPercentage?.toFixed(1) || 0}%
-            </p>
-            <p className="text-xs text-black/60 dark:text-white/60 mt-1">
-              {overviewData?.invoices?.failedInvoices || 0} failed, {overviewData?.invoices?.cancelledInvoices || 0} cancelled
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Quick navigation */}
-      <section className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
-        <h2 className="text-md font-medium mb-3">Quick navigation</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-          {quickLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="rounded-xl border border-black/5 dark:border-gray-800 p-3 text-xs hover:bg-gray-50 dark:hover:bg-black/40 transition-colors"
-            >
-              <p className="font-medium">{link.label}</p>
-              <p className="mt-1 text-black/60 dark:text-white/60">{link.description}</p>
-            </a>
-          ))}
-        </div>
-      </section>
     </div>
   );
 };
 
 export default SuperAdminOverviewPage;
-
-
-

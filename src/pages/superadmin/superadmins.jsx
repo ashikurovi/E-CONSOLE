@@ -38,16 +38,16 @@ const SuperAdminSuperadminsPage = () => {
         name: sa.name ?? "-",
         designation: sa.designation ?? "-",
         role: (
-          <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+          <span className="text-xs px-2.5 py-1 rounded-md bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-500/20 font-medium">
             {sa.role || "SUPER_ADMIN"}
           </span>
         ),
         isActive: sa.isActive ? (
-          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-500/10 text-green-600 dark:text-green-400">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
             Active
           </span>
         ) : (
-          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-500/10 text-red-600 dark:text-red-400">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
             Inactive
           </span>
         ),
@@ -61,18 +61,18 @@ const SuperAdminSuperadminsPage = () => {
               size="icon"
               onClick={() => navigate(`/superadmin/superadmins/${sa.id}`)}
               title="View details"
-              className="border-slate-300"
+              className="h-8 w-8 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
             >
               <Eye className="h-4 w-4" />
             </Button>
             <Button
-              variant="outline"
+              variant="default"
               size="icon"
               onClick={() => setEditingSuperadmin(sa)}
               title="Edit"
-              className="bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
+              className="h-8 w-8 bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/30 dark:shadow-violet-900/20"
             >
-              <Pencil className="h-4 w-4" />
+              <Pencil className="h-3.5 w-3.5" />
             </Button>
             <Button
               variant="destructive"
@@ -92,9 +92,9 @@ const SuperAdminSuperadminsPage = () => {
               }}
               disabled={isDeleting}
               title="Delete"
-              className="bg-red-500 hover:bg-red-600 text-white"
+              className="h-8 w-8 bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/30 dark:shadow-rose-900/20"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </div>
         ),
@@ -105,40 +105,45 @@ const SuperAdminSuperadminsPage = () => {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold">Super Admins</h1>
-        <p className="text-sm text-black/60 dark:text-white/60">
-          Manage all super admin accounts and their permissions.
-        </p>
+      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Super Admins</h1>
+            <p className="text-violet-100 mt-1">
+              Manage system administrators and their roles
+            </p>
+          </div>
+          <Button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex items-center gap-2 bg-white text-violet-600 hover:bg-violet-50 border-0 shadow-lg shadow-black/10"
+          >
+            <UserPlus className="h-4 w-4" />
+            Add Super Admin
+          </Button>
+        </div>
       </div>
 
+      {/* Stats Cards */}
+
       {/* Superadmins table */}
-      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 overflow-hidden">
-        <div className="px-4 py-3 border-b border-black/5 dark:border-gray-800 flex items-center justify-between">
+      <div className="rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
+        <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-medium">Super Admin Users</h2>
-            <p className="text-xs text-black/60 dark:text-white/60">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Super Admin Users</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Listing all super admin accounts from the system.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white"
-            >
-              <UserPlus className="h-4 w-4" />
-              Add Super Admin
-            </Button>
-          </div>
         </div>
-        <div className="p-4">
+        <div className="p-0">
           <ReusableTable
             data={tableData}
             headers={headers}
-            py="py-3"
+            py="py-4"
             total={superadmins.length}
             isLoading={isLoading}
             searchable={false}
+            headerClassName="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400"
           />
         </div>
       </div>

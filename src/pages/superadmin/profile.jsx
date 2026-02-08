@@ -120,16 +120,20 @@ const SuperAdminProfilePage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold">My Profile</h1>
-        <p className="text-sm text-black/60 dark:text-white/60">
-          Manage your super admin profile and account settings.
-        </p>
+      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight mb-2">My Profile</h1>
+            <p className="text-violet-100 text-lg max-w-2xl">
+              Manage your super admin profile and account settings.
+            </p>
+          </div>
+        </div>
       </div>
 
       {isLoadingProfile && (
-        <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5">
-          <p className="text-sm">Loading profile...</p>
+        <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+          <p className="text-sm text-slate-500">Loading profile...</p>
         </div>
       )}
 
@@ -137,18 +141,18 @@ const SuperAdminProfilePage = () => {
         <>
           {/* Profile Photo Section */}
           {profileData.photo && (
-            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 space-y-4">
-              <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-                <User className="h-4 w-4" />
-                <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+            <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 space-y-4 shadow-sm">
+              <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <User className="h-5 w-5 text-violet-500" />
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide">
                   Profile Photo
                 </h3>
               </div>
-              <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-3 bg-black/5 dark:bg-white/5 inline-block">
+              <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-2 bg-slate-50 dark:bg-slate-800/50 inline-block">
                 <img
                   src={profileData.photo}
                   alt="Profile"
-                  className="h-32 w-32 object-cover rounded-lg"
+                  className="h-32 w-32 object-cover rounded-xl"
                   onError={(e) => {
                     e.target.style.display = "none";
                   }}
@@ -158,29 +162,33 @@ const SuperAdminProfilePage = () => {
           )}
 
           {/* Profile Information Form */}
-          <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 space-y-4">
-            <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-              <User className="h-4 w-4" />
-              <h3 className="text-sm font-semibold text-black/80 dark:text-white/80 uppercase tracking-wide">
+          <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 space-y-6 shadow-sm">
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <User className="h-5 w-5 text-violet-500" />
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide">
                 Profile Information
               </h3>
             </div>
-            <form onSubmit={handleSubmitProfile(onProfileSubmit)} className="space-y-4">
-              <TextField
-                label="Name *"
-                placeholder="Enter your name"
-                register={registerProfile}
-                name="name"
-                error={profileErrors.name}
-              />
+            <form onSubmit={handleSubmitProfile(onProfileSubmit)} className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <TextField
+                  label="Name *"
+                  placeholder="Enter your name"
+                  register={registerProfile}
+                  name="name"
+                  error={profileErrors.name}
+                  className="bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 rounded-xl"
+                />
 
-              <TextField
-                label="Designation"
-                placeholder="Enter your designation (optional)"
-                register={registerProfile}
-                name="designation"
-                error={profileErrors.designation}
-              />
+                <TextField
+                  label="Designation"
+                  placeholder="Enter your designation (optional)"
+                  register={registerProfile}
+                  name="designation"
+                  error={profileErrors.designation}
+                  className="bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 rounded-xl"
+                />
+              </div>
 
               <TextField
                 label="Photo URL"
@@ -188,13 +196,14 @@ const SuperAdminProfilePage = () => {
                 register={registerProfile}
                 name="photo"
                 error={profileErrors.photo}
+                className="bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 rounded-xl"
               />
 
               <div className="flex items-center gap-2 pt-2">
                 <Button
                   type="submit"
                   disabled={isUpdating}
-                  className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                  className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl h-10 px-6 shadow-lg shadow-violet-500/20"
                 >
                   {isUpdating ? "Updating..." : "Update Profile"}
                 </Button>

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Eye } from "lucide-react";
+import { Pencil, Trash2, Eye, Users } from "lucide-react";
 import {
     useGetSystemusersQuery,
     useDeleteSystemuserMutation,
@@ -35,20 +35,34 @@ const SuperAdminCustomersPage = () => {
     const tableData = useMemo(
         () =>
             users.map((u) => ({
-                name: u.name ?? "-",
+                name: <span className="font-medium text-slate-900 dark:text-slate-100">{u.name ?? "-"}</span>,
                 companyName: u.companyName ?? "-",
                 email: u.email ?? "-",
-                companyId: u.companyId ?? "-",
-                packageName: u.package?.name || u.paymentInfo?.packagename || "-",
+                companyId: <span className="font-mono text-xs">{u.companyId ?? "-"}</span>,
+                packageName: (
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                        {u.package?.name || u.paymentInfo?.packagename || "-"}
+                    </span>
+                ),
                 theme: u.theme ? (
-                    <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+                    <span className="text-xs px-2.5 py-1 rounded-md bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 font-medium">
                         {u.theme.domainUrl || `Theme #${u.theme.id}`}
                     </span>
                 ) : (
-                    <span className="text-black/40 dark:text-white/40">-</span>
+                    <span className="text-slate-400 dark:text-slate-500">-</span>
                 ),
-                paymentStatus: u.paymentInfo?.paymentstatus ?? "-",
-                isActive: u.isActive ? "Yes" : "No",
+                paymentStatus: (
+                    <span className={`text-xs px-2.5 py-1 rounded-md font-medium border ${
+                        u.paymentInfo?.paymentstatus === 'paid' 
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                        : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+                    }`}>
+                        {u.paymentInfo?.paymentstatus ?? "-"}
+                    </span>
+                ),
+                isActive: (
+                    <span className={`inline-flex w-2 h-2 rounded-full ${u.isActive ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
+                ),
                 actions: (
                     <div className="flex items-center gap-2 justify-end">
                         <Button
@@ -56,18 +70,18 @@ const SuperAdminCustomersPage = () => {
                             size="icon"
                             onClick={() => navigate(`/superadmin/customers/${u.id}`)}
                             title="View details"
-                            className="border-slate-300"
+                            className="h-8 w-8 border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                         >
                             <Eye className="h-4 w-4" />
                         </Button>
                         <Button
-                            variant="outline"
+                            variant="default"
                             size="icon"
                             onClick={() => setEditingUser(u)}
                             title="Edit"
-                            className="bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
+                            className="h-8 w-8 bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/30 dark:shadow-violet-900/20"
                         >
-                            <Pencil className="h-4 w-4" />
+                            <Pencil className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                             variant="destructive"
@@ -78,32 +92,37 @@ const SuperAdminCustomersPage = () => {
                             }}
                             disabled={isDeleting}
                             title="Delete"
-                            className="bg-red-500 hover:bg-red-600 text-white"
+                            className="h-8 w-8 bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/30 dark:shadow-rose-900/20"
                         >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                     </div>
                 ),
             })),
-        [users, deleteSystemuser, isDeleting]
+        [users, deleteSystemuser, isDeleting, navigate]
     );
 
     return (
         <div className="space-y-6">
             {/* Page header */}
-            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-5 flex flex-col gap-2">
-                <h1 className="text-2xl font-semibold">Customers</h1>
-                <p className="text-sm text-black/60 dark:text-white/60">
-                    Central place to review, search and manage customer system users.
-                </p>
+            <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <Users className="w-64 h-64 -rotate-12" />
+                </div>
+                <div className="relative z-10 max-w-2xl">
+                    <h1 className="text-3xl font-bold tracking-tight mb-3">Customers</h1>
+                    <p className="text-violet-100 text-lg">
+                        Central place to review, search and manage customer system users.
+                    </p>
+                </div>
             </div>
 
             {/* Customers table */}
-            <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 overflow-hidden">
-                <div className="px-4 py-3 border-b border-black/5 dark:border-gray-800 flex items-center justify-between">
+            <div className="rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
+                <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                     <div>
-                        <h2 className="text-sm font-medium">Customer users</h2>
-                        <p className="text-xs text-black/60 dark:text-white/60">
+                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Customer users</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
                             Listing users from the backend systemuser API.
                         </p>
                     </div>
@@ -111,14 +130,15 @@ const SuperAdminCustomersPage = () => {
                         <CustomerCreateForm />
                     </div>
                 </div>
-                <div className="p-4">
+                <div className="p-0">
                     <ReusableTable
                         data={tableData}
                         headers={headers}
-                        py="py-3"
+                        py="py-4"
                         total={users.length}
                         isLoading={isLoading}
                         searchable={false}
+                        headerClassName="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400"
                     />
                 </div>
             </div>

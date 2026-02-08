@@ -60,7 +60,7 @@ const InlineBankPaymentActions = ({ invoice }) => {
           onClick={handleVerify}
           disabled={isVerifying}
           title="Approve bank payment"
-          className="h-8 w-8 bg-green-500 hover:bg-green-600 text-white"
+          className="h-8 w-8 bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           <CheckCircle2 className="h-4 w-4" />
         </Button>
@@ -72,7 +72,7 @@ const InlineBankPaymentActions = ({ invoice }) => {
           }}
           disabled={isRejecting}
           title="Reject bank payment"
-          className="h-8 w-8 bg-orange-500 hover:bg-orange-600 text-white"
+          className="h-8 w-8 bg-rose-600 hover:bg-rose-700 text-white"
         >
           <XCircle className="h-4 w-4" />
         </Button>
@@ -83,32 +83,32 @@ const InlineBankPaymentActions = ({ invoice }) => {
         <DialogContent className="max-w-md" onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle>Reject Bank Payment</DialogTitle>
-            <p className="text-sm text-black/60 dark:text-white/60 mt-2">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
               Invoice: {invoice.invoiceNumber}
             </p>
           </DialogHeader>
           
           <div className="space-y-4">
-            <div className="p-3 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
+            <div className="p-3 bg-rose-50 dark:bg-rose-950/20 rounded-lg border border-rose-200 dark:border-rose-800">
               <div className="text-sm space-y-1">
-                <p className="font-medium text-red-700 dark:text-red-300">Bank Payment Details:</p>
-                <p className="text-red-600 dark:text-red-400">
+                <p className="font-medium text-rose-700 dark:text-rose-300">Bank Payment Details:</p>
+                <p className="text-rose-600 dark:text-rose-400">
                   Bank: {invoice.bankPayment.bankName} | Amount: ৳{parseFloat(invoice.bankPayment.amount).toFixed(2)}
                 </p>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-black/70 dark:text-white/70">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 Rejection Reason (Optional)
               </label>
               <textarea
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="Enter reason for rejection..."
-                className="w-full min-h-[100px] px-3 py-2 text-sm rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1f26] focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                className="w-full min-h-[100px] px-3 py-2 text-sm rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
               />
-              <p className="text-xs text-black/50 dark:text-white/50">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Providing a reason helps the customer understand why the payment was rejected.
               </p>
             </div>
@@ -128,7 +128,7 @@ const InlineBankPaymentActions = ({ invoice }) => {
             <Button
               onClick={handleReject}
               disabled={isRejecting}
-              className="bg-red-500 hover:bg-red-600 text-white"
+              className="bg-rose-600 hover:bg-rose-700 text-white"
             >
               {isRejecting ? "Rejecting..." : "Reject Payment"}
             </Button>
