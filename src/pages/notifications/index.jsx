@@ -19,11 +19,7 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import {
-  useGetOrderCreatedNotificationsQuery,
   useGetAllNotificationsQuery,
-  useGetOrderStatusNotificationsQuery,
-  useGetNewCustomerNotificationsQuery,
-  useGetLowStockNotificationsQuery,
   useMarkNotificationAsReadMutation,
   useMarkAllNotificationsAsReadMutation,
 } from "@/features/notifications/notificationsApiSlice";
@@ -39,78 +35,19 @@ const NotificationsPage = () => {
   const { data: user } = useGetCurrentUserQuery();
   const companyId = user?.companyId;
 
-  // Fetch all types of notifications
+  // Single source: all data from notifications API
   const {
-    data: allNotifications = [],
-    isLoading: isLoadingAll,
+    data: apiNotifications = [],
+    isLoading,
     refetch: refetchAll,
   } = useGetAllNotificationsQuery({ companyId }, { skip: !companyId });
-
-  const {
-    data: orderNotifications = [],
-    isLoading: isLoadingOrders,
-    refetch: refetchOrders,
-  } = useGetOrderCreatedNotificationsQuery(companyId, {
-    skip: !companyId,
-  });
-
-  const {
-    data: orderStatusNotifications = [],
-    isLoading: isLoadingOrderStatus,
-    refetch: refetchOrderStatus,
-  } = useGetOrderStatusNotificationsQuery(companyId, {
-    skip: !companyId,
-  });
-
-  const {
-    data: newCustomerNotifications = [],
-    isLoading: isLoadingCustomers,
-    refetch: refetchCustomers,
-  } = useGetNewCustomerNotificationsQuery(companyId, {
-    skip: !companyId,
-  });
-
-  const {
-    data: lowStockNotifications = [],
-    isLoading: isLoadingStock,
-    refetch: refetchStock,
-  } = useGetLowStockNotificationsQuery(companyId, {
-    skip: !companyId,
-  });
 
   const [markAsRead] = useMarkNotificationAsReadMutation();
   const [markAllAsRead, { isLoading: isMarkingAll }] =
     useMarkAllNotificationsAsReadMutation();
 
-  const isLoading =
-    isLoadingAll ||
-    isLoadingOrders ||
-    isLoadingOrderStatus ||
-    isLoadingCustomers ||
-    isLoadingStock;
-
-  // Combine notifications from all sources
-  const combinedNotifications = [
-    ...allNotifications,
-    ...orderNotifications,
-    ...orderStatusNotifications,
-    ...newCustomerNotifications,
-    ...lowStockNotifications,
-  ];
-
-  // Remove duplicates based on id
-  const uniqueNotifications = combinedNotifications.reduce((acc, current) => {
-    const exists = acc.find(
-      (item) => (item.id || item._id) === (current.id || current._id),
-    );
-    if (!exists) {
-      return acc.concat([current]);
-    }
-    return acc;
-  }, []);
-
   // Transform API notifications to match UI format
-  const notifications = uniqueNotifications
+  const notifications = apiNotifications
     .map((notification) => {
       // Determine icon and color based on notification type (matching backend enum)
       let icon = Bell;
@@ -407,10 +344,6 @@ const NotificationsPage = () => {
 
   const handleRefresh = () => {
     refetchAll();
-    refetchOrders();
-    refetchOrderStatus();
-    refetchCustomers();
-    refetchStock();
   };
 
   const filters = [

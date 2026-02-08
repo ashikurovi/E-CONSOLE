@@ -1,70 +1,81 @@
-import React, { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { TICKETS } from "./data";
-import TicketListView from "./components/TicketListView";
-import TicketCreateView from "./components/TicketCreateView";
-import TicketDetailView from "./components/TicketDetailView";
+import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import ReusableTable from "@/components/table/reusable-table";
+import { Button } from "@/components/ui/button";
+import {
+  useGetHelpQuery,
+} from "@/features/help/helpApiSlice";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-export default function HelpPage() {
-  const [activeView, setActiveView] = useState("list"); // 'list' | 'detail' | 'create'
-  const [selectedTicketId, setSelectedTicketId] = useState(null);
-  const [activeTab, setActiveTab] = useState("active");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+function HelpPage() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  const filteredTickets = useMemo(() => {
-    if (activeTab === "all") return TICKETS;
-    if (activeTab === "active")
-      return TICKETS.filter((t) => t.status !== "closed");
-    return TICKETS.filter((t) => t.status === activeTab);
-  }, [activeTab]);
+  const STATUS_OPTIONS = useMemo(
+    () => [
+      { label: t("help.pending"), value: "pending" },
+      { label: t("help.inProgress"), value: "in_progress" },
+      { label: t("help.resolved"), value: "resolved" },
+    ],
+    [t]
+  );
+  const authUser = useSelector((state) => state.auth.user);
+  const { data: tickets = [], isLoading } = useGetHelpQuery({ companyId: authUser?.companyId });
+
+  const headers = useMemo(
+    () => [
+      { header: "ID", field: "id" },
+      { header: "Email", field: "email" },
+      { header: "Issue", field: "issue" },
+      { header: "Status", field: "status" },
+      { header: "Created", field: "createdAt" },
+      { header: t("common.actions") || "Actions", field: "actions", sortable: false },
+    ],
+    [t]
+  );
+
+  const tableData = useMemo(
+    () =>
+      tickets.map((ticket) => {
+        const currentStatus = STATUS_OPTIONS.find((s) => s.value === ticket.status) || STATUS_OPTIONS[0];
+        return {
+          id: ticket.id,
+          email: ticket.email,
+          issue: (ticket.issue?.length > 120 ? `${ticket.issue.slice(0, 120)}…` : ticket.issue) || "-",
+          status: currentStatus?.label || t("help.pending"),
+          createdAt: ticket.createdAt ? new Date(ticket.createdAt).toLocaleString() : "-",
+          actions: (
+            <button
+              type="button"
+              onClick={() => navigate(`/help/${ticket.id}`)}
+              className="text-xs px-3 py-1 rounded border border-primary/30 hover:bg-primary/10 text-primary font-medium"
+            >
+              {t("help.viewReply") || "View / Reply"}
+            </button>
+          ),
+        };
+      }),
+    [tickets, t, navigate]
+  );
 
   return (
-    <div className="h-[calc(100vh-6rem)] w-full">
-      <AnimatePresence mode="wait">
-        {activeView === "list" ? (
-          <motion.div
-            key="list"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="h-full"
-          >
-            <TicketListView
-              setActiveView={setActiveView}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              filteredTickets={filteredTickets}
-              setSelectedTicketId={setSelectedTicketId}
-            />
-          </motion.div>
-        ) : activeView === "create" ? (
-          <motion.div
-            key="create"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="h-full"
-          >
-            <TicketCreateView setActiveView={setActiveView} />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="detail"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            className="h-full"
-          >
-            <TicketDetailView
-              sidebarOpen={sidebarOpen}
-              setSidebarOpen={setSidebarOpen}
-              setActiveView={setActiveView}
-              selectedTicketId={selectedTicketId}
-              setSelectedTicketId={setSelectedTicketId}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium">{t("help.title")}</h3>
+        <Button size="sm" onClick={() => navigate("/help/create")}>
+          {t("help.createTicket")}
+        </Button>
+      </div>
+
+      <ReusableTable
+        data={tableData}
+        headers={headers}
+        total={tickets.length}
+        isLoading={isLoading}
+        py="py-2"
+      />
     </div>
   );
-}
+};
+export default HelpPage;

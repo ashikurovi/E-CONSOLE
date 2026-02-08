@@ -30,11 +30,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  useGetOrderCreatedNotificationsQuery,
   useGetAllNotificationsQuery,
-  useGetOrderStatusNotificationsQuery,
-  useGetNewCustomerNotificationsQuery,
-  useGetLowStockNotificationsQuery,
   useMarkNotificationAsReadMutation,
   useMarkAllNotificationsAsReadMutation,
 } from "@/features/notifications/notificationsApiSlice";
@@ -68,40 +64,13 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
     totalResults,
   } = useGlobalSearch(searchTerm, companyId);
 
-  // Fetch all types of notifications (poll every 30s for new notifications)
+  // Single source: all notification data from API (poll every 30s)
   const {
-    data: allNotifications = [],
-    isLoading: isLoadingAll,
-    refetch: refetchAll,
+    data: apiNotifications = [],
   } = useGetAllNotificationsQuery(
     { companyId },
     { skip: !companyId, refetchInterval: 30000 },
   );
-
-  const {
-    data: orderNotifications = [],
-    isLoading: isLoadingOrders,
-    refetch: refetchOrders,
-  } = useGetOrderCreatedNotificationsQuery(companyId, {
-    skip: !companyId,
-  });
-
-  const {
-    data: orderStatusNotifications = [],
-    isLoading: isLoadingOrderStatus,
-  } = useGetOrderStatusNotificationsQuery(companyId, {
-    skip: !companyId,
-  });
-
-  const { data: newCustomerNotifications = [], isLoading: isLoadingCustomers } =
-    useGetNewCustomerNotificationsQuery(companyId, {
-      skip: !companyId,
-    });
-
-  const { data: lowStockNotifications = [], isLoading: isLoadingStock } =
-    useGetLowStockNotificationsQuery(companyId, {
-      skip: !companyId,
-    });
 
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [notificationTab, setNotificationTab] = useState("all");
@@ -110,35 +79,8 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
   const [markAllAsRead, { isLoading: isMarkingAll }] =
     useMarkAllNotificationsAsReadMutation();
 
-  const isLoading =
-    isLoadingAll ||
-    isLoadingOrders ||
-    isLoadingOrderStatus ||
-    isLoadingCustomers ||
-    isLoadingStock;
-
-  // Combine notifications from all sources
-  const combinedNotifications = [
-    ...allNotifications,
-    ...orderNotifications,
-    ...orderStatusNotifications,
-    ...newCustomerNotifications,
-    ...lowStockNotifications,
-  ];
-
-  // Remove duplicates based on id
-  const uniqueNotifications = combinedNotifications.reduce((acc, current) => {
-    const exists = acc.find(
-      (item) => (item.id || item._id) === (current.id || current._id),
-    );
-    if (!exists) {
-      return acc.concat([current]);
-    }
-    return acc;
-  }, []);
-
   // Transform API notifications to match UI format
-  const notifications = uniqueNotifications
+  const notifications = apiNotifications
     .map((notification) => {
       // Determine icon and color based on notification type (matching backend enum)
       let icon = Bell;
