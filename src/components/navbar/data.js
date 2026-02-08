@@ -409,22 +409,22 @@ export const navSections = [
       },
     ],
   },
-  {
-    id: "integrations",
-    title: "Reports",
-    tKey: "nav.integrations",
-    icon: BarChart,
-    items: [
-      {
-        id: 19,
-        title: "Connected Apps",
-        tKey: "nav.connectedApps",
-        link: "/connected-apps",
-        permission: FeaturePermission.REPORTS,
-        icon: LayoutGrid,
-      },
-    ],
-  },
+  // {
+  //   id: "integrations",
+  //   title: "Reports",
+  //   tKey: "nav.integrations",
+  //   icon: BarChart,
+  //   items: [
+  //     {
+  //       id: 19,
+  //       title: "Connected Apps",
+  //       tKey: "nav.connectedApps",
+  //       link: "/connected-apps",
+  //       permission: FeaturePermission.REPORTS,
+  //       icon: LayoutGrid,
+  //     },
+  //   ],
+  // },
 ];
 
 // Flattened navLinks for backward compatibility

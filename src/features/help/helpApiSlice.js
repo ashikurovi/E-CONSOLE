@@ -3,11 +3,10 @@ import { apiSlice } from "../api/apiSlice";
 export const helpApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createHelp: builder.mutation({
-      query: ({ body, params }) => ({
+      query: (body) => ({
         url: "/help",
         method: "POST",
         body,
-        params,
       }),
       transformResponse: (res) => res,
       invalidatesTags: [{ type: "help", id: "LIST" }],
@@ -15,6 +14,10 @@ export const helpApiSlice = apiSlice.injectEndpoints({
     getHelp: builder.query({
       query: (params) => ({ url: "/help", method: "GET", params }),
       transformResponse: (res) => (Array.isArray(res) ? res : []),
+      providesTags: [{ type: "help", id: "LIST" }],
+    }),
+    getHelpStats: builder.query({
+      query: (params) => ({ url: "/help/stats", method: "GET", params }),
       providesTags: [{ type: "help", id: "LIST" }],
     }),
     getHelpById: builder.query({
@@ -55,6 +58,7 @@ export const helpApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useGetHelpQuery,
+  useGetHelpStatsQuery,
   useGetHelpByIdQuery,
   useCreateHelpMutation,
   useUpdateHelpMutation,

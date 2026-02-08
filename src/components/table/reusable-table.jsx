@@ -30,6 +30,7 @@ import TablePaginate from "./pagination";
  * @param {string[]} searchFields - Limit search to specific fields (optional)
  * @param {(item) => string} getRowClassName - Optional row class generator
  * @param {string} py - Optional custom padding-y class for cells (e.g. "py-5")
+ * @param {(item) => void} onRowClick - Optional row click handler
  */
 export default function ReusableTable({
   data = [],
@@ -41,6 +42,7 @@ export default function ReusableTable({
   getRowClassName = null,
   py, // optional custom py class
   total, // currently unused – maybe for server pagination later?
+  onRowClick = null,
 }) {
   const { t } = useTranslation();
   const placeholder =
@@ -237,7 +239,8 @@ export default function ReusableTable({
                   return (
                     <TableRow
                       key={rowIdx}
-                      className={`border-b dark:border-neutral-800 transition-colors ${rowClass} hover:bg-gray-50/70 dark:hover:bg-neutral-800/40`}
+                      onClick={() => onRowClick?.(item)}
+                      className={`border-b dark:border-neutral-800 transition-colors ${rowClass} hover:bg-gray-50/70 dark:hover:bg-neutral-800/40 ${onRowClick ? "cursor-pointer" : ""}`}
                     >
                       {headers.map((header, colIdx) => {
                         const isLast = colIdx === headers.length - 1;

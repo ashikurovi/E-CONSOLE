@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 import {
   ArrowLeft,
   ChevronRight,
   Filter,
-  User,
   Sparkles,
   FileText,
   Tag,
@@ -12,8 +13,18 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { useCreateHelpMutation } from "@/features/help/helpApiSlice";
 
 export default function TicketCreateView({ setActiveView }) {
+  const authUser = useSelector((state) => state.auth.user);
+  const [createHelp, { isLoading: isCreating }] = useCreateHelpMutation();
+
+  const [subject, setSubject] = useState("");
+  const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState("medium");
+  const [tags, setTags] = useState("");
+  const [attachments, setAttachments] = useState([]);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -31,6 +42,68 @@ export default function TicketCreateView({ setActiveView }) {
       y: 0,
       transition: { duration: 0.4 },
     },
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    const maxSize = 2 * 1024 * 1024; // 2MB per file
+    const maxFiles = 5;
+    if (attachments.length + files.length > maxFiles) {
+      toast.error(`Maximum ${maxFiles} attachments allowed.`);
+      return;
+    }
+    files.forEach((file) => {
+      if (file.size > maxSize) {
+        toast.error(`"${file.name}" is too large. Max 2MB per file.`);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        setAttachments((prev) => [...prev, { name: file.name, dataUrl: reader.result }]);
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = "";
+  };
+
+  const removeAttachment = (index) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (e) => {
+    e?.preventDefault?.();
+    const email = typeof authUser?.email === "string" ? authUser.email.trim() : "";
+    if (!email) {
+      toast.error("Please sign in with an email to create a ticket.");
+      return;
+    }
+    const issueText = [subject.trim(), description.trim()].filter(Boolean).join("\n\n");
+    if (!issueText) {
+      toast.error("Please enter a subject or description.");
+      return;
+    }
+    const tagsArray = tags
+      .split(/[,;]/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+    const attachmentUrls = attachments.map((a) => (typeof a === "string" ? a : a.dataUrl));
+    try {
+      const res = await createHelp({
+        email: String(email),
+        issue: String(issueText),
+        priority: priority || "medium",
+        tags: tagsArray,
+        attachments: attachmentUrls,
+      });
+      if (res?.data) {
+        toast.success("Ticket created successfully.");
+        setActiveView("list");
+      } else {
+        toast.error(res?.error?.data?.message || "Failed to create ticket.");
+      }
+    } catch (err) {
+      toast.error(err?.message || "Failed to create ticket.");
+    }
   };
 
   return (
@@ -70,7 +143,7 @@ export default function TicketCreateView({ setActiveView }) {
         animate="visible"
         className="flex-1 overflow-y-auto p-6 md:p-10 bg-gray-50/50 dark:bg-gray-900/50"
       >
-        <div className="max-w-6xl mx-auto">
+        <form onSubmit={handleSubmit} className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column: Main Info */}
             <div className="lg:col-span-2 space-y-6">
@@ -92,6 +165,8 @@ export default function TicketCreateView({ setActiveView }) {
                     </label>
                     <input
                       type="text"
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
                       placeholder="Brief summary of the issue"
                       className="w-full h-14 px-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 outline-none transition-all placeholder:text-gray-400"
                     />
@@ -103,6 +178,8 @@ export default function TicketCreateView({ setActiveView }) {
                     </label>
                     <textarea
                       rows={8}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
                       className="w-full p-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 outline-none resize-none transition-all placeholder:text-gray-400"
                       placeholder="Detailed description of the problem..."
                     />
@@ -112,7 +189,18 @@ export default function TicketCreateView({ setActiveView }) {
                     <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
                       Attachments
                     </label>
-                    <div className="p-6 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 hover:bg-violet-50/50 dark:hover:bg-violet-900/10 transition-colors cursor-pointer text-center group">
+                    <input
+                      type="file"
+                      id="ticket-attachments"
+                      multiple
+                      accept="image/*,.pdf,.doc,.docx"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="ticket-attachments"
+                      className="block p-6 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 hover:bg-violet-50/50 dark:hover:bg-violet-900/10 transition-colors cursor-pointer text-center group"
+                    >
                       <div className="w-12 h-12 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
                         <Paperclip className="w-6 h-6" />
                       </div>
@@ -120,49 +208,33 @@ export default function TicketCreateView({ setActiveView }) {
                         Click to upload or drag and drop
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        SVG, PNG, JPG or GIF (max. 800x400px)
+                        Images, PDF, DOC (max. 2MB each, up to 5 files)
                       </p>
-                    </div>
+                    </label>
+                    {attachments.length > 0 && (
+                      <ul className="mt-2 space-y-1">
+                        {attachments.map((a, i) => (
+                          <li
+                            key={i}
+                            className="flex items-center justify-between text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2"
+                          >
+                            <span className="truncate">{typeof a === "string" ? a : a.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeAttachment(i)}
+                              className="text-red-500 hover:text-red-600 ml-2 shrink-0"
+                            >
+                              Remove
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 </div>
               </motion.div>
 
-              <motion.div
-                variants={itemVariants}
-                className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-8 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow"
-              >
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
-                    <User className="w-5 h-5" />
-                  </div>
-                  Requester Details
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2 group">
-                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1 group-focus-within:text-indigo-600 transition-colors">
-                      Company Name / Requester
-                    </label>
-                    <div className="relative">
-                      <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
-                      <input
-                        type="text"
-                        placeholder="e.g. Acme Corp"
-                        className="w-full h-14 pl-12 pr-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2 group">
-                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1 group-focus-within:text-indigo-600 transition-colors">
-                      Contact Email
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="user@example.com"
-                      className="w-full h-14 px-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all"
-                    />
-                  </div>
-                </div>
-              </motion.div>
+            
             </div>
 
             {/* Right Column: Metadata */}
@@ -181,7 +253,11 @@ export default function TicketCreateView({ setActiveView }) {
                       Priority
                     </label>
                     <div className="relative">
-                      <select className="w-full h-12 pl-4 pr-10 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none appearance-none transition-all cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 font-medium text-gray-700 dark:text-gray-200">
+                      <select
+                        value={priority}
+                        onChange={(e) => setPriority(e.target.value)}
+                        className="w-full h-12 pl-4 pr-10 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none appearance-none transition-all cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 font-medium text-gray-700 dark:text-gray-200"
+                      >
                         <option value="high">Important (High)</option>
                         <option value="medium">Mid Important (Medium)</option>
                         <option value="low">Low Priority</option>
@@ -198,6 +274,8 @@ export default function TicketCreateView({ setActiveView }) {
                       <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-violet-500 transition-colors" />
                       <input
                         type="text"
+                        value={tags}
+                        onChange={(e) => setTags(e.target.value)}
                         placeholder="Add tags..."
                         className="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
                       />
@@ -205,8 +283,12 @@ export default function TicketCreateView({ setActiveView }) {
                   </div>
 
                   <div className="pt-6 mt-6 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
-                    <Button className="w-full h-14 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-500/30 transition-all hover:scale-[1.02] active:scale-[0.98] text-base font-semibold group">
-                      Create Ticket{" "}
+                    <Button
+                      type="submit"
+                      disabled={isCreating}
+                      className="w-full h-14 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-500/30 transition-all hover:scale-[1.02] active:scale-[0.98] text-base font-semibold group disabled:opacity-60"
+                    >
+                      {isCreating ? "Creating…" : "Create Ticket"}{" "}
                       <Send className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
                     <Button
@@ -221,7 +303,7 @@ export default function TicketCreateView({ setActiveView }) {
               </motion.div>
             </div>
           </div>
-        </div>
+        </form>
       </motion.div>
     </div>
   );

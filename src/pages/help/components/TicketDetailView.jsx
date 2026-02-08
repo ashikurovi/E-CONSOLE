@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   ArrowLeft,
   BookOpen,
@@ -20,20 +20,78 @@ import { motion } from "framer-motion";
 import { StatusBadge } from "./HelpComponents";
 import { KNOWLEDGE_BASE, TICKETS, USERS } from "../data";
 
+/**
+ * @param {Object} [props.ticket] - When provided (e.g. from API), use this ticket instead of mock data. Shape: { id, email, issue, status, replies: [{ author, message, createdAt }] }
+ * @param {() => void} [props.onBack] - Called when back is clicked (e.g. navigate("/help"))
+ * @param {(message: string) => void} [props.onReply] - Called when user sends a reply
+ * @param {(status: string) => void} [props.onStatusChange] - Called when status is changed
+ * @param {boolean} [props.isReplying] - Disable send button while submitting
+ * @param {boolean} [props.hideSidebar] - Hide the left ticket list sidebar (e.g. on standalone detail page)
+ */
 export default function TicketDetailView({
   sidebarOpen,
   setSidebarOpen,
   setActiveView,
   selectedTicketId,
   setSelectedTicketId,
+  ticket: apiTicket,
+  onBack,
+  onReply,
+  onStatusChange,
+  isReplying = false,
+  hideSidebar = false,
+  currentUserName = "",
 }) {
-  const selectedTicket =
-    TICKETS.find((t) => t.id === selectedTicketId) || TICKETS[0];
-  const requester = USERS.find((u) => u.id === selectedTicket?.requesterId);
+  const [replyText, setReplyText] = useState("");
+
+  const isStandalone = Boolean(apiTicket);
+  const selectedTicket = apiTicket
+    ? {
+        id: apiTicket.id,
+        subject: apiTicket.issue ?? apiTicket.subject ?? "—",
+        requesterId: null,
+        email: apiTicket.email,
+        status: apiTicket.status ?? "pending",
+        messages: [
+          ...(apiTicket.issue
+            ? [{ id: "issue", senderId: "customer", content: apiTicket.issue, timestamp: apiTicket.createdAt, author: apiTicket.email }]
+            : []),
+          ...(apiTicket.replies || []).map((r, i) => ({
+            id: `r-${i}`,
+            senderId: r.author === currentUserName ? "me" : "customer",
+            content: r.message,
+            timestamp: r.createdAt,
+            author: r.author,
+          })),
+        ],
+      }
+    : TICKETS.find((t) => t.id === selectedTicketId) || TICKETS[0];
+
+  const requester = apiTicket
+    ? { name: apiTicket.email, company: apiTicket.email }
+    : USERS.find((u) => u.id === selectedTicket?.requesterId);
+
+  const handleSendReply = (e) => {
+    e?.preventDefault?.();
+    const text = (replyText || "").trim();
+    if (!text || !onReply) return;
+    onReply(text);
+    setReplyText("");
+  };
+
+  const showReplyForm = isStandalone
+    ? (apiTicket?.status === "in_progress" || apiTicket?.status === "resolved") && Boolean(onReply)
+    : true;
+
+  const handleBack = () => {
+    if (onBack) onBack();
+    else setActiveView?.("list");
+  };
 
   return (
     <div className="flex h-full bg-white dark:bg-[#1a1f26] rounded-[24px] overflow-hidden shadow-xl border border-gray-200 dark:border-gray-800">
-      {/* Left Sidebar - Ticket List */}
+      {/* Left Sidebar - Ticket List (hidden when standalone or hideSidebar) */}
+      {!hideSidebar && !isStandalone && (
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -46,7 +104,7 @@ export default function TicketDetailView({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setActiveView("list")}
+            onClick={handleBack}
             className="gap-2 text-gray-500 hover:text-gray-900 dark:hover:text-white"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -111,6 +169,7 @@ export default function TicketDetailView({
           })}
         </div>
       </motion.div>
+      )}
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-[#1a1f26] relative z-0">
@@ -120,16 +179,17 @@ export default function TicketDetailView({
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setActiveView("list")}
-              className="md:hidden"
+              onClick={handleBack}
+              className={cn(isStandalone ? "" : "md:hidden")}
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
 
+            {!isStandalone && (
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
+              onClick={() => setSidebarOpen?.(!sidebarOpen)}
               className="hidden md:flex text-gray-500 hover:text-gray-900 dark:hover:text-white"
             >
               {sidebarOpen ? (
@@ -138,6 +198,7 @@ export default function TicketDetailView({
                 <Maximize2 className="w-4 h-4" />
               )}
             </Button>
+            )}
 
             <div className="flex flex-col">
               <h2 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -147,19 +208,24 @@ export default function TicketDetailView({
                 </span>
               </h2>
               <span className="text-xs text-gray-500 flex items-center gap-1">
-                Requested by <span className="font-medium text-gray-700 dark:text-gray-300">{requester?.name || "Unknown"}</span> via WhatsApp
+                Requested by <span className="font-medium text-gray-700 dark:text-gray-300">{requester?.name ?? requester?.company ?? selectedTicket?.email ?? "Unknown"}</span>
+                {!isStandalone && " via WhatsApp"}
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2 rounded-xl h-9 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
-              <Phone className="w-3.5 h-3.5" />
-              Call
-            </Button>
-            <Button variant="outline" size="sm" className="rounded-xl h-9 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-red-600 hover:text-red-700 dark:text-red-400">
-              Close Ticket
-            </Button>
+            {!isStandalone && (
+              <>
+                <Button variant="outline" size="sm" className="gap-2 rounded-xl h-9 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <Phone className="w-3.5 h-3.5" />
+                  Call
+                </Button>
+                <Button variant="outline" size="sm" className="rounded-xl h-9 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-red-600 hover:text-red-700 dark:text-red-400">
+                  Close Ticket
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -178,7 +244,7 @@ export default function TicketDetailView({
               const sender = isMe
                 ? { name: "You", avatar: null }
                 : USERS.find((u) => u.id === msg.senderId) || {
-                    name: "Customer",
+                    name: msg.author ?? "Customer",
                     avatar: null,
                   };
 
@@ -234,7 +300,7 @@ export default function TicketDetailView({
 
         {/* Input Area */}
         <div className="border-t border-gray-200 dark:border-gray-800 p-4 bg-white dark:bg-[#1a1f26]">
-          {selectedTicket.messages?.length > 0 &&
+          {!isStandalone && selectedTicket.messages?.length > 0 &&
             selectedTicket.messages.at(-1)?.senderId !== "me" && (
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
@@ -262,36 +328,44 @@ export default function TicketDetailView({
               </motion.div>
             )}
 
-          <div className="relative group">
+          {showReplyForm && (
+          <form onSubmit={handleSendReply} className="relative group">
             <textarea
               placeholder="Type your reply..."
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
               className="w-full p-4 pr-32 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 min-h-[80px] transition-all"
               rows={3}
+              disabled={isReplying}
             />
             <div className="absolute bottom-3 right-3 flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 text-gray-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl transition-colors"
-              >
-                <Smile className="w-5 h-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 text-gray-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl transition-colors"
-              >
-                <Paperclip className="w-5 h-5" />
-              </Button>
-              <Button className="h-9 px-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-indigo-500/20 transition-all hover:scale-105 active:scale-95">
+              {!isStandalone && (
+                <>
+                  <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-gray-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl transition-colors">
+                    <Smile className="w-5 h-5" />
+                  </Button>
+                  <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-gray-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl transition-colors">
+                    <Paperclip className="w-5 h-5" />
+                  </Button>
+                </>
+              )}
+              <Button type="submit" className="h-9 px-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-indigo-500/20 transition-all hover:scale-105 active:scale-95 disabled:opacity-50" disabled={isReplying || !replyText.trim()}>
                 <Send className="w-4 h-4 mr-2" /> Send
               </Button>
             </div>
-          </div>
+          </form>
+          )}
+
+          {isStandalone && !showReplyForm && (apiTicket?.status === "closed" ? (
+            <p className="text-sm text-amber-700 dark:text-amber-300 py-2">This ticket is closed. Replies are disabled.</p>
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-400 py-2">Change status to In Progress or Resolved to reply.</p>
+          ))}
         </div>
       </div>
 
-      {/* Right Sidebar - Knowledge Base */}
+      {/* Right Sidebar - Knowledge Base (hidden in standalone / detail page) */}
+      {!isStandalone && (
       <div className="w-80 flex-shrink-0 bg-gray-50/50 dark:bg-[#111827]/50 border-l border-gray-200 dark:border-gray-800 flex flex-col hidden xl:flex">
         <div className="p-4 border-b border-gray-200 dark:border-gray-800">
           <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
@@ -359,6 +433,7 @@ export default function TicketDetailView({
           ))}
         </div>
       </div>
+      )}
     </div>
   );
 }

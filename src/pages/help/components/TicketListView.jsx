@@ -10,8 +10,6 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  TrendingUp,
-  TrendingDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -25,6 +23,9 @@ export default function TicketListView({
   setActiveTab,
   filteredTickets,
   setSelectedTicketId,
+  stats: statsFromApi,
+  tabCounts: tabCountsFromApi,
+  statsLoading,
 }) {
   // Pagination & Search State
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,17 +38,19 @@ export default function TicketListView({
     setSearchQuery(""); // Optional: Clear search on tab change? User might prefer keeping it. Let's keep it simple and reset for now to avoid confusion.
   }, [activeTab]);
 
-  // Search Logic
+  // Search Logic (support both requesterId/USERS and API ticket.email)
   const searchedTickets = filteredTickets.filter((ticket) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     const u = USERS.find((user) => user.id === ticket.requesterId);
-    
+    const subject = ticket.subject ?? ticket.issue ?? "";
+    const idStr = String(ticket.id ?? "").toLowerCase();
     return (
-      ticket.id.toLowerCase().includes(query) ||
-      ticket.subject.toLowerCase().includes(query) ||
+      idStr.includes(query) ||
+      subject.toLowerCase().includes(query) ||
       (u?.name || "").toLowerCase().includes(query) ||
-      (u?.company || "").toLowerCase().includes(query)
+      (u?.company || "").toLowerCase().includes(query) ||
+      (ticket.email || "").toLowerCase().includes(query)
     );
   });
 
@@ -91,13 +94,11 @@ export default function TicketListView({
     return pages;
   };
 
-  // Mock stats data
+  // Stats from API (follow frontend card layout: Total, Pending, Resolved, Open Issues)
   const stats = [
     {
       label: "Total Tickets",
-      value: "1,234",
-      change: "+12.5%",
-      trend: "up",
+      value: statsLoading ? "—" : String(statsFromApi?.total ?? 0),
       icon: Inbox,
       color: "text-blue-600",
       bg: "bg-blue-50",
@@ -105,9 +106,7 @@ export default function TicketListView({
     },
     {
       label: "Pending",
-      value: "56",
-      change: "-2.4%",
-      trend: "down",
+      value: statsLoading ? "—" : String(statsFromApi?.pending ?? 0),
       icon: Clock,
       color: "text-amber-600",
       bg: "bg-amber-50",
@@ -115,9 +114,7 @@ export default function TicketListView({
     },
     {
       label: "Resolved",
-      value: "892",
-      change: "+8.2%",
-      trend: "up",
+      value: statsLoading ? "—" : String(statsFromApi?.resolved ?? 0),
       icon: CheckCircle,
       color: "text-emerald-600",
       bg: "bg-emerald-50",
@@ -125,9 +122,7 @@ export default function TicketListView({
     },
     {
       label: "Open Issues",
-      value: "286",
-      change: "+4.1%",
-      trend: "up",
+      value: statsLoading ? "—" : String(statsFromApi?.active ?? 0),
       icon: AlertCircle,
       color: "text-violet-600",
       bg: "bg-violet-50",
@@ -157,21 +152,6 @@ export default function TicketListView({
               <div className="flex items-center justify-between mb-4">
                 <div className={cn("p-3 rounded-2xl shadow-inner", stat.bg)}>
                   <stat.icon className={cn("w-6 h-6", stat.color)} />
-                </div>
-                <div
-                  className={cn(
-                    "flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full",
-                    stat.trend === "up"
-                      ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20"
-                      : "text-red-600 bg-red-50 dark:bg-red-900/20",
-                  )}
-                >
-                  {stat.trend === "up" ? (
-                    <TrendingUp className="w-3 h-3" />
-                  ) : (
-                    <TrendingDown className="w-3 h-3" />
-                  )}
-                  {stat.change}
                 </div>
               </div>
 
@@ -235,13 +215,13 @@ export default function TicketListView({
         {/* Tabs */}
         <div className="px-8 pt-4 pb-0 overflow-x-auto">
           <div className="flex items-center gap-2 p-1.5 bg-gray-100/80 dark:bg-gray-800/80 rounded-2xl w-fit backdrop-blur-sm">
-            {[
-              { id: "active", label: "All Active", count: 137 },
-              { id: "open", label: "Open", count: 86 },
-              { id: "pending", label: "Pending", count: 6 },
-              { id: "on hold", label: "On Hold", count: 17 },
-              { id: "closed", label: "Closed", count: 28 },
-            ].map((tab) => (
+            {(tabCountsFromApi?.length ? tabCountsFromApi : [
+              { id: "active", label: "All Active", count: 0 },
+              { id: "open", label: "Open", count: 0 },
+              { id: "pending", label: "Pending", count: 0 },
+              { id: "on hold", label: "On Hold", count: 0 },
+              { id: "closed", label: "Closed", count: 0 },
+            ]).map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -294,6 +274,10 @@ export default function TicketListView({
             ) : (
               currentTickets.map((ticket, index) => {
                 const u = USERS.find((user) => user.id === ticket.requesterId);
+                const subject = ticket.subject ?? ticket.issue ?? "—";
+                const priority = ticket.priority ?? "medium";
+                const requesterPrimary = u?.company ?? ticket.email ?? "—";
+                const requesterSecondary = u?.name ?? (ticket.email ? null : "—");
                 return (
                   <motion.div
                     key={ticket.id}
@@ -319,30 +303,36 @@ export default function TicketListView({
                       {ticket.id}
                     </div>
                     <div className="col-span-3 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-gray-100 p-0.5 ring-2 ring-transparent group-hover:ring-violet-200 dark:group-hover:ring-violet-800 transition-all shadow-sm">
-                        <img
-                          src={u?.avatar}
-                          alt={u?.name}
-                          className="w-full h-full rounded-full object-cover"
-                        />
+                      <div className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 p-0.5 ring-2 ring-transparent group-hover:ring-violet-200 dark:group-hover:ring-violet-800 transition-all shadow-sm overflow-hidden">
+                        {u?.avatar ? (
+                          <img
+                            src={u.avatar}
+                            alt={u?.name}
+                            className="w-full h-full rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 flex items-center justify-center text-xs font-bold">
+                            {(requesterPrimary || "?").charAt(0).toUpperCase()}
+                          </div>
+                        )}
                       </div>
                       <div className="min-w-0">
                         <div className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                          {u?.company}
+                          {requesterPrimary}
                         </div>
                         <div className="text-xs text-gray-500 truncate flex items-center gap-1 group-hover:text-violet-500 transition-colors">
-                          {u?.name}
+                          {requesterSecondary ?? ticket.email ?? "—"}
                         </div>
                       </div>
                     </div>
                     <div className="col-span-2 flex items-center gap-2">
-                      <PriorityIcon priority={ticket.priority} />
+                      <PriorityIcon priority={priority} />
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">
-                        {ticket.priority}
+                        {priority}
                       </span>
                     </div>
                     <div className="col-span-3 text-sm font-medium text-gray-600 dark:text-gray-300 truncate group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                      {ticket.subject}
+                      {subject.length > 80 ? `${subject.slice(0, 80)}…` : subject}
                     </div>
                     <div className="col-span-2 flex items-center justify-between">
                       <div className="ml-auto px-4 transform group-hover:scale-105 transition-transform">
