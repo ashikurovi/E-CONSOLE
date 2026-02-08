@@ -16,6 +16,8 @@ export default function MetricCard({
 }) {
   const { t } = useTranslation();
   const isPositive = changeType === "increase";
+  const safeId = `gradient-${title.replace(/\s+/g, "-").toLowerCase()}`;
+
   return (
     <Card className="border-none shadow-sm hover:shadow-lg transition-all duration-300 relative overflow-hidden group">
       <CardContent className="p-6">
@@ -61,13 +63,7 @@ export default function MetricCard({
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={sparklineData}>
               <defs>
-                <linearGradient
-                  id={`gradient-${title}`}
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
+                <linearGradient id={safeId} x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="5%"
                     stopColor={isPositive ? "#16C8C6" : "#F43F5E"}
@@ -84,7 +80,7 @@ export default function MetricCard({
                 type="monotone"
                 dataKey="value"
                 stroke={isPositive ? "#16C8C6" : "#F43F5E"}
-                fill={`url(#gradient-${title})`}
+                fill={`url(#${safeId})`}
                 strokeWidth={2}
               />
             </AreaChart>

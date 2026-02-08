@@ -46,36 +46,36 @@ const DashboardPage = () => {
   const [distributionFilter, setDistributionFilter] = useState("Monthly");
   const itemsPerPage = 5;
 
-  const lineChartData = dashboardData?.lineChartData ?? [];
+  const lineChartData = Array.isArray(dashboardData?.lineChartData) ? dashboardData.lineChartData : [];
   const sparklineData = lineChartData.map((d) => ({ value: d.totalPNL }));
 
   const filteredSalesData = useMemo(() => {
     const apiData = dashboardData?.salesOverview?.[salesFilter?.toLowerCase()];
-    return (apiData ?? []).map((d) => ({ name: d.name, Revenue: d.totalPNL }));
+    return (Array.isArray(apiData) ? apiData : []).map((d) => ({ name: d.name, Revenue: d.totalPNL }));
   }, [salesFilter, dashboardData?.salesOverview]);
 
   const currentSubscriberData = useMemo(() => {
     const apiData = dashboardData?.subscriberChart?.[subscriberFilter?.toLowerCase()];
-    return apiData ?? [];
+    return Array.isArray(apiData) ? apiData : [];
   }, [subscriberFilter, dashboardData?.subscriberChart]);
 
   const currentDistributionData = useMemo(() => {
-    return dashboardData?.salesDistribution ?? [];
+    return Array.isArray(dashboardData?.salesDistribution) ? dashboardData.salesDistribution : [];
   }, [dashboardData?.salesDistribution]);
 
-  const integrationList = dashboardData?.integrations ?? [];
+  const integrationList = Array.isArray(dashboardData?.integrations) ? dashboardData.integrations : [];
 
   const recentLogins = useMemo(() => {
-    const apiData = dashboardData?.recentCustomers ?? [];
-    return apiData.map((c, i) => ({ id: c.id || i + 1, user: c.user, ip: c.ip, time: c.time }));
+    const apiData = dashboardData?.recentCustomers;
+    return (Array.isArray(apiData) ? apiData : []).map((c, i) => ({ id: c.id || i + 1, user: c.user, ip: c.ip, time: c.time }));
   }, [dashboardData?.recentCustomers]);
 
   const recentProducts = useMemo(() => {
-    return dashboardData?.recentProducts ?? [];
+    return Array.isArray(dashboardData?.recentProducts) ? dashboardData.recentProducts : [];
   }, [dashboardData?.recentProducts]);
 
   const recentTransactions = useMemo(() => {
-    return dashboardData?.recentTransactions ?? [];
+    return Array.isArray(dashboardData?.recentTransactions) ? dashboardData.recentTransactions : [];
   }, [dashboardData?.recentTransactions]);
 
   const totalPages = Math.ceil(recentProducts.length / itemsPerPage);
