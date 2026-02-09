@@ -167,13 +167,17 @@ const SuperAdminEarningsPage = () => {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <DollarSign className="w-64 h-64 -rotate-12" />
-        </div>
-        <div className="relative z-10 max-w-2xl">
-          <h1 className="text-3xl font-bold tracking-tight mb-3">Earnings Overview</h1>
-          <p className="text-violet-100 text-lg">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 rounded-xl bg-violet-100 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400">
+              <DollarSign className="w-6 h-6" />
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Earnings Overview
+            </h1>
+          </div>
+          <p className="text-slate-500 dark:text-slate-400 text-lg">
             Consolidated revenue performance across all stores, markets and payment providers.
           </p>
         </div>

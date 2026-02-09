@@ -200,7 +200,7 @@ const CustomerCreateForm = () => {
             <DialogTrigger asChild>
                 <Button 
                     size="sm" 
-                    className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-xl shadow-violet-500/20 border-0 rounded-xl transition-all duration-300 hover:scale-[1.05]"
+                    className="w-full sm:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-xl shadow-violet-500/20 border-0 rounded-xl transition-all duration-300 hover:scale-[1.05]"
                 >
                     Add Customer
                 </Button>

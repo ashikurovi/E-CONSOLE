@@ -72,7 +72,8 @@ import ActivityLogsPage from "./pages/manageuser/activity-logs";
 import SuperAdminOverviewPage from "./pages/superadmin"; // super admin overview
 import SuperAdminEarningsPage from "./pages/superadmin/earnings";
 import SuperAdminCustomersPage from "./pages/superadmin/customers";
-import SuperAdminCustomerDetailPage from "./pages/superadmin/customers-components/customer-detail";
+import SuperAdminCustomerDetailPage from "./pages/superadmin/customer-detail";
+import SuperAdminCustomerEditPage from "./pages/superadmin/customer-edit";
 import SuperAdminSupportPage from "./pages/superadmin/support";
 import SuperAdminSupportDetailPage from "./pages/superadmin/support-detail";
 import PackageManagementPage from "./pages/superadmin/packagemanagement";
@@ -667,6 +668,10 @@ export const routes = createBrowserRouter([
       {
         path: "/superadmin/customers/:id",
         element: <SuperAdminPrivateRoute><SuperAdminCustomerDetailPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/customers/edit/:id",
+        element: <SuperAdminPrivateRoute><SuperAdminCustomerEditPage /></SuperAdminPrivateRoute>,
       },
       {
         path: "/superadmin/support",
