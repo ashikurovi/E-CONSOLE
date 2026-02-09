@@ -36,6 +36,11 @@ const DomainSettings = ({ user: userFromApi }) => {
   }, [user?.customDomain, reset]);
 
   const onSubmit = async (data) => {
+    if (!tenantId) {
+      toast.error(t("settings.tenantMissing") || "Missing tenant information.");
+      return;
+    }
+
     try {
       const res = await addCustomDomain({
         id: tenantId,

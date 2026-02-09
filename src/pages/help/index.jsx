@@ -4,12 +4,12 @@ import { useSelector } from "react-redux";
 import { useGetHelpQuery, useGetHelpStatsQuery } from "@/features/help/helpApiSlice";
 import TicketListView from "@/pages/help/components/TicketListView";
 
+// Tab ids and status filter align with help API: pending, in_progress, resolved, active
 const TAB_TO_STATUS = {
   active: ["pending", "in_progress"],
-  open: ["pending"],
   pending: ["pending"],
-  "on hold": ["in_progress"],
-  closed: ["resolved"],
+  in_progress: ["in_progress"],
+  resolved: ["resolved"],
 };
 
 function HelpPage() {
@@ -49,10 +49,9 @@ function HelpPage() {
       stats
         ? [
             { id: "active", label: "All Active", count: stats.active ?? 0 },
-            { id: "open", label: "Open", count: stats.pending ?? 0 },
             { id: "pending", label: "Pending", count: stats.pending ?? 0 },
-            { id: "on hold", label: "On Hold", count: stats.in_progress ?? 0 },
-            { id: "closed", label: "Closed", count: stats.resolved ?? 0 },
+            { id: "in_progress", label: "In progress", count: stats.in_progress ?? 0 },
+            { id: "resolved", label: "Resolved", count: stats.resolved ?? 0 },
           ]
         : [],
     [stats]

@@ -4,11 +4,10 @@ export const promocodeApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Create promocode
     createPromocode: builder.mutation({
-      query: ({ body, params }) => ({
+      query: (body) => ({
         url: "/promocode",
         method: "POST",
         body,
-        params,
       }),
       invalidatesTags: [{ type: "promocode", id: "LIST" }],
     }),

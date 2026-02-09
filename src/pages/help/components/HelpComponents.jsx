@@ -13,6 +13,10 @@ export function StatusBadge({ status }) {
     open: "text-emerald-700 bg-emerald-50 border-emerald-200 ring-1 ring-emerald-600/20 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400",
     pending:
       "text-violet-700 bg-violet-50 border-violet-200 ring-1 ring-violet-600/20 dark:bg-violet-900/30 dark:border-violet-800 dark:text-violet-400",
+    in_progress:
+      "text-blue-700 bg-blue-50 border-blue-200 ring-1 ring-blue-600/20 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400",
+    resolved:
+      "text-emerald-700 bg-emerald-50 border-emerald-200 ring-1 ring-emerald-600/20 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400",
     closed:
       "text-blue-700 bg-blue-50 border-blue-200 ring-1 ring-blue-600/20 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400",
     "on hold":

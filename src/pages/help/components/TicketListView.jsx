@@ -217,10 +217,9 @@ export default function TicketListView({
           <div className="flex items-center gap-2 p-1.5 bg-gray-100/80 dark:bg-gray-800/80 rounded-2xl w-fit backdrop-blur-sm">
             {(tabCountsFromApi?.length ? tabCountsFromApi : [
               { id: "active", label: "All Active", count: 0 },
-              { id: "open", label: "Open", count: 0 },
               { id: "pending", label: "Pending", count: 0 },
-              { id: "on hold", label: "On Hold", count: 0 },
-              { id: "closed", label: "Closed", count: 0 },
+              { id: "in_progress", label: "In progress", count: 0 },
+              { id: "resolved", label: "Resolved", count: 0 },
             ]).map((tab) => (
               <button
                 key={tab.id}

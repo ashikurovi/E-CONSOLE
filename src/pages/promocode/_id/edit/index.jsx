@@ -28,6 +28,7 @@ import {
 } from "@/features/promocode/promocodeApiSlice";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
+import { useGetProductsQuery } from "@/features/product/productApiSlice";
 
 export default function PromocodeEditPage() {
   const { t } = useTranslation();
@@ -36,6 +37,19 @@ export default function PromocodeEditPage() {
   const { user } = useSelector((state) => state.auth);
   const { data: promocodes = [], isLoading } = useGetPromocodesQuery();
   const promocode = promocodes.find((p) => p.id === parseInt(id));
+
+  const { data: allProducts = [] } = useGetProductsQuery(
+    { companyId: user?.companyId },
+    { skip: !user?.companyId },
+  );
+
+  const availableProducts = useMemo(
+    () =>
+      allProducts.filter(
+        (p) => p.isActive && p.status === "published",
+      ),
+    [allProducts],
+  );
 
   const discountTypeOptions = useMemo(
     () => [
@@ -129,6 +143,9 @@ export default function PromocodeEditPage() {
   }, [promocode, discountTypeOptions]);
 
   const [discountType, setDiscountType] = useState(defaultType);
+  const [selectedProducts, setSelectedProducts] = useState(
+    Array.isArray(promocode?.productIds) ? promocode.productIds : [],
+  );
 
   const {
     register,
@@ -160,6 +177,9 @@ export default function PromocodeEditPage() {
         ? new Date(promocode.expiresAt).toISOString().slice(0, 16)
         : "",
       isActive: !!promocode?.isActive,
+      productIds: Array.isArray(promocode?.productIds)
+        ? promocode.productIds
+        : [],
     },
   });
 
@@ -187,15 +207,42 @@ export default function PromocodeEditPage() {
           ? new Date(promocode.expiresAt).toISOString().slice(0, 16)
           : "",
         isActive: !!promocode.isActive,
+        productIds: Array.isArray(promocode.productIds)
+          ? promocode.productIds
+          : [],
       });
       const val = String(promocode.discountType).toLowerCase();
       const found = discountTypeOptions.find((o) => o.value === val);
       setDiscountType(found || null);
+      setSelectedProducts(
+        Array.isArray(promocode.productIds) ? promocode.productIds : [],
+      );
     }
   }, [promocode, reset, discountTypeOptions]);
 
   const [updatePromocode, { isLoading: isUpdating }] =
     useUpdatePromocodeMutation();
+
+  const handleProductToggle = (productId) => {
+    setSelectedProducts((prev) => {
+      const newSelection = prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId];
+      setValue("productIds", newSelection);
+      return newSelection;
+    });
+  };
+
+  const handleSelectAllProducts = () => {
+    if (selectedProducts.length === availableProducts.length) {
+      setSelectedProducts([]);
+      setValue("productIds", []);
+    } else {
+      const allIds = availableProducts.map((p) => p.id);
+      setSelectedProducts(allIds);
+      setValue("productIds", allIds);
+    }
+  };
 
   const handleDiscountTypeChange = (option) => {
     setDiscountType(option);
@@ -229,6 +276,7 @@ export default function PromocodeEditPage() {
         ? new Date(data.expiresAt).toISOString()
         : undefined,
       isActive: !!data.isActive,
+      productIds: selectedProducts,
     };
 
     const res = await updatePromocode(payload);
