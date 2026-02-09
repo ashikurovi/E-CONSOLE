@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/input/TextField";
@@ -300,9 +301,9 @@ const CustomerEditForm = ({ user, onClose }) => {
     return (
         <Dialog open={!!user} onOpenChange={(v) => !v && onClose?.()}>
             <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto rounded-[24px] border-0 shadow-2xl p-0 gap-0 bg-white dark:bg-[#0f172a]">
-                <div className="sticky top-0 z-20 flex items-center justify-between px-8 py-6 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800">
+                <div className="sticky top-0 z-20 flex items-center justify-between px-6 py-4 md:px-8 md:py-6 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800">
                     <div>
-                        <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400">
+                        <DialogTitle className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400">
                             Edit Customer
                         </DialogTitle>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -319,7 +320,13 @@ const CustomerEditForm = ({ user, onClose }) => {
                     </Button>
                 </div>
                 
-                <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-8">
+                <motion.form 
+                    onSubmit={handleSubmit(onSubmit)} 
+                    className="p-6 md:p-8 space-y-8"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                >
                     {/* Account Information */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-3 pb-2 border-b border-slate-100 dark:border-slate-800">
@@ -683,7 +690,7 @@ const CustomerEditForm = ({ user, onClose }) => {
                             type="button"
                             variant="outline"
                             className="rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 h-11 px-6"
-                            onClick={() => onClose?.()}
+                div  onClick={() => onClose?.()}
                         >
                             Cancel
                         </Button>
@@ -695,7 +702,7 @@ const CustomerEditForm = ({ user, onClose }) => {
                             {isLoading || isUploadingLogo ? "Updating..." : "Save Changes"}
                         </Button>
                     </DialogFooter>
-                </form>
+                </motion.form >
             </DialogContent>
         </Dialog>
     );

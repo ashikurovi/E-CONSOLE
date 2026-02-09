@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Pencil, Trash2, Eye, Users, AlertTriangle } from "lucide-react";
+import { Pencil, Trash2, Eye, Users, AlertTriangle, UserCheck, CreditCard, Activity, ArrowUpRight, ArrowDownRight, Search } from "lucide-react";
 import {
     useGetSystemusersQuery,
     useDeleteSystemuserMutation,
@@ -10,6 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import CustomerCreateForm from "./customers-components/CustomerCreateForm";
 import CustomerEditForm from "./customers-components/CustomerEditForm";
+import { motion } from "framer-motion";
 
 const SuperAdminCustomersPage = () => {
     const navigate = useNavigate();
@@ -18,6 +19,61 @@ const SuperAdminCustomersPage = () => {
         useDeleteSystemuserMutation();
     const [editingUser, setEditingUser] = useState(null);
     const [userToDelete, setUserToDelete] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
+
+    // Calculate Stats
+    const stats = useMemo(() => {
+        const total = users.length;
+        const active = users.filter(u => u.isActive).length;
+        const paid = users.filter(u => u.paymentInfo?.paymentstatus === 'paid' || u.paymentInfo?.paymentstatus === 'PAID').length;
+        const pending = users.filter(u => u.paymentInfo?.paymentstatus === 'pending' || u.paymentInfo?.paymentstatus === 'PENDING').length;
+
+        // Calculate trends (mocked for now as we don't have historical data in this view)
+        const activePercentage = total > 0 ? Math.round((active / total) * 100) : 0;
+        
+        return [
+            {
+                label: "Total Customers",
+                value: total,
+                trend: "+12%",
+                trendDir: "up",
+                icon: Users,
+                bg: "bg-violet-50 dark:bg-violet-900/20",
+                color: "text-violet-600 dark:text-violet-400",
+                wave: "text-violet-500",
+            },
+            {
+                label: "Active Users",
+                value: active,
+                trend: `${activePercentage}%`,
+                trendDir: "up",
+                icon: UserCheck,
+                bg: "bg-emerald-50 dark:bg-emerald-900/20",
+                color: "text-emerald-600 dark:text-emerald-400",
+                wave: "text-emerald-500",
+            },
+            {
+                label: "Paid Subscriptions",
+                value: paid,
+                trend: "+5%",
+                trendDir: "up",
+                icon: CreditCard,
+                bg: "bg-blue-50 dark:bg-blue-900/20",
+                color: "text-blue-600 dark:text-blue-400",
+                wave: "text-blue-500",
+            },
+            {
+                label: "Pending Verification",
+                value: pending,
+                trend: "-2%",
+                trendDir: "down",
+                icon: Activity,
+                bg: "bg-rose-50 dark:bg-rose-900/20",
+                color: "text-rose-600 dark:text-rose-400",
+                wave: "text-rose-500",
+            },
+        ];
+    }, [users]);
 
     const handleDeleteClick = (user) => {
         setUserToDelete(user);
@@ -30,16 +86,24 @@ const SuperAdminCustomersPage = () => {
         }
     };
 
+    const filteredUsers = useMemo(() => {
+        if (!searchQuery) return users;
+        const lowerQuery = searchQuery.toLowerCase();
+        return users.filter(u => 
+            u.name?.toLowerCase().includes(lowerQuery) ||
+            u.email?.toLowerCase().includes(lowerQuery) ||
+            u.companyName?.toLowerCase().includes(lowerQuery) ||
+            u.phone?.toLowerCase().includes(lowerQuery)
+        );
+    }, [users, searchQuery]);
+
     const headers = useMemo(
         () => [
-            { header: "Name", field: "name" },
-            { header: "Company Name", field: "companyName" },
-            { header: "Email", field: "email" },
-            { header: "Company ID", field: "companyId" },
-            { header: "Package", field: "packageName" },
-            { header: "Theme", field: "theme" },
-            { header: "Payment Status", field: "paymentStatus" },
-            { header: "Active", field: "isActive" },
+            { header: "Customer Info", field: "name" },
+            { header: "Company", field: "companyName" },
+            { header: "Package / Theme", field: "packageName" },
+            { header: "Payment", field: "paymentStatus" },
+            { header: "Status", field: "isActive" },
             { header: "Actions", field: "actions" },
         ],
         []
@@ -47,111 +111,212 @@ const SuperAdminCustomersPage = () => {
 
     const tableData = useMemo(
         () =>
-            users.map((u) => ({
-                name: <span className="font-medium text-slate-900 dark:text-slate-100">{u.name ?? "-"}</span>,
-                companyName: u.companyName ?? "-",
-                email: u.email ?? "-",
-                companyId: <span className="font-mono text-xs">{u.companyId ?? "-"}</span>,
-                packageName: (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-                        {u.package?.name || u.paymentInfo?.packagename || "-"}
-                    </span>
+            filteredUsers.map((u) => ({
+                name: (
+                    <div className="flex flex-col">
+                        <span className="font-bold text-slate-900 dark:text-slate-100">{u.name ?? "-"}</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">{u.email ?? "-"}</span>
+                    </div>
                 ),
-                theme: u.theme ? (
-                    <span className="text-xs px-2.5 py-1 rounded-md bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 font-medium">
-                        {u.theme.domainUrl || `Theme #${u.theme.id}`}
-                    </span>
-                ) : (
-                    <span className="text-slate-400 dark:text-slate-500">-</span>
+                companyName: (
+                    <div className="flex flex-col">
+                         <span className="font-medium text-slate-700 dark:text-slate-300">{u.companyName ?? "-"}</span>
+                         <span className="text-xs font-mono text-slate-400">{u.companyId ?? "-"}</span>
+                    </div>
+                ),
+                packageName: (
+                    <div className="flex flex-col gap-1">
+                         <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800 w-fit">
+                            {u.package?.name || u.paymentInfo?.packagename || "No Plan"}
+                        </span>
+                        {u.theme && (
+                            <span className="inline-flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
+                                <span className="w-1.5 h-1.5 rounded-full bg-violet-400"></span>
+                                {u.theme.domainUrl || `Theme #${u.theme.id}`}
+                            </span>
+                        )}
+                    </div>
                 ),
                 paymentStatus: (
-                    <span className={`text-xs px-2.5 py-1 rounded-md font-medium border ${
-                        u.paymentInfo?.paymentstatus === 'paid' 
-                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-                        : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${
+                        (u.paymentInfo?.paymentstatus === 'paid' || u.paymentInfo?.paymentstatus === 'PAID')
+                        ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800'
+                        : 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400 border-amber-100 dark:border-amber-800'
                     }`}>
-                        {u.paymentInfo?.paymentstatus ?? "-"}
+                        {u.paymentInfo?.paymentstatus || "PENDING"}
                     </span>
                 ),
                 isActive: (
-                    <span className={`inline-flex w-2 h-2 rounded-full ${u.isActive ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
+                    <div className="flex items-center gap-2">
+                        <span className={`relative flex h-2.5 w-2.5`}>
+                          <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${u.isActive ? 'bg-emerald-400' : 'bg-slate-400'}`}></span>
+                          <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${u.isActive ? 'bg-emerald-500' : 'bg-slate-500'}`}></span>
+                        </span>
+                        <span className={`text-xs font-medium ${u.isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500'}`}>
+                            {u.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
                 ),
                 actions: (
                     <div className="flex items-center gap-2 justify-end">
                         <Button
-                            variant="outline"
+                            variant="ghost"
                             size="icon"
                             onClick={() => navigate(`/superadmin/customers/${u.id}`)}
                             title="View details"
-                            className="h-8 w-8 border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                            className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
                         >
                             <Eye className="h-4 w-4" />
                         </Button>
                         <Button
-                            variant="default"
+                            variant="ghost"
                             size="icon"
                             onClick={() => setEditingUser(u)}
                             title="Edit"
-                            className="h-8 w-8 bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/30 dark:shadow-violet-900/20"
+                            className="h-8 w-8 rounded-lg text-slate-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
                         >
-                            <Pencil className="h-3.5 w-3.5" />
+                            <Pencil className="h-4 w-4" />
                         </Button>
                         <Button
-                            variant="destructive"
+                            variant="ghost"
                             size="icon"
                             onClick={() => handleDeleteClick(u)}
                             disabled={isDeleting}
                             title="Delete"
-                            className="h-8 w-8 bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/30 dark:shadow-rose-900/20"
+                            className="h-8 w-8 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors"
                         >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="h-4 w-4" />
                         </Button>
                     </div>
                 ),
             })),
-        [users, deleteSystemuser, isDeleting, navigate]
+        [filteredUsers, deleteSystemuser, isDeleting, navigate]
     );
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1 }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 }
+    };
+
     return (
-        <div className="space-y-6">
+        <motion.div 
+            className="space-y-8"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+        >
             {/* Page header */}
-            <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
+            <motion.div variants={itemVariants} className="relative overflow-hidden rounded-[24px] md:rounded-[32px] bg-gradient-to-br from-violet-600 to-indigo-700 p-6 sm:p-8 md:p-10 text-white shadow-2xl shadow-violet-500/30">
+                <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
                     <Users className="w-64 h-64 -rotate-12" />
                 </div>
+                <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+                
                 <div className="relative z-10 max-w-2xl">
-                    <h1 className="text-3xl font-bold tracking-tight mb-3">Customers</h1>
-                    <p className="text-violet-100 text-lg">
-                        Central place to review, search and manage customer system users.
+                    <div className="flex items-center gap-3 mb-3">
+                         <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider border border-white/10">
+                            User Management
+                        </span>
+                    </div>
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-4 leading-tight">Customers</h1>
+                    <p className="text-violet-100 text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl">
+                        Manage your system users, track subscriptions, and monitor platform growth.
                     </p>
                 </div>
-            </div>
+            </motion.div>
+
+            {/* Stats Cards - Wave Design */}
+            <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                {stats.map((stat, idx) => (
+                    <motion.div
+                        key={idx}
+                        whileHover={{ y: -5 }}
+                        className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden group hover:shadow-xl transition-all duration-300"
+                    >
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className={`p-3 rounded-xl ${stat.bg} ${stat.color} transition-transform group-hover:scale-110 duration-300`}>
+                                <stat.icon className="w-6 h-6" />
+                            </div>
+                            <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                {stat.label}
+                            </p>
+                        </div>
+
+                        <div className="relative z-10">
+                            <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
+                                {stat.value}
+                            </h3>
+                            <div className="flex items-center gap-2">
+                                <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md border ${
+                                    stat.trendDir === "up"
+                                    ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-500/20"
+                                    : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-500/20"
+                                }`}>
+                                    {stat.trendDir === "up" ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
+                                    {stat.trend}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Wave Graphic */}
+                        <div className={`absolute bottom-0 right-0 w-32 h-24 opacity-10 ${stat.wave}`}>
+                            <svg viewBox="0 0 100 60" fill="currentColor" preserveAspectRatio="none" className="w-full h-full">
+                                <path d="M0 60 C 20 60, 20 20, 50 20 C 80 20, 80 50, 100 50 L 100 60 Z" />
+                            </svg>
+                        </div>
+                    </motion.div>
+                ))}
+            </motion.div>
 
             {/* Customers table */}
-            <div className="rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
-                <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <motion.div variants={itemVariants} className="rounded-[24px] md:rounded-[32px] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-black/20 overflow-hidden">
+                <div className="px-6 py-4 md:px-8 md:py-6 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Customer users</h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Listing users from the backend systemuser API.
+                        <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            All Customers
+                            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-400">
+                                {users.length}
+                            </span>
+                        </h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Listing all registered system users and their account status.
                         </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row items-center gap-3">
+                        <div className="relative w-full sm:w-auto">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input 
+                                type="text"
+                                placeholder="Search customers..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-9 pr-4 h-10 w-full sm:w-64 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
+                            />
+                        </div>
                         <CustomerCreateForm />
                     </div>
                 </div>
-                <div className="p-0">
+                <div className="p-0 overflow-x-auto">
                     <ReusableTable
                         data={tableData}
                         headers={headers}
-                        py="py-4"
-                        total={users.length}
+                        py="py-4 md:py-5"
+                        total={filteredUsers.length}
                         isLoading={isLoading}
                         searchable={false}
-                        headerClassName="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+                        headerClassName="bg-slate-50/50 dark:bg-slate-800/20 border-b border-slate-100 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 pl-6 md:pl-8"
+                        rowClassName="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-50 dark:border-slate-800/50 last:border-0 pl-6 md:pl-8"
                     />
                 </div>
-            </div>
+            </motion.div>
 
             {editingUser && (
                 <CustomerEditForm
@@ -161,22 +326,23 @@ const SuperAdminCustomersPage = () => {
             )}
 
             <Dialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
-                <DialogContent className="sm:max-w-[425px] rounded-[24px] p-0 overflow-hidden border-0 shadow-2xl">
-                    <div className="bg-gradient-to-br from-rose-500 to-red-600 p-6 text-white text-center">
-                        <div className="mx-auto w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4">
-                            <AlertTriangle className="w-6 h-6 text-white" />
+                <DialogContent className="sm:max-w-[425px] rounded-[32px] p-0 overflow-hidden border-0 shadow-2xl">
+                    <div className="bg-gradient-to-br from-rose-500 to-red-600 p-8 text-white text-center relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+                        <div className="mx-auto w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 shadow-inner border border-white/10">
+                            <AlertTriangle className="w-8 h-8 text-white" />
                         </div>
-                        <DialogTitle className="text-xl font-bold">Delete Customer?</DialogTitle>
-                        <DialogDescription className="text-rose-100 mt-2">
-                            This action cannot be undone. This will permanently delete the customer account for <span className="font-semibold text-white">"{userToDelete?.email}"</span>.
+                        <DialogTitle className="text-2xl font-bold relative z-10">Delete Customer?</DialogTitle>
+                        <DialogDescription className="text-rose-100 mt-2 relative z-10 text-base">
+                            This action cannot be undone. This will permanently delete <span className="font-bold bg-white/10 px-2 py-0.5 rounded text-white">{userToDelete?.email}</span>.
                         </DialogDescription>
                     </div>
-                    <div className="p-6 bg-white dark:bg-slate-900">
-                        <DialogFooter className="gap-2 sm:justify-center">
+                    <div className="p-8 bg-white dark:bg-[#1a1f26]">
+                        <DialogFooter className="gap-3 sm:justify-center flex-col sm:flex-row w-full">
                             <Button
                                 variant="outline"
                                 onClick={() => setUserToDelete(null)}
-                                className="rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                className="flex-1 rounded-xl h-12 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold"
                             >
                                 Cancel
                             </Button>
@@ -184,15 +350,15 @@ const SuperAdminCustomersPage = () => {
                                 variant="destructive"
                                 onClick={confirmDelete}
                                 disabled={isDeleting}
-                                className="rounded-xl bg-rose-600 hover:bg-rose-700 shadow-lg shadow-rose-500/20"
+                                className="flex-1 rounded-xl h-12 bg-rose-600 hover:bg-rose-700 shadow-lg shadow-rose-500/20 font-bold"
                             >
-                                {isDeleting ? "Deleting..." : "Yes, Delete Customer"}
+                                {isDeleting ? "Deleting..." : "Yes, Delete"}
                             </Button>
                         </DialogFooter>
                     </div>
                 </DialogContent>
             </Dialog>
-        </div>
+        </motion.div>
     );
 };
 

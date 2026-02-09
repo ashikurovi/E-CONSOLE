@@ -1,7 +1,17 @@
 import React, { useMemo } from "react";
-import { DollarSign, Users, Headset, ArrowUpRight, TrendingUp, TrendingDown, Activity, CreditCard } from "lucide-react";
+import {
+  DollarSign,
+  Users,
+  Headset,
+  ArrowUpRight,
+  ArrowDownRight,
+  Activity,
+  Star,
+  Shield,
+} from "lucide-react";
 import { useGetOverviewQuery } from "@/features/overview/overviewApiSlice";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const SuperAdminOverviewPage = () => {
   const { data: overviewData, isLoading } = useGetOverviewQuery();
@@ -16,203 +26,306 @@ const SuperAdminOverviewPage = () => {
     }).format(amount || 0);
   };
 
-  // Format percentage
-  const formatPercentage = (value) => {
-    return `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
-  };
-
   const kpis = useMemo(() => {
-    if (!overviewData?.kpis) {
-      return [
-        {
-          title: "Total Earnings",
-          value: "$0",
-          delta: "+0%",
-          icon: DollarSign,
-          tone: "violet",
-          description: "Overall revenue across all stores",
-        },
-        {
-          title: "Active Customers",
-          value: "0",
-          delta: "+0%",
-          icon: Users,
-          tone: "blue",
-          description: "Users who purchased in the last 90 days",
-        },
-        {
-          title: "Open Support Tickets",
-          value: "0",
-          delta: "+0%",
-          icon: Headset,
-          tone: "rose",
-          description: "Conversations waiting for agent response",
-        },
-      ];
-    }
+    const kpiData = overviewData?.kpis || {};
 
-    const { kpis: kpiData } = overviewData;
+    // Helper for trend direction
+    const getTrendDir = (val) => (val >= 0 ? "up" : "down");
+
+    // Helper for absolute percentage string
+    const getTrendStr = (val) => `${Math.abs(val || 0).toFixed(1)}%`;
+
     return [
       {
-        title: "Total Earnings",
+        label: "Total Earnings",
         value: formatCurrency(kpiData.totalEarnings),
-        delta: formatPercentage(kpiData.totalEarningsDelta || 0),
+        trend: getTrendStr(kpiData.totalEarningsDelta),
+        trendDir: getTrendDir(kpiData.totalEarningsDelta || 0),
         icon: DollarSign,
-        tone: "violet",
-        description: "Overall revenue across all stores",
+        bg: "bg-violet-50 dark:bg-violet-900/20",
+        color: "text-violet-600 dark:text-violet-400",
+        wave: "text-violet-500",
       },
       {
-        title: "Active Customers",
-        value: new Intl.NumberFormat("en-US").format(kpiData.activeCustomers || 0),
-        delta: formatPercentage(kpiData.activeCustomersDelta || 0),
+        label: "Active Customers",
+        value: new Intl.NumberFormat("en-US").format(
+          kpiData.activeCustomers || 0,
+        ),
+        trend: getTrendStr(kpiData.activeCustomersDelta),
+        trendDir: getTrendDir(kpiData.activeCustomersDelta || 0),
         icon: Users,
-        tone: "blue",
-        description: "Users who purchased in the last 90 days",
+        bg: "bg-blue-50 dark:bg-blue-900/20",
+        color: "text-blue-600 dark:text-blue-400",
+        wave: "text-blue-500",
       },
       {
-        title: "Open Support Tickets",
+        label: "Open Support Tickets",
         value: String(kpiData.openSupportTickets || 0),
-        delta: formatPercentage(kpiData.openSupportTicketsDelta || 0),
+        trend: getTrendStr(kpiData.openSupportTicketsDelta),
+        trendDir: getTrendDir(kpiData.openSupportTicketsDelta || 0),
         icon: Headset,
-        tone: "rose",
-        description: "Conversations waiting for agent response",
+        bg: "bg-rose-50 dark:bg-rose-900/20",
+        color: "text-rose-600 dark:text-rose-400",
+        wave: "text-rose-500",
       },
     ];
   }, [overviewData]);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
+  };
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <motion.div
+      className="space-y-8"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       {/* Page header */}
-      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
+      <motion.div
+        variants={itemVariants}
+        className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] p-8 md:p-10 text-white shadow-2xl shadow-violet-500/30"
+      >
+        <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
           <Activity className="w-64 h-64 -rotate-12" />
         </div>
-        <div className="relative z-10 max-w-2xl">
-          <h1 className="text-3xl font-bold tracking-tight mb-3">Welcome back, Super Admin</h1>
-          <p className="text-violet-100 text-lg">
-            Here's what's happening across the platform today. You have <span className="font-semibold text-white">{overviewData?.kpis?.openSupportTickets || 0} new support tickets</span> requiring attention.
+        <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute top-10 right-20 w-32 h-32 bg-indigo-500/30 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div className="relative z-10 max-w-3xl">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider border border-white/10">
+              Super Admin Dashboard
+            </span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 leading-tight">
+            Welcome back, Super Admin
+          </h1>
+          <p className="text-violet-100 text-lg md:text-xl leading-relaxed max-w-2xl">
+            Here's what's happening across the platform today. You have{" "}
+            <span className="font-bold text-white bg-white/10 px-2 py-0.5 rounded-lg">
+              {overviewData?.kpis?.openSupportTickets || 0} new support tickets
+            </span>{" "}
+            requiring attention.
           </p>
         </div>
-      </div>
+      </motion.div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {kpis.map((item, index) => (
-          <div
-            key={index}
-            className="group relative overflow-hidden rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 transition-all shadow-xl shadow-slate-200/50 dark:shadow-none hover:shadow-2xl hover:-translate-y-1 duration-300"
+      {/* KPI cards - Wave Design */}
+      <motion.div
+        variants={itemVariants}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        {kpis.map((stat, idx) => (
+          <motion.div
+            key={idx}
+            whileHover={{ y: -5 }}
+            className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden group hover:shadow-xl transition-all duration-300"
           >
-            <div className="flex items-start justify-between mb-6">
-              <div className={`p-3 rounded-2xl transition-transform duration-300 group-hover:scale-110 ${
-                item.tone === "violet" ? "bg-violet-50 text-violet-600 dark:bg-violet-900/20 dark:text-violet-400" :
-                item.tone === "blue" ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400" :
-                "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400"
-              }`}>
-                <item.icon className="w-6 h-6" />
+            <div className="flex items-center gap-4 mb-6">
+              <div
+                className={`p-3 rounded-xl ${stat.bg} ${stat.color} transition-transform group-hover:scale-110 duration-300`}
+              >
+                <stat.icon className="w-6 h-6" />
               </div>
-              <span className={`flex items-center gap-1 text-sm font-medium px-2.5 py-1 rounded-full ${
-                item.delta.startsWith("+") 
-                  ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400" 
-                  : "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400"
-              }`}>
-                {item.delta.startsWith("+") ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-                {item.delta}
-              </span>
-            </div>
-            
-            <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                {item.title}
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                {stat.label}
               </p>
-              <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-                {item.value}
+            </div>
+
+            <div className="relative z-10">
+              <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
+                {stat.value}
               </h3>
-              <p className="text-sm text-slate-400 dark:text-slate-500">
-                {item.description}
-              </p>
+
+              <div className="flex items-center gap-2">
+                <span
+                  className={`
+                  inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md border
+                  ${
+                    stat.trendDir === "up"
+                      ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-500/20"
+                      : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-500/20"
+                  }
+                `}
+                >
+                  {stat.trendDir === "up" ? (
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  ) : (
+                    <ArrowDownRight className="w-3.5 h-3.5" />
+                  )}
+                  {stat.trend}
+                </span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                  vs last month
+                </span>
+              </div>
             </div>
-          </div>
+
+            {/* Wave Graphic */}
+            <div
+              className={`absolute bottom-0 right-0 w-32 h-24 opacity-10 ${stat.wave}`}
+            >
+              <svg
+                viewBox="0 0 100 60"
+                fill="currentColor"
+                preserveAspectRatio="none"
+                className="w-full h-full"
+              >
+                <path d="M0 60 C 20 60, 20 20, 50 20 C 80 20, 80 50, 100 50 L 100 60 Z" />
+              </svg>
+            </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Two-column layout: customers + support */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <motion.div
+        variants={itemVariants}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+      >
         {/* Customers summary */}
-        <section className="xl:col-span-2 rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none">
-          <div className="flex items-center justify-between mb-8">
+        <section className="lg:col-span-2 rounded-[32px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-8 shadow-xl shadow-slate-200/50 dark:shadow-black/20 flex flex-col">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Customer Activity</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Users className="w-5 h-5 text-indigo-500" />
+                Customer Activity
+              </h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
                 Snapshot of recent customer growth and retention.
               </p>
             </div>
             <Link
               to="/superadmin/customers"
-              className="flex items-center gap-2 text-sm font-semibold text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-200 transition-colors"
             >
               View all customers
               <ArrowUpRight className="w-4 h-4" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 transition-transform hover:scale-[1.02]">
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">New (7 days)</p>
-              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-auto">
+            <div className="group p-6 rounded-[24px] bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:shadow-lg transition-all duration-300">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400">
+                  <Star className="w-4 h-4" />
+                </div>
+                <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
+                  New (7d)
+                </p>
+              </div>
+              <p className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
                 {overviewData?.customers?.newCustomersLast7Days || 0}
               </p>
-              <p className="mt-2 text-xs font-medium text-emerald-500">
-                {overviewData?.customers?.newCustomersLast7Days > 0 ? "+12.3% vs last week" : "No new customers yet"}
+              <p className="text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-lg inline-block">
+                {overviewData?.customers?.newCustomersLast7Days > 0
+                  ? "+12.3% vs last week"
+                  : "No new customers"}
               </p>
             </div>
-            <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 transition-transform hover:scale-[1.02]">
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Retention Rate</p>
-              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+
+            <div className="group p-6 rounded-[24px] bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:shadow-lg transition-all duration-300">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400">
+                  <Activity className="w-4 h-4" />
+                </div>
+                <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
+                  Retention
+                </p>
+              </div>
+              <p className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
                 {overviewData?.customers?.returningCustomersPercentage || 0}%
               </p>
-              <p className="mt-2 text-xs font-medium text-emerald-500">
-                {overviewData?.customers?.returningCustomersPercentage > 50 ? "Healthy loyalty segment" : "Building loyalty"}
+              <p className="text-xs font-bold text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-1 rounded-lg inline-block">
+                {overviewData?.customers?.returningCustomersPercentage > 50
+                  ? "Healthy loyalty"
+                  : "Building loyalty"}
               </p>
             </div>
-            <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 transition-transform hover:scale-[1.02]">
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">At-Risk</p>
-              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+
+            <div className="group p-6 rounded-[24px] bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:shadow-lg transition-all duration-300">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400">
+                  <Shield className="w-4 h-4" />
+                </div>
+                <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
+                  At-Risk
+                </p>
+              </div>
+              <p className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
                 {overviewData?.customers?.atRiskCustomers || 0}
               </p>
-              <p className="mt-2 text-xs font-medium text-rose-500">
-                {overviewData?.customers?.atRiskCustomers > 0 ? "Action needed" : "Great job!"}
+              <p className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 px-2 py-1 rounded-lg inline-block">
+                {overviewData?.customers?.atRiskCustomers > 0
+                  ? "Action needed"
+                  : "All good!"}
               </p>
             </div>
           </div>
         </section>
 
         {/* Support */}
-        <section className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 flex flex-col h-full shadow-xl shadow-slate-200/50 dark:shadow-none">
-          <div className="flex items-center justify-between mb-6">
-             <h2 className="text-xl font-bold text-slate-900 dark:text-white">Support</h2>
-             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400">
-               {overviewData?.kpis?.openSupportTickets || 0} Pending
-             </span>
+        <section className="rounded-[32px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-8 flex flex-col h-full shadow-xl shadow-slate-200/50 dark:shadow-black/20 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-rose-50 dark:bg-rose-900/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+
+          <div className="flex items-center justify-between mb-8 relative z-10">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Headset className="w-5 h-5 text-rose-500" />
+              Support
+            </h2>
+            <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20">
+              {overviewData?.kpis?.openSupportTickets || 0} Pending
+            </span>
           </div>
-          
-          <div className="flex-1 flex flex-col justify-center items-center text-center p-4">
-             <div className="w-16 h-16 rounded-full bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center mb-4 animate-pulse">
-               <Headset className="w-8 h-8 text-violet-600 dark:text-violet-400" />
-             </div>
-             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Help Center Inbox</h3>
-             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-[200px]">
-               Review and respond to customer inquiries efficiently.
-             </p>
-             <Link 
-               to="/superadmin/support" 
-               className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors shadow-lg shadow-violet-200 dark:shadow-none"
-             >
-               Go to Inbox
-             </Link>
+
+          <div className="flex-1 flex flex-col justify-center items-center text-center p-4 relative z-10">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-100 to-orange-100 dark:from-rose-900/30 dark:to-orange-900/30 flex items-center justify-center mb-6 shadow-lg shadow-rose-500/10">
+              <div className="relative">
+                <Headset className="w-8 h-8 text-rose-600 dark:text-rose-400" />
+                {overviewData?.kpis?.openSupportTickets > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+              Help Center Inbox
+            </h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-[240px] leading-relaxed">
+              You have {overviewData?.kpis?.openSupportTickets || 0} pending
+              tickets waiting for your response.
+            </p>
+
+            <Link
+              to="/superadmin/support"
+              className="w-full py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
+            >
+              Go to Inbox
+            </Link>
           </div>
         </section>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

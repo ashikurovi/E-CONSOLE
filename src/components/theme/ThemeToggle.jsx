@@ -9,19 +9,20 @@ const ThemeToggle = ({ variant = "default", className = "" }) => {
 
   const title = isDark ? t("theme.lightMode") : t("theme.darkMode");
 
-  if (variant === "compact") {
+  if (variant === "compact" || variant === "ghost") {
+    const baseClasses =
+      variant === "compact"
+        ? "flex items-center justify-center h-9 w-9 rounded-lg text-black dark:text-white bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
+        : "flex items-center justify-center transition-colors";
+
     return (
       <button
         onClick={toggleDarkMode}
         title={title}
         aria-label={title}
-        className={`flex items-center justify-center h-9 w-9 rounded-lg text-black dark:text-white bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition-colors ${className}`}
+        className={`${baseClasses} ${className}`}
       >
-        {isDark ? (
-          <Sun className="h-4 w-4" />
-        ) : (
-          <Moon className="h-4 w-4" />
-        )}
+        {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </button>
     );
   }

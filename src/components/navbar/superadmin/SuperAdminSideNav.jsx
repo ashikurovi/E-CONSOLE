@@ -11,10 +11,11 @@ import {
   Palette,
   Shield,
   UserCircle,
+  X,
 } from "lucide-react";
 import LanguageSwitcher from "@/components/language/LanguageSwitcher";
 
-const SuperAdminSideNav = () => {
+const SuperAdminSideNav = ({ onLinkClick }) => {
   const { t } = useTranslation();
   const items = [
     {
@@ -62,7 +63,17 @@ const SuperAdminSideNav = () => {
   ];
 
   return (
-    <div className="h-full flex flex-col py-4">
+    <div className="h-full flex flex-col py-4 relative">
+      {/* Mobile Close Button */}
+      {onLinkClick && (
+        <button
+          onClick={onLinkClick}
+          className="absolute top-4 right-4 p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-300 dark:hover:bg-slate-800 transition-colors lg:hidden"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      )}
+
       {/* Brand */}
       <div className="px-6 mb-8 flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white grid place-items-center shadow-xl shadow-violet-500/30 hover:scale-110 transition-transform duration-300 cursor-pointer">
@@ -89,6 +100,7 @@ const SuperAdminSideNav = () => {
             key={to}
             to={to}
             end={end}
+            onClick={onLinkClick}
             className={({ isActive }) =>
               `group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 hover:translate-x-1
                ${

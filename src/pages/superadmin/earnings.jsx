@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
-import { DollarSign, TrendingUp, CreditCard, Globe2 } from "lucide-react";
+import { DollarSign, TrendingUp, CreditCard, Globe2, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import LineChartComponent from "@/components/charts/line-chart";
 import { useGetEarningsOverviewQuery } from "@/features/earnings/earningsApiSlice";
+import { motion } from "framer-motion";
 
 const SuperAdminEarningsPage = () => {
   const { data: earningsData, isLoading } = useGetEarningsOverviewQuery();
@@ -16,44 +17,57 @@ const SuperAdminEarningsPage = () => {
     }).format(amount || 0);
   };
 
-  // Format percentage
-  const formatPercentage = (value) => {
-    return `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
-  };
+  // Helper for trend direction
+  const getTrendDir = (val) => val >= 0 ? "up" : "down";
+  
+  // Helper for absolute percentage string
+  const getTrendStr = (val) => `${Math.abs(val || 0).toFixed(1)}%`;
 
   const kpis = useMemo(() => {
     if (!earningsData?.kpis) {
       return [
         {
-          title: "Total Earnings (YTD)",
-          value: "$0",
-          delta: "+0%",
+          label: "Total Earnings (YTD)",
+          value: "৳0",
+          trend: "0.0%",
+          trendDir: "up",
           icon: DollarSign,
-          tone: "emerald",
+          bg: "bg-violet-50 dark:bg-violet-900/20",
+          color: "text-violet-600 dark:text-violet-400",
+          wave: "text-violet-500",
           description: "Revenue across all connected stores",
         },
         {
-          title: "Avg. Daily Revenue",
-          value: "$0",
-          delta: "+0%",
+          label: "Avg. Daily Revenue",
+          value: "৳0",
+          trend: "0.0%",
+          trendDir: "up",
           icon: TrendingUp,
-          tone: "indigo",
+          bg: "bg-emerald-50 dark:bg-emerald-900/20",
+          color: "text-emerald-600 dark:text-emerald-400",
+          wave: "text-emerald-500",
           description: "Rolling 30 day daily average",
         },
         {
-          title: "Paid vs Pending",
+          label: "Paid vs Pending",
           value: "0% / 0%",
-          delta: "+0%",
+          trend: "0.0%",
+          trendDir: "up",
           icon: CreditCard,
-          tone: "slate",
+          bg: "bg-blue-50 dark:bg-blue-900/20",
+          color: "text-blue-600 dark:text-blue-400",
+          wave: "text-blue-500",
           description: "Collection health across gateways",
         },
         {
-          title: "Active Markets",
+          label: "Active Markets",
           value: "0",
-          delta: "+0 new",
+          trend: "0 new",
+          trendDir: "up",
           icon: Globe2,
-          tone: "rose",
+          bg: "bg-rose-50 dark:bg-rose-900/20",
+          color: "text-rose-600 dark:text-rose-400",
+          wave: "text-rose-500",
           description: "Countries with live transactions",
         },
       ];
@@ -62,35 +76,47 @@ const SuperAdminEarningsPage = () => {
     const { kpis: kpiData } = earningsData;
     return [
       {
-        title: "Total Earnings (YTD)",
+        label: "Total Earnings (YTD)",
         value: formatCurrency(kpiData.totalEarningsYTD),
-        delta: formatPercentage(kpiData.earningsDelta || 0),
+        trend: getTrendStr(kpiData.earningsDelta),
+        trendDir: getTrendDir(kpiData.earningsDelta || 0),
         icon: DollarSign,
-        tone: "emerald",
+        bg: "bg-violet-50 dark:bg-violet-900/20",
+        color: "text-violet-600 dark:text-violet-400",
+        wave: "text-violet-500",
         description: "Revenue across all connected stores",
       },
       {
-        title: "Avg. Daily Revenue",
+        label: "Avg. Daily Revenue",
         value: formatCurrency(kpiData.avgDailyRevenue),
-        delta: formatPercentage(kpiData.avgDailyDelta || 0),
+        trend: getTrendStr(kpiData.avgDailyDelta),
+        trendDir: getTrendDir(kpiData.avgDailyDelta || 0),
         icon: TrendingUp,
-        tone: "indigo",
+        bg: "bg-emerald-50 dark:bg-emerald-900/20",
+        color: "text-emerald-600 dark:text-emerald-400",
+        wave: "text-emerald-500",
         description: "Rolling 30 day daily average",
       },
       {
-        title: "Paid vs Pending",
+        label: "Paid vs Pending",
         value: `${Math.round(kpiData.paidPercentage || 0)}% / ${Math.round(kpiData.pendingPercentage || 0)}%`,
-        delta: "+0%",
+        trend: "0.0%", // No delta for this one in original data, keeping static or 0
+        trendDir: "up",
         icon: CreditCard,
-        tone: "slate",
+        bg: "bg-blue-50 dark:bg-blue-900/20",
+        color: "text-blue-600 dark:text-blue-400",
+        wave: "text-blue-500",
         description: "Collection health across gateways",
       },
       {
-        title: "Active Markets",
+        label: "Active Markets",
         value: String(kpiData.activeMarkets || 0),
-        delta: "+0 new",
+        trend: `${kpiData.newMarkets || 0} new`,
+        trendDir: "up",
         icon: Globe2,
-        tone: "rose",
+        bg: "bg-rose-50 dark:bg-rose-900/20",
+        color: "text-rose-600 dark:text-rose-400",
+        wave: "text-rose-500",
         description: "Countries with live transactions",
       },
     ];
@@ -129,6 +155,15 @@ const SuperAdminEarningsPage = () => {
     return earningsData.channelBreakdown.slice(0, 3);
   }, [earningsData]);
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
+  };
+
   return (
     <div className="space-y-6">
       {/* Page header */}
@@ -144,51 +179,71 @@ const SuperAdminEarningsPage = () => {
         </div>
       </div>
 
-      {/* KPI cards */}
+      {/* KPI cards - Wave Design */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-        {kpis.map((item, index) => (
-          <div
-            key={index}
-            className="group relative overflow-hidden rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-4 shadow-xl shadow-slate-200/50 dark:shadow-none hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+        {kpis.map((stat, idx) => (
+          <motion.div
+            key={idx}
+            variants={itemVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover={{ y: -5 }}
+            className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden group hover:shadow-xl transition-all duration-300"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-medium">
-                  {item.title}
-                </p>
-                <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{item.value}</p>
-              </div>
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${
-                item.tone === "emerald"
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                  : item.tone === "indigo"
-                    ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
-                    : item.tone === "rose"
-                      ? "bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                      : "bg-slate-100 text-slate-600 dark:bg-slate-800/50 dark:text-slate-400"
-              }`}>
-                <item.icon className="w-6 h-6" />
-              </div>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span
-                className={`px-2.5 py-1 rounded-full font-medium ${
-                  item.tone === "emerald"
-                    ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-                    : item.tone === "indigo"
-                      ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300"
-                      : item.tone === "rose"
-                        ? "bg-rose-500/10 text-rose-700 dark:text-rose-300"
-                        : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                }`}
+            <div className="flex items-center gap-4 mb-6">
+              <div
+                className={`p-3 rounded-xl ${stat.bg} ${stat.color} transition-transform group-hover:scale-110 duration-300`}
               >
-                {item.delta}
-              </span>
-              <span className="text-slate-500 dark:text-slate-400">
-                {item.description}
-              </span>
+                <stat.icon className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                {stat.label}
+              </p>
             </div>
-          </div>
+
+            <div className="relative z-10">
+              <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
+                {stat.value}
+              </h3>
+
+              <div className="flex items-center gap-2">
+                <span
+                  className={`
+                  inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md border
+                  ${
+                    stat.trendDir === "up"
+                      ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-500/20"
+                      : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-500/20"
+                  }
+                `}
+                >
+                  {stat.trendDir === "up" ? (
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  ) : (
+                    <ArrowDownRight className="w-3.5 h-3.5" />
+                  )}
+                  {stat.trend}
+                </span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                  vs last month
+                </span>
+              </div>
+            </div>
+
+            {/* Wave Graphic */}
+            <div
+              className={`absolute bottom-0 right-0 w-32 h-24 opacity-10 ${stat.wave}`}
+            >
+              <svg
+                viewBox="0 0 100 60"
+                fill="currentColor"
+                preserveAspectRatio="none"
+                className="w-full h-full"
+              >
+                <path d="M0 60 C 20 60, 20 20, 50 20 C 80 20, 80 50, 100 50 L 100 60 Z" />
+              </svg>
+            </div>
+          </motion.div>
         ))}
       </div>
 

@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { superadminLoggedOut } from "@/features/superadminAuth/superadminAuthSlice";
 import toast from "react-hot-toast";
-import { LogOut, Bell } from "lucide-react";
+import { LogOut, Bell, Menu } from "lucide-react";
 import LanguageSwitcher from "@/components/language/LanguageSwitcher";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 
-const SuperAdminTopNavbar = () => {
+const SuperAdminTopNavbar = ({ setIsMobileMenuOpen }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -22,13 +22,21 @@ const SuperAdminTopNavbar = () => {
   return (
     <header className="w-full">
       <div className="px-6 py-4 flex items-center justify-between">
-        <div className="flex flex-col">
-          <span className="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400 mb-0.5">
-            {t("superadmin.title")}
-          </span>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-            {t("superadmin.controlCenter")}
-          </h1>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="lg:hidden p-2 -ml-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+          <div className="flex flex-col">
+            <span className="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400 mb-0.5">
+              {t("superadmin.title")}
+            </span>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+              {t("superadmin.controlCenter")}
+            </h1>
+          </div>
         </div>
 
         <div className="flex items-center gap-3 md:gap-4">
@@ -44,14 +52,9 @@ const SuperAdminTopNavbar = () => {
 
           <div className="flex items-center gap-2">
             <ThemeToggle
-              variant="ghost"
+              variant="compact"
               className="h-10 w-10 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:text-slate-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/20 transition-all duration-300"
             />
-
-            <button className="relative h-10 w-10 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:text-slate-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/20 transition-all duration-300">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-[#09090b]" />
-            </button>
           </div>
 
           <button
