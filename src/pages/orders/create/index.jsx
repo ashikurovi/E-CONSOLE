@@ -351,7 +351,7 @@ const CreateOrderPage = () => {
                           register={register}
                           name="customerName"
                           error={errors.customerName?.message}
-                          className="bg-slate-50 dark:bg-slate-900/50 h-14 rounded-xl border-slate-200 dark:border-slate-700 focus:border-indigo-500"
+                          inputClassName="bg-slate-50 dark:bg-slate-900/50 h-14 rounded-xl border-slate-200 dark:border-slate-700 focus:border-indigo-500"
                         />
                         <TextField
                           label={t("orders.customerEmail", "Customer Email")}
@@ -363,7 +363,7 @@ const CreateOrderPage = () => {
                           register={register}
                           name="customerEmail"
                           error={errors.customerEmail?.message}
-                          className="bg-slate-50 dark:bg-slate-900/50 h-14 rounded-xl border-slate-200 dark:border-slate-700 focus:border-indigo-500"
+                          inputClassName="bg-slate-50 dark:bg-slate-900/50 h-14 rounded-xl border-slate-200 dark:border-slate-700 focus:border-indigo-500"
                         />
                         <TextField
                           label={t("orders.customerPhone", "Phone Number")}
@@ -374,7 +374,7 @@ const CreateOrderPage = () => {
                           register={register}
                           name="customerPhone"
                           error={errors.customerPhone?.message}
-                          className="bg-slate-50 dark:bg-slate-900/50 h-14 rounded-xl border-slate-200 dark:border-slate-700 focus:border-indigo-500"
+                          inputClassName="bg-slate-50 dark:bg-slate-900/50 h-14 rounded-xl border-slate-200 dark:border-slate-700 focus:border-indigo-500"
                         />
                         <TextField
                           label={t("orders.customerAddress", "Address")}
@@ -385,7 +385,7 @@ const CreateOrderPage = () => {
                           register={register}
                           name="customerAddress"
                           error={errors.customerAddress?.message}
-                          className="bg-slate-50 dark:bg-slate-900/50 h-14 rounded-xl border-slate-200 dark:border-slate-700 focus:border-indigo-500"
+                          inputClassName="bg-slate-50 dark:bg-slate-900/50 h-14 rounded-xl border-slate-200 dark:border-slate-700 focus:border-indigo-500"
                         />
                       </div>
                     </motion.div>
@@ -579,22 +579,22 @@ const CreateOrderPage = () => {
                 </div>
 
                 <Button
-                      type="submit"
-                      disabled={isLoading}
-                      className="w-full h-12 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-base shadow-lg shadow-indigo-500/30 dark:shadow-none transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                      {isLoading ? (
-                        <div className="flex items-center gap-2">
-                           <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                           {t("orders.creating", "Creating...")}
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                           <CheckCircle2 className="w-5 h-5" />
-                           {t("orders.createOrder", "Create Order")}
-                        </div>
-                      )}
-                    </Button>
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-12 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-base shadow-lg shadow-indigo-500/30 dark:shadow-none transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      {t("orders.creating", "Creating...")}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5" />
+                      {t("orders.createOrder", "Create Order")}
+                    </div>
+                  )}
+                </Button>
               </div>
             </div>
           </div>

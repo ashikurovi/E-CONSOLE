@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
+import { ShoppingBag, CheckCircle2, ShieldAlert, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   useGetUserQuery,
   useDeleteUserMutation,
@@ -33,15 +35,13 @@ export default function CustomerDetailsPage() {
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const {
-    data: customerOrders = [],
-    isLoading: isLoadingOrders,
-  } = useGetOrdersByCustomerQuery(
-    { customerId: id },
-    {
-      skip: !id,
-    }
-  );
+  const { data: customerOrders = [], isLoading: isLoadingOrders } =
+    useGetOrdersByCustomerQuery(
+      { customerId: id },
+      {
+        skip: !id,
+      },
+    );
 
   if (isLoading) {
     return (
@@ -87,7 +87,7 @@ export default function CustomerDetailsPage() {
     avatar:
       user.avatar ??
       `https://ui-avatars.com/api/?name=${encodeURIComponent(
-        user.name || "Customer"
+        user.name || "Customer",
       )}`,
     joinedDate: user.createdAt ?? new Date().toISOString(),
     successfulOrdersCount: user.successfulOrdersCount ?? 0,
@@ -105,28 +105,28 @@ export default function CustomerDetailsPage() {
         (o) =>
           o.isPaid ||
           (o.status || "").toLowerCase() === "paid" ||
-          (o.status || "").toLowerCase() === "delivered"
+          (o.status || "").toLowerCase() === "delivered",
       ).length
-    : customer.successfulOrdersCount ?? 0;
+    : (customer.successfulOrdersCount ?? 0);
 
   const cancelledOrdersFromOrders = Array.isArray(customerOrders)
     ? customerOrders.filter(
-        (o) => (o.status || "").toLowerCase() === "cancelled"
+        (o) => (o.status || "").toLowerCase() === "cancelled",
       ).length
-    : customer.cancelledOrdersCount ?? 0;
+    : (customer.cancelledOrdersCount ?? 0);
 
   const statusLabel = customer.isBanned
     ? t("customers.statusBannedLabel")
     : customer.isActive
-    ? t("customers.statusActiveLabel")
-    : t("customers.statusInactiveLabel");
+      ? t("customers.statusActiveLabel")
+      : t("customers.statusInactiveLabel");
 
   const statusClasses =
     statusLabel === t("customers.statusBannedLabel")
       ? "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 border border-rose-200 dark:border-rose-800"
       : statusLabel === t("customers.statusInactiveLabel")
-      ? "bg-gray-100 text-gray-700 dark:bg-gray-800/40 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
-      : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800";
+        ? "bg-gray-100 text-gray-700 dark:bg-gray-800/40 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
+        : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800";
 
   const stats = [
     {
@@ -166,9 +166,7 @@ export default function CustomerDetailsPage() {
         setIsDeleteModalOpen(false);
         navigate("/customers");
       } else {
-        window.alert(
-          res?.error?.data?.message || t("common.failed"),
-        );
+        window.alert(res?.error?.data?.message || t("common.failed"));
       }
     } catch (e) {
       window.alert(t("common.failed"));
