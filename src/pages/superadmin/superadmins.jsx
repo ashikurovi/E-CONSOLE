@@ -1,8 +1,22 @@
 import React, { useMemo, useState } from "react";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Pencil, Trash2, Eye, UserPlus, Shield, AlertTriangle } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Pencil,
+  Trash2,
+  Eye,
+  UserPlus,
+  Shield,
+  AlertTriangle,
+} from "lucide-react";
 import {
   useGetSuperadminsQuery,
   useDeleteSuperadminMutation,
@@ -45,7 +59,7 @@ const SuperAdminSuperadminsPage = () => {
       { header: "Created At", field: "createdAt" },
       { header: "Actions", field: "actions" },
     ],
-    []
+    [],
   );
 
   const tableData = useMemo(
@@ -104,7 +118,7 @@ const SuperAdminSuperadminsPage = () => {
           </div>
         ),
       })),
-    [superadmins, deleteSuperadmin, isDeleting, navigate]
+    [superadmins, deleteSuperadmin, isDeleting, navigate],
   );
 
   return (
@@ -112,11 +126,13 @@ const SuperAdminSuperadminsPage = () => {
       {/* Page header */}
       <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
         <div className="absolute top-0 right-0 p-4 opacity-10">
-            <Shield className="w-64 h-64 -rotate-12" />
+          <Shield className="w-64 h-64 -rotate-12" />
         </div>
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-3">Super Admins</h1>
+            <h1 className="text-3xl font-bold tracking-tight mb-3">
+              Super Admins
+            </h1>
             <p className="text-violet-100 text-lg">
               Manage system administrators and their roles
             </p>
@@ -137,7 +153,9 @@ const SuperAdminSuperadminsPage = () => {
       <div className="rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
         <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Super Admin Users</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+              Super Admin Users
+            </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">
               Listing all super admin accounts from the system.
             </p>
@@ -157,9 +175,7 @@ const SuperAdminSuperadminsPage = () => {
       </div>
 
       {isCreateModalOpen && (
-        <SuperadminCreateForm
-          onClose={() => setIsCreateModalOpen(false)}
-        />
+        <SuperadminCreateForm onClose={() => setIsCreateModalOpen(false)} />
       )}
 
       {editingSuperadmin && (
@@ -169,15 +185,25 @@ const SuperAdminSuperadminsPage = () => {
         />
       )}
 
-      <Dialog open={!!superadminToDelete} onOpenChange={(open) => !open && setSuperadminToDelete(null)}>
+      <Dialog
+        open={!!superadminToDelete}
+        onOpenChange={(open) => !open && setSuperadminToDelete(null)}
+      >
         <DialogContent className="sm:max-w-[425px] rounded-[24px] p-0 overflow-hidden border-0 shadow-2xl">
           <div className="bg-gradient-to-br from-rose-500 to-red-600 p-6 text-white text-center">
             <div className="mx-auto w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4">
               <AlertTriangle className="w-6 h-6 text-white" />
             </div>
-            <DialogTitle className="text-xl font-bold">Delete Super Admin?</DialogTitle>
+            <DialogTitle className="text-xl font-bold">
+              Delete Super Admin?
+            </DialogTitle>
             <DialogDescription className="text-rose-100 mt-2">
-              This action cannot be undone. This will permanently delete the account for <span className="font-semibold text-white">"{superadminToDelete?.name}"</span>.
+              This action cannot be undone. This will permanently delete the
+              account for{" "}
+              <span className="font-semibold text-white">
+                "{superadminToDelete?.name}"
+              </span>
+              .
             </DialogDescription>
           </div>
           <div className="p-6 bg-white dark:bg-slate-900">

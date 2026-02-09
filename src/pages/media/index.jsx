@@ -119,7 +119,7 @@ export default function MediaPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FC] dark:bg-[#0b0f14] font-sans">
+    <div className="min-h-screen  bg-[#F8F9FC] dark:bg-[#0b0f14] font-sans">
       <CopyToast show={showCopyToast} />
 
       <MediaHeader
@@ -147,6 +147,25 @@ export default function MediaPage() {
         onCopyUrl={handleCopyUrl}
         onEditUpload={() => setIsUploadOpen(true)}
         onDelete={handleDelete}
+        onNext={() => {
+          const currentIndex = images.findIndex((img) => img.id === viewImage?.id);
+          if (currentIndex < images.length - 1) {
+            setViewImage(images[currentIndex + 1]);
+          }
+        }}
+        onPrev={() => {
+          const currentIndex = images.findIndex((img) => img.id === viewImage?.id);
+          if (currentIndex > 0) {
+            setViewImage(images[currentIndex - 1]);
+          }
+        }}
+        hasNext={
+          viewImage &&
+          images.findIndex((img) => img.id === viewImage.id) < images.length - 1
+        }
+        hasPrev={
+          viewImage && images.findIndex((img) => img.id === viewImage.id) > 0
+        }
       />
 
       <MediaUploadModal

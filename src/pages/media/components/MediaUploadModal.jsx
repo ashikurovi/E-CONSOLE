@@ -28,13 +28,19 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
   const [uploadStep, setUploadStep] = useState("select");
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [cropBox, setCropBox] = useState({ x: 25, y: 25, width: 50, height: 50 });
+  const [cropBox, setCropBox] = useState({
+    x: 25,
+    y: 25,
+    width: 50,
+    height: 50,
+  });
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [generatedUrl, setGeneratedUrl] = useState(null);
   const canvasRef = useRef(null);
   const imageRef = useRef(null);
   const constraintsRef = useRef(null);
+  const cropBoxRef = useRef(null);
 
   const [uploadMedia] = useUploadMediaMutation();
 
@@ -47,7 +53,62 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
       setGeneratedUrl(null);
       setIsProcessing(false);
       setProgress(0);
+      setCropBox({ x: 25, y: 25, width: 50, height: 50 });
     }, 300);
+  };
+
+  const handleResizeStart = (e, direction) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startBox = { ...cropBox };
+    const container = constraintsRef.current.getBoundingClientRect();
+
+    const handleMouseMove = (moveEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+      const deltaXPct = (deltaX / container.width) * 100;
+      const deltaYPct = (deltaY / container.height) * 100;
+
+      let newBox = { ...startBox };
+
+      if (direction.includes("e")) {
+        newBox.width = Math.max(
+          10,
+          Math.min(startBox.width + deltaXPct, 100 - startBox.x),
+        );
+      }
+      if (direction.includes("s")) {
+        newBox.height = Math.max(
+          10,
+          Math.min(startBox.height + deltaYPct, 100 - startBox.y),
+        );
+      }
+      if (direction.includes("w")) {
+        const constrainedDeltaX = Math.max(deltaXPct, -startBox.x);
+        const finalDeltaX = Math.min(constrainedDeltaX, startBox.width - 10);
+        newBox.x = startBox.x + finalDeltaX;
+        newBox.width = startBox.width - finalDeltaX;
+      }
+      if (direction.includes("n")) {
+        const constrainedDeltaY = Math.max(deltaYPct, -startBox.y);
+        const finalDeltaY = Math.min(constrainedDeltaY, startBox.height - 10);
+        newBox.y = startBox.y + finalDeltaY;
+        newBox.height = startBox.height - finalDeltaY;
+      }
+
+      setCropBox(newBox);
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
   };
 
   const handleFileSelect = (e) => {
@@ -74,27 +135,41 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
       const img = imageRef.current;
-      const size = 600;
-      canvas.width = size;
-      canvas.height = size;
+
       const sWidth = img.naturalWidth;
       const sHeight = img.naturalHeight;
-      const sMin = Math.min(sWidth, sHeight);
-      const sx = (sWidth - sMin) / 2;
-      const sy = (sHeight - sMin) / 2;
+
+      const sx = (cropBox.x / 100) * sWidth;
+      const sy = (cropBox.y / 100) * sHeight;
+      const sRegionWidth = (cropBox.width / 100) * sWidth;
+      const sRegionHeight = (cropBox.height / 100) * sHeight;
+
+      canvas.width = sRegionWidth;
+      canvas.height = sRegionHeight;
+
       ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, size, size);
-      ctx.drawImage(img, sx, sy, sMin, sMin, 0, 0, size, size);
+      ctx.fillRect(0, 0, sRegionWidth, sRegionHeight);
+      ctx.drawImage(
+        img,
+        sx,
+        sy,
+        sRegionWidth,
+        sRegionHeight,
+        0,
+        0,
+        sRegionWidth,
+        sRegionHeight,
+      );
 
       try {
         const blob = await new Promise((resolve) =>
-          canvas.toBlob(resolve, "image/jpeg", 0.9)
+          canvas.toBlob(resolve, "image/jpeg", 0.9),
         );
         if (blob) {
           fileToUpload = new File(
             [blob],
             selectedFile.name.replace(/\.[^.]+$/, ".jpg"),
-            { type: "image/jpeg" }
+            { type: "image/jpeg" },
           );
         }
       } catch (e) {
@@ -133,24 +208,27 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
 
   return (
     <Dialog open={open} onOpenChange={handleCloseModal}>
-      <DialogContent className="sm:max-w-[650px] p-0 overflow-hidden bg-white dark:bg-[#1a1f26] border-gray-100 dark:border-gray-800 rounded-[32px] shadow-2xl">
+      <DialogContent className="w-[calc(100%-10px)] sm:w-full sm:max-w-[650px] p-0 overflow-hidden bg-white dark:bg-[#1a1f26] border-gray-100 dark:border-gray-800 rounded-[32px] shadow-2xl">
         {/* Header */}
         <div className="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/80 dark:bg-white/5 backdrop-blur-sm">
           <div>
             <DialogTitle className="text-xl font-bold flex items-center gap-2.5 text-gray-900 dark:text-white">
               {uploadStep === "select" && (
                 <>
-                  <Upload className="w-5 h-5 text-indigo-600" /> {t("media.uploadMediaTitle")}
+                  <Upload className="w-5 h-5 text-indigo-600" />{" "}
+                  {t("media.uploadMediaTitle")}
                 </>
               )}
               {uploadStep === "crop" && (
                 <>
-                  <Crop className="w-5 h-5 text-indigo-600" /> {t("media.editCrop")}
+                  <Crop className="w-5 h-5 text-indigo-600" />{" "}
+                  {t("media.editCrop")}
                 </>
               )}
               {uploadStep === "result" && (
                 <>
-                  <Sparkles className="w-5 h-5 text-indigo-600" /> {t("media.processedSuccessfully")}
+                  <Sparkles className="w-5 h-5 text-indigo-600" />{" "}
+                  {t("media.processedSuccessfully")}
                 </>
               )}
             </DialogTitle>
@@ -163,7 +241,7 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
         </div>
 
         {/* Body */}
-        <div className="p-8">
+        <div className="p-6 sm:p-8">
           <AnimatePresence mode="wait">
             {/* Step 1: Select File */}
             {uploadStep === "select" && (
@@ -235,6 +313,7 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
 
                     <div className="absolute inset-0 z-10 pointer-events-none">
                       <motion.div
+                        ref={cropBoxRef}
                         className="absolute border-2 border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] cursor-move pointer-events-auto"
                         style={{
                           left: `${cropBox.x}%`,
@@ -246,6 +325,29 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
                         dragMomentum={false}
                         dragConstraints={constraintsRef}
                         dragElastic={0}
+                        onDragEnd={() => {
+                          if (!constraintsRef.current || !cropBoxRef.current)
+                            return;
+                          const containerRect =
+                            constraintsRef.current.getBoundingClientRect();
+                          const boxRect =
+                            cropBoxRef.current.getBoundingClientRect();
+
+                          const newX =
+                            ((boxRect.left - containerRect.left) /
+                              containerRect.width) *
+                            100;
+                          const newY =
+                            ((boxRect.top - containerRect.top) /
+                              containerRect.height) *
+                            100;
+
+                          setCropBox((prev) => ({
+                            ...prev,
+                            x: Math.max(0, Math.min(newX, 100 - prev.width)),
+                            y: Math.max(0, Math.min(newY, 100 - prev.height)),
+                          }));
+                        }}
                       >
                         <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none">
                           {[...Array(9)].map((_, i) => (
@@ -255,10 +357,51 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
                             ></div>
                           ))}
                         </div>
-                        <div className="absolute -top-1 -left-1 w-3 h-3 bg-white border border-indigo-600 rounded-full"></div>
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-white border border-indigo-600 rounded-full"></div>
-                        <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-white border border-indigo-600 rounded-full"></div>
-                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-white border border-indigo-600 rounded-full"></div>
+
+                        {/* Resize Handles */}
+                        {/* Corners */}
+                        <div
+                          className="absolute -top-1.5 -left-1.5 w-4 h-4 bg-white border-2 border-indigo-600 rounded-full cursor-nw-resize z-50 hover:scale-110 transition-transform"
+                          onMouseDown={(e) => handleResizeStart(e, "nw")}
+                        />
+                        <div
+                          className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-white border-2 border-indigo-600 rounded-full cursor-ne-resize z-50 hover:scale-110 transition-transform"
+                          onMouseDown={(e) => handleResizeStart(e, "ne")}
+                        />
+                        <div
+                          className="absolute -bottom-1.5 -left-1.5 w-4 h-4 bg-white border-2 border-indigo-600 rounded-full cursor-sw-resize z-50 hover:scale-110 transition-transform"
+                          onMouseDown={(e) => handleResizeStart(e, "sw")}
+                        />
+                        <div
+                          className="absolute -bottom-1.5 -right-1.5 w-4 h-4 bg-white border-2 border-indigo-600 rounded-full cursor-se-resize z-50 hover:scale-110 transition-transform"
+                          onMouseDown={(e) => handleResizeStart(e, "se")}
+                        />
+
+                        {/* Sides */}
+                        <div
+                          className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-4 cursor-n-resize z-40 flex items-center justify-center group"
+                          onMouseDown={(e) => handleResizeStart(e, "n")}
+                        >
+                          <div className="w-4 h-1 bg-white/50 rounded-full group-hover:bg-indigo-500 transition-colors" />
+                        </div>
+                        <div
+                          className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-8 h-4 cursor-s-resize z-40 flex items-center justify-center group"
+                          onMouseDown={(e) => handleResizeStart(e, "s")}
+                        >
+                          <div className="w-4 h-1 bg-white/50 rounded-full group-hover:bg-indigo-500 transition-colors" />
+                        </div>
+                        <div
+                          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-8 cursor-w-resize z-40 flex items-center justify-center group"
+                          onMouseDown={(e) => handleResizeStart(e, "w")}
+                        >
+                          <div className="h-4 w-1 bg-white/50 rounded-full group-hover:bg-indigo-500 transition-colors" />
+                        </div>
+                        <div
+                          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-8 cursor-e-resize z-40 flex items-center justify-center group"
+                          onMouseDown={(e) => handleResizeStart(e, "e")}
+                        >
+                          <div className="h-4 w-1 bg-white/50 rounded-full group-hover:bg-indigo-500 transition-colors" />
+                        </div>
                       </motion.div>
                     </div>
                   </div>
@@ -339,13 +482,13 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
               >
                 <div className="relative">
                   <div className="absolute inset-0 bg-green-500/20 blur-xl rounded-full"></div>
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-green-400 to-emerald-600 flex items-center justify-center shadow-lg relative z-10">
-                    <Check className="w-12 h-12 text-white" />
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-green-400 to-emerald-600 flex items-center justify-center shadow-lg relative z-10">
+                    <Check className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
                     {t("media.uploadComplete")}
                   </h3>
                   <p className="text-gray-500 dark:text-gray-400 text-sm max-w-sm mx-auto">
@@ -357,12 +500,12 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
                   </p>
                 </div>
 
-                <div className="w-full bg-gray-50 dark:bg-black/30 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center gap-4">
-                  <div className="flex-1 text-left overflow-hidden">
+                <div className="w-full bg-gray-50 dark:bg-black/30 p-4 sm:p-5 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center gap-3 sm:gap-4">
+                  <div className="flex-1 text-left min-w-0">
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1.5">
                       {t("media.cdnAccessUrl")}
                     </p>
-                    <p className="text-sm font-mono font-medium text-indigo-600 dark:text-indigo-400 truncate">
+                    <p className="text-xs sm:text-sm font-mono font-medium text-indigo-600 dark:text-indigo-400 break-all whitespace-normal">
                       {generatedUrl}
                     </p>
                   </div>
@@ -377,7 +520,7 @@ export default function MediaUploadModal({ open, onOpenChange, companyId }) {
                 </div>
 
                 <Button
-                  className="w-full bg-gray-900 dark:bg-white dark:text-black text-white h-12 text-base rounded-xl hover:scale-[1.02] transition-transform"
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white h-12 text-base rounded-xl shadow-lg shadow-indigo-500/20 hover:scale-[1.02] transition-transform"
                   onClick={handleCloseModal}
                 >
                   {t("media.returnToLibrary")}
