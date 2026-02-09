@@ -1,9 +1,21 @@
 import React, { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  User, 
+  Settings, 
+  Bell, 
+  Building2, 
+  ShieldCheck, 
+  Truck, 
+  Globe, 
+  CreditCard,
+  ChevronLeft
+} from "lucide-react";
 
 // Import Settings Components
 import PreferencesSettings from "./components/PreferencesSettings";
@@ -17,6 +29,7 @@ import ProfileSettings from "./components/ProfileSettings";
 
 const SettingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const activeTab = searchParams.get("tab") || "profile";
   const { t } = useTranslation();
   const { data: currentUser, isLoading: isLoadingUser } =
@@ -34,14 +47,14 @@ const SettingsPage = () => {
   };
 
   const tabs = [
-    { id: "profile", label: "Profile" },
-    { id: "preferences", label: "Preferences" },
-    { id: "notifications", label: "Notifications" },
-    { id: "account", label: "Account" },
-    { id: "permissions", label: "Permissions" },
-    { id: "courier", label: "Courier Integration" },
-    { id: "domain", label: "Custom Domain" },
-    { id: "billings", label: "Billings" },
+    { id: "profile", label: "Profile", icon: User },
+    { id: "preferences", label: "Preferences", icon: Settings },
+    { id: "notifications", label: "Notifications", icon: Bell },
+    { id: "account", label: "Account", icon: Building2 },
+    { id: "permissions", label: "Permissions", icon: ShieldCheck },
+    { id: "courier", label: "Courier Integration", icon: Truck },
+    { id: "domain", label: "Custom Domain", icon: Globe },
+    { id: "billings", label: "Billings", icon: CreditCard },
   ];
 
   const renderContent = () => {
@@ -56,7 +69,7 @@ const SettingsPage = () => {
     ) {
       return (
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin h-10 w-10 border-2 border-nexus-primary border-t-transparent rounded-full" />
+          <div className="animate-spin h-10 w-10 border-2 border-violet-600 border-t-transparent rounded-full" />
         </div>
       );
     }
@@ -83,52 +96,80 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1400px] mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-            Settings
-          </h1>
-          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">
-            Customize until match to your workflows
-          </p>
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900/50">
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full hover:bg-white dark:hover:bg-gray-800 hover:shadow-md transition-all duration-200"
+              onClick={() => navigate(-1)}
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300">
+                Settings
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                Manage your courier orders, track deliveries, and handle returns
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            className="bg-white hover:bg-gray-50 text-gray-700 border-gray-200 h-10 px-6"
-          >
-            Cancel
-          </Button>
-          <Button className="bg-nexus-primary hover:bg-nexus-primary/90 text-white min-w-[100px] h-10 px-6">
-            Save
-          </Button>
+
+        {/* Navigation Tabs */}
+        <div className="sticky top-0 z-20 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-hidden">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-[20px] p-1.5 shadow-sm">
+            <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                const Icon = tab.icon;
+                
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={cn(
+                      "relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap",
+                      isActive 
+                        ? "text-white" 
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100/50 dark:hover:bg-gray-700/50"
+                    )}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeTab"
+                        className="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl shadow-lg shadow-violet-500/20"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                    <span className="relative z-10 flex items-center gap-2">
+                      <Icon className={cn("w-4 h-4", isActive ? "text-white" : "text-gray-500 dark:text-gray-400")} />
+                      {tab.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Tabs */}
-      <div className="flex overflow-x-auto gap-2 mb-6 pb-2 scrollbar-hide">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={cn(
-              "px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors",
-              activeTab === tab.id
-                ? "bg-nexus-primary text-white"
-                : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700",
-            )}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="w-full">
         {/* Content Area */}
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-8 shadow-sm min-h-[600px]">
-          {renderContent()}
+        <div className="relative min-h-[600px]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {renderContent()}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>

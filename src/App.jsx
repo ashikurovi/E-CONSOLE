@@ -49,7 +49,7 @@ const App = () => {
       <SearchProvider>
         <RouterProvider router={routes} />
         <Toaster
-          position="bottom-center"
+          position="top-right"
           toastOptions={{
             style: {
               borderRadius: "8px",

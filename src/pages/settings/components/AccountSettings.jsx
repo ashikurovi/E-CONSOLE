@@ -2,7 +2,18 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, Eye, EyeOff } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Shield,
+  Key,
+  AlertTriangle,
+  User,
+  Mail,
+  Phone,
+  Building,
+} from "lucide-react";
+import { motion } from "framer-motion";
 
 const AccountSettings = ({ user: userFromApi }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,87 +23,228 @@ const AccountSettings = ({ user: userFromApi }) => {
   const phone = user?.phone ?? "";
   const avatarUrl = user?.companyLogo ?? user?.photo ?? null;
 
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.4, ease: "easeOut" },
+    },
+  };
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Account</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Your account details from the server</p>
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400">
+            <Shield className="h-6 w-6" />
+          </div>
+          Account Security
+        </h2>
       </div>
 
-      <div className="space-y-8">
-        {/* My Profile - data from API */}
-        <div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">My Profile</h3>
-          
-          <div className="flex items-center gap-4 mb-6">
-            <div className="h-16 w-16 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
-               {avatarUrl ? (
-                 <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
-               ) : (
-                 <div className="h-full w-full flex items-center justify-center text-gray-500 text-xl font-medium">
-                   {displayName ? displayName.charAt(0).toUpperCase() : "?"}
-                 </div>
-               )}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Left Column: User Identity */}
+        <div className="xl:col-span-1 space-y-6">
+          <div className="rounded-[24px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1f26] shadow-xl overflow-hidden p-6 text-center relative group">
+            <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-br from-violet-500/10 to-indigo-500/10 dark:from-violet-500/20 dark:to-indigo-500/20"></div>
+
+            <div className="relative z-10 mt-4 mb-4">
+              <div className="w-40 h-40 mx-auto rounded-full border-4 border-white dark:border-[#1a1f26] bg-white dark:bg-gray-800 shadow-xl flex items-center justify-center overflow-hidden relative">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt="Avatar"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-gray-500 text-4xl font-medium bg-gray-100 dark:bg-gray-800">
+                    {displayName ? displayName.charAt(0).toUpperCase() : "?"}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+              {displayName || "User"}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+              {email || "No email provided"}
+            </p>
+
+            <div className="grid grid-cols-2 gap-3 border-t border-gray-100 dark:border-gray-800 pt-6">
+              <div className="p-3 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  Role
+                </p>
+                <p className="font-semibold text-gray-900 dark:text-white text-sm">
+                  {user?.role || "Admin"}
+                </p>
+              </div>
+              <div className="p-3 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  Status
+                </p>
+                <div className="flex items-center justify-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <p className="font-semibold text-gray-900 dark:text-white text-sm">
+                    Active
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" value={displayName} readOnly className="h-11 bg-gray-50 dark:bg-gray-800" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" value={email} readOnly className="h-11 bg-gray-50 dark:bg-gray-800" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input id="phone" value={phone} readOnly className="h-11 bg-gray-50 dark:bg-gray-800" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="companyName">Company</Label>
-              <Input id="companyName" value={user?.companyName ?? ""} readOnly className="h-11 bg-gray-50 dark:bg-gray-800" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input 
-                  id="password" 
-                  type={showPassword ? "text" : "password"} 
-                  defaultValue="********" 
-                  className="h-11 pr-10" 
-                />
-                <button 
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-                </button>
+          {/* Security Tip Card */}
+          <div className="p-5 rounded-[24px] bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg">
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                <Key className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h4 className="font-bold text-lg mb-1">Secure Account</h4>
+                <p className="text-sm text-white/80 leading-relaxed">
+                  Use a strong password to protect your account. We recommend
+                  rotating it every 90 days.
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-800 my-6"></div>
+        {/* Right Column: Account Details & Danger Zone */}
+        <div className="xl:col-span-2 space-y-6">
+          {/* Read-Only Details Card */}
+          <div className="rounded-[24px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1f26] shadow-xl overflow-hidden">
+            <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <User className="w-5 h-5 text-violet-500" />
+                Personal Information
+              </h3>
+            </div>
 
-        {/* Delete Account */}
-        <div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Delete account</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-3xl">
-            When you delete your account, you lose access to Front account services, and we permanently delete your personal data. You can cancel the deletion for 14 days.
-          </p>
-          <div className="flex gap-4 justify-end md:justify-start">
-            <Button variant="destructive" className="bg-[#BE123C] hover:bg-[#9F1239] px-6">
-              Delete Account
-            </Button>
-            <Button variant="outline" className="text-gray-700 border-gray-200 hover:bg-gray-50 px-6">
-              Learn More
-            </Button>
+            <div className="p-6 md:p-8 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="ml-1">
+                    Name
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="name"
+                      value={displayName}
+                      readOnly
+                      className="h-12 pl-12 bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 rounded-xl"
+                    />
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="ml-1">
+                    Email Address
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="email"
+                      value={email}
+                      readOnly
+                      className="h-12 pl-12 bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 rounded-xl"
+                    />
+                  </div>
+                </div>
+
+                {/* Phone */}
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="ml-1">
+                    Phone Number
+                  </Label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="phone"
+                      value={phone}
+                      readOnly
+                      className="h-12 pl-12 bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 rounded-xl"
+                    />
+                  </div>
+                </div>
+
+                {/* Company */}
+                <div className="space-y-2">
+                  <Label htmlFor="companyName" className="ml-1">
+                    Company
+                  </Label>
+                  <div className="relative">
+                    <Building className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="companyName"
+                      value={user?.companyName ?? ""}
+                      readOnly
+                      className="h-12 pl-12 bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 rounded-xl"
+                    />
+                  </div>
+                </div>
+
+                {/* Password (Masked) */}
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="password" className="ml-1">
+                    Password
+                  </Label>
+                  <div className="relative">
+                    <Key className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      defaultValue="********"
+                      readOnly
+                      className="h-12 pl-12 pr-12 bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 rounded-xl"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    >
+                      {showPassword ? (
+                        <Eye className="h-5 w-5" />
+                      ) : (
+                        <EyeOff className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Danger Zone */}
+          <div className="rounded-[24px] border border-red-100 dark:border-red-900/30 bg-white dark:bg-[#1a1f26] shadow-xl overflow-hidden">
+            <div className="p-6 md:p-8 border-b border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10">
+              <h3 className="text-lg font-bold text-red-600 dark:text-red-400 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" />
+                Delete Account
+              </h3>
+            </div>
+
+            <div className="p-6 md:p-8">
+              <p className="text-sm text-gray-500 dark:text-gray-400 max-w-3xl leading-relaxed">
+                When you delete your account, you lose access to Front account
+                services, and we permanently delete your personal data. You can
+                cancel the deletion for 14 days.
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

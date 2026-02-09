@@ -46,7 +46,8 @@ const OptimizedUpgradePlan = () => {
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.auth?.user);
   const userPackageId = currentUser?.packageId ?? currentUser?.package?.id;
-  const [revertPackage, { isLoading: isReverting }] = useRevertPackageMutation();
+  const [revertPackage, { isLoading: isReverting }] =
+    useRevertPackageMutation();
   const [createInvoice] = useCreateInvoiceMutation();
   const [initiateBkashPayment] = useInitiateBkashPaymentMutation();
   const [submitBankPayment] = useSubmitBankPaymentMutation();
@@ -61,17 +62,17 @@ const OptimizedUpgradePlan = () => {
   // Support both: API returns array directly (after transform) or { statusCode, message, data: [] }
   const packagesList = (() => {
     if (Array.isArray(packagesFromApi)) return packagesFromApi;
-    if (packagesFromApi?.data && Array.isArray(packagesFromApi.data)) return packagesFromApi.data;
+    if (packagesFromApi?.data && Array.isArray(packagesFromApi.data))
+      return packagesFromApi.data;
     return [];
   })();
 
-  const {
-    data: invoicesFromApi,
-    isLoading: invoicesLoading,
-  } = useGetInvoicesQuery(undefined, { refetchOnMountOrArgChange: true });
+  const { data: invoicesFromApi, isLoading: invoicesLoading } =
+    useGetInvoicesQuery(undefined, { refetchOnMountOrArgChange: true });
   const invoicesList = (() => {
     if (Array.isArray(invoicesFromApi)) return invoicesFromApi;
-    if (invoicesFromApi?.data && Array.isArray(invoicesFromApi.data)) return invoicesFromApi.data;
+    if (invoicesFromApi?.data && Array.isArray(invoicesFromApi.data))
+      return invoicesFromApi.data;
     return [];
   })();
 
@@ -102,7 +103,7 @@ const OptimizedUpgradePlan = () => {
         rawDiscount: rawDiscount != null ? String(rawDiscount) : null,
         features: features.length ? features : ["—"],
         buttonText: isUserPackage ? "Active plan" : "Choose Plan",
-        badge: isUserPackage ? "Current" : (pkg.isFeatured ? "Popular" : null),
+        badge: isUserPackage ? "Current" : pkg.isFeatured ? "Popular" : null,
         isUserPackage,
       };
     });
@@ -119,7 +120,7 @@ const OptimizedUpgradePlan = () => {
   // Logged-in user's current package (for hero section)
   const currentPlan = useMemo(
     () => plans.find((p) => p.isUserPackage) || null,
-    [plans]
+    [plans],
   );
 
   // Comparison rows: one per feature permission, each plan gets ✓/✗
@@ -132,7 +133,7 @@ const OptimizedUpgradePlan = () => {
 
   const comparisonSections = useMemo(
     () => [{ title: "Features", rows: comparisonRows }],
-    [comparisonRows]
+    [comparisonRows],
   );
 
   const renderComparisonValue = (value) => {
@@ -148,8 +149,8 @@ const OptimizedUpgradePlan = () => {
     if (value === false) {
       return (
         <div className="flex items-center justify-center">
-          <div className="w-6 h-6 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center">
-            <X className="w-3.5 h-3.5 text-gray-400" />
+          <div className="w-6 h-6 rounded-full border border-red-200 bg-red-50 flex items-center justify-center">
+            <X className="w-3.5 h-3.5 text-red-600" />
           </div>
         </div>
       );
@@ -171,12 +172,14 @@ const OptimizedUpgradePlan = () => {
             year: "numeric",
           })
         : "—";
-      const amount = inv.totalAmount != null ? formatPrice(inv.totalAmount) : "—";
+      const amount =
+        inv.totalAmount != null ? formatPrice(inv.totalAmount) : "—";
       const status =
         inv.status === "paid"
           ? "Success"
           : inv.status
-            ? String(inv.status).charAt(0).toUpperCase() + String(inv.status).slice(1)
+            ? String(inv.status).charAt(0).toUpperCase() +
+              String(inv.status).slice(1)
             : "—";
       return {
         id: String(inv.id),
@@ -420,7 +423,9 @@ const OptimizedUpgradePlan = () => {
                 {currentPlan && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-full text-xs font-bold shadow-lg shadow-purple-600/20">
                     <Flame className="w-3.5 h-3.5" />
-                    {currentPlan.badge === "Current" ? "Current plan" : "Most Popular"}
+                    {currentPlan.badge === "Current"
+                      ? "Current plan"
+                      : "Most Popular"}
                   </span>
                 )}
               </div>
@@ -449,19 +454,32 @@ const OptimizedUpgradePlan = () => {
                 </div>
                 {currentPlan && currentPlan.price !== "—" && (
                   <p className="text-gray-600 dark:text-gray-400 text-sm flex items-center gap-2 flex-wrap">
-                    {(currentPlan.rawPrice && currentPlan.rawDiscount && parseFloat(currentPlan.rawDiscount) < parseFloat(currentPlan.rawPrice)) ||
-                    (currentUser?.package?.price != null && currentUser.package.discountPrice != null) ? (
+                    {(currentPlan.rawPrice &&
+                      currentPlan.rawDiscount &&
+                      parseFloat(currentPlan.rawDiscount) <
+                        parseFloat(currentPlan.rawPrice)) ||
+                    (currentUser?.package?.price != null &&
+                      currentUser.package.discountPrice != null) ? (
                       <>
                         <span className="line-through opacity-60">
-                          ${formatPrice(currentPlan.rawPrice || currentUser?.package?.price)}
+                          $
+                          {formatPrice(
+                            currentPlan.rawPrice || currentUser?.package?.price,
+                          )}
                         </span>
                         <span className="inline-flex items-center gap-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded text-xs font-bold border border-green-200 dark:border-green-800">
                           Save{" "}
                           {Math.round(
                             (1 -
-                              parseFloat(currentPlan.rawDiscount || currentUser?.package?.discountPrice) /
-                                parseFloat(currentPlan.rawPrice || currentUser?.package?.price)) *
-                              100
+                              parseFloat(
+                                currentPlan.rawDiscount ||
+                                  currentUser?.package?.discountPrice,
+                              ) /
+                                parseFloat(
+                                  currentPlan.rawPrice ||
+                                    currentUser?.package?.price,
+                                )) *
+                              100,
                           )}
                           %
                         </span>
@@ -477,7 +495,9 @@ const OptimizedUpgradePlan = () => {
                 whileTap={{ scale: 0.98 }}
                 className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-purple-600/20 transition-all"
                 onClick={() =>
-                  document.getElementById("plans")?.scrollIntoView?.({ behavior: "smooth" })
+                  document
+                    .getElementById("plans")
+                    ?.scrollIntoView?.({ behavior: "smooth" })
                 }
               >
                 {currentPlan ? "Compare & upgrade" : "View plans"}
@@ -549,7 +569,9 @@ const OptimizedUpgradePlan = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <div className="text-gray-500 dark:text-gray-400">Loading packages…</div>
+            <div className="text-gray-500 dark:text-gray-400">
+              Loading packages…
+            </div>
           </motion.div>
         ) : packagesError ? (
           <motion.div
@@ -582,151 +604,167 @@ const OptimizedUpgradePlan = () => {
             No packages available. Contact support to add plans.
           </motion.div>
         ) : (
-        <motion.div
-          id="plans"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {plans.map((plan, index) => {
-            const isActive = index === selectedPlanIndex;
+          <motion.div
+            id="plans"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-6 mb-12"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {plans.map((plan, index) => {
+              const isActive = index === selectedPlanIndex;
 
-            return (
-              <motion.div
-                key={plan.id ?? index}
-                layout
-                onClick={() => setSelectedPlanIndex(index)}
-                whileHover={{ y: -8 }}
-                whileTap={{ scale: 0.98 }}
-                variants={itemVariants}
-                className={`rounded-2xl p-8 cursor-pointer border-2 transition-all duration-300 relative overflow-hidden ${
-                  isActive
-                    ? "bg-gradient-to-br from-purple-600 to-purple-700 border-purple-600 text-white shadow-xl shadow-purple-600/20"
-                    : plan.isUserPackage
-                      ? "bg-white border-purple-400 shadow-md hover:shadow-lg ring-2 ring-purple-200"
-                      : "bg-white border-gray-200 hover:border-purple-300 shadow-sm hover:shadow-md"
-                }`}
-              >
-                {/* Badge */}
-                {plan.badge && (
-                  <motion.div
-                    className={`absolute top-6 right-6 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                      plan.isUserPackage && !isActive
-                        ? "bg-purple-600 text-white"
-                        : "bg-white/20 text-white backdrop-blur-sm"
-                    }`}
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: "spring", delay: 0.3 }}
-                  >
-                    <Flame className="w-3.5 h-3.5" />
-                    {plan.badge}
-                  </motion.div>
-                )}
-
-                {/* Content */}
-                <div className="mb-8">
-                  <h3
-                    className={`text-2xl font-bold mb-1 ${isActive ? "text-white" : "text-gray-900"}`}
-                  >
-                    {plan.name}
-                  </h3>
-                  <p
-                    className={`text-sm ${isActive ? "text-purple-100" : "text-gray-500"}`}
-                  >
-                    {plan.subtitle}
-                  </p>
-                </div>
-
-                {/* Price */}
+              return (
                 <motion.div
-                  className="mb-8"
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <div className="flex items-baseline gap-1 mb-1">
-                    <span
-                      className={`text-4xl font-black ${isActive ? "text-white" : "text-gray-900 dark:text-white"}`}
-                    >
-                      ${formatPrice(plan.price)}
-                    </span>
-                    <span
-                      className={`text-sm ${isActive ? "text-purple-100" : "text-gray-500 dark:text-gray-400"}`}
-                    >
-                      /year
-                    </span>
-                  </div>
-                  {plan.rawPrice && plan.rawDiscount && parseFloat(plan.rawDiscount) < parseFloat(plan.rawPrice) && (
-                    <p className={`text-sm flex items-center gap-2 mt-1 ${isActive ? "text-purple-100" : "text-gray-500 dark:text-gray-400"}`}>
-                      <span className="line-through opacity-70">${formatPrice(plan.rawPrice)}</span>
-                      <span className="inline-flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-1.5 py-0.5 rounded text-xs font-bold">
-                        Save {Math.round((1 - parseFloat(plan.rawDiscount) / parseFloat(plan.rawPrice)) * 100)}%
-                      </span>
-                    </p>
-                  )}
-                </motion.div>
-
-                {/* Features */}
-                <motion.div
-                  className="flex-1 space-y-4 mb-8"
-                  variants={containerVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  {plan.features.map((feature, idx) => (
-                    <motion.div
-                      key={idx}
-                      className="flex items-center gap-3"
-                      variants={itemVariants}
-                    >
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.3 + idx * 0.1 }}
-                      >
-                        <Check
-                          className={`w-5 h-5 ${
-                            isActive ? "text-purple-200" : "text-purple-600"
-                          }`}
-                        />
-                      </motion.div>
-                      <span
-                        className={`text-sm font-medium ${
-                          isActive ? "text-white" : "text-gray-700"
-                        }`}
-                      >
-                        {typeof feature === "string" && feature.length > 2 ? featureLabel(feature) : feature}
-                      </span>
-                    </motion.div>
-                  ))}
-                </motion.div>
-
-                {/* Button */}
-                <motion.button
-                  type="button"
-                  className={`w-full py-3 rounded-xl font-bold text-base transition-all ${
-                    isActive
-                      ? "bg-white text-purple-600 hover:bg-purple-50"
-                      : "bg-purple-600 text-white hover:bg-purple-700"
-                  }`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  whileHover={{ scale: 1.02 }}
+                  key={plan.id ?? index}
+                  layout
+                  onClick={() => setSelectedPlanIndex(index)}
+                  whileHover={{ y: -8 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openPaymentModal(plan);
-                  }}
+                  variants={itemVariants}
+                  className={`rounded-2xl p-8 cursor-pointer border-2 transition-all duration-300 relative overflow-hidden ${
+                    isActive
+                      ? "bg-gradient-to-br from-purple-600 to-purple-700 border-purple-600 text-white shadow-xl shadow-purple-600/20"
+                      : plan.isUserPackage
+                        ? "bg-white border-purple-400 shadow-md hover:shadow-lg ring-2 ring-purple-200"
+                        : "bg-white border-gray-200 hover:border-purple-300 shadow-sm hover:shadow-md"
+                  }`}
                 >
-                  {isActive ? `✓ ${plan.buttonText}` : plan.buttonText}
-                </motion.button>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+                  {/* Badge */}
+                  {plan.badge && (
+                    <motion.div
+                      className={`absolute top-6 right-6 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                        plan.isUserPackage && !isActive
+                          ? "bg-purple-600 text-white"
+                          : "bg-white/20 text-white backdrop-blur-sm"
+                      }`}
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", delay: 0.3 }}
+                    >
+                      <Flame className="w-3.5 h-3.5" />
+                      {plan.badge}
+                    </motion.div>
+                  )}
+
+                  {/* Content */}
+                  <div className="mb-8">
+                    <h3
+                      className={`text-2xl font-bold mb-1 ${isActive ? "text-white" : "text-gray-900"}`}
+                    >
+                      {plan.name}
+                    </h3>
+                    <p
+                      className={`text-sm ${isActive ? "text-purple-100" : "text-gray-500"}`}
+                    >
+                      {plan.subtitle}
+                    </p>
+                  </div>
+
+                  {/* Price */}
+                  <motion.div
+                    className="mb-8"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <div className="flex items-baseline gap-1 mb-1">
+                      <span
+                        className={`text-4xl font-black ${isActive ? "text-white" : "text-gray-900 dark:text-white"}`}
+                      >
+                        ${formatPrice(plan.price)}
+                      </span>
+                      <span
+                        className={`text-sm ${isActive ? "text-purple-100" : "text-gray-500 dark:text-gray-400"}`}
+                      >
+                        /year
+                      </span>
+                    </div>
+                    {plan.rawPrice &&
+                      plan.rawDiscount &&
+                      parseFloat(plan.rawDiscount) <
+                        parseFloat(plan.rawPrice) && (
+                        <p
+                          className={`text-sm flex items-center gap-2 mt-1 ${isActive ? "text-purple-100" : "text-gray-500 dark:text-gray-400"}`}
+                        >
+                          <span className="line-through opacity-70">
+                            ${formatPrice(plan.rawPrice)}
+                          </span>
+                          <span className="inline-flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-1.5 py-0.5 rounded text-xs font-bold">
+                            Save{" "}
+                            {Math.round(
+                              (1 -
+                                parseFloat(plan.rawDiscount) /
+                                  parseFloat(plan.rawPrice)) *
+                                100,
+                            )}
+                            %
+                          </span>
+                        </p>
+                      )}
+                  </motion.div>
+
+                  {/* Features */}
+                  <motion.div
+                    className="flex-1 space-y-4 mb-8"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    {plan.features.map((feature, idx) => (
+                      <motion.div
+                        key={idx}
+                        className="flex items-center gap-3"
+                        variants={itemVariants}
+                      >
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.3 + idx * 0.1 }}
+                        >
+                          <Check
+                            className={`w-5 h-5 ${
+                              isActive ? "text-purple-200" : "text-purple-600"
+                            }`}
+                          />
+                        </motion.div>
+                        <span
+                          className={`text-sm font-medium ${
+                            isActive ? "text-white" : "text-gray-700"
+                          }`}
+                        >
+                          {typeof feature === "string" && feature.length > 2
+                            ? featureLabel(feature)
+                            : feature}
+                        </span>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+
+                  {/* Button */}
+                  <motion.button
+                    type="button"
+                    className={`w-full py-3 rounded-xl font-bold text-base transition-all ${
+                      isActive
+                        ? "bg-white text-purple-600 hover:bg-purple-50"
+                        : "bg-purple-600 text-white hover:bg-purple-700"
+                    }`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openPaymentModal(plan);
+                    }}
+                  >
+                    {isActive ? `✓ ${plan.buttonText}` : plan.buttonText}
+                  </motion.button>
+                </motion.div>
+              );
+            })}
+          </motion.div>
         )}
       </motion.section>
 
@@ -762,7 +800,9 @@ const OptimizedUpgradePlan = () => {
               {/* Table Header */}
               <div
                 className="grid bg-gray-100/50 border-b border-gray-200"
-                style={{ gridTemplateColumns: `minmax(180px, 1fr) repeat(${plans.length}, minmax(100px, 1fr))` }}
+                style={{
+                  gridTemplateColumns: `minmax(180px, 1fr) repeat(${plans.length}, minmax(100px, 1fr))`,
+                }}
               >
                 <div className="p-4 font-bold text-gray-900 flex items-center">
                   <span className="text-purple-600 font-bold text-sm bg-purple-50 px-2 py-1 rounded">
@@ -773,7 +813,9 @@ const OptimizedUpgradePlan = () => {
                   <div
                     key={plan.id ?? idx}
                     className={`p-4 text-center font-bold text-gray-900 bg-gray-50/50 border-l border-gray-100 ${
-                      plan.isUserPackage ? "bg-purple-50/80 text-purple-800" : ""
+                      plan.isUserPackage
+                        ? "bg-purple-50/80 text-purple-800"
+                        : ""
                     }`}
                   >
                     {plan.name}
@@ -797,11 +839,16 @@ const OptimizedUpgradePlan = () => {
                     className="overflow-hidden"
                   >
                     <div className="divide-y divide-gray-100">
-                      {(showAllFeatures ? comparisonRows : comparisonRows.slice(0, 15)).map((row, rowIdx) => (
+                      {(showAllFeatures
+                        ? comparisonRows
+                        : comparisonRows.slice(0, 15)
+                      ).map((row, rowIdx) => (
                         <div
                           key={rowIdx}
                           className="grid hover:bg-gray-50/50 transition-colors"
-                          style={{ gridTemplateColumns: `minmax(180px, 1fr) repeat(${plans.length}, minmax(100px, 1fr))` }}
+                          style={{
+                            gridTemplateColumns: `minmax(180px, 1fr) repeat(${plans.length}, minmax(100px, 1fr))`,
+                          }}
                         >
                           <div className="p-4 py-3 text-sm font-medium text-gray-700 flex items-center">
                             {row.name}
@@ -810,7 +857,9 @@ const OptimizedUpgradePlan = () => {
                             <div
                               key={planIdx}
                               className={`p-4 py-3 text-center flex items-center justify-center border-l border-gray-50 ${
-                                plans[planIdx]?.isUserPackage ? "bg-purple-50/30" : ""
+                                plans[planIdx]?.isUserPackage
+                                  ? "bg-purple-50/30"
+                                  : ""
                               }`}
                             >
                               {renderComparisonValue(value)}
@@ -944,73 +993,77 @@ const OptimizedUpgradePlan = () => {
                       </td>
                     </tr>
                   ) : (
-                  billingHistory.map((item, index) => (
-                    <motion.tr
-                      key={item.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      transition={{ delay: index * 0.1 }}
-                      className={`hover:bg-gray-50 transition-colors ${
-                        selectedRows.has(index) ? "bg-purple-50" : ""
-                      }`}
-                    >
-                      <td className="p-4">
-                        <input
-                          type="checkbox"
-                          className="rounded border-gray-300 text-purple-600 cursor-pointer"
-                          checked={selectedRows.has(index)}
-                          onChange={() => toggleRowSelection(index)}
-                        />
-                      </td>
-                      <td className="p-4 font-semibold text-gray-900">
-                        {item.id}
-                      </td>
-                      <td className="p-4 font-semibold text-gray-900">
-                        {item.invoice}
-                      </td>
-                      <td className="p-4 text-gray-600">{item.date}</td>
-                      <td className="p-4 font-semibold text-gray-900">
-                        💰 {item.amount}
-                      </td>
-                      <td className="p-4 text-gray-700">{item.plan}</td>
-                      <td className="p-4">
-                        <span
-                          className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${
-                            item.raw?.status === "paid"
-                              ? "bg-green-100 text-green-700"
-                              : item.raw?.status === "pending"
-                                ? "bg-amber-100 text-amber-700"
-                                : item.raw?.status === "cancelled" || item.raw?.status === "failed"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-gray-100 text-gray-700"
-                          }`}
-                        >
-                          {item.raw?.status === "paid" && <Check className="w-3 h-3" />}
-                          {item.status}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <motion.div
-                          className="flex items-center justify-end"
-                          initial={{ opacity: 0, x: 10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.1 + 0.2 }}
-                        >
-                          <motion.button
-                            type="button"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handleDownloadInvoice(item.raw)}
-                            className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
+                    billingHistory.map((item, index) => (
+                      <motion.tr
+                        key={item.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        transition={{ delay: index * 0.1 }}
+                        className={`hover:bg-gray-50 transition-colors ${
+                          selectedRows.has(index) ? "bg-purple-50" : ""
+                        }`}
+                      >
+                        <td className="p-4">
+                          <input
+                            type="checkbox"
+                            className="rounded border-gray-300 text-purple-600 cursor-pointer"
+                            checked={selectedRows.has(index)}
+                            onChange={() => toggleRowSelection(index)}
+                          />
+                        </td>
+                        <td className="p-4 font-semibold text-gray-900">
+                          {item.id}
+                        </td>
+                        <td className="p-4 font-semibold text-gray-900">
+                          {item.invoice}
+                        </td>
+                        <td className="p-4 text-gray-600">{item.date}</td>
+                        <td className="p-4 font-semibold text-gray-900">
+                          💰 {item.amount}
+                        </td>
+                        <td className="p-4 text-gray-700">{item.plan}</td>
+                        <td className="p-4">
+                          <span
+                            className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${
+                              item.raw?.status === "paid"
+                                ? "bg-green-100 text-green-700"
+                                : item.raw?.status === "pending"
+                                  ? "bg-amber-100 text-amber-700"
+                                  : item.raw?.status === "cancelled" ||
+                                      item.raw?.status === "failed"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-gray-100 text-gray-700"
+                            }`}
                           >
-                            <Download className="w-4 h-4" />
-                            Download invoice
-                          </motion.button>
-                        </motion.div>
-                      </td>
-                    </motion.tr>
-                  )))}
+                            {item.raw?.status === "paid" && (
+                              <Check className="w-3 h-3" />
+                            )}
+                            {item.status}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <motion.div
+                            className="flex items-center justify-end"
+                            initial={{ opacity: 0, x: 10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.1 + 0.2 }}
+                          >
+                            <motion.button
+                              type="button"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => handleDownloadInvoice(item.raw)}
+                              className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
+                            >
+                              <Download className="w-4 h-4" />
+                              Download invoice
+                            </motion.button>
+                          </motion.div>
+                        </td>
+                      </motion.tr>
+                    ))
+                  )}
                 </AnimatePresence>
               </tbody>
             </table>
