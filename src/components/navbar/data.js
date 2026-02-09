@@ -58,7 +58,7 @@ export const navSections = [
     id: "main",
     title: "General",
     tKey: "nav.main",
-    icon: LayoutDashboard,
+    icon: LayoutGrid,
     items: [
       {
         id: 1.6,

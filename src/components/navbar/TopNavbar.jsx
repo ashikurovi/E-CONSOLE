@@ -65,9 +65,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
   } = useGlobalSearch(searchTerm, companyId);
 
   // Single source: all notification data from API (poll every 30s)
-  const {
-    data: apiNotifications = [],
-  } = useGetAllNotificationsQuery(
+  const { data: apiNotifications = [] } = useGetAllNotificationsQuery(
     { companyId },
     { skip: !companyId, refetchInterval: 30000 },
   );
@@ -746,18 +744,6 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
                 </div>
               </PopoverContent>
             </Popover>
-
-            {/* Profile */}
-            <Link
-              to="/settings"
-              className="flex items-center gap-2 ml-2 pl-2 border-l border-gray-200 dark:border-gray-800"
-            >
-              <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 ring-2 ring-white dark:ring-white/10 hover:shadow-blue-500/40 transition-all">
-                <span className="text-sm font-bold">
-                  {user?.name?.charAt(0) || "U"}
-                </span>
-              </div>
-            </Link>
           </div>
         </div>
       </div>
@@ -944,15 +930,6 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
               </div>
             </PopoverContent>
           </Popover>
-
-          {/* Profile */}
-          <Link to="/settings" className="p-2">
-            <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 ring-1 ring-white dark:ring-white/10">
-              <span className="text-xs font-bold">
-                {user?.name?.charAt(0) || "U"}
-              </span>
-            </div>
-          </Link>
         </div>
       </div>
 
