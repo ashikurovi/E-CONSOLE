@@ -22,13 +22,13 @@ import {
   ArrowDownRight,
   Search,
   MoreHorizontal,
+  Plus,
 } from "lucide-react";
 import {
   useGetSystemusersQuery,
   useDeleteSystemuserMutation,
 } from "@/features/systemuser/systemuserApiSlice";
 import { useNavigate } from "react-router-dom";
-import CustomerCreateForm from "./customers-components/CustomerCreateForm";
 import { motion } from "framer-motion";
 import {
   DropdownMenu,
@@ -372,13 +372,19 @@ const SuperAdminCustomersPage = () => {
                 className="pl-9 pr-4 h-10 w-full sm:w-64 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
               />
             </div>
-            <CustomerCreateForm />
+            <Button
+              onClick={() => navigate("/superadmin/customers/create")}
+              className="w-full sm:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-xl shadow-violet-500/20 border-0 rounded-xl transition-all duration-300 hover:scale-[1.05]"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Customer
+            </Button>
           </div>
         </div>
         <div className="p-[5px] px-3 md:px-6  pb-5">
-                    <ReusableTable
-                        data={tableData}
-                        headers={headers}
+          <ReusableTable
+            data={tableData}
+            headers={headers}
             py="py-4 md:py-5"
             total={filteredUsers.length}
             isLoading={isLoading}

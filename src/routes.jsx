@@ -74,9 +74,13 @@ import SuperAdminEarningsPage from "./pages/superadmin/earnings";
 import SuperAdminCustomersPage from "./pages/superadmin/customers";
 import SuperAdminCustomerDetailPage from "./pages/superadmin/customer-detail";
 import SuperAdminCustomerEditPage from "./pages/superadmin/customer-edit";
+import SuperAdminCustomerCreatePage from "./pages/superadmin/customer-create";
 import SuperAdminSupportPage from "./pages/superadmin/support";
 import SuperAdminSupportDetailPage from "./pages/superadmin/support-detail";
 import PackageManagementPage from "./pages/superadmin/packagemanagement";
+import PackageDetailPage from "./pages/superadmin/package-detail";
+import PackageEditPage from "./pages/superadmin/package-edit";
+import PackageCreatePage from "./pages/superadmin/package-create";
 import ThemeManagementPage from "./pages/superadmin/thememanagement";
 import InvoiceManagementPage from "./pages/superadmin/invoice";
 import SuperAdminSuperadminsPage from "./pages/superadmin/superadmins";
@@ -666,6 +670,10 @@ export const routes = createBrowserRouter([
         element: <SuperAdminPrivateRoute><SuperAdminCustomersPage /></SuperAdminPrivateRoute>,
       },
       {
+        path: "/superadmin/customers/create",
+        element: <SuperAdminPrivateRoute><SuperAdminCustomerCreatePage /></SuperAdminPrivateRoute>,
+      },
+      {
         path: "/superadmin/customers/:id",
         element: <SuperAdminPrivateRoute><SuperAdminCustomerDetailPage /></SuperAdminPrivateRoute>,
       },
@@ -684,6 +692,18 @@ export const routes = createBrowserRouter([
       {
         path: "/superadmin/packages",
         element: <SuperAdminPrivateRoute><PackageManagementPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/packages/create",
+        element: <SuperAdminPrivateRoute><PackageCreatePage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/packages/:id",
+        element: <SuperAdminPrivateRoute><PackageDetailPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/packages/:id/edit",
+        element: <SuperAdminPrivateRoute><PackageEditPage /></SuperAdminPrivateRoute>,
       },
       {
         path: "/superadmin/themes",
