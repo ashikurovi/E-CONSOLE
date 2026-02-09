@@ -187,7 +187,7 @@ const InvoiceCreateForm = () => {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button size="sm" className="flex items-center gap-2">
+                <Button size="sm" className="flex items-center gap-2 w-full sm:w-auto bg-violet-600 hover:bg-violet-700 text-white shadow-sm shadow-violet-200 dark:shadow-none">
                     <Plus className="h-4 w-4" />
                     Add Invoice
                 </Button>

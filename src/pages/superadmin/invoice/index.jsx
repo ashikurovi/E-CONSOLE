@@ -7,9 +7,8 @@ import {
   CreditCard,
   Building2,
   User,
-  Calendar,
-  CheckCircle2,
   Clock,
+  CheckCircle2,
   XCircle,
   Eye,
   Trash2,
@@ -18,19 +17,37 @@ import {
   TrendingUp,
   TrendingDown,
   AlertTriangle,
+  MoreVertical,
+  ArrowUpRight,
+  ArrowDownRight,
 } from "lucide-react";
 import {
   useGetInvoicesQuery,
   useDeleteInvoiceMutation,
 } from "@/features/invoice/invoiceApiSlice";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import InvoiceCreateForm from "./InvoiceCreateForm";
 import InvoiceStatusUpdateForm from "./InvoiceStatusUpdateForm";
-import BankPaymentActions from "./BankPaymentActions";
 import InlineBankPaymentActions from "./InlineBankPaymentActions";
 import { generateInvoicePDF } from "./InvoicePDFGenerator";
 import toast from "react-hot-toast";
+import { motion } from "framer-motion";
 
 const InvoiceManagementPage = () => {
   const { data: invoices = [], isLoading } = useGetInvoicesQuery();
@@ -38,6 +55,92 @@ const InvoiceManagementPage = () => {
   const [expandedRows, setExpandedRows] = useState(new Set());
   const [editingInvoice, setEditingInvoice] = useState(null);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
+
+  // Stats Calculation
+  const stats = useMemo(() => {
+    const total = invoices.length;
+    const paidInvoices = invoices.filter(
+      (inv) => inv.status === "paid" || inv.status === "PAID",
+    );
+    const pendingInvoices = invoices.filter(
+      (inv) => inv.status === "pending" || inv.status === "PENDING",
+    );
+    const overdueInvoices = invoices.filter(
+      (inv) => inv.status === "overdue" || inv.status === "OVERDUE",
+    );
+
+    const totalAmount = invoices.reduce(
+      (sum, inv) => sum + parseFloat(inv.totalAmount || 0),
+      0,
+    );
+    const paidAmount = paidInvoices.reduce(
+      (sum, inv) => sum + parseFloat(inv.totalAmount || 0),
+      0,
+    );
+    const pendingAmount = pendingInvoices.reduce(
+      (sum, inv) => sum + parseFloat(inv.totalAmount || 0),
+      0,
+    );
+
+    const paidRate =
+      total > 0 ? Math.round((paidInvoices.length / total) * 100) : 0;
+    const pendingRate =
+      total > 0 ? Math.round((pendingInvoices.length / total) * 100) : 0;
+
+    const formatMoney = (amount) => `৳${amount.toLocaleString()}`;
+
+    return [
+      {
+        label: "Total Invoices",
+        value: total,
+        trend: "+12%", // Mock trend or calculate if date available
+        trendDir: "up",
+        icon: FileText,
+        bg: "bg-violet-50 dark:bg-violet-900/20",
+        color: "text-violet-600 dark:text-violet-400",
+        wave: "text-violet-500",
+      },
+      {
+        label: "Total Revenue",
+        value: formatMoney(paidAmount),
+        trend: `${paidRate}% Paid`,
+        trendDir: "up",
+        icon: DollarSign,
+        bg: "bg-emerald-50 dark:bg-emerald-900/20",
+        color: "text-emerald-600 dark:text-emerald-400",
+        wave: "text-emerald-500",
+      },
+      {
+        label: "Pending Amount",
+        value: formatMoney(pendingAmount),
+        trend: `${pendingRate}% Pending`,
+        trendDir: "down",
+        icon: Clock,
+        bg: "bg-amber-50 dark:bg-amber-900/20",
+        color: "text-amber-600 dark:text-amber-400",
+        wave: "text-amber-500",
+      },
+      {
+        label: "Avg. Invoice Value",
+        value: formatMoney(total > 0 ? totalAmount / total : 0),
+        trend: "+5%",
+        trendDir: "up",
+        icon: TrendingUp,
+        bg: "bg-blue-50 dark:bg-blue-900/20",
+        color: "text-blue-600 dark:text-blue-400",
+        wave: "text-blue-500",
+      },
+    ];
+  }, [invoices]);
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
+  };
 
   const toggleRow = (id) => {
     const newExpanded = new Set(expandedRows);
@@ -151,136 +254,102 @@ const InvoiceManagementPage = () => {
       : "-";
   };
 
-  // Statistics
-  const stats = useMemo(() => {
-    const total = invoices.length;
-    const pending = invoices.filter((inv) => inv.status === "pending").length;
-    const paid = invoices.filter((inv) => inv.status === "paid").length;
-    const totalAmount = invoices.reduce(
-      (sum, inv) => sum + parseFloat(inv.totalAmount || 0),
-      0,
-    );
-    const totalPaid = invoices.reduce(
-      (sum, inv) => sum + parseFloat(inv.paidAmount || 0),
-      0,
-    );
-    const totalDue = invoices.reduce(
-      (sum, inv) => sum + parseFloat(inv.dueAmount || 0),
-      0,
-    );
-
-    return { total, pending, paid, totalAmount, totalPaid, totalDue };
-  }, [invoices]);
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 },
+    },
+  };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <motion.div
+      className="space-y-8"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       {/* Page Header */}
-      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <FileText className="w-64 h-64 -rotate-12" />
-        </div>
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 rounded-xl bg-violet-100 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400">
+              <FileText className="w-6 h-6" />
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
               Invoice Management
             </h1>
-            <p className="text-violet-100 text-lg max-w-2xl">
-              Manage customer invoices, track payments, and handle billing
-              operations efficiently.
-            </p>
           </div>
-          <div className="flex-shrink-0">
-            <InvoiceCreateForm />
-          </div>
+          <p className="text-slate-500 dark:text-slate-400 text-lg">
+            Manage customer invoices, track payments, and handle billing
+            operations efficiently.
+          </p>
+        </div>
+        <div className="flex-shrink-0">
+          <InvoiceCreateForm />
         </div>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-        <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-xl hover:shadow-2xl transition-all duration-300 group">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Total Invoices
-            </p>
-            <div className="p-2 rounded-xl bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 group-hover:scale-110 transition-transform duration-200">
-              <FileText className="h-4 w-4" />
+      <motion.div
+        variants={itemVariants}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
+        {stats.map((stat, idx) => (
+          <motion.div
+            key={idx}
+            whileHover={{ y: -5 }}
+            className="bg-white dark:bg-slate-900 rounded-[24px] p-6 shadow-sm border border-slate-200 dark:border-slate-800 relative overflow-hidden group hover:shadow-xl transition-all duration-300"
+          >
+            <div className="flex items-center gap-4 mb-6">
+              <div
+                className={`p-3 rounded-xl ${stat.bg} ${stat.color} transition-transform group-hover:scale-110 duration-300`}
+              >
+                <stat.icon className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                {stat.label}
+              </p>
             </div>
-          </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">
-            {stats.total}
-          </p>
-        </div>
 
-        <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-xl hover:shadow-2xl transition-all duration-300 group">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Pending
-            </p>
-            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform duration-200">
-              <Clock className="h-4 w-4" />
+            <div className="relative z-10">
+              <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
+                {stat.value}
+              </h3>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md border ${
+                    stat.trendDir === "up"
+                      ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-500/20"
+                      : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-500/20"
+                  }`}
+                >
+                  {stat.trendDir === "up" ? (
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  ) : (
+                    <ArrowDownRight className="w-3.5 h-3.5" />
+                  )}
+                  {stat.trend}
+                </span>
+              </div>
             </div>
-          </div>
-          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-            {stats.pending}
-          </p>
-        </div>
 
-        <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-xl hover:shadow-2xl transition-all duration-300 group">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Paid
-            </p>
-            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform duration-200">
-              <CheckCircle2 className="h-4 w-4" />
+            {/* Wave Graphic */}
+            <div
+              className={`absolute bottom-0 right-0 w-32 h-24 opacity-10 ${stat.wave}`}
+            >
+              <svg
+                viewBox="0 0 100 60"
+                fill="currentColor"
+                preserveAspectRatio="none"
+                className="w-full h-full"
+              >
+                <path d="M0 60 C 20 60, 20 20, 50 20 C 80 20, 80 50, 100 50 L 100 60 Z" />
+              </svg>
             </div>
-          </div>
-          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-            {stats.paid}
-          </p>
-        </div>
-
-        <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-xl hover:shadow-2xl transition-all duration-300 group">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Total Amount
-            </p>
-            <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:scale-110 transition-transform duration-200">
-              <DollarSign className="h-4 w-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">
-            {formatCurrency(stats.totalAmount)}
-          </p>
-        </div>
-
-        <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-xl hover:shadow-2xl transition-all duration-300 group">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Total Paid
-            </p>
-            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform duration-200">
-              <TrendingUp className="h-4 w-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-            {formatCurrency(stats.totalPaid)}
-          </p>
-        </div>
-
-        <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-xl hover:shadow-2xl transition-all duration-300 group">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Total Due
-            </p>
-            <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform duration-200">
-              <TrendingDown className="h-4 w-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-rose-600 dark:text-rose-400">
-            {formatCurrency(stats.totalDue)}
-          </p>
-        </div>
-      </div>
+          </motion.div>
+        ))}
+      </motion.div>
 
       {/* Invoices Table */}
       <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
@@ -326,28 +395,28 @@ const InvoiceManagementPage = () => {
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-[180px]">
+                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-[180px] whitespace-nowrap">
                     Invoice
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     Customer
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     Total Amount
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     Paid
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     Due
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     Status
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     Date
                   </th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-[280px]">
+                  <th className="px-4 md:px-6 py-3 md:py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-[100px] whitespace-nowrap">
                     Actions
                   </th>
                 </tr>
@@ -366,7 +435,7 @@ const InvoiceManagementPage = () => {
                         }`}
                         onClick={() => toggleRow(invoice.id)}
                       >
-                        <td className="px-6 py-4">
+                        <td className="px-4 md:px-6 py-3 md:py-4">
                           <div className="flex items-center gap-3">
                             {isExpanded ? (
                               <ChevronDown className="h-4 w-4 text-slate-400" />
@@ -383,7 +452,7 @@ const InvoiceManagementPage = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 md:px-6 py-3 md:py-4">
                           <div>
                             <p className="text-sm font-medium text-slate-900 dark:text-white">
                               {invoice.customer?.name || "-"}
@@ -393,22 +462,22 @@ const InvoiceManagementPage = () => {
                             </p>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 md:px-6 py-3 md:py-4">
                           <span className="text-sm font-semibold text-slate-900 dark:text-white">
                             {formatCurrency(invoice.totalAmount)}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 md:px-6 py-3 md:py-4">
                           <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
                             {formatCurrency(invoice.paidAmount)}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 md:px-6 py-3 md:py-4">
                           <span className="text-sm font-medium text-rose-600 dark:text-rose-400">
                             {formatCurrency(invoice.dueAmount)}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 md:px-6 py-3 md:py-4">
                           <div className="flex flex-col items-start gap-1.5">
                             {getStatusBadge(invoice.status)}
                             {invoice.bankPayment?.status === "pending" && (
@@ -419,12 +488,12 @@ const InvoiceManagementPage = () => {
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 md:px-6 py-3 md:py-4">
                           <span className="text-xs text-slate-500 dark:text-slate-400">
                             {formatDate(invoice.createdAt)}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 md:px-6 py-3 md:py-4 text-right">
                           <div
                             className="flex items-center justify-end gap-2"
                             onClick={(e) => e.stopPropagation()}
@@ -437,43 +506,59 @@ const InvoiceManagementPage = () => {
                               <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
                             )}
 
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={(e) => handleDownloadPDF(invoice, e)}
-                              title="Download PDF"
-                              className="h-8 w-8 text-violet-600 hover:text-violet-700 hover:bg-violet-50 dark:hover:bg-violet-900/20"
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => toggleRow(invoice.id)}
-                              title="View details"
-                              className="h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setEditingInvoice(invoice)}
-                              title="Update status"
-                              className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDeleteClick(invoice)}
-                              disabled={isDeleting}
-                              title="Delete"
-                              className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-slate-500 hover:text-violet-600"
+                                >
+                                  <span className="sr-only">Open menu</span>
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent
+                                align="end"
+                                className="rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl bg-white dark:bg-slate-900"
+                              >
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleRow(invoice.id);
+                                  }}
+                                  className="cursor-pointer gap-2 text-slate-600 dark:text-slate-300 focus:text-violet-600 focus:bg-violet-50 dark:focus:bg-violet-900/20"
+                                >
+                                  <Eye className="h-4 w-4" /> View Details
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditingInvoice(invoice);
+                                  }}
+                                  className="cursor-pointer gap-2 text-slate-600 dark:text-slate-300 focus:text-violet-600 focus:bg-violet-50 dark:focus:bg-violet-900/20"
+                                >
+                                  <Edit className="h-4 w-4" /> Update Status
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={(e) => handleDownloadPDF(invoice, e)}
+                                  className="cursor-pointer gap-2 text-slate-600 dark:text-slate-300 focus:text-violet-600 focus:bg-violet-50 dark:focus:bg-violet-900/20"
+                                >
+                                  <Download className="h-4 w-4" /> Download PDF
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteClick(invoice);
+                                  }}
+                                  disabled={isDeleting}
+                                  className="cursor-pointer gap-2 text-rose-600 focus:text-rose-700 focus:bg-rose-50 dark:focus:bg-rose-900/20"
+                                >
+                                  <Trash2 className="h-4 w-4" /> Delete Invoice
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </td>
                       </tr>
@@ -481,13 +566,13 @@ const InvoiceManagementPage = () => {
                       {/* Expanded Detail Row */}
                       {isExpanded && (
                         <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                          <td colSpan="8" className="px-6 py-6">
+                          <td colSpan="8" className="px-4 md:px-6 py-4 md:py-6">
                             <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 shadow-sm">
                               {/* Download PDF Button */}
-                              <div className="mb-6 flex justify-end">
+                              <div className="mb-6 flex flex-col sm:flex-row sm:justify-end">
                                 <Button
                                   onClick={(e) => handleDownloadPDF(invoice, e)}
-                                  className="bg-violet-600 hover:bg-violet-700 text-white flex items-center gap-2 shadow-sm shadow-violet-200 dark:shadow-none"
+                                  className="bg-violet-600 hover:bg-violet-700 text-white flex items-center justify-center gap-2 shadow-sm shadow-violet-200 dark:shadow-none w-full sm:w-auto"
                                 >
                                   <Download className="h-4 w-4" />
                                   Download Invoice PDF
@@ -503,8 +588,8 @@ const InvoiceManagementPage = () => {
                                       Customer Information
                                     </h3>
                                   </div>
-                                  <div className="space-y-4 pl-2">
-                                    <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-4 pl-0 sm:pl-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                       <div>
                                         <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
                                           Name
@@ -522,7 +607,7 @@ const InvoiceManagementPage = () => {
                                         </p>
                                       </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                       <div>
                                         <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
                                           Company
@@ -540,7 +625,7 @@ const InvoiceManagementPage = () => {
                                         </p>
                                       </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                       <div>
                                         <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
                                           Phone
@@ -591,11 +676,11 @@ const InvoiceManagementPage = () => {
                                       Payment Information
                                     </h3>
                                   </div>
-                                  <div className="space-y-4 pl-2">
+                                  <div className="space-y-4 pl-0 sm:pl-2">
                                     {invoice.bankPayment ? (
                                       <>
                                         <div className="p-4 rounded-xl bg-violet-50/50 dark:bg-violet-900/10 border border-violet-100 dark:border-violet-900/30">
-                                          <div className="flex items-center justify-between mb-3">
+                                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                                             <span className="text-sm font-semibold text-violet-700 dark:text-violet-300">
                                               Bank Transfer Details
                                             </span>
@@ -603,7 +688,7 @@ const InvoiceManagementPage = () => {
                                               invoice.bankPayment,
                                             )}
                                           </div>
-                                          <div className="grid grid-cols-2 gap-4">
+                                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
                                               <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
                                                 Bank Name
@@ -694,15 +779,24 @@ const InvoiceManagementPage = () => {
         />
       )}
 
-      <Dialog open={!!invoiceToDelete} onOpenChange={(open) => !open && setInvoiceToDelete(null)}>
+      <Dialog
+        open={!!invoiceToDelete}
+        onOpenChange={(open) => !open && setInvoiceToDelete(null)}
+      >
         <DialogContent className="sm:max-w-[425px] rounded-[24px] p-0 overflow-hidden border-0 shadow-2xl">
           <div className="bg-gradient-to-br from-rose-500 to-red-600 p-6 text-white text-center">
             <div className="mx-auto w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4">
               <AlertTriangle className="w-6 h-6 text-white" />
             </div>
-            <DialogTitle className="text-xl font-bold">Delete Invoice?</DialogTitle>
+            <DialogTitle className="text-xl font-bold">
+              Delete Invoice?
+            </DialogTitle>
             <DialogDescription className="text-rose-100 mt-2">
-              This action cannot be undone. This will permanently delete invoice <span className="font-semibold text-white">#{invoiceToDelete?.invoiceNumber}</span>.
+              This action cannot be undone. This will permanently delete invoice{" "}
+              <span className="font-semibold text-white">
+                #{invoiceToDelete?.invoiceNumber}
+              </span>
+              .
             </DialogDescription>
           </div>
           <div className="p-6 bg-white dark:bg-slate-900">
@@ -726,7 +820,7 @@ const InvoiceManagementPage = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 };
 

@@ -113,14 +113,16 @@ const SuperAdminSupportPage = () => {
 
     return (
         <div className="space-y-6">
-            {/* Page header */}
-            <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                    <MessageSquare className="w-64 h-64 -rotate-12" />
+            {/* Header */}
+            <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-violet-100 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400">
+                    <MessageSquare className="w-6 h-6" />
                 </div>
-                <div className="relative z-10 max-w-2xl">
-                    <h1 className="text-3xl font-bold tracking-tight mb-3">Support</h1>
-                    <p className="text-violet-100 text-lg">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                        Support
+                    </h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                         Monitor support volume, prioritize high-impact tickets and coordinate across all connected stores.
                     </p>
                 </div>

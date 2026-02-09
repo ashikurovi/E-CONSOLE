@@ -204,7 +204,7 @@ const SuperAdminSuperadminsPage = () => {
         open={!!superadminToDelete}
         onOpenChange={(open) => !open && setSuperadminToDelete(null)}
       >
-        <DialogContent className="sm:max-w-[425px] mr rounded-[24px] p-0 overflow-hidden border-0 shadow-2xl">
+        <DialogContent className="sm:max-w-[425px] mr-2 ml-2 rounded-[24px] p-0 overflow-hidden border-0 shadow-2xl">
           <div className="bg-gradient-to-br from-rose-500 to-red-600 p-6 text-white text-center">
             <div className="mx-auto w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4">
               <AlertTriangle className="w-6 h-6 text-white" />
