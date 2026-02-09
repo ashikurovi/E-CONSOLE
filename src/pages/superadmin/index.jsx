@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   DollarSign,
   Users,
@@ -8,6 +8,7 @@ import {
   Activity,
   Star,
   Shield,
+  Clock,
 } from "lucide-react";
 import { useGetOverviewQuery } from "@/features/overview/overviewApiSlice";
 import { Link } from "react-router-dom";
@@ -15,6 +16,41 @@ import { motion } from "framer-motion";
 
 const SuperAdminOverviewPage = () => {
   const { data: overviewData, isLoading } = useGetOverviewQuery();
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const getGreeting = () => {
+    const hour = currentTime.getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    return "Good Evening";
+  };
+
+  const formatTime = (date) => {
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
+
+  const formatDate = (date) => {
+    return date
+      .toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
+      .toUpperCase();
+  };
 
   // Format currency
   const formatCurrency = (amount) => {
@@ -100,30 +136,32 @@ const SuperAdminOverviewPage = () => {
       {/* Page header */}
       <motion.div
         variants={itemVariants}
-        className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] p-8 md:p-10 text-white shadow-2xl shadow-violet-500/30"
+        className="relative overflow-hidden rounded-[24px] bg-white dark:bg-[#1a1f26] p-4 sm:p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-800 w-full"
       >
-        <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-          <Activity className="w-64 h-64 -rotate-12" />
-        </div>
-        <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute top-10 right-20 w-32 h-32 bg-indigo-500/30 rounded-full blur-2xl pointer-events-none"></div>
-
-        <div className="relative z-10 max-w-3xl">
-          <div className="flex items-center gap-3 mb-3">
-            <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider border border-white/10">
-              Super Admin Dashboard
-            </span>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 flex-wrap">
+          {/* Left Side: Greeting */}
+          <div className="space-y-2 w-full md:w-auto">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[#1e1b4b] dark:text-white">
+              {getGreeting()}, SquadCart
+            </h1>
+            <div className="flex items-center gap-2 text-xs sm:text-sm md:text-base font-medium text-slate-500 dark:text-slate-400 flex-wrap">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              </span>
+              <span>Track your growth and revenue |</span>
+            </div>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 leading-tight">
-            Welcome back, Super Admin
-          </h1>
-          <p className="text-violet-100 text-lg md:text-xl leading-relaxed max-w-2xl">
-            Here's what's happening across the platform today. You have{" "}
-            <span className="font-bold text-white bg-white/10 px-2 py-0.5 rounded-lg">
-              {overviewData?.kpis?.openSupportTickets || 0} new support tickets
-            </span>{" "}
-            requiring attention.
-          </p>
+
+          {/* Right Side: Time & Date */}
+          <div className="flex flex-col items-start md:items-end text-left md:text-right w-full md:w-auto mt-2 md:mt-0">
+            <div className="text-2xl sm:text-3xl md:text-4xl font-black text-[#1e1b4b] dark:text-white tabular-nums tracking-tight">
+              {formatTime(currentTime)}
+            </div>
+            <div className="text-[10px] sm:text-xs md:text-sm font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest mt-1">
+              {formatDate(currentTime)}
+            </div>
+          </div>
         </div>
       </motion.div>
 
