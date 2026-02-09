@@ -1,7 +1,23 @@
 import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Eye, ExternalLink, AlertTriangle } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  Eye,
+  Plus,
+  ExternalLink,
+  AlertTriangle,
+  Palette,
+  Globe,
+  Image,
+  Layout,
+  MoreVertical,
+  ArrowUpRight,
+  ArrowDownRight,
+  Copy,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,19 +27,97 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { motion } from "framer-motion";
+import {
   useGetThemesQuery,
   useDeleteThemeMutation,
 } from "@/features/theme/themeApiSlice";
-import ThemeCreateForm from "./theme-components/ThemeCreateForm";
-import ThemeEditForm from "./theme-components/ThemeEditForm";
-import ThemeDetailModal from "./theme-components/ThemeDetailModal";
 
 const ThemeManagementPage = () => {
+  const navigate = useNavigate();
   const { data: themes = [], isLoading } = useGetThemesQuery();
   const [deleteTheme, { isLoading: isDeleting }] = useDeleteThemeMutation();
-  const [editingTheme, setEditingTheme] = useState(null);
-  const [viewingTheme, setViewingTheme] = useState(null);
   const [themeToDelete, setThemeToDelete] = useState(null);
+
+  // Dynamic Stats Calculation
+  const stats = useMemo(() => {
+    const totalThemes = themes.length;
+    const withDomain = themes.filter((t) => t.domainUrl).length;
+    const withLogo = themes.filter((t) => t.logo).length;
+    const withColors = themes.filter(
+      (t) => t.primaryColorCode && t.secondaryColorCode,
+    ).length;
+
+    // Mock trend calculations (replace with real historical data if available)
+    const calculateTrend = (value, total) => {
+      if (total === 0) return { value: "+0%", dir: "up" };
+      const percentage = Math.round((value / total) * 100);
+      return { value: `+${percentage}%`, dir: "up" };
+    };
+
+    return [
+      {
+        label: "Total Themes",
+        value: totalThemes,
+        icon: Palette,
+        trend: "+12%",
+        trendDir: "up",
+        bg: "bg-violet-100 dark:bg-violet-900/20",
+        color: "text-violet-600 dark:text-violet-400",
+        wave: "text-violet-500",
+      },
+      {
+        label: "Active Domains",
+        value: withDomain,
+        icon: Globe,
+        trend: calculateTrend(withDomain, totalThemes).value,
+        trendDir: calculateTrend(withDomain, totalThemes).dir,
+        bg: "bg-emerald-100 dark:bg-emerald-900/20",
+        color: "text-emerald-600 dark:text-emerald-400",
+        wave: "text-emerald-500",
+      },
+      {
+        label: "Branded (Logo)",
+        value: withLogo,
+        icon: Image,
+        trend: calculateTrend(withLogo, totalThemes).value,
+        trendDir: calculateTrend(withLogo, totalThemes).dir,
+        bg: "bg-blue-100 dark:bg-blue-900/20",
+        color: "text-blue-600 dark:text-blue-400",
+        wave: "text-blue-500",
+      },
+      {
+        label: "Fully Styled",
+        value: withColors,
+        icon: Layout,
+        trend: calculateTrend(withColors, totalThemes).value,
+        trendDir: calculateTrend(withColors, totalThemes).dir,
+        bg: "bg-amber-100 dark:bg-amber-900/20",
+        color: "text-amber-600 dark:text-amber-400",
+        wave: "text-amber-500",
+      },
+    ];
+  }, [themes]);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
 
   const handleDeleteTheme = async () => {
     if (!themeToDelete) return;
@@ -137,106 +231,152 @@ const ThemeManagementPage = () => {
           </span>
         ),
         actions: (
-          <div className="flex items-center gap-2 justify-end">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setViewingTheme(theme)}
-              title="View details"
-              className="h-9 w-9 rounded-xl border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-700 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-all duration-200 hover:scale-105"
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+              >
+                <span className="sr-only">Open menu</span>
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-[180px] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50"
             >
-              <Eye className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setEditingTheme(theme)}
-              title="Edit"
-              className="h-9 w-9 rounded-xl border-indigo-200 dark:border-indigo-800 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:text-indigo-300 dark:hover:bg-indigo-900/20 transition-all duration-200 hover:scale-105"
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setThemeToDelete(theme)}
-              disabled={isDeleting}
-              title="Delete"
-              className="h-9 w-9 rounded-xl border-rose-200 dark:border-rose-900/50 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:text-rose-300 dark:hover:bg-rose-900/20 transition-all duration-200 hover:scale-105"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+              <DropdownMenuLabel className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-3 py-2">
+                Actions
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800" />
+              <DropdownMenuItem
+                onClick={() => navigate(`/superadmin/themes/${theme.id}`)}
+                className="cursor-pointer text-slate-600 dark:text-slate-300 focus:text-violet-600 focus:bg-violet-50 dark:focus:text-violet-400 dark:focus:bg-violet-900/20 py-2.5 px-3 rounded-lg m-1 font-medium text-sm transition-colors"
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                View Details
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => navigate(`/superadmin/themes/${theme.id}/edit`)}
+                className="cursor-pointer text-slate-600 dark:text-slate-300 focus:text-indigo-600 focus:bg-indigo-50 dark:focus:text-indigo-400 dark:focus:bg-indigo-900/20 py-2.5 px-3 rounded-lg m-1 font-medium text-sm transition-colors"
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit Theme
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(theme.id)}
+                className="cursor-pointer text-slate-600 dark:text-slate-300 focus:text-emerald-600 focus:bg-emerald-50 dark:focus:text-emerald-400 dark:focus:bg-emerald-900/20 py-2.5 px-3 rounded-lg m-1 font-medium text-sm transition-colors"
+              >
+                <Copy className="mr-2 h-4 w-4" />
+                Copy ID
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setThemeToDelete(theme)}
+                className="cursor-pointer text-rose-500 dark:text-rose-400 focus:text-rose-600 focus:bg-rose-50 dark:focus:text-rose-400 dark:focus:bg-rose-900/20 py-2.5 px-3 rounded-lg m-1 font-medium text-sm transition-colors"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Theme
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ),
       })),
     [themes, deleteTheme, isDeleting],
   );
 
   return (
-    <div className="space-y-6">
-      {/* Page header */}
-      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-2">
+    <motion.div
+      className="space-y-8"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 rounded-xl bg-violet-100 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400">
+              <Palette className="w-6 h-6" />
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
               Theme Management
             </h1>
-            <p className="text-violet-100 text-lg max-w-2xl">
-              Create and manage themes for your e-commerce platform. Configure
-              domain URLs, logos, and branding colors.
-            </p>
           </div>
+          <p className="text-slate-500 dark:text-slate-400 text-lg">
+            Create and manage themes for your e-commerce platform. Configure
+            branding and styles.
+          </p>
         </div>
+        {/* <div className="flex-shrink-0">
+          <ThemeCreateForm />
+        </div> */}
       </div>
 
-      {/* Statistics cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="rounded-[24px] bg-white dark:bg-[#1a1f26] border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group">
-          <p className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
-            Total Themes
-          </p>
-          <p className="mt-3 text-3xl font-bold text-slate-900 dark:text-white group-hover:scale-105 transition-transform duration-300 origin-left">
-            {themes.length}
-          </p>
-        </div>
-        <div className="rounded-[24px] bg-white dark:bg-[#1a1f26] border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group">
-          <p className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
-            With Domain URL
-          </p>
-          <p className="mt-3 text-3xl font-bold text-slate-900 dark:text-white group-hover:scale-105 transition-transform duration-300 origin-left">
-            {themes.filter((t) => t.domainUrl).length}
-          </p>
-        </div>
-        <div className="rounded-[24px] bg-white dark:bg-[#1a1f26] border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group">
-          <p className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
-            With Logo
-          </p>
-          <p className="mt-3 text-3xl font-bold text-slate-900 dark:text-white group-hover:scale-105 transition-transform duration-300 origin-left">
-            {themes.filter((t) => t.logo).length}
-          </p>
-        </div>
-        <div className="rounded-[24px] bg-white dark:bg-[#1a1f26] border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group">
-          <p className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
-            With Primary Color
-          </p>
-          <p className="mt-3 text-3xl font-bold text-slate-900 dark:text-white group-hover:scale-105 transition-transform duration-300 origin-left">
-            {themes.filter((t) => t.primaryColorCode).length}
-          </p>
-        </div>
-        <div className="rounded-[24px] bg-white dark:bg-[#1a1f26] border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group">
-          <p className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
-            With Secondary Color
-          </p>
-          <p className="mt-3 text-3xl font-bold text-slate-900 dark:text-white group-hover:scale-105 transition-transform duration-300 origin-left">
-            {themes.filter((t) => t.secondaryColorCode).length}
-          </p>
-        </div>
-      </div>
+      {/* Statistics Cards */}
+      <motion.div
+        variants={itemVariants}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
+        {stats.map((stat, idx) => (
+          <motion.div
+            key={idx}
+            whileHover={{ y: -5 }}
+            className="bg-white dark:bg-slate-900 rounded-[24px] p-6 shadow-sm border border-slate-200 dark:border-slate-800 relative overflow-hidden group hover:shadow-xl transition-all duration-300"
+          >
+            <div className="flex items-center gap-4 mb-6">
+              <div
+                className={`p-3 rounded-xl ${stat.bg} ${stat.color} transition-transform group-hover:scale-110 duration-300`}
+              >
+                <stat.icon className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                {stat.label}
+              </p>
+            </div>
+
+            <div className="relative z-10">
+              <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
+                {stat.value}
+              </h3>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md border ${
+                    stat.trendDir === "up"
+                      ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-500/20"
+                      : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-500/20"
+                  }`}
+                >
+                  {stat.trendDir === "up" ? (
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  ) : (
+                    <ArrowDownRight className="w-3.5 h-3.5" />
+                  )}
+                  {stat.trend}
+                </span>
+              </div>
+            </div>
+
+            {/* Wave Graphic */}
+            <div
+              className={`absolute bottom-0 right-0 w-32 h-24 opacity-10 ${stat.wave}`}
+            >
+              <svg
+                viewBox="0 0 100 60"
+                fill="currentColor"
+                preserveAspectRatio="none"
+                className="w-full h-full"
+              >
+                <path d="M0 60 C 20 60, 20 20, 50 20 C 80 20, 80 50, 100 50 L 100 60 Z" />
+              </svg>
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
 
       {/* Themes table */}
-      <div className="rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1a1f26] shadow-xl shadow-slate-200/50 dark:shadow-black/20 overflow-hidden">
-        <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <div>
+      <div className="rounded-[14px] p-5 pb-5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1a1f26] shadow-xl shadow-slate-200/50 dark:shadow-black/20 overflow-hidden">
+        <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-center sm:text-left">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
               All Themes
             </h2>
@@ -244,8 +384,14 @@ const ThemeManagementPage = () => {
               Manage themes and branding configurations.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <ThemeCreateForm />
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
+            <Button
+              onClick={() => navigate("/superadmin/themes/create")}
+              className="rounded-xl bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/20 transition-all duration-300 hover:scale-[1.02]"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Theme
+            </Button>
           </div>
         </div>
         <div className="p-0">
@@ -256,33 +402,17 @@ const ThemeManagementPage = () => {
             total={themes.length}
             isLoading={isLoading}
             searchable={false}
-            headerClassName="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+            headerClassName="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap px-4 md:px-6 text-left"
           />
         </div>
       </div>
-
-      {/* Edit Modal */}
-      {editingTheme && (
-        <ThemeEditForm
-          theme={editingTheme}
-          onClose={() => setEditingTheme(null)}
-        />
-      )}
-
-      {/* Detail Modal */}
-      {viewingTheme && (
-        <ThemeDetailModal
-          theme={viewingTheme}
-          onClose={() => setViewingTheme(null)}
-        />
-      )}
 
       {/* Delete Confirmation Dialog */}
       <Dialog
         open={!!themeToDelete}
         onOpenChange={(open) => !open && setThemeToDelete(null)}
       >
-        <DialogContent className="max-w-md bg-white dark:bg-[#1a1f26] border-slate-200 dark:border-slate-800 rounded-[24px] shadow-2xl p-0 overflow-hidden">
+        <DialogContent className="max-w-md mr-2 ml-2 bg-white dark:bg-[#1a1f26] border-slate-200 dark:border-slate-800 rounded-[24px] shadow-2xl p-0 overflow-hidden">
           <div className="p-6 flex flex-col items-center text-center space-y-4">
             <div className="h-16 w-16 rounded-full bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center mb-2">
               <AlertTriangle className="h-8 w-8 text-rose-500 dark:text-rose-400" />
@@ -319,7 +449,7 @@ const ThemeManagementPage = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 };
 

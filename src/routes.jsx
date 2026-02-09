@@ -82,6 +82,9 @@ import PackageDetailPage from "./pages/superadmin/package-detail";
 import PackageEditPage from "./pages/superadmin/package-edit";
 import PackageCreatePage from "./pages/superadmin/package-create";
 import ThemeManagementPage from "./pages/superadmin/thememanagement";
+import ThemeCreatePage from "./pages/superadmin/theme-create";
+import ThemeDetailPage from "./pages/superadmin/theme-detail";
+import ThemeEditPage from "./pages/superadmin/theme-edit";
 import InvoiceManagementPage from "./pages/superadmin/invoice";
 import SuperAdminSuperadminsPage from "./pages/superadmin/superadmins";
 import SuperAdminSuperadminDetailPage from "./pages/superadmin/superadmin-components/superadmin-detail";
@@ -708,6 +711,18 @@ export const routes = createBrowserRouter([
       {
         path: "/superadmin/themes",
         element: <SuperAdminPrivateRoute><ThemeManagementPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/themes/create",
+        element: <SuperAdminPrivateRoute><ThemeCreatePage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/themes/:id",
+        element: <SuperAdminPrivateRoute><ThemeDetailPage /></SuperAdminPrivateRoute>,
+      },
+      {
+        path: "/superadmin/themes/:id/edit",
+        element: <SuperAdminPrivateRoute><ThemeEditPage /></SuperAdminPrivateRoute>,
       },
       {
         path: "/superadmin/invoices",
