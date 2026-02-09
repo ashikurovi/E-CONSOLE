@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from "react";
 import ReusableTable from "@/components/table/reusable-table";
- import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Eye, Star, Package, Tag, TrendingDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Pencil, Trash2, Eye, Star, Package, Tag, TrendingDown, AlertTriangle } from "lucide-react";
 import {
     useGetPackagesQuery,
     useDeletePackageMutation,
@@ -15,6 +16,21 @@ const PackageManagementPage = () => {
     const [deletePackage, { isLoading: isDeleting }] = useDeletePackageMutation();
     const [editingPackage, setEditingPackage] = useState(null);
     const [viewingPackage, setViewingPackage] = useState(null);
+    const [packageToDelete, setPackageToDelete] = useState(null);
+
+    const handleDeleteClick = (pkg) => {
+        setPackageToDelete(pkg);
+    };
+
+    const confirmDelete = async () => {
+        if (packageToDelete) {
+            const res = await deletePackage(packageToDelete.id);
+            if (res?.error) {
+                // handle error if needed
+            }
+            setPackageToDelete(null);
+        }
+    };
 
     const headers = useMemo(
         () => [
@@ -107,16 +123,7 @@ const PackageManagementPage = () => {
                         <Button
                             variant="destructive"
                             size="icon"
-                            onClick={async () => {
-                                if (!window.confirm(`Delete package "${pkg.name}"? This action cannot be undone.`))
-                                    return;
-                                const res = await deletePackage(pkg.id);
-                                if (res?.data) {
-                                    // Success handled by RTK Query
-                                } else if (res?.error) {
-                                    alert(res?.error?.data?.message || "Failed to delete package");
-                                }
-                            }}
+                            onClick={() => handleDeleteClick(pkg)}
                             disabled={isDeleting}
                             title="Delete"
                             className="h-8 w-8 bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/30 dark:shadow-rose-900/20"
@@ -254,6 +261,39 @@ const PackageManagementPage = () => {
                     onClose={() => setViewingPackage(null)}
                 />
             )}
+
+            <Dialog open={!!packageToDelete} onOpenChange={(open) => !open && setPackageToDelete(null)}>
+                <DialogContent className="sm:max-w-[425px] rounded-[24px] p-0 overflow-hidden border-0 shadow-2xl">
+                    <div className="bg-gradient-to-br from-rose-500 to-red-600 p-6 text-white text-center">
+                        <div className="mx-auto w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4">
+                            <AlertTriangle className="w-6 h-6 text-white" />
+                        </div>
+                        <DialogTitle className="text-xl font-bold">Delete Package?</DialogTitle>
+                        <DialogDescription className="text-rose-100 mt-2">
+                            This action cannot be undone. This will permanently delete the package <span className="font-semibold text-white">"{packageToDelete?.name}"</span>.
+                        </DialogDescription>
+                    </div>
+                    <div className="p-6 bg-white dark:bg-slate-900">
+                        <DialogFooter className="gap-2 sm:justify-center">
+                            <Button
+                                variant="outline"
+                                onClick={() => setPackageToDelete(null)}
+                                className="rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                onClick={confirmDelete}
+                                disabled={isDeleting}
+                                className="rounded-xl bg-rose-600 hover:bg-rose-700 shadow-lg shadow-rose-500/20"
+                            >
+                                {isDeleting ? "Deleting..." : "Yes, Delete Package"}
+                            </Button>
+                        </DialogFooter>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

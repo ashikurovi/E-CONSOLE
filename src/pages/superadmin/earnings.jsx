@@ -149,7 +149,7 @@ const SuperAdminEarningsPage = () => {
         {kpis.map((item, index) => (
           <div
             key={index}
-            className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-4 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+            className="group relative overflow-hidden rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-4 shadow-xl shadow-slate-200/50 dark:shadow-none hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
           >
             <div className="flex items-center justify-between">
               <div>
@@ -158,7 +158,7 @@ const SuperAdminEarningsPage = () => {
                 </p>
                 <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{item.value}</p>
               </div>
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${
                 item.tone === "emerald"
                   ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                   : item.tone === "indigo"

@@ -299,153 +299,237 @@ const CustomerEditForm = ({ user, onClose }) => {
 
     return (
         <Dialog open={!!user} onOpenChange={(v) => !v && onClose?.()}>
-            <DialogContent className="max-h-[600px] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle>Edit Customer</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <TextField
-                            label="Name *"
-                            placeholder="Customer name"
-                            register={register}
-                            name="name"
-                            error={errors.name}
-                        />
-                        <TextField
-                            label="Company Name *"
-                            placeholder="Company name"
-                            register={register}
-                            name="companyName"
-                            error={errors.companyName}
-                        />
+            <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto rounded-[24px] border-0 shadow-2xl p-0 gap-0 bg-white dark:bg-[#0f172a]">
+                <div className="sticky top-0 z-20 flex items-center justify-between px-8 py-6 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800">
+                    <div>
+                        <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400">
+                            Edit Customer
+                        </DialogTitle>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Update customer details and configurations
+                        </p>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <TextField
-                            label="Email *"
-                            type="email"
-                            placeholder="user@example.com"
-                            register={register}
-                            name="email"
-                            error={errors.email}
-                        />
-                        <TextField
-                            label="New Password (optional)"
-                            type="password"
-                            placeholder="Leave blank to keep current"
-                            register={register}
-                            name="password"
-                            error={errors.password}
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <TextField
-                            label="Phone"
-                            type="tel"
-                            placeholder="+880XXXXXXXXXX"
-                            register={register}
-                            name="phone"
-                            error={errors.phone}
-                        />
-                        <TextField
-                            label="Branch Location"
-                            placeholder="e.g., Dhaka"
-                            register={register}
-                            name="branchLocation"
-                            error={errors.branchLocation}
-                        />
-                        <TextField
-                            label="Domain Name *"
-                            placeholder="https://example.com"
-                            register={register}
-                            name="domainName"
-                            error={errors.domainName}
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <ColorPicker
-                            label="Primary Color"
-                            value={primaryColor}
-                            onChange={(color) => setValue("primaryColor", color)}
-                            error={errors.primaryColor}
-                            placeholder="#FF5733"
-                        />
-                        <ColorPicker
-                            label="Secondary Color"
-                            value={secondaryColor}
-                            onChange={(color) => setValue("secondaryColor", color)}
-                            error={errors.secondaryColor}
-                            placeholder="#33FF57"
-                        />
-                    </div>
-                    <FileUpload
-                        label="Company Logo"
-                        placeholder="Upload company logo"
-                        accept="image/*"
-                        onChange={(file) => {
-                            setLogoFile(file);
-                            if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                    setValue("companyLogo", reader.result, { shouldValidate: true });
-                                };
-                                reader.readAsDataURL(file);
-                            } else {
-                                setValue("companyLogo", user?.companyLogo || "", { shouldValidate: true });
-                            }
-                        }}
-                        value={logoFile ? URL.createObjectURL(logoFile) : (user?.companyLogo || null)}
-                    />
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            id="isActive"
-                            className="w-4 h-4 rounded border-black/20 dark:border-white/20"
-                            checked={isActive}
-                            onChange={(e) => setIsActive(e.target.checked)}
-                        />
-                        <label htmlFor="isActive" className="text-sm font-medium cursor-pointer">
-                            Active Account
-                        </label>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onClose?.()}
+                        className="rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </Button>
+                </div>
+                
+                <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-8">
+                    {/* Account Information */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <div className="h-8 w-1 rounded-full bg-gradient-to-b from-violet-500 to-indigo-500"></div>
+                            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+                                Account Information
+                            </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <TextField
+                                label="Name *"
+                                placeholder="Customer name"
+                                register={register}
+                                name="name"
+                                error={errors.name}
+                                inputClassName="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:border-violet-500 dark:focus:border-violet-500 rounded-xl"
+                            />
+                            <TextField
+                                label="Company Name *"
+                                placeholder="Company name"
+                                register={register}
+                                name="companyName"
+                                error={errors.companyName}
+                                inputClassName="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:border-violet-500 dark:focus:border-violet-500 rounded-xl"
+                            />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <TextField
+                                label="Email *"
+                                type="email"
+                                placeholder="user@example.com"
+                                register={register}
+                                name="email"
+                                error={errors.email}
+                                inputClassName="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:border-violet-500 dark:focus:border-violet-500 rounded-xl"
+                            />
+                            <TextField
+                                label="New Password (optional)"
+                                type="password"
+                                placeholder="Leave blank to keep current"
+                                register={register}
+                                name="password"
+                                error={errors.password}
+                                inputClassName="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:border-violet-500 dark:focus:border-violet-500 rounded-xl"
+                            />
+                        </div>
                     </div>
 
-                    <div className="border-t border-gray-100 dark:border-gray-800 pt-4 space-y-4">
-                        <h3 className="text-sm font-semibold text-black/70 dark:text-white/70">
-                            Package & Payment Information
-                        </h3>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                                Select Package
+                    {/* Contact Details */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <div className="h-8 w-1 rounded-full bg-gradient-to-b from-violet-500 to-indigo-500"></div>
+                            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+                                Contact Details
+                            </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <TextField
+                                label="Phone"
+                                type="tel"
+                                placeholder="+880XXXXXXXXXX"
+                                register={register}
+                                name="phone"
+                                error={errors.phone}
+                                inputClassName="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:border-violet-500 dark:focus:border-violet-500 rounded-xl"
+                            />
+                            <TextField
+                                label="Branch Location"
+                                placeholder="e.g., Dhaka"
+                                register={register}
+                                name="branchLocation"
+                                error={errors.branchLocation}
+                                inputClassName="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:border-violet-500 dark:focus:border-violet-500 rounded-xl"
+                            />
+                            <TextField
+                                label="Domain Name *"
+                                placeholder="https://example.com"
+                                register={register}
+                                name="domainName"
+                                error={errors.domainName}
+                                inputClassName="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:border-violet-500 dark:focus:border-violet-500 rounded-xl"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Company Branding */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <div className="h-8 w-1 rounded-full bg-gradient-to-b from-violet-500 to-indigo-500"></div>
+                            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+                                Company Branding
+                            </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <ColorPicker
+                                label="Primary Color"
+                                value={primaryColor}
+                                onChange={(color) => setValue("primaryColor", color)}
+                                error={errors.primaryColor}
+                                placeholder="#FF5733"
+                            />
+                            <ColorPicker
+                                label="Secondary Color"
+                                value={secondaryColor}
+                                onChange={(color) => setValue("secondaryColor", color)}
+                                error={errors.secondaryColor}
+                                placeholder="#33FF57"
+                            />
+                        </div>
+                        <FileUpload
+                            label="Company Logo"
+                            placeholder="Upload company logo"
+                            accept="image/*"
+                            onChange={(file) => {
+                                setLogoFile(file);
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                        setValue("companyLogo", reader.result, { shouldValidate: true });
+                                    };
+                                    reader.readAsDataURL(file);
+                                } else {
+                                    setValue("companyLogo", user?.companyLogo || "", { shouldValidate: true });
+                                }
+                            }}
+                            value={logoFile ? URL.createObjectURL(logoFile) : (user?.companyLogo || null)}
+                            className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors"
+                        />
+                        <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+                            <input
+                                type="checkbox"
+                                id="isActive"
+                                className="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-violet-600 focus:ring-violet-500"
+                                checked={isActive}
+                                onChange={(e) => setIsActive(e.target.checked)}
+                            />
+                            <label htmlFor="isActive" className="text-sm font-medium cursor-pointer text-slate-700 dark:text-slate-300 select-none">
+                                Active Account
                             </label>
-                            <Dropdown
-                                name="package"
-                                options={packageOptions}
-                                setSelectedOption={(opt) => {
-                                    setSelectedPackage(opt);
-                                    setValue("packageId", opt.value, { shouldValidate: true });
-                                }}
-                            >
-                                {selectedPackage?.label || (
-                                    <span className="text-black/50 dark:text-white/50">
-                                        {isLoadingPackages ? "Loading packages..." : "Select Package"}
-                                    </span>
+                        </div>
+                    </div>
+
+                    {/* Package & Payment Information */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <div className="h-8 w-1 rounded-full bg-gradient-to-b from-violet-500 to-indigo-500"></div>
+                            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+                                Package & Payment Information
+                            </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                    Select Package
+                                </label>
+                                <Dropdown
+                                    name="package"
+                                    options={packageOptions}
+                                    setSelectedOption={(opt) => {
+                                        setSelectedPackage(opt);
+                                        setValue("packageId", opt.value, { shouldValidate: true });
+                                    }}
+                                    className="h-12 w-full"
+                                >
+                                    {selectedPackage?.label || (
+                                        <span className="text-slate-500 dark:text-slate-400">
+                                            {isLoadingPackages ? "Loading packages..." : "Select Package"}
+                                        </span>
+                                    )}
+                                </Dropdown>
+                                {errors.packageId && (
+                                    <span className="text-rose-500 text-xs ml-1">{errors.packageId.message}</span>
                                 )}
-                            </Dropdown>
-                            {errors.packageId && (
-                                <span className="text-red-500 text-xs ml-1">{errors.packageId.message}</span>
-                            )}
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                    Select Theme
+                                </label>
+                                <Dropdown
+                                    name="theme"
+                                    options={themeOptions}
+                                    setSelectedOption={(opt) => {
+                                        setSelectedTheme(opt);
+                                        setValue("themeId", opt.value, { shouldValidate: true });
+                                    }}
+                                    className="h-12 w-full"
+                                >
+                                    {selectedTheme?.label || (
+                                        <span className="text-slate-500 dark:text-slate-400">
+                                            {isLoadingThemes ? "Loading themes..." : "Select Theme"}
+                                        </span>
+                                    )}
+                                </Dropdown>
+                                {errors.themeId && (
+                                    <span className="text-rose-500 text-xs ml-1">{errors.themeId.message}</span>
+                                )}
+                            </div>
                         </div>
 
                         {selectedPackage?.features && selectedPackage.features.length > 0 && (
-                            <div className="bg-black/5 dark:bg-white/5 p-3 rounded-lg">
-                                <p className="text-xs font-semibold text-black/60 dark:text-white/60 mb-2">
-                                    Package Features:
+                            <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider">
+                                    Package Features
                                 </p>
-                                <div className="flex flex-wrap gap-1">
+                                <div className="flex flex-wrap gap-2">
                                     {selectedPackage.features.map((feature) => (
                                         <span
                                             key={feature}
-                                            className="text-xs px-2 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded"
+                                            className="text-xs px-3 py-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg font-medium border border-emerald-500/10"
                                         >
                                             {feature.replace(/_/g, " ")}
                                         </span>
@@ -454,10 +538,9 @@ const CustomerEditForm = ({ user, onClose }) => {
                             </div>
                         )}
 
-
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium text-black/70 dark:text-white/70">
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                                     Payment Status
                                 </label>
                                 <Dropdown
@@ -467,16 +550,17 @@ const CustomerEditForm = ({ user, onClose }) => {
                                         setSelectedPaymentStatus(opt);
                                         setValue("paymentstatus", opt.value, { shouldValidate: true });
                                     }}
+                                    className="h-12 w-full"
                                 >
                                     {selectedPaymentStatus?.label || (
-                                        <span className="text-black/50 dark:text-white/50">
+                                        <span className="text-slate-500 dark:text-slate-400">
                                             Select Status
                                         </span>
                                     )}
                                 </Dropdown>
                             </div>
                             <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium text-black/70 dark:text-white/70">
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                                     Payment Method
                                 </label>
                                 <Dropdown
@@ -486,9 +570,10 @@ const CustomerEditForm = ({ user, onClose }) => {
                                         setSelectedPaymentMethod(opt);
                                         setValue("paymentmethod", opt.value, { shouldValidate: true });
                                     }}
+                                    className="h-12 w-full"
                                 >
                                     {selectedPaymentMethod?.label || (
-                                        <span className="text-black/50 dark:text-white/50">
+                                        <span className="text-slate-500 dark:text-slate-400">
                                             Select Method
                                         </span>
                                     )}
@@ -503,22 +588,31 @@ const CustomerEditForm = ({ user, onClose }) => {
                             register={register}
                             name="amount"
                             error={errors.amount}
+                            inputClassName="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:border-violet-500 dark:focus:border-violet-500 rounded-xl"
                         />
                     </div>
 
-                    <div className="border-t border-gray-100 dark:border-gray-800 pt-4 space-y-4">
-                        <h3 className="text-sm font-semibold text-black/70 dark:text-white/70">
-                            Courier Configuration (Optional)
-                        </h3>
-                        <div className="space-y-3">
-                            <p className="text-xs font-medium text-black/60 dark:text-white/60">Pathao Config</p>
-                            <div className="grid grid-cols-2 gap-4">
+                    {/* Courier Configuration */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <div className="h-8 w-1 rounded-full bg-gradient-to-b from-violet-500 to-indigo-500"></div>
+                            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+                                Courier Configuration (Optional)
+                            </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Pathao Config</p>
+                                </div>
                                 <TextField
                                     label="Client ID"
                                     placeholder="PATHAO_CLIENT_ID"
                                     register={register}
                                     name="pathaoClientId"
                                     error={errors.pathaoClientId}
+                                    inputClassName="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
                                 />
                                 <TextField
                                     label="Client Secret"
@@ -526,18 +620,22 @@ const CustomerEditForm = ({ user, onClose }) => {
                                     register={register}
                                     name="pathaoClientSecret"
                                     error={errors.pathaoClientSecret}
+                                    inputClassName="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
                                 />
                             </div>
-                        </div>
-                        <div className="space-y-3">
-                            <p className="text-xs font-medium text-black/60 dark:text-white/60">Steadfast Config</p>
-                            <div className="grid grid-cols-2 gap-4">
+
+                            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="w-2 h-2 rounded-full bg-teal-500"></div>
+                                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Steadfast Config</p>
+                                </div>
                                 <TextField
                                     label="API Key"
                                     placeholder="STEADFAST_API_KEY"
                                     register={register}
                                     name="steadfastApiKey"
                                     error={errors.steadfastApiKey}
+                                    inputClassName="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
                                 />
                                 <TextField
                                     label="Secret Key"
@@ -545,16 +643,21 @@ const CustomerEditForm = ({ user, onClose }) => {
                                     register={register}
                                     name="steadfastSecretKey"
                                     error={errors.steadfastSecretKey}
+                                    inputClassName="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
                                 />
                             </div>
                         </div>
                     </div>
 
-                    <div className="border-t border-gray-100 dark:border-gray-800 pt-4 space-y-4">
-                        <h3 className="text-sm font-semibold text-black/70 dark:text-white/70">
-                            Notification Configuration (Optional)
-                        </h3>
-                        <div className="grid grid-cols-2 gap-4">
+                    {/* Notification Configuration */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <div className="h-8 w-1 rounded-full bg-gradient-to-b from-violet-500 to-indigo-500"></div>
+                            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+                                Notification Configuration (Optional)
+                            </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <TextField
                                 label="Notification Email"
                                 type="email"
@@ -562,6 +665,7 @@ const CustomerEditForm = ({ user, onClose }) => {
                                 register={register}
                                 name="notificationEmail"
                                 error={errors.notificationEmail}
+                                inputClassName="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:border-violet-500 dark:focus:border-violet-500 rounded-xl"
                             />
                             <TextField
                                 label="WhatsApp Number"
@@ -569,15 +673,16 @@ const CustomerEditForm = ({ user, onClose }) => {
                                 register={register}
                                 name="notificationWhatsapp"
                                 error={errors.notificationWhatsapp}
+                                inputClassName="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:border-violet-500 dark:focus:border-violet-500 rounded-xl"
                             />
                         </div>
                     </div>
 
-                    <DialogFooter>
+                    <DialogFooter className="gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
                         <Button
                             type="button"
                             variant="outline"
-                            className="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400"
+                            className="rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 h-11 px-6"
                             onClick={() => onClose?.()}
                         >
                             Cancel
@@ -585,9 +690,9 @@ const CustomerEditForm = ({ user, onClose }) => {
                         <Button
                             type="submit"
                             disabled={isLoading || isUploadingLogo}
-                            className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400"
+                            className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-xl shadow-violet-500/20 border-0 h-11 px-8 transition-all duration-300 hover:scale-[1.02]"
                         >
-                            {isLoading || isUploadingLogo ? "Updating..." : "Save"}
+                            {isLoading || isUploadingLogo ? "Updating..." : "Save Changes"}
                         </Button>
                     </DialogFooter>
                 </form>

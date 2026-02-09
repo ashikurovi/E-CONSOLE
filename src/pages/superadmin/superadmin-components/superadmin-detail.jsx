@@ -9,17 +9,20 @@ const SuperAdminSuperadminDetailPage = () => {
   const navigate = useNavigate();
   const numericId = useMemo(() => Number(id), [id]);
 
-  const { data: superadmin, isLoading, error } = useGetSuperadminQuery(
-    numericId,
-    { skip: !numericId }
-  );
+  const {
+    data: superadmin,
+    isLoading,
+    error,
+  } = useGetSuperadminQuery(numericId, { skip: !numericId });
 
   return (
     <div className="space-y-6">
       <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-2">Super Admin Detail</h1>
+            <h1 className="text-3xl font-bold tracking-tight mb-2">
+              Super Admin Detail
+            </h1>
             <p className="text-violet-100 text-lg max-w-2xl">
               View detailed information about this super admin account.
             </p>
@@ -38,7 +41,11 @@ const SuperAdminSuperadminDetailPage = () => {
       </div>
 
       <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xl shadow-slate-200/50 dark:shadow-black/20">
-        {isLoading && <p className="text-sm text-slate-500">Loading super admin details...</p>}
+        {isLoading && (
+          <p className="text-sm text-slate-500">
+            Loading super admin details...
+          </p>
+        )}
 
         {error && (
           <p className="text-sm text-rose-500">
@@ -81,21 +88,29 @@ const SuperAdminSuperadminDetailPage = () => {
             {/* Basic Information Section */}
             <div className="space-y-4">
               <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
-                  <div className="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center">
-                    <User className="h-4 w-4 text-violet-600 dark:text-violet-400" />
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                    Basic Information
-                  </h3>
+                <div className="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center">
+                  <User className="h-4 w-4 text-violet-600 dark:text-violet-400" />
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                  Basic Information
+                </h3>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">ID</p>
-                  <p className="font-semibold text-slate-900 dark:text-white">{superadmin.id ?? "-"}</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                    ID
+                  </p>
+                  <p className="font-semibold text-slate-900 dark:text-white">
+                    {superadmin.id ?? "-"}
+                  </p>
                 </div>
                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Name</p>
-                  <p className="font-semibold text-slate-900 dark:text-white">{superadmin.name ?? "-"}</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                    Name
+                  </p>
+                  <p className="font-semibold text-slate-900 dark:text-white">
+                    {superadmin.name ?? "-"}
+                  </p>
                 </div>
                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
                   <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
@@ -106,13 +121,17 @@ const SuperAdminSuperadminDetailPage = () => {
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Role</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                    Role
+                  </p>
                   <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-500/20">
                     {superadmin.role || "SUPER_ADMIN"}
                   </span>
                 </div>
                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Status</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                    Status
+                  </p>
                   <span
                     className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border ${
                       superadmin.isActive

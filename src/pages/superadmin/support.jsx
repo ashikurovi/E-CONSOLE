@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import ReusableTable from "@/components/table/reusable-table";
+import { Button } from "@/components/ui/button";
 import {
     useGetHelpQuery,
     useUpdateHelpMutation,
@@ -69,15 +70,16 @@ const SuperAdminSupportPage = () => {
                             <option value="resolved">Resolved</option>
                         </select>
 
-                        <button
-                            type="button"
+                        <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() =>
                                 navigate(`/superadmin/support/${t.id}`)
                             }
-                            className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300 transition-colors"
+                            className="h-8 px-3 rounded-lg border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300 transition-colors"
                         >
                             View
-                        </button>
+                        </Button>
                     </div>
                 ),
             })),

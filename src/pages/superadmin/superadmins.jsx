@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from "react";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Eye, UserPlus } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Pencil, Trash2, Eye, UserPlus, Shield, AlertTriangle } from "lucide-react";
 import {
   useGetSuperadminsQuery,
   useDeleteSuperadminMutation,
@@ -17,6 +18,22 @@ const SuperAdminSuperadminsPage = () => {
     useDeleteSuperadminMutation();
   const [editingSuperadmin, setEditingSuperadmin] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [superadminToDelete, setSuperadminToDelete] = useState(null);
+
+  const handleDeleteClick = (sa) => {
+    setSuperadminToDelete(sa);
+  };
+
+  const confirmDelete = async () => {
+    if (superadminToDelete) {
+      try {
+        await deleteSuperadmin(superadminToDelete.id).unwrap();
+      } catch (error) {
+        console.error("Failed to delete superadmin:", error);
+      }
+      setSuperadminToDelete(null);
+    }
+  };
 
   const headers = useMemo(
     () => [
@@ -77,19 +94,7 @@ const SuperAdminSuperadminsPage = () => {
             <Button
               variant="destructive"
               size="icon"
-              onClick={async () => {
-                if (
-                  !window.confirm(
-                    `Are you sure you want to delete "${sa.name}"? This action cannot be undone.`
-                  )
-                )
-                  return;
-                try {
-                  await deleteSuperadmin(sa.id).unwrap();
-                } catch (error) {
-                  console.error("Failed to delete superadmin:", error);
-                }
-              }}
+              onClick={() => handleDeleteClick(sa)}
               disabled={isDeleting}
               title="Delete"
               className="h-8 w-8 bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/30 dark:shadow-rose-900/20"
@@ -106,16 +111,19 @@ const SuperAdminSuperadminsPage = () => {
     <div className="space-y-6">
       {/* Page header */}
       <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="absolute top-0 right-0 p-4 opacity-10">
+            <Shield className="w-64 h-64 -rotate-12" />
+        </div>
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white">Super Admins</h1>
-            <p className="text-violet-100 mt-1">
+            <h1 className="text-3xl font-bold tracking-tight mb-3">Super Admins</h1>
+            <p className="text-violet-100 text-lg">
               Manage system administrators and their roles
             </p>
           </div>
           <Button
             onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-2 bg-white text-violet-600 hover:bg-violet-50 border-0 shadow-lg shadow-black/10"
+            className="flex items-center gap-2 bg-white text-violet-600 hover:bg-violet-50 border-0 shadow-lg shadow-black/10 rounded-xl h-12 px-6"
           >
             <UserPlus className="h-4 w-4" />
             Add Super Admin
@@ -160,6 +168,39 @@ const SuperAdminSuperadminsPage = () => {
           onClose={() => setEditingSuperadmin(null)}
         />
       )}
+
+      <Dialog open={!!superadminToDelete} onOpenChange={(open) => !open && setSuperadminToDelete(null)}>
+        <DialogContent className="sm:max-w-[425px] rounded-[24px] p-0 overflow-hidden border-0 shadow-2xl">
+          <div className="bg-gradient-to-br from-rose-500 to-red-600 p-6 text-white text-center">
+            <div className="mx-auto w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4">
+              <AlertTriangle className="w-6 h-6 text-white" />
+            </div>
+            <DialogTitle className="text-xl font-bold">Delete Super Admin?</DialogTitle>
+            <DialogDescription className="text-rose-100 mt-2">
+              This action cannot be undone. This will permanently delete the account for <span className="font-semibold text-white">"{superadminToDelete?.name}"</span>.
+            </DialogDescription>
+          </div>
+          <div className="p-6 bg-white dark:bg-slate-900">
+            <DialogFooter className="gap-2 sm:justify-center">
+              <Button
+                variant="outline"
+                onClick={() => setSuperadminToDelete(null)}
+                className="rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="rounded-xl bg-rose-600 hover:bg-rose-700 shadow-lg shadow-rose-500/20"
+              >
+                {isDeleting ? "Deleting..." : "Yes, Delete Account"}
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -65,7 +65,7 @@ const SuperAdminSideNav = () => {
     <div className="h-full flex flex-col py-4">
       {/* Brand */}
       <div className="px-6 mb-8 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white grid place-items-center shadow-lg shadow-violet-500/20">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white grid place-items-center shadow-xl shadow-violet-500/30 hover:scale-110 transition-transform duration-300 cursor-pointer">
           <Shield className="w-6 h-6" />
         </div>
         <div className="flex flex-col">
@@ -90,7 +90,7 @@ const SuperAdminSideNav = () => {
             to={to}
             end={end}
             className={({ isActive }) =>
-              `group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
+              `group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 hover:translate-x-1
                ${
                  isActive
                    ? "bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300"

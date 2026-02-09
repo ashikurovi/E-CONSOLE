@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from "react";
 import ReusableTable from "@/components/table/reusable-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Eye, Users } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Pencil, Trash2, Eye, Users, AlertTriangle } from "lucide-react";
 import {
     useGetSystemusersQuery,
     useDeleteSystemuserMutation,
@@ -16,6 +17,18 @@ const SuperAdminCustomersPage = () => {
     const [deleteSystemuser, { isLoading: isDeleting }] =
         useDeleteSystemuserMutation();
     const [editingUser, setEditingUser] = useState(null);
+    const [userToDelete, setUserToDelete] = useState(null);
+
+    const handleDeleteClick = (user) => {
+        setUserToDelete(user);
+    };
+
+    const confirmDelete = async () => {
+        if (userToDelete) {
+            await deleteSystemuser(userToDelete.id);
+            setUserToDelete(null);
+        }
+    };
 
     const headers = useMemo(
         () => [
@@ -86,10 +99,7 @@ const SuperAdminCustomersPage = () => {
                         <Button
                             variant="destructive"
                             size="icon"
-                            onClick={async () => {
-                                if (!window.confirm(`Delete "${u.email}"?`)) return;
-                                await deleteSystemuser(u.id);
-                            }}
+                            onClick={() => handleDeleteClick(u)}
                             disabled={isDeleting}
                             title="Delete"
                             className="h-8 w-8 bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/30 dark:shadow-rose-900/20"
@@ -149,6 +159,39 @@ const SuperAdminCustomersPage = () => {
                     onClose={() => setEditingUser(null)}
                 />
             )}
+
+            <Dialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
+                <DialogContent className="sm:max-w-[425px] rounded-[24px] p-0 overflow-hidden border-0 shadow-2xl">
+                    <div className="bg-gradient-to-br from-rose-500 to-red-600 p-6 text-white text-center">
+                        <div className="mx-auto w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4">
+                            <AlertTriangle className="w-6 h-6 text-white" />
+                        </div>
+                        <DialogTitle className="text-xl font-bold">Delete Customer?</DialogTitle>
+                        <DialogDescription className="text-rose-100 mt-2">
+                            This action cannot be undone. This will permanently delete the customer account for <span className="font-semibold text-white">"{userToDelete?.email}"</span>.
+                        </DialogDescription>
+                    </div>
+                    <div className="p-6 bg-white dark:bg-slate-900">
+                        <DialogFooter className="gap-2 sm:justify-center">
+                            <Button
+                                variant="outline"
+                                onClick={() => setUserToDelete(null)}
+                                className="rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                onClick={confirmDelete}
+                                disabled={isDeleting}
+                                className="rounded-xl bg-rose-600 hover:bg-rose-700 shadow-lg shadow-rose-500/20"
+                            >
+                                {isDeleting ? "Deleting..." : "Yes, Delete Customer"}
+                            </Button>
+                        </DialogFooter>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };
