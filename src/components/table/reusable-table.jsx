@@ -41,6 +41,7 @@ export default function ReusableTable({
   searchFields = null,
   getRowClassName = null,
   py, // optional custom py class
+  headerClassName = "", // optional custom header class
   total, // currently unused – maybe for server pagination later?
   onRowClick = null,
 }) {
@@ -191,7 +192,7 @@ export default function ReusableTable({
                         sortable
                           ? "cursor-pointer hover:text-gray-900 dark:hover:text-gray-200"
                           : ""
-                      } ${isLast ? "text-center" : "text-left"}`}
+                      } ${isLast ? "text-center" : "text-left"} ${headerClassName}`}
                     >
                       <div className="inline-flex items-center gap-1.5">
                         {cell.header}

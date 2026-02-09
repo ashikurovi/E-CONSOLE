@@ -10,12 +10,19 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Pencil,
   Trash2,
   Eye,
   UserPlus,
   Shield,
   AlertTriangle,
+  MoreVertical,
 } from "lucide-react";
 import {
   useGetSuperadminsQuery,
@@ -86,35 +93,43 @@ const SuperAdminSuperadminsPage = () => {
           ? new Date(sa.createdAt).toLocaleDateString()
           : "-",
         actions: (
-          <div className="flex items-center gap-2 justify-end">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => navigate(`/superadmin/superadmins/${sa.id}`)}
-              title="View details"
-              className="h-8 w-8 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="default"
-              size="icon"
-              onClick={() => setEditingSuperadmin(sa)}
-              title="Edit"
-              className="h-8 w-8 bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/30 dark:shadow-violet-900/20"
-            >
-              <Pencil className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              variant="destructive"
-              size="icon"
-              onClick={() => handleDeleteClick(sa)}
-              disabled={isDeleting}
-              title="Delete"
-              className="h-8 w-8 bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/30 dark:shadow-rose-900/20"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
+          <div className="flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-slate-500 hover:text-violet-600"
+                >
+                  <span className="sr-only">Open menu</span>
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl bg-white dark:bg-slate-900"
+              >
+                <DropdownMenuItem
+                  onClick={() => navigate(`/superadmin/superadmins/${sa.id}`)}
+                  className="cursor-pointer gap-2 text-slate-600 dark:text-slate-300 focus:text-violet-600 focus:bg-violet-50 dark:focus:bg-violet-900/20"
+                >
+                  <Eye className="h-4 w-4" /> View Details
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setEditingSuperadmin(sa)}
+                  className="cursor-pointer gap-2 text-slate-600 dark:text-slate-300 focus:text-violet-600 focus:bg-violet-50 dark:focus:bg-violet-900/20"
+                >
+                  <Pencil className="h-4 w-4" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleDeleteClick(sa)}
+                  disabled={isDeleting}
+                  className="cursor-pointer gap-2 text-rose-600 focus:text-rose-700 focus:bg-rose-50 dark:focus:bg-rose-900/20"
+                >
+                  <Trash2 className="h-4 w-4" /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         ),
       })),
@@ -123,34 +138,34 @@ const SuperAdminSuperadminsPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Page header */}
-      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <Shield className="w-64 h-64 -rotate-12" />
-        </div>
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="p-3 rounded-xl bg-violet-100 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400">
+            <Shield className="w-6 h-6" />
+          </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-3">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
               Super Admins
             </h1>
-            <p className="text-violet-100 text-lg">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Manage system administrators and their roles
             </p>
           </div>
-          <Button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-2 bg-white text-violet-600 hover:bg-violet-50 border-0 shadow-lg shadow-black/10 rounded-xl h-12 px-6"
-          >
-            <UserPlus className="h-4 w-4" />
-            Add Super Admin
-          </Button>
         </div>
+        <Button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white border-0 shadow-lg shadow-violet-500/30 rounded-xl h-11 px-6"
+        >
+          <UserPlus className="h-4 w-4" />
+          Add Super Admin
+        </Button>
       </div>
 
       {/* Stats Cards */}
 
       {/* Superadmins table */}
-      <div className="rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
+      <div className="rounded-[14px] p-6 pb-6  bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
         <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -161,7 +176,7 @@ const SuperAdminSuperadminsPage = () => {
             </p>
           </div>
         </div>
-        <div className="p-0">
+        <div className="p-0 ">
           <ReusableTable
             data={tableData}
             headers={headers}
@@ -169,7 +184,7 @@ const SuperAdminSuperadminsPage = () => {
             total={superadmins.length}
             isLoading={isLoading}
             searchable={false}
-            headerClassName="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+            headerClassName="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap"
           />
         </div>
       </div>
@@ -189,7 +204,7 @@ const SuperAdminSuperadminsPage = () => {
         open={!!superadminToDelete}
         onOpenChange={(open) => !open && setSuperadminToDelete(null)}
       >
-        <DialogContent className="sm:max-w-[425px] rounded-[24px] p-0 overflow-hidden border-0 shadow-2xl">
+        <DialogContent className="sm:max-w-[425px] mr rounded-[24px] p-0 overflow-hidden border-0 shadow-2xl">
           <div className="bg-gradient-to-br from-rose-500 to-red-600 p-6 text-white text-center">
             <div className="mx-auto w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4">
               <AlertTriangle className="w-6 h-6 text-white" />
