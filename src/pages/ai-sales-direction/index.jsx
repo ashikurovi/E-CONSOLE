@@ -109,4 +109,3 @@ const AiSalesDirectionPage = () => {
 };
 
 export default AiSalesDirectionPage;
-
