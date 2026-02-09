@@ -1,6 +1,13 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Copy, Crop, MoreVertical, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Copy,
+  Crop,
+  MoreVertical,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import {
   Dialog,
@@ -44,7 +51,7 @@ export default function MediaImageViewModal({
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-[95vw] md:max-w-[85vw] h-[90vh] md:h-[85vh] p-0 overflow-hidden bg-black/95 border-none shadow-2xl flex flex-col">
+      <DialogContent className="max-w-[80vw] md:max-w-[80vw] h-[90vh] md:h-[90vh] p-0 overflow-hidden md:mr-40 md:ml-40 bg-black/95 border-none shadow-2xl flex flex-col [&>button]:hidden">
         <DialogTitle className="sr-only">
           {image?.title || t("media.imageView")}
         </DialogTitle>
