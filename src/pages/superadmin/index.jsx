@@ -155,7 +155,7 @@ const SuperAdminOverviewPage = () => {
 
           {/* Right Side: Time & Date */}
           <div className="flex flex-col items-start md:items-end text-left md:text-right w-full md:w-auto mt-2 md:mt-0">
-            <div className="text-2xl sm:text-3xl md:text-4xl font-black text-[#1e1b4b] dark:text-white tabular-nums tracking-tight">
+            <div className="text-lg sm:text-xl md:text-2xl font-black text-[#1e1b4b] dark:text-white tabular-nums tracking-tight">
               {formatTime(currentTime)}
             </div>
             <div className="text-[10px] sm:text-xs md:text-sm font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest mt-1">
