@@ -11,6 +11,8 @@ const FileUpload = ({
   accept = "image/*",
   onChange,
   value,
+  previewContainerClassName,
+  imageClassName,
 }) => {
   const [preview, setPreview] = useState(value || null);
   const [fileName, setFileName] = useState("");
@@ -94,12 +96,16 @@ const FileUpload = ({
 
         {/* Preview */}
         {preview && (
-          <div className="relative border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm group">
-            <div className="relative aspect-video bg-gray-100 dark:bg-black/40">
+          <div className="relative border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm group w-fit">
+            <div
+              className={`relative bg-gray-100 dark:bg-black/40 ${
+                previewContainerClassName || "aspect-video w-full"
+              }`}
+            >
               <img
                 src={preview}
                 alt="Preview"
-                className="w-full h-full object-contain"
+                className={imageClassName || "w-full h-full object-contain"}
               />
               <Button
                 type="button"

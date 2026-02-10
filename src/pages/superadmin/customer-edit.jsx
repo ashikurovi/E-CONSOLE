@@ -8,9 +8,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Building2, ArrowLeft, Save } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import TextField from "@/components/input/TextField";
 import ColorPicker from "@/components/input/ColorPicker";
-import Dropdown from "@/components/dropdown/dropdown";
 import FileUpload from "@/components/input/FileUpload";
 import {
   useUpdateSystemuserMutation,
@@ -108,25 +114,25 @@ const SuperAdminCustomerEditPage = () => {
     useGetPackagesQuery();
   const { data: themes, isLoading: isLoadingThemes } = useGetThemesQuery();
 
-    const packageOptions = useMemo(() => {
-        return packages?.map((pkg) => ({
-            label: pkg.name,
-            value: pkg.id,
-            features: pkg.features,
-        })) || [];
-    }, [packages]);
+  const packageOptions = useMemo(() => {
+    return (
+      packages?.map((pkg) => ({
+        label: pkg.name,
+        value: pkg.id,
+        features: pkg.features,
+      })) || []
+    );
+  }, [packages]);
 
-    const themeOptions = useMemo(() => {
-        return themes?.map((theme) => ({
-            label: theme.domainUrl || `Theme #${theme.id}`,
-            value: theme.id,
-        })) || [];
-    }, [themes]);
-    
-    const [selectedPaymentStatus, setSelectedPaymentStatus] = useState(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
-  const [selectedPackage, setSelectedPackage] = useState(null);
-  const [selectedTheme, setSelectedTheme] = useState(null);
+  const themeOptions = useMemo(() => {
+    return (
+      themes?.map((theme) => ({
+        label: theme.domainUrl || `Theme #${theme.id}`,
+        value: theme.id,
+      })) || []
+    );
+  }, [themes]);
+
   const [isActive, setIsActive] = useState(true);
   const [logoFile, setLogoFile] = useState(null);
   const { uploadImage, isUploading: isUploadingLogo } = useImageUpload();
@@ -153,6 +159,7 @@ const SuperAdminCustomerEditPage = () => {
       paymentmethod: "",
       amount: "",
       packageId: "",
+      themeId: "",
       pathaoClientId: "",
       pathaoClientSecret: "",
       steadfastApiKey: "",
@@ -167,48 +174,14 @@ const SuperAdminCustomerEditPage = () => {
 
   const primaryColor = watch("primaryColor");
   const secondaryColor = watch("secondaryColor");
+  const themeId = watch("themeId");
+  const packageId = watch("packageId");
+  const paymentStatus = watch("paymentstatus");
+  const paymentMethod = watch("paymentmethod");
 
   useEffect(() => {
     if (!user || !packages || !themes) return;
 
-    const paymentStatus = user?.paymentInfo?.paymentstatus
-      ? PAYMENT_STATUS_OPTIONS.find(
-          (opt) => opt.value === user.paymentInfo.paymentstatus,
-        )
-      : null;
-    const paymentMethod = user?.paymentInfo?.paymentmethod
-      ? PAYMENT_METHOD_OPTIONS.find(
-          (opt) => opt.value === user.paymentInfo.paymentmethod,
-        )
-      : null;
-
-    // Find package from API data
-    const packageData = user?.packageId
-      ? packages.find((pkg) => pkg.id === user.packageId)
-      : null;
-    const packageOption = packageData
-      ? {
-          label: packageData.name,
-          value: packageData.id,
-          features: packageData.features,
-        }
-      : null;
-
-    // Find theme from API data
-    const themeData = user?.themeId
-      ? themes.find((theme) => theme.id === user.themeId)
-      : null;
-    const themeOption = themeData
-      ? {
-          label: themeData.domainUrl || `Theme #${themeData.id}`,
-          value: themeData.id,
-        }
-      : null;
-
-    setSelectedPaymentStatus(paymentStatus);
-    setSelectedPaymentMethod(paymentMethod);
-    setSelectedPackage(packageOption);
-    setSelectedTheme(themeOption);
     setIsActive(user?.isActive ?? true);
 
     reset({
@@ -223,7 +196,8 @@ const SuperAdminCustomerEditPage = () => {
       paymentstatus: user?.paymentInfo?.paymentstatus || "",
       paymentmethod: user?.paymentInfo?.paymentmethod || "",
       amount: user?.paymentInfo?.amount || "",
-      packageId: user?.packageId || "",
+      packageId: user?.packageId ? String(user.packageId) : "",
+      themeId: user?.themeId ? String(user.themeId) : "",
       pathaoClientId: user?.pathaoConfig?.clientId || "",
       pathaoClientSecret: user?.pathaoConfig?.clientSecret || "",
       steadfastApiKey: user?.steadfastConfig?.apiKey || "",
@@ -248,11 +222,13 @@ const SuperAdminCustomerEditPage = () => {
       }
     }
 
+    const selectedPackageData = packages?.find(p => p.id === Number(data.packageId));
+
     const paymentInfo = {
       ...(data.paymentstatus && { paymentstatus: data.paymentstatus }),
       ...(data.paymentmethod && { paymentmethod: data.paymentmethod }),
       ...(data.amount && { amount: parseFloat(data.amount) }),
-      ...(selectedPackage && { packagename: selectedPackage.label }),
+      ...(selectedPackageData && { packagename: selectedPackageData.name }),
     };
 
     const pathaoConfig = {};
@@ -647,10 +623,28 @@ const SuperAdminCustomerEditPage = () => {
             <div className="space-y-6">
               <FileUpload
                 label="Company Logo"
-                file={logoFile}
-                setFile={setLogoFile}
-                existingImage={user?.companyLogo}
-                className="h-40"
+                placeholder="Upload company logo"
+                accept="image/*"
+                onChange={(file) => {
+                  setLogoFile(file);
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setValue("companyLogo", reader.result, {
+                        shouldValidate: true,
+                      });
+                    };
+                    reader.readAsDataURL(file);
+                  } else {
+                    setValue("companyLogo", user?.companyLogo || "", {
+                      shouldValidate: true,
+                    });
+                  }
+                }}
+                value={
+                  logoFile ? URL.createObjectURL(logoFile) : user?.companyLogo
+                }
+                previewContainerClassName="h-32 w-32"
               />
 
               <div className="grid grid-cols-1 gap-6">
@@ -668,13 +662,26 @@ const SuperAdminCustomerEditPage = () => {
                 />
               </div>
 
-              <Dropdown
-                label="Theme"
-                options={themeOptions}
-                value={selectedTheme}
-                onChange={setSelectedTheme}
-                placeholder="Select theme"
-              />
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-900 dark:text-slate-300">
+                  Theme
+                </label>
+                <Select
+                  value={themeId}
+                  onValueChange={(val) => setValue("themeId", val)}
+                >
+                  <SelectTrigger className="w-full h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:ring-violet-500 dark:focus:ring-violet-500 rounded-xl">
+                    <SelectValue placeholder="Select theme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {themeOptions.map((option) => (
+                      <SelectItem key={option.value} value={String(option.value)}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </motion.div>
 
@@ -691,29 +698,68 @@ const SuperAdminCustomerEditPage = () => {
             </div>
 
             <div className="space-y-6">
-              <Dropdown
-                label="Package"
-                options={packageOptions}
-                value={selectedPackage}
-                onChange={setSelectedPackage}
-                placeholder="Select package"
-              />
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-900 dark:text-slate-300">
+                  Package
+                </label>
+                <Select
+                  value={packageId}
+                  onValueChange={(val) => setValue("packageId", val)}
+                >
+                  <SelectTrigger className="w-full h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:ring-violet-500 dark:focus:ring-violet-500 rounded-xl">
+                    <SelectValue placeholder="Select package" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {packageOptions.map((option) => (
+                      <SelectItem key={option.value} value={String(option.value)}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <Dropdown
-                label="Payment Status"
-                options={PAYMENT_STATUS_OPTIONS}
-                value={selectedPaymentStatus}
-                onChange={setSelectedPaymentStatus}
-                placeholder="Select status"
-              />
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-900 dark:text-slate-300">
+                  Payment Status
+                </label>
+                <Select
+                  value={paymentStatus}
+                  onValueChange={(val) => setValue("paymentstatus", val)}
+                >
+                  <SelectTrigger className="w-full h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:ring-violet-500 dark:focus:ring-violet-500 rounded-xl">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAYMENT_STATUS_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <Dropdown
-                label="Payment Method"
-                options={PAYMENT_METHOD_OPTIONS}
-                value={selectedPaymentMethod}
-                onChange={setSelectedPaymentMethod}
-                placeholder="Select method"
-              />
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-900 dark:text-slate-300">
+                  Payment Method
+                </label>
+                <Select
+                  value={paymentMethod}
+                  onValueChange={(val) => setValue("paymentmethod", val)}
+                >
+                  <SelectTrigger className="w-full h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:ring-violet-500 dark:focus:ring-violet-500 rounded-xl">
+                    <SelectValue placeholder="Select method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAYMENT_METHOD_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               <TextField
                 label="Amount"

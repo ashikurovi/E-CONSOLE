@@ -17,27 +17,29 @@ const SuperAdminSuperadminDetailPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white shadow-xl shadow-violet-500/20">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      {/* Premium Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <Shield className="w-6 h-6 text-violet-600 dark:text-violet-400" />
+          </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-2">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
               Super Admin Detail
             </h1>
-            <p className="text-violet-100 text-lg max-w-2xl">
-              View detailed information about this super admin account.
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              View detailed information about this super admin account
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => navigate("/superadmin/superadmins")}
-              className="bg-white text-violet-600 hover:bg-violet-50 border-0 shadow-lg shadow-black/10"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Super Admins
-            </Button>
-          </div>
         </div>
+        <Button
+          variant="outline"
+          onClick={() => navigate("/superadmin/superadmins")}
+          className="rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Super Admins
+        </Button>
       </div>
 
       <div className="rounded-[24px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xl shadow-slate-200/50 dark:shadow-black/20">

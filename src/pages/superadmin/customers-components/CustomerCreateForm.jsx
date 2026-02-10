@@ -303,6 +303,7 @@ const CustomerCreateForm = () => {
                                     label="Company Logo"
                                     placeholder="Upload company logo"
                                     accept="image/*"
+                                    previewContainerClassName="h-32 w-32"
                                     onChange={(file) => {
                                         setLogoFile(file);
                                         if (file) {
