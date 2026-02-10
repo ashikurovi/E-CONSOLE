@@ -19,61 +19,79 @@ import {
     CheckCircle2
 } from "lucide-react";
 
-const FEATURE_DISPLAY_NAMES = {
-    PATHAO: "Pathao Courier",
-    STEARDFAST: "Steadfast Courier",
-    REDX: "RedX Courier",
-};
-
-const getFeatureDisplayName = (feature) =>
-    FEATURE_DISPLAY_NAMES[feature] || feature.replace(/_/g, " ");
-
-const AVAILABLE_FEATURES = [
-    "PRODUCTS",
-    "ORDERS",
-    "STEARDFAST",
-    "PATHAO",
-    "REDX",
-    "NOTIFICATIONS",
-    "EMAIL_NOTIFICATIONS",
-    "WHATSAPP_NOTIFICATIONS",
-    "SMS_NOTIFICATIONS",
-    "ORDERS_ITEM",
-    "CATEGORY",
-    "CUSTOMERS",
-    "REPORTS",
-    "SETTINGS",
-    "STAFF",
-    "SMS_CONFIGURATION",
-    "EMAIL_CONFIGURATION",
-    "PAYMENT_METHODS",
-    "PAYMENT_GATEWAYS",
-    "PAYMENT_STATUS",
-    "PAYMENT_TRANSACTIONS",
-    "PROMOCODES",
-    "HELP",
-    "BANNERS",
-    "FRUAD_CHECKER",
-    "MANAGE_USERS",
-    "DASHBOARD",
-    "REVENUE",
-    "NEW_CUSTOMERS",
-    "REPEAT_PURCHASE_RATE",
-    "AVERAGE_ORDER_VALUE",
-    "STATS",
-    "LOG_ACTIVITY",
-    "REVIEW",
-    "PATHAO_COURIER",
-    "STEADFAST_COURIER",
-    "REDX_COURIER",
-    "PATHAO_COURIER_CONFIGURATION",
-    "STEADFAST_COURIER_CONFIGURATION",
-    "REDX_COURIER_CONFIGURATION",
-    "PATHAO_COURIER_CONFIGURATION",
-    "STEADFAST_COURIER_CONFIGURATION",
-    "REDX_COURIER_CONFIGURATION",
+// All available features with human label + description text
+const FEATURES_OPTIONS = [
+    { value: "PRODUCTS", label: "Products", details: "Manage all products (create, edit, delete, list, basic inventory)." },
+    { value: "ORDERS", label: "Orders", details: "Access full order list, view order details and basic order actions." },
+    { value: "STEARDFAST", label: "Steardfast", details: "Use Steadfast courier inside the console for order shipping." },
+    { value: "PATHAO", label: "Pathao", details: "Use Pathao courier inside the console for order shipping." },
+    { value: "REDX", label: "Redx", details: "Use RedX courier inside the console for order shipping." },
+    { value: "NOTIFICATIONS", label: "Notifications", details: "Access notification center and general notification features." },
+    { value: "EMAIL_NOTIFICATIONS", label: "Email Notifications", details: "Send and manage email-based notifications to customers." },
+    { value: "WHATSAPP_NOTIFICATIONS", label: "Whatsapp Notifications", details: "Send and manage WhatsApp-based notifications to customers." },
+    { value: "SMS_NOTIFICATIONS", label: "Sms Notifications", details: "Send and manage SMS-based notifications to customers." },
+    { value: "ORDERS_ITEM", label: "Orders Item", details: "View and manage line items inside each order (products, quantity, price)." },
+    { value: "CATEGORY", label: "Category", details: "Create, edit and delete product categories." },
+    { value: "CUSTOMERS", label: "Customers", details: "View customer list, create new customers and manage customer profiles." },
+    { value: "REPORTS", label: "Reports", details: "Access different analytical and summary reports (sales, orders, etc.)." },
+    { value: "SETTINGS", label: "Settings", details: "Access main settings page (general, account, preferences, billing, etc.)." },
+    { value: "STAFF", label: "Staff", details: "Manage internal staff/users (list, create, edit, basic access)." },
+    { value: "SMS_CONFIGURATION", label: "Sms Configuration", details: "Configure SMS gateway credentials and SMS sending settings." },
+    { value: "EMAIL_CONFIGURATION", label: "Email Configuration", details: "Configure email SMTP / provider settings for outgoing emails." },
+    { value: "PAYMENT_METHODS", label: "Payment Methods", details: "Set up offline payment methods (Cash, Bank Transfer, etc.)." },
+    { value: "PAYMENT_GATEWAYS", label: "Payment Gateways", details: "Configure online gateways (SSLCommerz, Stripe, etc.)." },
+    { value: "PAYMENT_STATUS", label: "Payment Status", details: "Define and manage different payment statuses (Paid, Unpaid, Pending)." },
+    { value: "PAYMENT_TRANSACTIONS", label: "Payment Transactions", details: "View and track individual payment transaction history." },
+    { value: "PROMOCODES", label: "Promocodes", details: "Create and manage coupon codes / discount promo codes." },
+    { value: "HELP", label: "Help", details: "Access help center, support tickets and documentation section." },
+    { value: "BANNERS", label: "Banners", details: "Create and manage simple homepage / site banners." },
+    { value: "FRUAD_CHECKER", label: "Fruad Checker", details: "Use fraud-check tools to identify risky or suspicious orders." },
+    { value: "MANAGE_USERS", label: "Manage Users", details: "High-level user management (system owners and staff accounts)." },
+    { value: "DASHBOARD", label: "Dashboard", details: "Access main dashboard with KPIs, charts and quick stats." },
+    { value: "REVENUE", label: "Revenue", details: "View revenue-related cards and graphs inside dashboard/reports." },
+    { value: "NEW_CUSTOMERS", label: "New Customers", details: "See metrics and widgets for newly acquired customers." },
+    { value: "REPEAT_PURCHASE_RATE", label: "Repeat Purchase Rate", details: "See repeat purchase rate stats and related KPIs." },
+    { value: "AVERAGE_ORDER_VALUE", label: "Average Order Value", details: "See AOV (average order value) stats and insights." },
+    { value: "STATS", label: "Stats", details: "Access extended statistics page with deeper analytics." },
+    { value: "LOG_ACTIVITY", label: "Log Activity", details: "View SquadLog / activity logs for user actions in the system." },
+    { value: "REVIEW", label: "Review", details: "View and manage customer product reviews." },
+    { value: "PATHAO_COURIER", label: "Pathao Courier", details: "Access Pathao courier integration pages and tools." },
+    { value: "STEADFAST_COURIER", label: "Steadfast Courier", details: "Access Steadfast courier integration pages and tools." },
+    { value: "REDX_COURIER", label: "Redx Courier", details: "Access RedX courier integration pages and tools." },
+    { value: "PATHAO_COURIER_CONFIGURATION", label: "Pathao Courier Configuration", details: "Configure Pathao API keys, credentials and courier settings." },
+    { value: "STEADFAST_COURIER_CONFIGURATION", label: "Steadfast Courier Configuration", details: "Configure Steadfast API keys, credentials and courier settings." },
+    { value: "REDX_COURIER_CONFIGURATION", label: "Redx Courier Configuration", details: "Configure RedX API keys, credentials and courier settings." },
+    { value: "SUPERADMIN_EARNINGS", label: "Superadmin Earnings", details: "Superadmin-level earnings overview and revenue data for all tenants." },
+    { value: "SUPERADMIN_STATISTICS", label: "Superadmin Statistics", details: "Global statistics panel for the superadmin (all stores / system-wide)." },
+    { value: "AI_REPORT", label: "Ai Report", details: "AI-generated daily/periodic reports with insights and recommendations." },
+    { value: "AI_LIVE_FEED", label: "Ai Live Feed", details: "Real-time AI live feed of events, anomalies and important activities." },
+    { value: "AI_SALES_DIRECTION", label: "Ai Sales Direction", details: "AI guidance on what to push, which products to focus and sales direction." },
+    { value: "PRODUCT_BULK_UPLOAD", label: "Product Bulk Upload", details: "Upload many products at once using CSV / Excel bulk upload." },
+    { value: "INVENTORY_MANAGEMENT", label: "Inventory Management", details: "View and manage stock levels, inventory adjustments and stock list." },
+    { value: "INVENTORY_HISTORY", label: "Inventory History", details: "See detailed stock movement history (in/out, restock, adjustments)." },
+    { value: "FLASH_SELL", label: "Flash Sell", details: "Set up and manage flash sale campaigns from the console." },
+    { value: "MEDIA_MANAGEMENT", label: "Media Management", details: "Access media library, upload and manage images/files used in the store." },
+    { value: "BANNER_MANAGEMENT", label: "Banner Management", details: "Advanced banner management for different positions and layouts." },
+    { value: "BANNERS_OFFERS_MARKETING", label: "Banners Offers Marketing", details: "Marketing-focused banners and offers management (campaign-style)." },
+    { value: "ORDER_INVOICE_FINANCE", label: "Order Invoice Finance", details: "Access invoices, credit notes and financial views linked to orders." },
+    { value: "ORDER_CREATION_MANUAL", label: "Order Creation Manual", details: "Create orders manually from the console on behalf of customers." },
+    { value: "ORDER_TRACKING", label: "Order Tracking", details: "Use the console tracking page to follow order shipping status." },
+    { value: "ORDER_EDIT", label: "Order Edit", details: "Edit existing orders (items, customer info, amounts) from console." },
+    { value: "SALE_INVOICE_MANAGEMENT", label: "Sale Invoice Management", details: "Create, edit, view and manage sale invoices and recurring invoices." },
+    { value: "POLICY_LEGAL_CONTENT", label: "Policy Legal Content", details: "Access the full legal content section (all store policies together)." },
+    { value: "PRIVACY_POLICY_MANAGEMENT", label: "Privacy Policy Management", details: "Create and edit the store’s privacy policy content." },
+    { value: "TERMS_CONDITIONS_MANAGEMENT", label: "Terms Conditions Management", details: "Create and edit terms & conditions content." },
+    { value: "REFUND_POLICY_MANAGEMENT", label: "Refund Policy Management", details: "Create and edit refund/return policy content." },
+    { value: "INTEGRATIONS_SETTINGS", label: "Integrations Settings", details: "Access integrations area for managing connected apps and services." },
+    { value: "CONNECTED_APPS", label: "Connected Apps", details: "View and manage all third‑party apps connected to the store." },
+    { value: "COURIER_INTEGRATION_SETTINGS", label: "Courier Integration Settings", details: "Central settings page for all courier integrations." },
+    { value: "NOTIFICATION_SETTINGS", label: "Notification Settings", details: "Configure how and when different notifications are sent." },
+    { value: "THEME_MANAGEMENT", label: "Theme Management", details: "Manage storefront themes, preview and switch between themes." },
+    { value: "CUSTOM_DOMAIN", label: "Custom Domain", details: "Connect and manage custom domains for the storefront." },
 ];
 
+// Flat list of values for validation / filtering
+const AVAILABLE_FEATURES = FEATURES_OPTIONS.map((f) => f.value);
 const schema = yup.object().shape({
     name: yup
         .string()
@@ -166,7 +184,7 @@ const PackageCreatePage = () => {
             price: parseFloat(data.price),
             discountPrice: data.discountPrice ? parseFloat(data.discountPrice) : null,
             isFeatured,
-            features,
+            features: validFeatures,
             ...(themeId && { themeId: parseInt(themeId) }),
         };
 
@@ -310,12 +328,12 @@ const PackageCreatePage = () => {
                                 Select the features included in this package ({features.length} selected)
                             </p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                                {AVAILABLE_FEATURES.map((feature) => (
+                                {FEATURES_OPTIONS.map((feature) => (
                                     <label
-                                        key={feature}
+                                        key={feature.value}
                                         className={`
                                             flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-200
-                                            ${features.includes(feature)
+                                            ${features.includes(feature.value)
                                                 ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800"
                                                 : "bg-white border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:border-slate-800 dark:hover:border-slate-700"
                                             }
@@ -323,27 +341,36 @@ const PackageCreatePage = () => {
                                     >
                                         <div className={`
                                             w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors
-                                            ${features.includes(feature)
+                                            ${features.includes(feature.value)
                                                 ? "bg-emerald-500 border-emerald-500"
                                                 : "bg-transparent border-slate-300 dark:border-slate-600"
                                             }
                                         `}>
-                                            {features.includes(feature) && (
+                                            {features.includes(feature.value) && (
                                                 <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                                             )}
                                         </div>
-                                        <span className={`text-sm font-medium ${
-                                            features.includes(feature)
-                                                ? "text-emerald-900 dark:text-emerald-100"
-                                                : "text-slate-600 dark:text-slate-300"
-                                        }`}>
-                                            {getFeatureDisplayName(feature)}
-                                        </span>
+                                        <div className="flex flex-col">
+                                            <span
+                                                className={`text-sm font-semibold ${
+                                                    features.includes(feature.value)
+                                                        ? "text-emerald-900 dark:text-emerald-100"
+                                                        : "text-slate-700 dark:text-slate-200"
+                                                }`}
+                                            >
+                                                {feature.label}
+                                            </span>
+                                            {feature.details && (
+                                                <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                                    {feature.details}
+                                                </span>
+                                            )}
+                                        </div>
                                         <input
                                             type="checkbox"
                                             className="hidden"
-                                            checked={features.includes(feature)}
-                                            onChange={() => toggleFeature(feature)}
+                                            checked={features.includes(feature.value)}
+                                            onChange={() => toggleFeature(feature.value)}
                                         />
                                     </label>
                                 ))}

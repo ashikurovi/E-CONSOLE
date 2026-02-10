@@ -9,13 +9,20 @@ import {
   CheckCircle2,
   X,
   RotateCcw,
+  Info,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { generateInvoicePDF } from "@/pages/superadmin/invoice/InvoicePDFGenerator";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGetPackagesQuery } from "@/features/package/packageApiSlice";
-import { API_ALLOWED_PERMISSION_VALUES } from "@/constants/feature-permission";
 import { PaymentModal } from "./components";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useRevertPackageMutation } from "@/features/systemuser/systemuserApiSlice";
 import { userDetailsFetched } from "@/features/auth/authSlice";
 import {
@@ -25,14 +32,93 @@ import {
   useSubmitBankPaymentMutation,
 } from "@/features/invoice/invoiceApiSlice";
 
-// Format permission key for display (e.g. MANAGE_USERS -> "Manage users")
-const featureLabel = (key) => {
-  if (!key || typeof key !== "string") return key;
-  return key
+// Feature metadata: label + details, keyed by value (permission)
+const FEATURES_OPTIONS = [
+  { value: "PRODUCTS", label: "Products", details: "Manage all products (create, edit, delete, list, basic inventory)." },
+  { value: "ORDERS", label: "Orders", details: "Access full order list, view order details and basic order actions." },
+  { value: "STEARDFAST", label: "Steardfast", details: "Use Steadfast courier inside the console for order shipping." },
+  { value: "PATHAO", label: "Pathao", details: "Use Pathao courier inside the console for order shipping." },
+  { value: "REDX", label: "Redx", details: "Use RedX courier inside the console for order shipping." },
+  { value: "NOTIFICATIONS", label: "Notifications", details: "Access notification center and general notification features." },
+  { value: "EMAIL_NOTIFICATIONS", label: "Email Notifications", details: "Send and manage email-based notifications to customers." },
+  { value: "WHATSAPP_NOTIFICATIONS", label: "Whatsapp Notifications", details: "Send and manage WhatsApp-based notifications to customers." },
+  { value: "SMS_NOTIFICATIONS", label: "Sms Notifications", details: "Send and manage SMS-based notifications to customers." },
+  { value: "ORDERS_ITEM", label: "Orders Item", details: "View and manage line items inside each order (products, quantity, price)." },
+  { value: "CATEGORY", label: "Category", details: "Create, edit and delete product categories." },
+  { value: "CUSTOMERS", label: "Customers", details: "View customer list, create new customers and manage customer profiles." },
+  { value: "REPORTS", label: "Reports", details: "Access different analytical and summary reports (sales, orders, etc.)." },
+  { value: "SETTINGS", label: "Settings", details: "Access main settings page (general, account, preferences, billing, etc.)." },
+  { value: "STAFF", label: "Staff", details: "Manage internal staff/users (list, create, edit, basic access)." },
+  { value: "SMS_CONFIGURATION", label: "Sms Configuration", details: "Configure SMS gateway credentials and SMS sending settings." },
+  { value: "EMAIL_CONFIGURATION", label: "Email Configuration", details: "Configure email SMTP / provider settings for outgoing emails." },
+  { value: "PAYMENT_METHODS", label: "Payment Methods", details: "Set up offline payment methods (Cash, Bank Transfer, etc.)." },
+  { value: "PAYMENT_GATEWAYS", label: "Payment Gateways", details: "Configure online gateways (SSLCommerz, Stripe, etc.)." },
+  { value: "PAYMENT_STATUS", label: "Payment Status", details: "Define and manage different payment statuses (Paid, Unpaid, Pending)." },
+  { value: "PAYMENT_TRANSACTIONS", label: "Payment Transactions", details: "View and track individual payment transaction history." },
+  { value: "PROMOCODES", label: "Promocodes", details: "Create and manage coupon codes / discount promo codes." },
+  { value: "HELP", label: "Help", details: "Access help center, support tickets and documentation section." },
+  { value: "BANNERS", label: "Banners", details: "Create and manage simple homepage / site banners." },
+  { value: "FRUAD_CHECKER", label: "Fruad Checker", details: "Use fraud-check tools to identify risky or suspicious orders." },
+  { value: "MANAGE_USERS", label: "Manage Users", details: "High-level user management (system owners and staff accounts)." },
+  { value: "DASHBOARD", label: "Dashboard", details: "Access main dashboard with KPIs, charts and quick stats." },
+  { value: "REVENUE", label: "Revenue", details: "View revenue-related cards and graphs inside dashboard/reports." },
+  { value: "NEW_CUSTOMERS", label: "New Customers", details: "See metrics and widgets for newly acquired customers." },
+  { value: "REPEAT_PURCHASE_RATE", label: "Repeat Purchase Rate", details: "See repeat purchase rate stats and related KPIs." },
+  { value: "AVERAGE_ORDER_VALUE", label: "Average Order Value", details: "See AOV (average order value) stats and insights." },
+  { value: "STATS", label: "Stats", details: "Access extended statistics page with deeper analytics." },
+  { value: "LOG_ACTIVITY", label: "Log Activity", details: "View SquadLog / activity logs for user actions in the system." },
+  { value: "REVIEW", label: "Review", details: "View and manage customer product reviews." },
+  { value: "PATHAO_COURIER", label: "Pathao Courier", details: "Access Pathao courier integration pages and tools." },
+  { value: "STEADFAST_COURIER", label: "Steadfast Courier", details: "Access Steadfast courier integration pages and tools." },
+  { value: "REDX_COURIER", label: "Redx Courier", details: "Access RedX courier integration pages and tools." },
+  { value: "PATHAO_COURIER_CONFIGURATION", label: "Pathao Courier Configuration", details: "Configure Pathao API keys, credentials and courier settings." },
+  { value: "STEADFAST_COURIER_CONFIGURATION", label: "Steadfast Courier Configuration", details: "Configure Steadfast API keys, credentials and courier settings." },
+  { value: "REDX_COURIER_CONFIGURATION", label: "Redx Courier Configuration", details: "Configure RedX API keys, credentials and courier settings." },
+  { value: "SUPERADMIN_EARNINGS", label: "Superadmin Earnings", details: "Superadmin-level earnings overview and revenue data for all tenants." },
+  { value: "SUPERADMIN_STATISTICS", label: "Superadmin Statistics", details: "Global statistics panel for the superadmin (all stores / system-wide)." },
+  { value: "AI_REPORT", label: "Ai Report", details: "AI-generated daily/periodic reports with insights and recommendations." },
+  { value: "AI_LIVE_FEED", label: "Ai Live Feed", details: "Real-time AI live feed of events, anomalies and important activities." },
+  { value: "AI_SALES_DIRECTION", label: "Ai Sales Direction", details: "AI guidance on what to push, which products to focus and sales direction." },
+  { value: "PRODUCT_BULK_UPLOAD", label: "Product Bulk Upload", details: "Upload many products at once using CSV / Excel bulk upload." },
+  { value: "INVENTORY_MANAGEMENT", label: "Inventory Management", details: "View and manage stock levels, inventory adjustments and stock list." },
+  { value: "INVENTORY_HISTORY", label: "Inventory History", details: "See detailed stock movement history (in/out, restock, adjustments)." },
+  { value: "FLASH_SELL", label: "Flash Sell", details: "Set up and manage flash sale campaigns from the console." },
+  { value: "MEDIA_MANAGEMENT", label: "Media Management", details: "Access media library, upload and manage images/files used in the store." },
+  { value: "BANNER_MANAGEMENT", label: "Banner Management", details: "Advanced banner management for different positions and layouts." },
+  { value: "BANNERS_OFFERS_MARKETING", label: "Banners Offers Marketing", details: "Marketing-focused banners and offers management (campaign-style)." },
+  { value: "ORDER_INVOICE_FINANCE", label: "Order Invoice Finance", details: "Access invoices, credit notes and financial views linked to orders." },
+  { value: "ORDER_CREATION_MANUAL", label: "Order Creation Manual", details: "Create orders manually from the console on behalf of customers." },
+  { value: "ORDER_TRACKING", label: "Order Tracking", details: "Use the console tracking page to follow order shipping status." },
+  { value: "ORDER_EDIT", label: "Order Edit", details: "Edit existing orders (items, customer info, amounts) from console." },
+  { value: "SALE_INVOICE_MANAGEMENT", label: "Sale Invoice Management", details: "Create, edit, view and manage sale invoices and recurring invoices." },
+  { value: "POLICY_LEGAL_CONTENT", label: "Policy Legal Content", details: "Access the full legal content section (all store policies together)." },
+  { value: "PRIVACY_POLICY_MANAGEMENT", label: "Privacy Policy Management", details: "Create and edit the store’s privacy policy content." },
+  { value: "TERMS_CONDITIONS_MANAGEMENT", label: "Terms Conditions Management", details: "Create and edit terms & conditions content." },
+  { value: "REFUND_POLICY_MANAGEMENT", label: "Refund Policy Management", details: "Create and edit refund/return policy content." },
+  { value: "INTEGRATIONS_SETTINGS", label: "Integrations Settings", details: "Access integrations area for managing connected apps and services." },
+  { value: "CONNECTED_APPS", label: "Connected Apps", details: "View and manage all third‑party apps connected to the store." },
+  { value: "COURIER_INTEGRATION_SETTINGS", label: "Courier Integration Settings", details: "Central settings page for all courier integrations." },
+  { value: "NOTIFICATION_SETTINGS", label: "Notification Settings", details: "Configure how and when different notifications are sent." },
+  { value: "THEME_MANAGEMENT", label: "Theme Management", details: "Manage storefront themes, preview and switch between themes." },
+  { value: "CUSTOM_DOMAIN", label: "Custom Domain", details: "Connect and manage custom domains for the storefront." },
+];
+
+const getFeatureMeta = (key) => {
+  if (!key || typeof key !== "string") {
+    return { label: key, details: "" };
+  }
+  const meta = FEATURES_OPTIONS.find((f) => f.value === key);
+  if (meta) return meta;
+  // Fallback: humanize the key
+  const label = key
     .replace(/_/g, " ")
     .replace(/\b\w/g, (c) => c.toLowerCase())
     .replace(/^./, (c) => c.toUpperCase());
+  return { label, details: "" };
 };
+
+// Format permission key for display (using metadata where possible)
+const featureLabel = (key) => getFeatureMeta(key).label;
 
 // Format price from API (string "999.00" or number) for display
 const formatPrice = (value) => {
@@ -51,6 +137,7 @@ const OptimizedUpgradePlan = () => {
   const [createInvoice] = useCreateInvoiceMutation();
   const [initiateBkashPayment] = useInitiateBkashPaymentMutation();
   const [submitBankPayment] = useSubmitBankPaymentMutation();
+  const [featureDetail, setFeatureDetail] = useState(null);
 
   const {
     data: packagesFromApi,
@@ -123,12 +210,27 @@ const OptimizedUpgradePlan = () => {
     [plans],
   );
 
-  // Comparison rows: one per feature permission, each plan gets ✓/✗
+  // Comparison rows: one per feature permission that exists in ANY plan, each plan gets ✓/✗
   const comparisonRows = useMemo(() => {
-    return API_ALLOWED_PERMISSION_VALUES.map((perm) => ({
-      name: featureLabel(perm),
-      planValues: plans.map((p) => (p.features || []).includes(perm)),
-    }));
+    if (!plans.length) return [];
+    const codesSet = new Set();
+    plans.forEach((p) => {
+      (p.features || []).forEach((f) => {
+        if (typeof f === "string" && f !== "—") {
+          codesSet.add(f);
+        }
+      });
+    });
+    const codes = Array.from(codesSet);
+    return codes.map((code) => {
+      const meta = getFeatureMeta(code);
+      return {
+        code,
+        label: meta.label,
+        details: meta.details,
+        planValues: plans.map((p) => (p.features || []).includes(code)),
+      };
+    });
   }, [plans]);
 
   const comparisonSections = useMemo(
@@ -534,22 +636,38 @@ const OptimizedUpgradePlan = () => {
                       "Hubspot Integration",
                       "Salesforce Integration",
                     ]
-                ).map((feature, i) => (
-                  <motion.div
-                    key={i}
-                    className="flex items-center gap-3"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + i * 0.08 }}
-                  >
-                    <div className="w-2 h-2 rounded-full bg-purple-600 flex-shrink-0" />
-                    <span className="text-gray-700 dark:text-gray-300 text-sm font-medium">
-                      {typeof feature === "string" && feature.length > 2
-                        ? featureLabel(feature)
-                        : feature}
-                    </span>
-                  </motion.div>
-                ))}
+                ).map((feature, i) => {
+                  const { label, details } =
+                    typeof feature === "string" && feature.length > 2
+                      ? getFeatureMeta(feature)
+                      : { label: feature, details: "" };
+                  return (
+                    <motion.div
+                      key={i}
+                      className="flex items-center gap-3"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 + i * 0.08 }}
+                    >
+                      <div className="w-2 h-2 rounded-full bg-purple-600 flex-shrink-0" />
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-700 dark:text-gray-300 text-sm font-medium">
+                          {label}
+                        </span>
+                        {details && (
+                          <button
+                            type="button"
+                            className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                            title={details}
+                            onClick={() => setFeatureDetail({ label, details })}
+                          >
+                            <Info className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             </motion.div>
           </div>
@@ -850,8 +968,29 @@ const OptimizedUpgradePlan = () => {
                             gridTemplateColumns: `minmax(180px, 1fr) repeat(${plans.length}, minmax(100px, 1fr))`,
                           }}
                         >
-                          <div className="p-4 py-3 text-sm font-medium text-gray-700 flex items-center">
-                            {row.name}
+                          <div className="p-4 py-3 text-sm font-medium text-gray-700 flex flex-col">
+                            <div className="flex items-center gap-1.5">
+                              <span>{row.label}</span>
+                              {row.details && (
+                                <button
+                                  type="button"
+                                  className="text-gray-400 hover:text-gray-600"
+                                  onClick={() =>
+                                    setFeatureDetail({
+                                      label: row.label,
+                                      details: row.details,
+                                    })
+                                  }
+                                >
+                                  <Info className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                            {row.details && (
+                              <span className="text-xs font-normal text-gray-500 mt-0.5">
+                                {row.details}
+                              </span>
+                            )}
                           </div>
                           {(row.planValues || []).map((value, planIdx) => (
                             <div
@@ -1127,6 +1266,26 @@ const OptimizedUpgradePlan = () => {
         isLoadingBkash={isLoadingBkash}
         isLoadingBank={isLoadingBank}
       />
+      <Dialog
+        open={!!featureDetail}
+        onOpenChange={(open) => {
+          if (!open) setFeatureDetail(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-[420px] rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Info className="h-4 w-4 text-purple-600" />
+              {featureDetail?.label || "Feature details"}
+            </DialogTitle>
+            {featureDetail?.details && (
+              <DialogDescription className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                {featureDetail.details}
+              </DialogDescription>
+            )}
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
