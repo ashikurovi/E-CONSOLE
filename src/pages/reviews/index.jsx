@@ -5,6 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -46,10 +52,11 @@ function ReviewsPage() {
     { companyId: authUser?.companyId },
     { skip: !authUser?.companyId },
   );
-  const { data: products = [], isLoading: isLoadingProducts } = useGetProductsQuery(
-    { companyId: authUser?.companyId },
-    { skip: !authUser?.companyId },
-  );
+  const { data: products = [], isLoading: isLoadingProducts } =
+    useGetProductsQuery(
+      { companyId: authUser?.companyId },
+      { skip: !authUser?.companyId },
+    );
   const { data: users = [], isLoading: isLoadingUsers } = useGetUsersQuery(
     { companyId: authUser?.companyId },
     { skip: !authUser?.companyId },
@@ -229,19 +236,21 @@ function ReviewsPage() {
         </div>
         <Button
           type="button"
-          onClick={() => setCreateFormOpen((prev) => !prev)}
-          className="mt-2 md:mt-0"
+          onClick={() => setCreateFormOpen(true)}
+          className="mt-2 md:mt-0 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
         >
           {t("reviews.addReview") || "Add Review"}
         </Button>
       </div>
 
-      {createFormOpen && (
-        <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-            {t("reviews.createTitle") || "Create Review"}
-          </h2>
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSubmit}>
+      <Dialog open={createFormOpen} onOpenChange={setCreateFormOpen}>
+        <DialogContent className="sm:max-w-[600px] bg-white dark:bg-[#1a1f26] border-gray-100 dark:border-gray-800">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
+              {t("reviews.createTitle") || "Create Review"}
+            </DialogTitle>
+          </DialogHeader>
+          <form className="grid grid-cols-1 gap-4 mt-4" onSubmit={handleSubmit}>
             <div className="flex flex-col space-y-1">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t("reviews.product") || "Product"}
@@ -265,29 +274,54 @@ function ReviewsPage() {
                 <SelectContent>
                   {products.map((p) => (
                     <SelectItem key={p.id} value={String(p.id)}>
-                      {p.name}
+                      <div className="flex items-center gap-2">
+                        {(p.thumbnail || p.images?.[0]) && (
+                          <img
+                            src={p.thumbnail || p.images?.[0]}
+                            alt=""
+                            className="w-8 h-8 rounded-md object-cover border border-gray-200 dark:border-gray-700"
+                          />
+                        )}
+                        <span className="truncate max-w-[300px]">{p.name}</span>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+
             <div className="flex flex-col space-y-1">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Rating (1-5)
               </Label>
-              <Input
-                type="number"
-                min="1"
-                max="5"
-                step="1"
-                name="rating"
-                value={formValues.rating}
-                onChange={handleChange}
-                className="h-10 bg-white dark:bg-[#111827] border-gray-300 dark:border-gray-700"
-                required
-              />
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() =>
+                      setFormValues((prev) => ({ ...prev, rating: star }))
+                    }
+                    className="focus:outline-none transition-transform hover:scale-110"
+                  >
+                    <Star
+                      className={`w-8 h-8 ${
+                        Number(formValues.rating) >= star
+                          ? "fill-amber-400 text-amber-400"
+                          : "fill-gray-100 text-gray-300 dark:fill-gray-800 dark:text-gray-700"
+                      }`}
+                    />
+                  </button>
+                ))}
+                <span className="ml-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+                  {formValues.rating
+                    ? `${formValues.rating} Stars`
+                    : "Select rating"}
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col space-y-1 md:col-span-2">
+
+            <div className="flex flex-col space-y-1">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t("reviews.customer") || "Customer (optional)"}
               </Label>
@@ -318,7 +352,7 @@ function ReviewsPage() {
               </Select>
             </div>
 
-            <div className="flex flex-col space-y-1 md:col-span-2">
+            <div className="flex flex-col space-y-1">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Title
               </Label>
@@ -329,9 +363,11 @@ function ReviewsPage() {
                 onChange={handleChange}
                 className="h-10 bg-white dark:bg-[#111827] border-gray-300 dark:border-gray-700"
                 required
+                placeholder="Review summary"
               />
             </div>
-            <div className="flex flex-col space-y-1 md:col-span-2">
+
+            <div className="flex flex-col space-y-1">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Comment
               </Label>
@@ -339,11 +375,13 @@ function ReviewsPage() {
                 name="comment"
                 value={formValues.comment}
                 onChange={handleChange}
-                rows={3}
-                className="min-h-[80px] px-3 py-2 rounded-md bg-white dark:bg-[#111827] border border-gray-300 dark:border-gray-700 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                rows={4}
+                className="w-full px-3 py-2 rounded-md bg-white dark:bg-[#111827] border border-gray-300 dark:border-gray-700 text-sm outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-400"
+                placeholder="Detailed review..."
               />
             </div>
-            <div className="flex items-center gap-3 md:col-span-2 justify-end">
+
+            <div className="flex items-center gap-3 justify-end mt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -352,15 +390,19 @@ function ReviewsPage() {
               >
                 {t("common.cancel") || "Cancel"}
               </Button>
-              <Button type="submit" disabled={isCreating}>
+              <Button
+                type="submit"
+                disabled={isCreating}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
                 {isCreating
                   ? t("common.saving") || "Saving..."
                   : t("common.save") || "Save"}
               </Button>
             </div>
           </form>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
       {/* --- Stats Grid --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
