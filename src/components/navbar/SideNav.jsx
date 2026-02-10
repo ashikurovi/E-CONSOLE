@@ -409,7 +409,7 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
                 }`}
               />
               <span className="font-bold text-[15px] tracking-wide relative z-10">
-                Dashboard
+                {t("nav.dashboard")}
               </span>
             </Link>
           )}
@@ -446,7 +446,9 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
               />
             )}
             {!isCollapsed && (
-              <span className="text-[13px] font-medium">Collapse Sidebar</span>
+              <span className="text-[13px] font-medium">
+                {t("common.collapseSidebar")}
+              </span>
             )}
           </button>
 
@@ -461,7 +463,9 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
               className="group-hover:translate-x-1 transition-transform"
             />
             {!isCollapsed && (
-              <span className="text-[13px] font-medium">Logout</span>
+              <span className="text-[13px] font-medium">
+                {t("common.logout")}
+              </span>
             )}
           </button>
         </div>

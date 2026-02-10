@@ -167,13 +167,13 @@ export const navSections = [
   {
     id: "invoices",
     title: "Invoice Management",
-    tKey: "Invoice Management",
+    tKey: "nav.invoiceManagement",
     icon: FileStack,
     items: [
       {
         id: 6.51,
         title: "Invoice List",
-        tKey: "Invoice List",
+        tKey: "nav.invoiceList",
         link: "/invoices",
         permission: FeaturePermission.ORDERS,
         icon: FileText,
@@ -181,7 +181,7 @@ export const navSections = [
       {
         id: 6.52,
         title: "Recurring Invoices",
-        tKey: "Recurring Invoices",
+        tKey: "nav.recurringInvoices",
         link: "/recurring-invoices",
         permission: FeaturePermission.ORDERS,
         icon: Repeat,
@@ -332,18 +332,21 @@ export const navSections = [
         children: [
           {
             title: "All Users",
+            tKey: "nav.allUsers",
             link: "/manage-users?tab=all-users",
             permission: FeaturePermission.STAFF,
             icon: Users,
           },
           {
             title: "Active",
+            tKey: "nav.activeUsers",
             link: "/manage-users?tab=active",
             permission: FeaturePermission.STAFF,
             icon: CheckCircle2,
           },
           {
             title: "Inactive",
+            tKey: "nav.inactiveUsers",
             link: "/manage-users?tab=inactive",
             permission: FeaturePermission.STAFF,
             icon: XCircle,
@@ -360,30 +363,35 @@ export const navSections = [
         children: [
           {
             title: "General",
+            tKey: "nav.settingsGeneral",
             link: "/settings?tab=general",
             permission: FeaturePermission.SETTINGS,
             icon: Settings,
           },
           {
             title: "Preferences",
+            tKey: "nav.settingsPreferences",
             link: "/settings?tab=preferences",
             permission: FeaturePermission.SETTINGS,
             icon: SlidersHorizontal,
           },
           {
             title: "Account",
+            tKey: "nav.settingsAccount",
             link: "/settings?tab=account",
             permission: FeaturePermission.SETTINGS,
             icon: User,
           },
           {
             title: "Billings",
+            tKey: "nav.settingsBillings",
             link: "/settings?tab=billings",
             permission: FeaturePermission.SETTINGS,
             icon: CreditCard,
           },
           {
             title: "Notifications",
+            tKey: "nav.settingsNotifications",
             link: "/settings?tab=notifications",
             permission: FeaturePermission.SETTINGS,
             icon: Bell,
@@ -433,8 +441,14 @@ export const navLinks = navSections.flatMap((section) => section.items);
 export const DROPDOWN_NAV_ITEMS = [
   {
     title: "Personal Information",
+    tKey: "nav.personalInformation",
     link: "/settings/personal-information",
     icon: User2,
   },
-  { title: "Settings", link: "/settings/account-security", icon: Settings },
+  {
+    title: "Settings",
+    tKey: "nav.settings",
+    link: "/settings/account-security",
+    icon: Settings,
+  },
 ];

@@ -109,7 +109,18 @@
     "upgradePlan": "Upgrade Plan",
     "settings": "Settings",
     "help": "Help",
-    "personalInformation": "Personal Information"
+    "personalInformation": "Personal Information",
+    "invoiceManagement": "Invoice Management",
+    "invoiceList": "Invoice List",
+    "recurringInvoices": "Recurring Invoices",
+    "allUsers": "All Users",
+    "activeUsers": "Active",
+    "inactiveUsers": "Inactive",
+    "settingsGeneral": "General",
+    "settingsPreferences": "Preferences",
+    "settingsAccount": "Account",
+    "settingsBillings": "Billings",
+    "settingsNotifications": "Notifications"
   },
   "search": {
     "placeholder": "Search orders, products, customers...",
@@ -145,7 +156,28 @@
     "productUpdated": "Product Updated",
     "emailBroadcast": "Email Broadcast",
     "smsBroadcast": "SMS Broadcast",
-    "notification": "Notification"
+    "notification": "Notification",
+    "defaultMessage": "Notification message",
+    "justNow": "Just now",
+    "filters": {
+      "all": "All",
+      "unread": "Unread",
+      "orders": "Orders",
+      "customers": "Customers",
+      "stock": "Stock & Products"
+    },
+    "stats": {
+      "totalUnread": "Total Unread",
+      "orderUpdates": "Order Updates",
+      "stockAlerts": "Stock Alerts"
+    },
+    "newBadge": "{{count}} New",
+    "subtitle": "Stay updated with your store's latest activities",
+    "searchPlaceholder": "Search...",
+    "noneTitle": "No notifications found",
+    "noneForFilter": "You don't have any {{filter}} notifications at the moment.",
+    "viewAll": "View all notifications",
+    "markAsRead": "Mark as read"
   },
   "dashboard": {
     "welcomeBack": "Welcome Back, {{name}}!",
@@ -1829,7 +1861,376 @@
     "customerRating": "Customer Rating",
     "success": "Success",
     "failed": "Failed",
-    "courierService": "Courier Service"
+    "courierService": "Courier Service",
+    "operatorGp": "Grameenphone",
+    "operatorBl": "Banglalink",
+    "operatorRobiAirtel": "Robi/Airtel",
+    "operatorTeletalk": "Teletalk",
+    "operatorUnknown": "Unknown Operator",
+    "courierPathao": "Pathao",
+    "courierSteadfast": "Steadfast",
+    "courierRedx": "RedX"
+  },
+  "invoices": {
+    "header": {
+      "title": "Invoices",
+      "subtitle": "Manage and track your invoices",
+      "newInvoice": "New Invoice"
+    },
+    "stats": {
+      "totalInvoices": "Total Invoices",
+      "totalRevenue": "Total Revenue",
+      "pendingInvoices": "Pending Invoices",
+      "overdueInvoices": "Overdue Invoices"
+    },
+    "tabs": {
+      "all": "All",
+      "draft": "Draft",
+      "pending": "Pending",
+      "sent": "Sent",
+      "paid": "Paid",
+      "partial": "Partial",
+      "overdue": "Overdue",
+      "cancelled": "Cancelled"
+    },
+    "toast": {
+      "deletedSuccess": "Invoice deleted successfully",
+      "deletedFailed": "Failed to delete invoice",
+      "downloadSuccess": "Invoice downloaded",
+      "downloadFailed": "Failed to download PDF"
+    },
+    "table": {
+      "id": "ID",
+      "created": "Created",
+      "customer": "Customer",
+      "paidStatus": "Paid",
+      "total": "Total",
+      "deliveryStatus": "Delivery",
+      "items": "Items",
+      "fulfillmentStatus": "Status",
+      "actions": "Actions",
+      "unknownCustomer": "Unknown Customer",
+      "na": "N/A",
+      "itemsSuffix": "items",
+      "openMenu": "Open menu",
+      "actionsLabel": "Actions",
+      "viewDetails": "View Details",
+      "edit": "Edit",
+      "downloadPdf": "Download PDF",
+      "delete": "Delete",
+      "searchPlaceholder": "Search invoices..."
+    },
+    "statuses": {
+      "paid": "Paid",
+      "overdue": "Overdue",
+      "cancelled": "Cancelled",
+      "sent": "Sent",
+      "draft": "Draft",
+      "partial": "Partial",
+      "pending": "Pending",
+      "fulfilled": "Fulfilled",
+      "unfulfilled": "Unfulfilled"
+    },
+    "create": {
+      "header": {
+        "title": "Invoice",
+        "preview": "Preview"
+      },
+      "billFrom": "Bill From",
+      "billTo": "Bill To",
+      "addNewCustomer": "Add New",
+      "customerLabel": "Customer",
+      "selectCustomer": "Select customer",
+      "items": {
+        "title": "Items & Details",
+        "itemType": "Item Type",
+        "product": "Product",
+        "service": "Service",
+        "quickAddTitle": "Quick add product (select row first)",
+        "quickAddSubtitle": "Select a product from each row below to auto-fill",
+        "colProductService": "Product/Service",
+        "colQuantity": "Quantity",
+        "colUnit": "Unit",
+        "colRate": "Rate",
+        "colDiscount": "Discount",
+        "colTax": "Tax (%)",
+        "colAmount": "Amount",
+        "selectProduct": "Select product",
+        "namePlaceholder": "Or enter name manually",
+        "addNew": "Add New"
+      },
+      "extra": {
+        "title": "Extra Information",
+        "tabNotes": "Add Notes",
+        "tabTerms": "Add Terms & Conditions",
+        "tabBank": "Add Bank Details",
+        "notesLabel": "Additional Notes",
+        "notesPlaceholder": "Add any additional information...",
+        "termsLabel": "Terms & Conditions",
+        "termsPlaceholder": "Add terms and conditions...",
+        "bankTitle": "Bank Details",
+        "bankName": "Bank Name",
+        "bankNamePlaceholder": "e.g. ABC Bank",
+        "accountNumber": "Account Number",
+        "accountNumberPlaceholder": "e.g. 782459739212",
+        "ifsc": "IFSC / Routing Code",
+        "ifscPlaceholder": "e.g. ABC0001345",
+        "paymentRef": "Payment Reference",
+        "paymentRefPlaceholder": "e.g. {{invoiceNumber}}"
+      },
+      "summary": {
+        "amount": "Amount",
+        "cgst": "CGST (9%)",
+        "sgst": "SGST (9%)",
+        "addCharges": "Add Additional Charges",
+        "discount": "Discount",
+        "roundOff": "Round Off Total",
+        "totalTitle": "Total (USD)",
+        "totalInWords": "Total In Words",
+        "totalInWordsSample": "Five Hundred & Ninety Six Dollars",
+        "signaturePresetAdrian": "Adrian",
+        "signaturePresetOther": "Other",
+        "or": "OR",
+        "signatureName": "Signature Name",
+        "uploading": "Uploading...",
+        "uploadSignature": "Upload Signature"
+      },
+      "validation": {
+        "customerRequired": "Please select a customer",
+        "itemsRequired": "Please add at least one item with name, quantity, and rate"
+      },
+      "toast": {
+        "createdSuccess": "Invoice created successfully",
+        "createdFailed": "Failed to create invoice"
+      },
+      "details": {
+        "printOpened": "Print dialog opened",
+        "printFailed": "Failed to print",
+        "noCustomerEmail": "Customer has no email address",
+        "emailSent": "Invoice sent to {{email}}",
+        "emailFailed": "Failed to send invoice email",
+        "notFound": "Invoice Not Found",
+        "backToList": "Back to Invoices"
+      },
+      "edit": {
+        "header": {
+          "title": "Edit Invoice #{{number}}",
+          "subtitle": "Update status and fulfillment details"
+        },
+        "fields": {
+          "invoiceStatus": "Invoice Status",
+          "deliveryStatus": "Delivery Status",
+          "fulfillmentStatus": "Fulfillment Status"
+        },
+        "delivery": {
+          "na": "N/A",
+          "pending": "Pending",
+          "shipped": "Shipped",
+          "delivered": "Delivered"
+        },
+        "toast": {
+          "updatedSuccess": "Invoice updated successfully",
+          "updatedFailed": "Failed to update invoice"
+        }
+      }
+    }
+  },
+  "manageUsers": {
+    "header": {
+      "title": "System Users",
+      "subtitle": "Manage access and permissions",
+      "addUser": "Add User"
+    },
+    "tabs": {
+      "all-users": "All Users",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "search": {
+      "placeholder": "Search users..."
+    },
+    "table": {
+      "userDetails": "User Details",
+      "role": "Role",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "stats": {
+      "totalUsers": "Total Users",
+      "activeNow": "Active Now",
+      "inactive": "Inactive",
+      "newThisMonth": "New This Month"
+    },
+    "actions": {
+      "edit": "Edit",
+      "permissions": "Permissions",
+      "setActive": "Set Active",
+      "setInactive": "Set Inactive",
+      "deleteUser": "Delete User"
+    },
+    "empty": {
+      "title": "No users found",
+      "subtitle": "Try adjusting your search or filters"
+    },
+    "footer": {
+      "showing": "Showing {{count}} users"
+    },
+    "details": {
+      "id": "ID: {{id}}",
+      "contactTitle": "Contact Details",
+      "phoneLabel": "Phone Number",
+      "companyLabel": "Company",
+      "systemAccessTitle": "SYSTEM ACCESS",
+      "securityClearanceLabel": "Security Clearance",
+      "securityClearanceValue": "High Priority",
+      "logsTitle": "SYSTEM LOGS",
+      "noLogs": "No activity logs",
+      "modifyAccess": "Modify System Access",
+      "revokeAccess": "Revoke User Access",
+      "emptyTitle": "No User Selected",
+      "emptySubtitle": "Select a user from the list to view their system details and activity logs"
+    },
+    "mobile": {
+      "back": "Back",
+      "title": "User Details",
+      "contactTitle": "Contact Info",
+      "activityTitle": "Recent Activity",
+      "editDetails": "Edit Details",
+      "removeUser": "Remove User"
+    },
+    "deleteConfirm": "Are you sure you want to delete this user ({{email}})?",
+    "deleteConfirmDesc": "This action cannot be undone. The user will permanently lose access to the system.",
+    "activeConfirmTitle": "Set user to active?",
+    "activeConfirmDesc": "The user will regain access to the system.",
+    "inactiveConfirmTitle": "Set user to inactive?",
+    "inactiveConfirmDesc": "The user will no longer be able to log in.",
+    "setInactive": "Set Inactive",
+    "roles": {
+      "employee": "Employee",
+      "manager": "Manager",
+      "superAdmin": "Super Admin",
+      "systemOwner": "System Owner"
+    },
+    "create": {
+      "subtitle": "Create a new system user with specific role and access.",
+      "userInfoTitle": "User Information",
+      "companyLabel": "Company Name",
+      "companyPlaceholder": "e.g. SquadCart Inc.",
+      "namePlaceholder": "e.g. John Doe",
+      "emailPlaceholder": "e.g. john@company.com",
+      "phonePlaceholder": "e.g. +1 234 567 890",
+      "roleLabel": "Role",
+      "passwordPlaceholder": "••••••••",
+      "accountStatusLabel": "Account Status",
+      "activeAccount": "Active Account",
+      "inactiveAccount": "Inactive Account"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "nameMin": "Name must be at least 2 characters",
+      "companyRequired": "Company Name is required",
+      "companyMin": "Company name must be at least 2 characters",
+      "companyMax": "Company name must be less than 100 characters",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "phoneRequired": "Phone number is required",
+      "roleRequired": "Role is required",
+      "passwordRequired": "Password is required",
+      "passwordMin": "Password must be at least 6 characters",
+      "passwordMax": "Password must be less than 50 characters",
+      "statusRequired": "Status is required"
+    },
+    "userCreated": "User created successfully",
+    "userCreateFailed": "Failed to create user",
+    "edit": {
+      "notFound": "User not found",
+      "updatedSuccess": "System user updated",
+      "updatedFailed": "Failed to update user",
+      "headerTitle": "Edit System User",
+      "headerSubtitle": "Update system user information and status",
+      "userInfoTitle": "User Information",
+      "nameLabel": "Name *",
+      "companyLabel": "Company Name *",
+      "passwordLabel": "New Password (optional)",
+      "passwordPlaceholder": "Leave blank to keep current",
+      "actionsTitle": "Actions",
+      "securityNoteTitle": "Security Note",
+      "securityNote": "Changing the password will require the user to log in again with the new credentials immediately."
+    },
+    "rolesCard": {
+      "title": "Role Permissions",
+      "systemOwnerLabel": "System Owner:",
+      "systemOwnerDesc": "Full access to everything.",
+      "superAdminLabel": "Super Admin:",
+      "superAdminDesc": "Manage users and settings.",
+      "managerLabel": "Manager:",
+      "managerDesc": "Manage orders and customers.",
+      "employeeLabel": "Employee:",
+      "employeeDesc": "Limited view and product management."
+    },
+    "permissions": {
+      "headerTitle": "Manage Permissions",
+      "headerSubtitle": "Configure access levels and feature availability for this user",
+      "selectAll": "Select All Permissions",
+      "deselectAll": "Deselect All",
+      "emptyOwnerOnly": "Only permissions that the System Owner has can be assigned.",
+      "emptyNoAssignable": "No assignable permissions are available from your account.",
+      "groups": {
+        "core": "Core Features",
+        "management": "Management",
+        "marketing": "Marketing & Content",
+        "notifications": "Notifications",
+        "shipping": "Shipping",
+        "reports": "Reports & Analytics",
+        "payments": "Payments",
+        "configuration": "Configuration"
+      },
+      "none": "None",
+      "all": "All",
+      "labels": {
+        "dashboard": "Dashboard",
+        "products": "Products",
+        "orders": "Orders",
+        "orderItems": "Order Items",
+        "category": "Category",
+        "customers": "Customers",
+        "manageUsers": "Manage Users",
+        "staff": "Staff",
+        "settings": "Settings",
+        "activityLogs": "Activity Logs",
+        "banners": "Banners",
+        "promocodes": "Promocodes",
+        "help": "Help",
+        "notifications": "Notifications",
+        "emailNotifications": "Email Notifications",
+        "whatsappNotifications": "WhatsApp Notifications",
+        "smsNotifications": "SMS Notifications",
+        "steadfastCourier": "Steadfast Courier",
+        "pathaoCourier": "Pathao Courier",
+        "redxCourier": "RedX Courier",
+        "reports": "Reports",
+        "fraudChecker": "Fraud Checker",
+        "revenue": "Revenue",
+        "newCustomers": "New Customers",
+        "repeatPurchaseRate": "Repeat Purchase Rate",
+        "averageOrderValue": "Average Order Value",
+        "stats": "Stats",
+        "paymentMethods": "Payment Methods",
+        "paymentGateways": "Payment Gateways",
+        "paymentStatus": "Payment Status",
+        "paymentTransactions": "Payment Transactions",
+        "smsConfiguration": "SMS Configuration",
+        "emailConfiguration": "Email Configuration"
+      },
+      "toast": {
+        "success": "Permissions assigned successfully",
+        "failed": "Failed to assign permissions"
+      }
+    }
   },
   "steadfast": {
     "title": "Steadfast Courier",
@@ -2348,6 +2749,9 @@
     "companyContextRequired": "Company context required",
     "uploadSuccess": "Media uploaded successfully",
     "uploadFailed": "Upload failed",
-    "copied": "Copied to clipboard"
+    "copied": "Copied to clipboard",
+    "noImage": "No image available",
+    "prevImage": "Previous image",
+    "nextImage": "Next image"
   }
 }

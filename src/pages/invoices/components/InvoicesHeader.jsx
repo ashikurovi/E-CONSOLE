@@ -1,16 +1,19 @@
 import React from "react";
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 export default function InvoicesHeader({ onNewInvoice }) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Invoices
+          {t("invoices.header.title")}
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Manage and track your invoices
+          {t("invoices.header.subtitle")}
         </p>
       </div>
       <Button
@@ -18,7 +21,7 @@ export default function InvoicesHeader({ onNewInvoice }) {
         onClick={onNewInvoice}
       >
         <Plus className="w-4 h-4 mr-2" />
-        New Invoice
+        {t("invoices.header.newInvoice")}
       </Button>
     </div>
   );

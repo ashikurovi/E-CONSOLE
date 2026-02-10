@@ -87,17 +87,20 @@ function normalizeUser(u) {
 
 // --- Components ---
 
-const StatusBadge = ({ active }) => (
-  <span
-    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
-      active
-        ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
-        : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20"
-    }`}
-  >
-    {active ? "Active" : "Inactive"}
-  </span>
-);
+const StatusBadge = ({ active }) => {
+  const { t } = useTranslation();
+  return (
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
+        active
+          ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
+          : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20"
+      }`}
+    >
+      {active ? t("manageUsers.status.active") : t("manageUsers.status.inactive")}
+    </span>
+  );
+};
 
 const RoleBadge = ({ role }) => {
   const colors = {
@@ -207,6 +210,10 @@ const ManageUsersPage = () => {
     currentUser,
     FeaturePermission.MANAGE_USERS,
   );
+  const canViewActivityLogs = hasPermission(
+    currentUser,
+    FeaturePermission.LOG_ACTIVITY,
+  );
   const { data: apiData, isLoading, isError, error } = useGetSystemusersQuery();
   const [deleteSystemuser, { isLoading: isDeleting }] =
     useDeleteSystemuserMutation();
@@ -290,7 +297,7 @@ const ManageUsersPage = () => {
 
     return [
       {
-        title: "Total Users",
+        title: t("manageUsers.stats.totalUsers"),
         value: total,
         trend: "+12%", // Mock data for trend
         trendDir: "up",
@@ -300,7 +307,7 @@ const ManageUsersPage = () => {
         wave: "text-indigo-500",
       },
       {
-        title: "Active Now",
+        title: t("manageUsers.stats.activeNow"),
         value: active,
         trend: "+5%",
         trendDir: "up",
@@ -310,7 +317,7 @@ const ManageUsersPage = () => {
         wave: "text-emerald-500",
       },
       {
-        title: "Inactive",
+        title: t("manageUsers.stats.inactive"),
         value: inactive,
         trend: "-2%",
         trendDir: "down",
@@ -320,7 +327,7 @@ const ManageUsersPage = () => {
         wave: "text-rose-500",
       },
       {
-        title: "New This Month",
+        title: t("manageUsers.stats.newThisMonth"),
         value: newUsers,
         trend: "+8%",
         trendDir: "up",
@@ -330,7 +337,7 @@ const ManageUsersPage = () => {
         wave: "text-violet-500",
       },
     ];
-  }, [users]);
+  }, [users, t]);
 
   const [actionUserId, setActionUserId] = useState(null); // id being acted on (delete/active/inactive)
   const [confirmModal, setConfirmModal] = useState({
@@ -443,22 +450,34 @@ const ManageUsersPage = () => {
           </div>
           <div>
             <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
-              System Users
+              {t("manageUsers.header.title")}
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Manage access and permissions
+              {t("manageUsers.header.subtitle")}
             </p>
           </div>
         </div>
-        {canManageUsers && (
+        {(canManageUsers || canViewActivityLogs) && (
           <div className="flex gap-3">
-            <Button
-              onClick={() => navigate("/manage-users/create")}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-500/20"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add User
-            </Button>
+            {canViewActivityLogs && (
+              <Button
+                variant="outline"
+                onClick={() => navigate("/manage-users/activity-logs")}
+                className="rounded-xl border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                <Activity className="h-4 w-4 mr-2" />
+                {t("manageUsers.activityLogs")}
+              </Button>
+            )}
+            {canManageUsers && (
+              <Button
+                onClick={() => navigate("/manage-users/create")}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-500/20"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {t("manageUsers.header.addUser")}
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -492,7 +511,7 @@ const ManageUsersPage = () => {
                       : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                   }`}
                 >
-                  {tab}
+                  {t(`manageUsers.tabs.${REVERSE_TAB_MAPPING[tab]}`)}
                 </button>
               ))}
             </div>
@@ -502,7 +521,7 @@ const ManageUsersPage = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search users..."
+                placeholder={t("manageUsers.search.placeholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
@@ -513,15 +532,17 @@ const ManageUsersPage = () => {
           {/* Table Header */}
           <div className="grid grid-cols-12 px-4 py-3 bg-gray-50/80 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 text-[10px] font-bold text-gray-500 uppercase tracking-wider backdrop-blur-sm">
             <div className="col-span-8 md:col-span-4 pl-2 md:pl-4">
-              User Details
+              {t("manageUsers.table.userDetails")}
             </div>
-            <div className="hidden md:block md:col-span-3">Role</div>
+            <div className="hidden md:block md:col-span-3">
+              {t("manageUsers.table.role")}
+            </div>
             <div className="col-span-4 md:col-span-3 text-right md:text-left">
-              Status
+              {t("manageUsers.table.status")}
             </div>
             {canManageUsers && (
               <div className="hidden md:block md:col-span-2 text-center">
-                Actions
+                {t("manageUsers.table.actions")}
               </div>
             )}
           </div>
@@ -611,7 +632,7 @@ const ManageUsersPage = () => {
                             disabled={isBusy(user.id)}
                           >
                             <Edit className="mr-2 h-4 w-4" />
-                            <span>Edit</span>
+                            <span>{t("manageUsers.actions.edit")}</span>
                           </DropdownMenuItem>
 
                           <DropdownMenuItem
@@ -622,7 +643,7 @@ const ManageUsersPage = () => {
                             disabled={isBusy(user.id)}
                           >
                             <Shield className="mr-2 h-4 w-4" />
-                            <span>Permissions</span>
+                            <span>{t("manageUsers.actions.permissions")}</span>
                           </DropdownMenuItem>
 
                           {/* Active */}
@@ -632,7 +653,11 @@ const ManageUsersPage = () => {
                             className="cursor-pointer text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50 dark:focus:bg-emerald-900/10 font-medium"
                           >
                             <CheckCircle className="mr-2 h-4 w-4" />
-                            <span>{isBusy(user.id) ? "..." : "Set Active"}</span>
+                            <span>
+                              {isBusy(user.id)
+                                ? "..."
+                                : t("manageUsers.actions.setActive")}
+                            </span>
                           </DropdownMenuItem>
 
                           {/* Inactive */}
@@ -642,7 +667,11 @@ const ManageUsersPage = () => {
                             className="cursor-pointer text-amber-600 focus:text-amber-600 focus:bg-amber-50 dark:focus:bg-amber-900/10 font-medium"
                           >
                             <XCircle className="mr-2 h-4 w-4" />
-                            <span>{isBusy(user.id) ? "..." : "Set Inactive"}</span>
+                            <span>
+                              {isBusy(user.id)
+                                ? "..."
+                                : t("manageUsers.actions.setInactive")}
+                            </span>
                           </DropdownMenuItem>
 
                           {/* Delete */}
@@ -652,7 +681,11 @@ const ManageUsersPage = () => {
                             className="text-red-600 focus:text-red-600 cursor-pointer focus:bg-red-50 dark:focus:bg-red-900/10 font-medium"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            <span>{isBusy(user.id) ? "..." : "Delete User"}</span>
+                            <span>
+                              {isBusy(user.id)
+                                ? "..."
+                                : t("manageUsers.actions.deleteUser")}
+                            </span>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -663,17 +696,25 @@ const ManageUsersPage = () => {
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-gray-400">
                 <div className="h-16 w-16 bg-gray-50 dark:bg-gray-800/50 rounded-full flex items-center justify-center mb-4">
-                   <Search className="h-8 w-8 opacity-20" />
+                  <Search className="h-8 w-8 opacity-20" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">No users found</h3>
-                <p className="text-sm">Try adjusting your search or filters</p>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                  {t("manageUsers.empty.title")}
+                </h3>
+                <p className="text-sm">
+                  {t("manageUsers.empty.subtitle")}
+                </p>
               </div>
             )}
           </div>
 
           {/* Footer Pagination */}
           <div className="p-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-gray-500">
-            <span>Showing {filteredUsers.length} users</span>
+            <span>
+              {t("manageUsers.footer.showing", {
+                count: filteredUsers.length,
+              })}
+            </span>
             <div className="flex gap-1">
               <Button
                 variant="ghost"
@@ -719,9 +760,11 @@ const ManageUsersPage = () => {
                 <div className="relative z-10 flex justify-between items-center p-6 pb-2">
                   <div className="flex items-center gap-2 px-2.5 py-1 bg-white/80 dark:bg-black/20 backdrop-blur-sm rounded-lg border border-gray-100 dark:border-gray-800">
                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                    <span className="font-mono text-[10px] font-medium text-indigo-600 dark:text-indigo-400">
-                      ID: {selectedUser.id}
-                    </span>
+                      <span className="font-mono text-[10px] font-medium text-indigo-600 dark:text-indigo-400">
+                        {t("manageUsers.details.id", {
+                          id: selectedUser.id,
+                        })}
+                      </span>
                   </div>
                   {canManageUsers && (
                     <DropdownMenu>
@@ -843,9 +886,9 @@ const ManageUsersPage = () => {
 
                 {/* Contact Information */}
                 <div className="space-y-4">
-                  <h4 className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <span className="w-1 h-4 bg-indigo-500 rounded-full" />
-                    CONTACT DETAILS
+                        {t("manageUsers.details.contactTitle")}
                   </h4>
                   <div className="bg-gray-50/50 dark:bg-gray-800/30 rounded-2xl p-1 space-y-1">
                     <div className="flex items-center gap-3 p-3 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-colors group">
@@ -854,7 +897,7 @@ const ManageUsersPage = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">
-                          Phone Number
+                          {t("manageUsers.details.phoneLabel")}
                         </p>
                         <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
                           {selectedUser.phone}
@@ -867,7 +910,7 @@ const ManageUsersPage = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">
-                          Company
+                          {t("manageUsers.details.companyLabel")}
                         </p>
                         <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
                           {selectedUser.companyName}
@@ -880,9 +923,9 @@ const ManageUsersPage = () => {
                 {/* System Permissions */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-2">
                       <span className="w-1 h-4 bg-purple-500 rounded-full" />
-                      SYSTEM ACCESS
+                      {t("manageUsers.details.systemAccessTitle")}
                     </h4>
                     <span className="px-2 py-0.5 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 text-[10px] font-bold rounded-md uppercase tracking-wide border border-purple-100 dark:border-purple-900/30">
                       Level {selectedUser.permissions?.length ?? 0}
@@ -912,9 +955,11 @@ const ManageUsersPage = () => {
                       </div>
                       <div className="space-y-1.5">
                         <div className="flex justify-between text-[10px] font-medium text-gray-500">
-                          <span>Security Clearance</span>
+                          <span>
+                            {t("manageUsers.details.securityClearanceLabel")}
+                          </span>
                           <span className="text-purple-600 dark:text-purple-400">
-                            High Priority
+                            {t("manageUsers.details.securityClearanceValue")}
                           </span>
                         </div>
                         <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -929,14 +974,14 @@ const ManageUsersPage = () => {
                 <div className="space-y-4">
                   <h4 className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <span className="w-1 h-4 bg-emerald-500 rounded-full" />
-                    SYSTEM LOGS
+                    {t("manageUsers.details.logsTitle")}
                   </h4>
                   <div className="relative pl-2">
                     <div className="absolute left-[11px] top-2 bottom-2 w-[1px] bg-gray-200 dark:bg-gray-800" />
                     <div className="space-y-6">
                       {(selectedUser.activities ?? []).length === 0 ? (
                         <p className="text-xs text-gray-400 pl-6">
-                          No activity logs
+                          {t("manageUsers.details.noLogs")}
                         </p>
                       ) : (
                         (selectedUser.activities ?? []).map((activity, idx) => {
@@ -995,7 +1040,7 @@ const ManageUsersPage = () => {
                     disabled={isBusy(selectedUser.id)}
                   >
                     <Edit className="h-4 w-4 mr-2" />
-                    Modify System Access
+                    {t("manageUsers.details.modifyAccess")}
                   </Button>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
@@ -1007,7 +1052,9 @@ const ManageUsersPage = () => {
                       }
                     >
                       <CheckCircle className="h-4 w-4 mr-1" />
-                      {isBusy(selectedUser.id) ? "..." : "Active"}
+                      {isBusy(selectedUser.id)
+                        ? "..."
+                        : t("manageUsers.status.active")}
                     </Button>
                     <Button
                       variant="ghost"
@@ -1018,7 +1065,9 @@ const ManageUsersPage = () => {
                       }
                     >
                       <XCircle className="h-4 w-4 mr-1" />
-                      {isBusy(selectedUser.id) ? "..." : "Inactive"}
+                      {isBusy(selectedUser.id)
+                        ? "..."
+                        : t("manageUsers.status.inactive")}
                     </Button>
                   </div>
                   <Button
@@ -1028,7 +1077,9 @@ const ManageUsersPage = () => {
                     disabled={isBusy(selectedUser.id)}
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
-                    {isBusy(selectedUser.id) ? "..." : "Revoke User Access"}
+                    {isBusy(selectedUser.id)
+                      ? "..."
+                      : t("manageUsers.details.revokeAccess")}
                   </Button>
                 </div>
               )}
@@ -1039,11 +1090,10 @@ const ManageUsersPage = () => {
                 <User className="h-8 w-8 opacity-20" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                No User Selected
+                {t("manageUsers.details.emptyTitle")}
               </h3>
               <p className="text-sm max-w-[200px]">
-                Select a user from the list to view their system details and
-                activity logs
+                {t("manageUsers.details.emptySubtitle")}
               </p>
             </div>
           )}
@@ -1065,9 +1115,12 @@ const ManageUsersPage = () => {
                 variant="ghost"
                 onClick={() => setShowMobileDetail(false)}
               >
-                <ChevronLeft className="h-5 w-5 mr-1" /> Back
+                <ChevronLeft className="h-5 w-5 mr-1" />{" "}
+                {t("manageUsers.mobile.back")}
               </Button>
-              <h3 className="font-semibold">User Details</h3>
+              <h3 className="font-semibold">
+                {t("manageUsers.mobile.title")}
+              </h3>
               <Button variant="ghost" size="icon">
                 <MoreVertical className="h-5 w-5" />
               </Button>
@@ -1100,7 +1153,7 @@ const ManageUsersPage = () => {
               <div className="space-y-6">
                 <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 space-y-3">
                   <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-                    Contact Info
+                    {t("manageUsers.mobile.contactTitle")}
                   </h4>
                   <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
                     <Phone className="h-4 w-4" /> {selectedUser.phone}
@@ -1112,7 +1165,7 @@ const ManageUsersPage = () => {
 
                 <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
                   <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-                    Recent Activity
+                    {t("manageUsers.mobile.activityTitle")}
                   </h4>
                   <div className="space-y-3">
                     {selectedUser.activities?.map((activity, idx) => (
@@ -1148,7 +1201,7 @@ const ManageUsersPage = () => {
                   }
                   disabled={isBusy(selectedUser.id)}
                 >
-                  Edit Details
+                  {t("manageUsers.mobile.editDetails")}
                 </Button>
                 <Button
                   className="w-full bg-indigo-600 text-white rounded-xl py-6"
@@ -1157,7 +1210,7 @@ const ManageUsersPage = () => {
                   }
                   disabled={isBusy(selectedUser.id)}
                 >
-                  Permissions
+                  {t("manageUsers.actions.permissions")}
                 </Button>
                 <div className="grid grid-cols-2 gap-2">
                   <Button
@@ -1167,7 +1220,9 @@ const ManageUsersPage = () => {
                     disabled={isBusy(selectedUser.id) || selectedUser.isActive}
                   >
                     <CheckCircle className="h-4 w-4 mr-1" />
-                    {isBusy(selectedUser.id) ? "..." : "Active"}
+                    {isBusy(selectedUser.id)
+                      ? "..."
+                      : t("manageUsers.status.active")}
                   </Button>
                   <Button
                     variant="outline"
@@ -1176,7 +1231,9 @@ const ManageUsersPage = () => {
                     disabled={isBusy(selectedUser.id) || !selectedUser.isActive}
                   >
                     <XCircle className="h-4 w-4 mr-1" />
-                    {isBusy(selectedUser.id) ? "..." : "Inactive"}
+                    {isBusy(selectedUser.id)
+                      ? "..."
+                      : t("manageUsers.status.inactive")}
                   </Button>
                 </div>
                 <Button
@@ -1186,7 +1243,9 @@ const ManageUsersPage = () => {
                   disabled={isBusy(selectedUser.id)}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  {isBusy(selectedUser.id) ? "..." : "Remove User"}
+                  {isBusy(selectedUser.id)
+                    ? "..."
+                    : t("manageUsers.mobile.removeUser")}
                 </Button>
               </div>
             )}

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 export default function ExtraInfoSection({
@@ -7,10 +8,12 @@ export default function ExtraInfoSection({
   invoiceData,
   setInvoiceData,
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-4">
       <h3 className="font-bold text-gray-900 dark:text-white underline decoration-[#7c3aed] decoration-2 underline-offset-8 mb-6">
-        Extra Information
+        {t("invoices.create.extra.title")}
       </h3>
       <div className="flex flex-wrap gap-2">
         <Button
@@ -23,7 +26,7 @@ export default function ExtraInfoSection({
           }
           onClick={() => setExtraInfoTab("notes")}
         >
-          Add Notes
+          {t("invoices.create.extra.tabNotes")}
         </Button>
         <Button
           variant={extraInfoTab === "terms" ? "default" : "outline"}
@@ -35,7 +38,7 @@ export default function ExtraInfoSection({
           }
           onClick={() => setExtraInfoTab("terms")}
         >
-          Add Terms & Conditions
+          {t("invoices.create.extra.tabTerms")}
         </Button>
         <Button
           variant={extraInfoTab === "bank" ? "default" : "outline"}
@@ -47,17 +50,17 @@ export default function ExtraInfoSection({
           }
           onClick={() => setExtraInfoTab("bank")}
         >
-          Add Bank Details
+          {t("invoices.create.extra.tabBank")}
         </Button>
       </div>
       {extraInfoTab === "notes" && (
         <div className="space-y-2 animate-in fade-in duration-200">
           <label className="text-xs text-gray-500 font-medium">
-            Additional Notes
+            {t("invoices.create.extra.notesLabel")}
           </label>
           <textarea
             className="w-full h-32 p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-transparent resize-none focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/20"
-            placeholder="Add any additional information..."
+            placeholder={t("invoices.create.extra.notesPlaceholder")}
             value={invoiceData.notes}
             onChange={(e) =>
               setInvoiceData({ ...invoiceData, notes: e.target.value })
@@ -68,11 +71,11 @@ export default function ExtraInfoSection({
       {extraInfoTab === "terms" && (
         <div className="space-y-2 animate-in fade-in duration-200">
           <label className="text-xs text-gray-500 font-medium">
-            Terms & Conditions
+            {t("invoices.create.extra.termsLabel")}
           </label>
           <textarea
             className="w-full h-32 p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-transparent resize-none focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/20"
-            placeholder="Add terms and conditions..."
+            placeholder={t("invoices.create.extra.termsPlaceholder")}
             value={invoiceData.termsAndConditions}
             onChange={(e) =>
               setInvoiceData({
@@ -86,14 +89,18 @@ export default function ExtraInfoSection({
       {extraInfoTab === "bank" && (
         <div className="space-y-4 animate-in fade-in duration-200">
           <label className="text-xs text-gray-500 font-medium block">
-            Bank Details
+            {t("invoices.create.extra.bankTitle")}
           </label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs text-gray-400">Bank Name</label>
+              <label className="text-xs text-gray-400">
+                {t("invoices.create.extra.bankName")}
+              </label>
               <input
                 className="flex h-10 w-full rounded-md border border-gray-200 dark:border-gray-800 bg-transparent px-3 py-2 text-sm"
-                placeholder="e.g. ABC Bank"
+                placeholder={t(
+                  "invoices.create.extra.bankNamePlaceholder",
+                )}
                 value={invoiceData.bankDetails?.bankName || ""}
                 onChange={(e) =>
                   setInvoiceData({
@@ -107,10 +114,14 @@ export default function ExtraInfoSection({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs text-gray-400">Account Number</label>
+              <label className="text-xs text-gray-400">
+                {t("invoices.create.extra.accountNumber")}
+              </label>
               <input
                 className="flex h-10 w-full rounded-md border border-gray-200 dark:border-gray-800 bg-transparent px-3 py-2 text-sm"
-                placeholder="e.g. 782459739212"
+                placeholder={t(
+                  "invoices.create.extra.accountNumberPlaceholder",
+                )}
                 value={invoiceData.bankDetails?.accountNumber || ""}
                 onChange={(e) =>
                   setInvoiceData({
@@ -125,11 +136,11 @@ export default function ExtraInfoSection({
             </div>
             <div className="space-y-2">
               <label className="text-xs text-gray-400">
-                IFSC / Routing Code
+                {t("invoices.create.extra.ifsc")}
               </label>
               <input
                 className="flex h-10 w-full rounded-md border border-gray-200 dark:border-gray-800 bg-transparent px-3 py-2 text-sm"
-                placeholder="e.g. ABC0001345"
+                placeholder={t("invoices.create.extra.ifscPlaceholder")}
                 value={invoiceData.bankDetails?.ifscCode || ""}
                 onChange={(e) =>
                   setInvoiceData({
@@ -144,11 +155,14 @@ export default function ExtraInfoSection({
             </div>
             <div className="space-y-2">
               <label className="text-xs text-gray-400">
-                Payment Reference
+                {t("invoices.create.extra.paymentRef")}
               </label>
               <input
                 className="flex h-10 w-full rounded-md border border-gray-200 dark:border-gray-800 bg-transparent px-3 py-2 text-sm"
-                placeholder={`e.g. ${invoiceData.invoiceNumber || "Invoice number"}`}
+                placeholder={t("invoices.create.extra.paymentRefPlaceholder", {
+                  invoiceNumber:
+                    invoiceData.invoiceNumber || "Invoice number",
+                })}
                 value={invoiceData.bankDetails?.paymentReference || ""}
                 onChange={(e) =>
                   setInvoiceData({

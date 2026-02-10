@@ -11,6 +11,7 @@ import {
 import { Eye, Edit3, Download, Trash2, MoreHorizontal } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { downloadSaleInvoicePDF } from "@/utils/saleInvoicePDF";
 import { Button } from "@/components/ui/button";
 import ReusableTable from "@/components/table/reusable-table";
@@ -24,15 +25,51 @@ const formatCurrency = (amount) => {
 };
 
 const headers = [
-  { header: "ID", field: "id", sortable: true },
-  { header: "CREATED", field: "created", sortable: true },
-  { header: "CUSTOMER", field: "customer" },
-  { header: "PAID", field: "paid", sortable: true },
-  { header: "TOTAL", field: "total", sortable: true },
-  { header: "ORDERS.DELIVERY", field: "delivery" },
-  { header: "ITEMS", field: "items" },
-  { header: "STATUS", field: "status" },
-  { header: "ACTIONS", field: "actions", sortable: false },
+  { header: "ID", field: "id", sortable: true, tKey: "invoices.table.id" },
+  {
+    header: "CREATED",
+    field: "created",
+    sortable: true,
+    tKey: "invoices.table.created",
+  },
+  {
+    header: "CUSTOMER",
+    field: "customer",
+    tKey: "invoices.table.customer",
+  },
+  {
+    header: "PAID",
+    field: "paid",
+    sortable: true,
+    tKey: "invoices.table.paidStatus",
+  },
+  {
+    header: "TOTAL",
+    field: "total",
+    sortable: true,
+    tKey: "invoices.table.total",
+  },
+  {
+    header: "ORDERS.DELIVERY",
+    field: "delivery",
+    tKey: "invoices.table.deliveryStatus",
+  },
+  {
+    header: "ITEMS",
+    field: "items",
+    tKey: "invoices.table.items",
+  },
+  {
+    header: "STATUS",
+    field: "status",
+    tKey: "invoices.table.fulfillmentStatus",
+  },
+  {
+    header: "ACTIONS",
+    field: "actions",
+    sortable: false,
+    tKey: "invoices.table.actions",
+  },
 ];
 
 export default function InvoicesTable({
@@ -42,6 +79,16 @@ export default function InvoicesTable({
   onDeleteClick,
 }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const localizedHeaders = useMemo(
+    () =>
+      headers.map((h) => ({
+        ...h,
+        header: h.tKey ? t(h.tKey) : h.header,
+      })),
+    [t],
+  );
 
   const tableData = useMemo(() => {
     return filteredData.map((invoice) => ({
@@ -59,7 +106,7 @@ export default function InvoicesTable({
             {(invoice.customer?.name || "C").charAt(0).toUpperCase()}
           </div>
           <span className="font-medium text-gray-900 dark:text-gray-100">
-            {invoice.customer?.name || "Unknown Customer"}
+            {invoice.customer?.name || t("invoices.table.unknownCustomer")}
           </span>
         </div>
       ),
@@ -87,8 +134,24 @@ export default function InvoicesTable({
             }`}
           ></span>
           {(() => {
-            const s = (invoice.status || "pending").toString();
-            return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+            const s = (invoice.status || "pending").toString().toLowerCase();
+            switch (s) {
+              case "paid":
+                return t("invoices.statuses.paid");
+              case "overdue":
+                return t("invoices.statuses.overdue");
+              case "cancelled":
+                return t("invoices.statuses.cancelled");
+              case "sent":
+                return t("invoices.statuses.sent");
+              case "draft":
+                return t("invoices.statuses.draft");
+              case "partial":
+                return t("invoices.statuses.partial");
+              case "pending":
+              default:
+                return t("invoices.statuses.pending");
+            }
           })()}
         </span>
       ),
@@ -99,12 +162,14 @@ export default function InvoicesTable({
       ),
       delivery: (
         <span className="text-gray-500 text-sm font-medium">
-          {invoice.deliveryStatus || "N/A"}
+          {invoice.deliveryStatus || t("invoices.table.na")}
         </span>
       ),
       items: (
         <span className="text-gray-700 dark:text-gray-300 text-sm font-medium">
-          {(Array.isArray(invoice.items) ? invoice.items?.length : invoice.items) || 1} items
+          {(Array.isArray(invoice.items) ? invoice.items?.length : invoice.items) ||
+            1}{" "}
+          {t("invoices.table.itemsSuffix")}
         </span>
       ),
       status: (
@@ -119,33 +184,37 @@ export default function InvoicesTable({
             className={`w-1.5 h-1.5 rounded-full ${invoice.fulfillmentStatus?.toLowerCase() === "fulfilled" ? "bg-emerald-500" : "bg-red-500"}`}
           ></span>
           {invoice.fulfillmentStatus?.toLowerCase() === "fulfilled"
-            ? "Fulfilled"
-            : "Unfulfilled"}
+            ? t("invoices.statuses.fulfilled")
+            : t("invoices.statuses.unfulfilled")}
         </span>
       ),
       actions: (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
+                  <span className="sr-only">
+                    {t("invoices.table.openMenu")}
+                  </span>
               <MoreHorizontal className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              {t("invoices.table.actionsLabel")}
+            </DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() => navigate(`/invoices/${invoice.id}`)}
               className="cursor-pointer"
             >
               <Eye className="mr-2 h-4 w-4" />
-              View Details
+              {t("invoices.table.viewDetails")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => navigate(`/invoices/${invoice.id}/edit`)}
               className="cursor-pointer"
             >
               <Edit3 className="mr-2 h-4 w-4" />
-              Edit
+              {t("invoices.table.edit")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
@@ -155,15 +224,15 @@ export default function InvoicesTable({
                     branchLocation: authUser?.branchLocation,
                   };
                   downloadSaleInvoicePDF(invoice, companyInfo);
-                  toast.success("Invoice downloaded");
+                  toast.success(t("invoices.toast.downloadSuccess"));
                 } catch (err) {
-                  toast.error("Failed to download PDF");
+                  toast.error(t("invoices.toast.downloadFailed"));
                 }
               }}
               className="cursor-pointer"
             >
               <Download className="mr-2 h-4 w-4" />
-              Download PDF
+              {t("invoices.table.downloadPdf")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -171,7 +240,7 @@ export default function InvoicesTable({
               onClick={() => onDeleteClick(invoice)}
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete
+              {t("invoices.table.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -182,9 +251,9 @@ export default function InvoicesTable({
   return (
     <ReusableTable
       data={tableData}
-      headers={headers}
+      headers={localizedHeaders}
       isLoading={isLoading}
-      searchPlaceholder="Search invoices..."
+      searchPlaceholder={t("invoices.table.searchPlaceholder")}
       py="py-4"
     />
   );
