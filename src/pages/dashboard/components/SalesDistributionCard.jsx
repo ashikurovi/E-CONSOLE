@@ -73,20 +73,18 @@ export default function SalesDistributionCard({ data, filter, onFilterChange }) 
               </div>
             ))}
           </div>
-          <div className="h-[200px] relative -mb-10">
+          <div className="h-[200px] relative">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={data ?? []}
                   cx="50%"
-                  cy="100%"
-                  innerRadius={80}
-                  outerRadius={110}
-                  startAngle={180}
-                  endAngle={0}
-                  paddingAngle={0}
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={5}
                   dataKey="value"
-                  cornerRadius={8}
+                  cornerRadius={4}
                   stroke="none"
                 >
                   {(data ?? []).map((entry, index) => (
