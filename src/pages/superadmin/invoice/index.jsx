@@ -395,25 +395,25 @@ const InvoiceManagementPage = () => {
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                 <tr>
-                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-[180px] whitespace-nowrap">
+                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     Invoice
                   </th>
                   <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     Customer
                   </th>
-                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                  <th className="hidden sm:table-cell px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     Total Amount
                   </th>
-                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                  <th className="hidden md:table-cell px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     Paid
                   </th>
-                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                  <th className="hidden md:table-cell px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     Due
                   </th>
                   <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     Status
                   </th>
-                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                  <th className="hidden lg:table-cell px-4 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     Date
                   </th>
                   <th className="px-4 md:px-6 py-3 md:py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-[100px] whitespace-nowrap">
@@ -462,17 +462,17 @@ const InvoiceManagementPage = () => {
                             </p>
                           </div>
                         </td>
-                        <td className="px-4 md:px-6 py-3 md:py-4">
+                        <td className="hidden sm:table-cell px-4 md:px-6 py-3 md:py-4">
                           <span className="text-sm font-semibold text-slate-900 dark:text-white">
                             {formatCurrency(invoice.totalAmount)}
                           </span>
                         </td>
-                        <td className="px-4 md:px-6 py-3 md:py-4">
+                        <td className="hidden md:table-cell px-4 md:px-6 py-3 md:py-4">
                           <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
                             {formatCurrency(invoice.paidAmount)}
                           </span>
                         </td>
-                        <td className="px-4 md:px-6 py-3 md:py-4">
+                        <td className="hidden md:table-cell px-4 md:px-6 py-3 md:py-4">
                           <span className="text-sm font-medium text-rose-600 dark:text-rose-400">
                             {formatCurrency(invoice.dueAmount)}
                           </span>
@@ -488,7 +488,7 @@ const InvoiceManagementPage = () => {
                             )}
                           </div>
                         </td>
-                        <td className="px-4 md:px-6 py-3 md:py-4">
+                        <td className="hidden lg:table-cell px-4 md:px-6 py-3 md:py-4">
                           <span className="text-xs text-slate-500 dark:text-slate-400">
                             {formatDate(invoice.createdAt)}
                           </span>
