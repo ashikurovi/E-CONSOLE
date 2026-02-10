@@ -5,6 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { 
   ArrowLeft, 
@@ -13,20 +14,36 @@ import {
   Percent, 
   CalendarClock, 
   Layout, 
-  CheckCircle2, 
+  CheckCircle2,
   XCircle,
   Loader2,
-  DollarSign
+  DollarSign,
+  Package,
 } from "lucide-react";
 import TextField from "@/components/input/TextField";
 import Checkbox from "@/components/input/Checkbox";
 import Dropdown from "@/components/dropdown/dropdown";
 import { useCreatePromocodeMutation } from "@/features/promocode/promocodeApiSlice";
 import { motion } from "framer-motion";
+import { useGetProductsQuery } from "@/features/product/productApiSlice";
 
 function CreatePromocodePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const authUser = useSelector((state) => state.auth.user);
+
+  const { data: allProducts = [] } = useGetProductsQuery(
+    { companyId: authUser?.companyId },
+    { skip: !authUser?.companyId }
+  );
+
+  const availableProducts = useMemo(
+    () =>
+      allProducts.filter(
+        (p) => p.isActive && p.status === "published"
+      ),
+    [allProducts]
+  );
 
   const discountTypeOptions = useMemo(
     () => [
@@ -88,16 +105,23 @@ function CreatePromocodePage() {
             if (!value || !startsAt) return true;
             return new Date(value) > new Date(startsAt);
           }),
+        // Optional: restrict promocode to specific products
+        productIds: yup
+          .array()
+          .of(yup.number())
+          .nullable(),
       }),
     [t]
   );
   const [discountType, setDiscountType] = useState(null);
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const { register, handleSubmit, reset, setValue, watch, formState: { errors }, trigger } = useForm({
-    resolver: yupResolver(promocodeSchema),
-    defaultValues: {
-      isActive: true
-    }
-  });
+      resolver: yupResolver(promocodeSchema),
+      defaultValues: {
+        isActive: true,
+        productIds: [],
+      }
+    });
   const [createPromocode, { isLoading: isCreating }] = useCreatePromocodeMutation();
 
   const isActive = watch("isActive");
@@ -106,6 +130,27 @@ function CreatePromocodePage() {
     setDiscountType(option);
     setValue("discountType", option?.value || "", { shouldValidate: true });
     trigger("discountValue");
+  };
+
+  const handleProductToggle = (productId) => {
+    setSelectedProducts((prev) => {
+      const newSelection = prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId];
+      setValue("productIds", newSelection);
+      return newSelection;
+    });
+  };
+
+  const handleSelectAllProducts = () => {
+    if (selectedProducts.length === availableProducts.length) {
+      setSelectedProducts([]);
+      setValue("productIds", []);
+    } else {
+      const allIds = availableProducts.map((p) => p.id);
+      setSelectedProducts(allIds);
+      setValue("productIds", allIds);
+    }
   };
 
   const onSubmit = async (data) => {
@@ -126,11 +171,17 @@ function CreatePromocodePage() {
       isActive: !!data.isActive,
     };
 
-    const res = await createPromocode({ body: payload });
+    // Attach selected product IDs if any
+    if (selectedProducts.length > 0) {
+      payload.productIds = selectedProducts;
+    }
+
+    const res = await createPromocode(payload);
     if (res?.data) {
       toast.success(t("promocodes.promocodeCreated"));
       reset();
       setDiscountType(null);
+      setSelectedProducts([]);
       navigate("/promocodes");
     } else {
       toast.error(res?.error?.data?.message || t("promocodes.promocodeCreateFailed"));
@@ -268,6 +319,123 @@ function CreatePromocodePage() {
                   error={errors.maxUses}
                   className="bg-gray-50 dark:bg-black/20"
                 />
+              </div>
+            </motion.div>
+
+            {/* Applicable Products Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-100/50 dark:shadow-black/20"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                  <Layout className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {t("promocodes.applicableProducts") || "Applicable Products"}
+                </h3>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between bg-white dark:bg-[#1a1f26] p-3 rounded-xl border border-gray-100 dark:border-gray-800">
+                  <div>
+                    <p className="text-sm text-black/70 dark:text-white/70">
+                      {selectedProducts.length}{" "}
+                      {t("promocodes.productsSelected") || "products selected"}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSelectAllProducts}
+                    className="text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 font-medium"
+                    disabled={availableProducts.length === 0}
+                  >
+                    {selectedProducts.length === availableProducts.length &&
+                    availableProducts.length > 0
+                      ? t("promocodes.deselectAll") || "Deselect all"
+                      : t("promocodes.selectAll") || "Select all"}
+                  </Button>
+                </div>
+
+                <div className="min-h-[120px]">
+                  {availableProducts.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 bg-white dark:bg-[#1a1f26] rounded-2xl border border-dashed border-gray-200 dark:border-gray-800">
+                      <div className="h-12 w-12 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center mb-3">
+                        <Package className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <p className="text-gray-900 dark:text-white font-medium text-sm">
+                        {t("promocodes.noAvailableProducts") || "No available products"}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1 max-w-xs text-center">
+                        {t("promocodes.noAvailableProductsHint") ||
+                          "Make sure you have active, published products to attach this promocode to."}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {availableProducts.map((product) => {
+                        const isSelected = selectedProducts.includes(product.id);
+                        const productImage =
+                          product.image || product.images?.[0] || product.thumbnail;
+
+                        return (
+                          <div
+                            key={product.id}
+                            onClick={() => handleProductToggle(product.id)}
+                            className={`group relative flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 border ${
+                              isSelected
+                                ? "bg-indigo-50/50 dark:bg-indigo-900/10 border-indigo-500 shadow-md shadow-indigo-500/10"
+                                : "bg-white dark:bg-[#1a1f26] border-gray-100 dark:border-gray-800 hover:border-indigo-200 dark:hover:border-indigo-900/50 hover:shadow-md hover:shadow-indigo-500/5"
+                            }`}
+                          >
+                            <div
+                              className={`absolute top-2 right-2 h-5 w-5 rounded-full flex items-center justify-center transition-all duration-300 ${
+                                isSelected
+                                  ? "bg-indigo-600 text-white scale-100 opacity-100 shadow-md shadow-indigo-500/30"
+                                  : "bg-gray-100 dark:bg-gray-800 text-gray-300 scale-90 opacity-0 group-hover:opacity-100 group-hover:scale-100"
+                              }`}
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                            </div>
+
+                            <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700">
+                              {productImage ? (
+                                <img
+                                  src={productImage}
+                                  alt={product.name}
+                                  className="h-full w-full object-cover transform transition-transform duration-500 group-hover:scale-110"
+                                />
+                              ) : (
+                                <div className="h-full w-full flex items-center justify-center">
+                                  <Package className="h-4 w-4 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex-1 min-w-0 pr-6">
+                              <h4
+                                className={`font-semibold text-xs truncate transition-colors ${
+                                  isSelected
+                                    ? "text-indigo-900 dark:text-indigo-300"
+                                    : "text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400"
+                                }`}
+                              >
+                                {product.name || product.title}
+                              </h4>
+                              <p className="text-[11px] text-gray-500 mt-0.5">
+                                {t("products.sku") || "SKU"}: {product.sku || "-"}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
 
