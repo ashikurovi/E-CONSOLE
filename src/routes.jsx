@@ -96,6 +96,7 @@ import TermsConditionsPage from "./pages/terms-conditions";
 import CreateTermsConditionsPage from "./pages/terms-conditions/create";
 import EditTermsConditionsPage from "./pages/terms-conditions/edit";
 import RefundPolicyPage from "./pages/refund-policy";
+import DomainFinderPage from "./pages/domain-finder";
 import CreateRefundPolicyPage from "./pages/refund-policy/create";
 import EditRefundPolicyPage from "./pages/refund-policy/edit";
 import SteadfastPage from "./pages/steadfast";
@@ -177,7 +178,9 @@ export const routes = createBrowserRouter([
       {
         path: "/banners-offers",
         element: (
-          <PermissionRoute permission={FeaturePermission.BANNERS_OFFERS_MARKETING}>
+          <PermissionRoute
+            permission={FeaturePermission.BANNERS_OFFERS_MARKETING}
+          >
             <BannersOffersPage />
           </PermissionRoute>
         ),
@@ -313,7 +316,9 @@ export const routes = createBrowserRouter([
       {
         path: "/invoices/create",
         element: (
-          <PermissionRoute permission={FeaturePermission.SALE_INVOICE_MANAGEMENT}>
+          <PermissionRoute
+            permission={FeaturePermission.SALE_INVOICE_MANAGEMENT}
+          >
             <CreateInvoicePage />
           </PermissionRoute>
         ),
@@ -321,7 +326,9 @@ export const routes = createBrowserRouter([
       {
         path: "/invoices/:id/edit",
         element: (
-          <PermissionRoute permission={FeaturePermission.SALE_INVOICE_MANAGEMENT}>
+          <PermissionRoute
+            permission={FeaturePermission.SALE_INVOICE_MANAGEMENT}
+          >
             <SaleInvoiceEditPage />
           </PermissionRoute>
         ),
@@ -329,7 +336,9 @@ export const routes = createBrowserRouter([
       {
         path: "/invoices/:id",
         element: (
-          <PermissionRoute permission={FeaturePermission.SALE_INVOICE_MANAGEMENT}>
+          <PermissionRoute
+            permission={FeaturePermission.SALE_INVOICE_MANAGEMENT}
+          >
             <SaleInvoiceDetailsPage />
           </PermissionRoute>
         ),
@@ -337,7 +346,9 @@ export const routes = createBrowserRouter([
       {
         path: "/recurring-invoices",
         element: (
-          <PermissionRoute permission={FeaturePermission.SALE_INVOICE_MANAGEMENT}>
+          <PermissionRoute
+            permission={FeaturePermission.SALE_INVOICE_MANAGEMENT}
+          >
             <RecurringInvoicesPage />
           </PermissionRoute>
         ),
@@ -545,7 +556,9 @@ export const routes = createBrowserRouter([
       {
         path: "/privacy-policy",
         element: (
-          <PermissionRoute permission={FeaturePermission.PRIVACY_POLICY_MANAGEMENT}>
+          <PermissionRoute
+            permission={FeaturePermission.PRIVACY_POLICY_MANAGEMENT}
+          >
             <PrivacyPolicyPage />
           </PermissionRoute>
         ),
@@ -553,7 +566,9 @@ export const routes = createBrowserRouter([
       {
         path: "/privacy-policy/create",
         element: (
-          <PermissionRoute permission={FeaturePermission.PRIVACY_POLICY_MANAGEMENT}>
+          <PermissionRoute
+            permission={FeaturePermission.PRIVACY_POLICY_MANAGEMENT}
+          >
             <CreatePrivacyPolicyPage />
           </PermissionRoute>
         ),
@@ -561,7 +576,9 @@ export const routes = createBrowserRouter([
       {
         path: "/privacy-policy/edit",
         element: (
-          <PermissionRoute permission={FeaturePermission.PRIVACY_POLICY_MANAGEMENT}>
+          <PermissionRoute
+            permission={FeaturePermission.PRIVACY_POLICY_MANAGEMENT}
+          >
             <EditPrivacyPolicyPage />
           </PermissionRoute>
         ),
@@ -569,7 +586,9 @@ export const routes = createBrowserRouter([
       {
         path: "/terms-conditions",
         element: (
-          <PermissionRoute permission={FeaturePermission.TERMS_CONDITIONS_MANAGEMENT}>
+          <PermissionRoute
+            permission={FeaturePermission.TERMS_CONDITIONS_MANAGEMENT}
+          >
             <TermsConditionsPage />
           </PermissionRoute>
         ),
@@ -577,7 +596,9 @@ export const routes = createBrowserRouter([
       {
         path: "/terms-conditions/create",
         element: (
-          <PermissionRoute permission={FeaturePermission.TERMS_CONDITIONS_MANAGEMENT}>
+          <PermissionRoute
+            permission={FeaturePermission.TERMS_CONDITIONS_MANAGEMENT}
+          >
             <CreateTermsConditionsPage />
           </PermissionRoute>
         ),
@@ -585,7 +606,9 @@ export const routes = createBrowserRouter([
       {
         path: "/terms-conditions/edit",
         element: (
-          <PermissionRoute permission={FeaturePermission.TERMS_CONDITIONS_MANAGEMENT}>
+          <PermissionRoute
+            permission={FeaturePermission.TERMS_CONDITIONS_MANAGEMENT}
+          >
             <EditTermsConditionsPage />
           </PermissionRoute>
         ),
@@ -593,7 +616,9 @@ export const routes = createBrowserRouter([
       {
         path: "/refund-policy",
         element: (
-          <PermissionRoute permission={FeaturePermission.REFUND_POLICY_MANAGEMENT}>
+          <PermissionRoute
+            permission={FeaturePermission.REFUND_POLICY_MANAGEMENT}
+          >
             <RefundPolicyPage />
           </PermissionRoute>
         ),
@@ -601,7 +626,9 @@ export const routes = createBrowserRouter([
       {
         path: "/refund-policy/create",
         element: (
-          <PermissionRoute permission={FeaturePermission.REFUND_POLICY_MANAGEMENT}>
+          <PermissionRoute
+            permission={FeaturePermission.REFUND_POLICY_MANAGEMENT}
+          >
             <CreateRefundPolicyPage />
           </PermissionRoute>
         ),
@@ -609,7 +636,9 @@ export const routes = createBrowserRouter([
       {
         path: "/refund-policy/edit",
         element: (
-          <PermissionRoute permission={FeaturePermission.REFUND_POLICY_MANAGEMENT}>
+          <PermissionRoute
+            permission={FeaturePermission.REFUND_POLICY_MANAGEMENT}
+          >
             <EditRefundPolicyPage />
           </PermissionRoute>
         ),
@@ -654,6 +683,14 @@ export const routes = createBrowserRouter([
           </PermissionRoute>
         ),
       },
+      {
+        path: "/domain-finder",
+        element: (
+          <PermissionRoute permission={FeaturePermission.CUSTOM_DOMAIN}>
+            <DomainFinderPage />
+          </PermissionRoute>
+        ),
+      },
     ],
   },
   {
@@ -666,83 +703,163 @@ export const routes = createBrowserRouter([
     children: [
       {
         path: "/superadmin",
-        element: <SuperAdminPrivateRoute><SuperAdminOverviewPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <SuperAdminOverviewPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/earnings",
-        element: <SuperAdminPrivateRoute><SuperAdminEarningsPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <SuperAdminEarningsPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/customers",
-        element: <SuperAdminPrivateRoute><SuperAdminCustomersPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <SuperAdminCustomersPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/customers/create",
-        element: <SuperAdminPrivateRoute><SuperAdminCustomerCreatePage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <SuperAdminCustomerCreatePage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/customers/:id",
-        element: <SuperAdminPrivateRoute><SuperAdminCustomerDetailPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <SuperAdminCustomerDetailPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/customers/edit/:id",
-        element: <SuperAdminPrivateRoute><SuperAdminCustomerEditPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <SuperAdminCustomerEditPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/support",
-        element: <SuperAdminPrivateRoute><SuperAdminSupportPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <SuperAdminSupportPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/support/:id",
-        element: <SuperAdminPrivateRoute><SuperAdminSupportDetailPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <SuperAdminSupportDetailPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/packages",
-        element: <SuperAdminPrivateRoute><PackageManagementPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <PackageManagementPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/packages/create",
-        element: <SuperAdminPrivateRoute><PackageCreatePage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <PackageCreatePage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/packages/:id",
-        element: <SuperAdminPrivateRoute><PackageDetailPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <PackageDetailPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/packages/:id/edit",
-        element: <SuperAdminPrivateRoute><PackageEditPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <PackageEditPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/themes",
-        element: <SuperAdminPrivateRoute><ThemeManagementPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <ThemeManagementPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/themes/create",
-        element: <SuperAdminPrivateRoute><ThemeCreatePage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <ThemeCreatePage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/themes/:id",
-        element: <SuperAdminPrivateRoute><ThemeDetailPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <ThemeDetailPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/themes/:id/edit",
-        element: <SuperAdminPrivateRoute><ThemeEditPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <ThemeEditPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/invoices",
-        element: <SuperAdminPrivateRoute><InvoiceManagementPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <InvoiceManagementPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/superadmins",
-        element: <SuperAdminPrivateRoute><SuperAdminSuperadminsPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <SuperAdminSuperadminsPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/superadmins/:id",
-        element: <SuperAdminPrivateRoute><SuperAdminSuperadminDetailPage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <SuperAdminSuperadminDetailPage />
+          </SuperAdminPrivateRoute>
+        ),
       },
       {
         path: "/superadmin/profile",
-        element: <SuperAdminPrivateRoute><SuperAdminProfilePage /></SuperAdminPrivateRoute>,
+        element: (
+          <SuperAdminPrivateRoute>
+            <SuperAdminProfilePage />
+          </SuperAdminPrivateRoute>
+        ),
       },
     ],
   },
@@ -753,7 +870,10 @@ export const routes = createBrowserRouter([
   // { path: "/login", element: <UnifiedLoginPage /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/forgot-password", element: <ForgotPasswordRequestPage /> },
-  { path: "/forgot-password/check-email", element: <CheckResetPasswordEmailPage /> },
+  {
+    path: "/forgot-password/check-email",
+    element: <CheckResetPasswordEmailPage />,
+  },
   { path: "/reset-password", element: <ResetPasswordPage /> },
   { path: "*", element: <ErrorPage /> },
 ]);

@@ -48,6 +48,7 @@ import {
   UserCog,
   Plug,
   Settings2,
+  Globe,
 } from "lucide-react";
 import { FeaturePermission } from "@/constants/feature-permission";
 
@@ -60,6 +61,8 @@ export const navSections = [
     tKey: "nav.main",
     icon: LayoutGrid,
     items: [
+    
+
       {
         id: 1.6,
         title: "AI Daily Report",
@@ -76,6 +79,7 @@ export const navSections = [
         permission: FeaturePermission.MEDIA_MANAGEMENT,
         icon: Image,
       },
+
       {
         id: 1.7,
         title: "AI Live Feed",
@@ -91,6 +95,14 @@ export const navSections = [
         link: "/ai-sales-direction",
         permission: FeaturePermission.AI_SALES_DIRECTION,
         icon: Target,
+      },
+        {
+        id: 1.5,
+        title: "Domain Find",
+        tKey: "Domain Find",
+        link: "/domain-finder",
+        permission: FeaturePermission.CUSTOM_DOMAIN,
+        icon: Globe,
       },
       {
         id: 1.9,
