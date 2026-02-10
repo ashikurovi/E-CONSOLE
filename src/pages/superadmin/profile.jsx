@@ -189,8 +189,8 @@ const SuperAdminProfilePage = () => {
         className="flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
         <div className="flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-violet-100 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400">
-            <User className="w-6 h-6" />
+          <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <User className="w-6 h-6 text-violet-600 dark:text-violet-400" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
@@ -269,6 +269,7 @@ const SuperAdminProfilePage = () => {
                     onChange={setSelectedFile}
                     accept="image/*"
                     className="w-full"
+                    previewContainerClassName="h-32 w-32"
                   />
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     Supports JPG, PNG, WEBP (Max 5MB)
