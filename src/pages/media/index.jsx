@@ -39,7 +39,7 @@ export default function MediaPage() {
       page,
       limit: 24,
     },
-    { skip: !companyId }
+    { skip: !companyId },
   );
   const [deleteMedia] = useDeleteMediaMutation();
 
@@ -137,7 +137,11 @@ export default function MediaPage() {
 
       <main className="p-6 lg:p-10 max-w-[1920px] mx-auto">
         {renderContent()}
-        <MediaPagination page={page} totalPages={totalPages} onPageChange={setPage} />
+        <MediaPagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       </main>
 
       <MediaImageViewModal
@@ -148,13 +152,17 @@ export default function MediaPage() {
         onEditUpload={() => setIsUploadOpen(true)}
         onDelete={handleDelete}
         onNext={() => {
-          const currentIndex = images.findIndex((img) => img.id === viewImage?.id);
+          const currentIndex = images.findIndex(
+            (img) => img.id === viewImage?.id,
+          );
           if (currentIndex < images.length - 1) {
             setViewImage(images[currentIndex + 1]);
           }
         }}
         onPrev={() => {
-          const currentIndex = images.findIndex((img) => img.id === viewImage?.id);
+          const currentIndex = images.findIndex(
+            (img) => img.id === viewImage?.id,
+          );
           if (currentIndex > 0) {
             setViewImage(images[currentIndex - 1]);
           }
