@@ -129,7 +129,7 @@ function CollapsibleSection({ section, isCollapsed, t }) {
             />
           )}
           {/* Side Bar Text And COlor Size Set  */}
-          <span className="text-[15px] tracking-wide font-bold capitalize">
+          <span className="text-[15px] tracking-wide font-medium capitalize">
             {(section.tKey ? t(section.tKey) : section.title).toLowerCase()}
           </span>
         </div>
@@ -211,7 +211,7 @@ function Item({ item, isLast, t }) {
           <div className="flex items-center gap-3">
             {item.icon && <item.icon size={16} strokeWidth={1.5} />}
             <span
-              className={`text-[13px] font-bold transition-colors ${
+              className={`text-[13px] font-medium transition-colors ${
                 isOpen
                   ? "text-black dark:text-white"
                   : "text-black dark:text-white"
@@ -265,7 +265,7 @@ function Item({ item, isLast, t }) {
         to={item.to}
         end
         className={({ isActive }) =>
-          `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 font-bold
+          `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 font-medium
            ${
              isActive
                ? "bg-white dark:bg-white/5 text-[#8B5CF6] shadow-sm border border-gray-100 dark:border-gray-800"
