@@ -9,6 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import OrdersSearchBar from "./OrdersSearchBar";
+import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
+import { hasPermission, FeaturePermission } from "@/constants/feature-permission";
 
 const OrdersHeader = ({
   dateRange,
@@ -21,6 +23,10 @@ const OrdersHeader = ({
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { data: user } = useGetCurrentUserQuery();
+
+  const canCreateOrder = hasPermission(user, FeaturePermission.ORDER_CREATION_MANUAL);
+  const canTrackOrder = hasPermission(user, FeaturePermission.ORDER_TRACKING);
 
   return (
     <div className="space-y-6">
@@ -120,20 +126,24 @@ const OrdersHeader = ({
             <Download className="w-4 h-4 mr-2 text-slate-500" />
             {t("orders.export") || "Export"}
           </Button>
-          <Button
-            onClick={() => navigate("/orders/track")}
-            variant="outline"
-            className="h-10 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-          >
-            <PackageSearch className="w-4 h-4 mr-2 text-slate-500" />
-            {t("orders.trackOrder") || "Track Order"}
-          </Button>
-          <Button
-            onClick={() => navigate("/orders/create")}
-            className="h-10 rounded-xl bg-[#5347CE] hover:bg-[#4338ca] text-white text-sm font-bold px-6 shadow-lg shadow-indigo-200 dark:shadow-none transition-all hover:scale-[1.02]"
-          >
-            Create order
-          </Button>
+          {canTrackOrder && (
+            <Button
+              onClick={() => navigate("/orders/track")}
+              variant="outline"
+              className="h-10 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            >
+              <PackageSearch className="w-4 h-4 mr-2 text-slate-500" />
+              {t("orders.trackOrder") || "Track Order"}
+            </Button>
+          )}
+          {canCreateOrder && (
+            <Button
+              onClick={() => navigate("/orders/create")}
+              className="h-10 rounded-xl bg-[#5347CE] hover:bg-[#4338ca] text-white text-sm font-bold px-6 shadow-lg shadow-indigo-200 dark:shadow-none transition-all hover:scale-[1.02]"
+            >
+              Create order
+            </Button>
+          )}
         </div>
       </div>
     </div>

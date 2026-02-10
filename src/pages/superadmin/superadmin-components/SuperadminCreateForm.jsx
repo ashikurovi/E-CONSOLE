@@ -16,6 +16,10 @@ import {
 
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
+  email: yup
+    .string()
+    .required("Email is required")
+    .email("Please enter a valid email"),
   designation: yup.string().nullable(),
   photo: yup.string().url("Must be a valid URL").nullable(),
   password: yup
@@ -41,6 +45,7 @@ const SuperadminCreateForm = ({ onClose }) => {
     resolver: yupResolver(schema),
     defaultValues: {
       name: "",
+      email: "",
       designation: "",
       photo: "",
       password: "",
@@ -53,6 +58,7 @@ const SuperadminCreateForm = ({ onClose }) => {
     try {
       const payload = {
         name: data.name,
+        email: data.email,
         designation: data.designation || null,
         photo: data.photo || null,
         password: data.password,
@@ -83,6 +89,15 @@ const SuperadminCreateForm = ({ onClose }) => {
             register={register}
             name="name"
             error={errors.name}
+          />
+
+          <TextField
+            label="Email *"
+            type="email"
+            placeholder="Enter email address"
+            register={register}
+            name="email"
+            error={errors.email}
           />
 
           <TextField

@@ -129,7 +129,7 @@ export const routes = createBrowserRouter([
       {
         path: "/ai-report",
         element: (
-          <PermissionRoute permission={FeaturePermission.DASHBOARD}>
+          <PermissionRoute permission={FeaturePermission.AI_REPORT}>
             <AiReportPage />
           </PermissionRoute>
         ),
@@ -137,7 +137,7 @@ export const routes = createBrowserRouter([
       {
         path: "/media",
         element: (
-          <PermissionRoute permission={FeaturePermission.DASHBOARD}>
+          <PermissionRoute permission={FeaturePermission.MEDIA_MANAGEMENT}>
             <MediaPage />
           </PermissionRoute>
         ),
@@ -145,7 +145,7 @@ export const routes = createBrowserRouter([
       {
         path: "/ai-live-feed",
         element: (
-          <PermissionRoute permission={FeaturePermission.DASHBOARD}>
+          <PermissionRoute permission={FeaturePermission.AI_LIVE_FEED}>
             <AiLiveFeedPage />
           </PermissionRoute>
         ),
@@ -153,7 +153,7 @@ export const routes = createBrowserRouter([
       {
         path: "/ai-sales-direction",
         element: (
-          <PermissionRoute permission={FeaturePermission.DASHBOARD}>
+          <PermissionRoute permission={FeaturePermission.AI_SALES_DIRECTION}>
             <AiSalesDirectionPage />
           </PermissionRoute>
         ),
@@ -169,7 +169,7 @@ export const routes = createBrowserRouter([
       {
         path: "/connected-apps",
         element: (
-          <PermissionRoute permission={FeaturePermission.REPORTS}>
+          <PermissionRoute permission={FeaturePermission.CONNECTED_APPS}>
             <ConnectedAppsPage />
           </PermissionRoute>
         ),
@@ -177,7 +177,7 @@ export const routes = createBrowserRouter([
       {
         path: "/banners-offers",
         element: (
-          <PermissionRoute permission={FeaturePermission.SETTINGS}>
+          <PermissionRoute permission={FeaturePermission.BANNERS_OFFERS_MARKETING}>
             <BannersOffersPage />
           </PermissionRoute>
         ),
@@ -225,7 +225,7 @@ export const routes = createBrowserRouter([
       {
         path: "/products/bulk-upload",
         element: (
-          <PermissionRoute permission={FeaturePermission.PRODUCTS}>
+          <PermissionRoute permission={FeaturePermission.PRODUCT_BULK_UPLOAD}>
             <BulkUploadPage />
           </PermissionRoute>
         ),
@@ -249,7 +249,7 @@ export const routes = createBrowserRouter([
       {
         path: "/inventory",
         element: (
-          <PermissionRoute permission={FeaturePermission.PRODUCTS}>
+          <PermissionRoute permission={FeaturePermission.INVENTORY_MANAGEMENT}>
             <InventoryPage />
           </PermissionRoute>
         ),
@@ -257,7 +257,7 @@ export const routes = createBrowserRouter([
       {
         path: "/inventory/:id/history",
         element: (
-          <PermissionRoute permission={FeaturePermission.PRODUCTS}>
+          <PermissionRoute permission={FeaturePermission.INVENTORY_HISTORY}>
             <InventoryHistoryPage />
           </PermissionRoute>
         ),
@@ -265,7 +265,7 @@ export const routes = createBrowserRouter([
       {
         path: "/flash-sell",
         element: (
-          <PermissionRoute permission={FeaturePermission.PRODUCTS}>
+          <PermissionRoute permission={FeaturePermission.FLASH_SELL}>
             <FlashSellPage />
           </PermissionRoute>
         ),
@@ -305,7 +305,7 @@ export const routes = createBrowserRouter([
       {
         path: "/invoices",
         element: (
-          <PermissionRoute permission={FeaturePermission.ORDERS}>
+          <PermissionRoute permission={FeaturePermission.ORDER_INVOICE_FINANCE}>
             <InvoicesPage />
           </PermissionRoute>
         ),
@@ -313,7 +313,7 @@ export const routes = createBrowserRouter([
       {
         path: "/invoices/create",
         element: (
-          <PermissionRoute permission={FeaturePermission.ORDERS}>
+          <PermissionRoute permission={FeaturePermission.SALE_INVOICE_MANAGEMENT}>
             <CreateInvoicePage />
           </PermissionRoute>
         ),
@@ -321,7 +321,7 @@ export const routes = createBrowserRouter([
       {
         path: "/invoices/:id/edit",
         element: (
-          <PermissionRoute permission={FeaturePermission.ORDERS}>
+          <PermissionRoute permission={FeaturePermission.SALE_INVOICE_MANAGEMENT}>
             <SaleInvoiceEditPage />
           </PermissionRoute>
         ),
@@ -329,7 +329,7 @@ export const routes = createBrowserRouter([
       {
         path: "/invoices/:id",
         element: (
-          <PermissionRoute permission={FeaturePermission.ORDERS}>
+          <PermissionRoute permission={FeaturePermission.SALE_INVOICE_MANAGEMENT}>
             <SaleInvoiceDetailsPage />
           </PermissionRoute>
         ),
@@ -337,7 +337,7 @@ export const routes = createBrowserRouter([
       {
         path: "/recurring-invoices",
         element: (
-          <PermissionRoute permission={FeaturePermission.ORDERS}>
+          <PermissionRoute permission={FeaturePermission.SALE_INVOICE_MANAGEMENT}>
             <RecurringInvoicesPage />
           </PermissionRoute>
         ),
@@ -345,7 +345,7 @@ export const routes = createBrowserRouter([
       {
         path: "/credit-notes",
         element: (
-          <PermissionRoute permission={FeaturePermission.ORDERS}>
+          <PermissionRoute permission={FeaturePermission.ORDER_INVOICE_FINANCE}>
             <CreditNotesPage />
           </PermissionRoute>
         ),
@@ -353,7 +353,7 @@ export const routes = createBrowserRouter([
       {
         path: "/credit-notes/create",
         element: (
-          <PermissionRoute permission={FeaturePermission.ORDERS}>
+          <PermissionRoute permission={FeaturePermission.ORDER_INVOICE_FINANCE}>
             <CreateCreditNotePage />
           </PermissionRoute>
         ),
@@ -361,7 +361,7 @@ export const routes = createBrowserRouter([
       {
         path: "/credit-notes/:id",
         element: (
-          <PermissionRoute permission={FeaturePermission.ORDERS}>
+          <PermissionRoute permission={FeaturePermission.ORDER_INVOICE_FINANCE}>
             <CreditNoteDetailsPage />
           </PermissionRoute>
         ),
@@ -369,7 +369,7 @@ export const routes = createBrowserRouter([
       {
         path: "/orders/create",
         element: (
-          <PermissionRoute permission={FeaturePermission.ORDERS}>
+          <PermissionRoute permission={FeaturePermission.ORDER_CREATION_MANUAL}>
             <CreateOrderPage />
           </PermissionRoute>
         ),
@@ -377,7 +377,7 @@ export const routes = createBrowserRouter([
       {
         path: "/orders/track",
         element: (
-          <PermissionRoute permission={FeaturePermission.ORDERS}>
+          <PermissionRoute permission={FeaturePermission.ORDER_TRACKING}>
             <OrderTrackPage />
           </PermissionRoute>
         ),
@@ -393,7 +393,7 @@ export const routes = createBrowserRouter([
       {
         path: "/orders/:id/edit",
         element: (
-          <PermissionRoute permission={FeaturePermission.ORDERS}>
+          <PermissionRoute permission={FeaturePermission.ORDER_EDIT}>
             <OrderEditPage />
           </PermissionRoute>
         ),
@@ -545,7 +545,7 @@ export const routes = createBrowserRouter([
       {
         path: "/privacy-policy",
         element: (
-          <PermissionRoute permission={FeaturePermission.PRIVACY_POLICY}>
+          <PermissionRoute permission={FeaturePermission.PRIVACY_POLICY_MANAGEMENT}>
             <PrivacyPolicyPage />
           </PermissionRoute>
         ),
@@ -553,7 +553,7 @@ export const routes = createBrowserRouter([
       {
         path: "/privacy-policy/create",
         element: (
-          <PermissionRoute permission={FeaturePermission.PRIVACY_POLICY}>
+          <PermissionRoute permission={FeaturePermission.PRIVACY_POLICY_MANAGEMENT}>
             <CreatePrivacyPolicyPage />
           </PermissionRoute>
         ),
@@ -561,7 +561,7 @@ export const routes = createBrowserRouter([
       {
         path: "/privacy-policy/edit",
         element: (
-          <PermissionRoute permission={FeaturePermission.PRIVACY_POLICY}>
+          <PermissionRoute permission={FeaturePermission.PRIVACY_POLICY_MANAGEMENT}>
             <EditPrivacyPolicyPage />
           </PermissionRoute>
         ),
@@ -569,7 +569,7 @@ export const routes = createBrowserRouter([
       {
         path: "/terms-conditions",
         element: (
-          <PermissionRoute permission={FeaturePermission.TERMS_CONDITIONS}>
+          <PermissionRoute permission={FeaturePermission.TERMS_CONDITIONS_MANAGEMENT}>
             <TermsConditionsPage />
           </PermissionRoute>
         ),
@@ -577,7 +577,7 @@ export const routes = createBrowserRouter([
       {
         path: "/terms-conditions/create",
         element: (
-          <PermissionRoute permission={FeaturePermission.TERMS_CONDITIONS}>
+          <PermissionRoute permission={FeaturePermission.TERMS_CONDITIONS_MANAGEMENT}>
             <CreateTermsConditionsPage />
           </PermissionRoute>
         ),
@@ -585,7 +585,7 @@ export const routes = createBrowserRouter([
       {
         path: "/terms-conditions/edit",
         element: (
-          <PermissionRoute permission={FeaturePermission.TERMS_CONDITIONS}>
+          <PermissionRoute permission={FeaturePermission.TERMS_CONDITIONS_MANAGEMENT}>
             <EditTermsConditionsPage />
           </PermissionRoute>
         ),
@@ -593,7 +593,7 @@ export const routes = createBrowserRouter([
       {
         path: "/refund-policy",
         element: (
-          <PermissionRoute permission={FeaturePermission.REFUND_POLICY}>
+          <PermissionRoute permission={FeaturePermission.REFUND_POLICY_MANAGEMENT}>
             <RefundPolicyPage />
           </PermissionRoute>
         ),
@@ -601,7 +601,7 @@ export const routes = createBrowserRouter([
       {
         path: "/refund-policy/create",
         element: (
-          <PermissionRoute permission={FeaturePermission.REFUND_POLICY}>
+          <PermissionRoute permission={FeaturePermission.REFUND_POLICY_MANAGEMENT}>
             <CreateRefundPolicyPage />
           </PermissionRoute>
         ),
@@ -609,7 +609,7 @@ export const routes = createBrowserRouter([
       {
         path: "/refund-policy/edit",
         element: (
-          <PermissionRoute permission={FeaturePermission.REFUND_POLICY}>
+          <PermissionRoute permission={FeaturePermission.REFUND_POLICY_MANAGEMENT}>
             <EditRefundPolicyPage />
           </PermissionRoute>
         ),
@@ -640,7 +640,11 @@ export const routes = createBrowserRouter([
       },
       {
         path: "/notifications",
-        element: <NotificationsPage />,
+        element: (
+          <PermissionRoute permission={FeaturePermission.NOTIFICATION_SETTINGS}>
+            <NotificationsPage />
+          </PermissionRoute>
+        ),
       },
       {
         path: "/upgrade-plan",

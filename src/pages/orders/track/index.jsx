@@ -125,7 +125,7 @@ const OrderTrackPage = () => {
   const handleCopyTrackingId = () => {
     if (order?.tracking_id) {
       navigator.clipboard.writeText(order.tracking_id);
-      toast.success("Tracking ID copied to clipboard");
+      toast.success(t("orders.trackingIdCopied"));
     }
   };
 
@@ -147,10 +147,10 @@ const OrderTrackPage = () => {
 
   const getProgressSteps = (currentStatus) => {
     const steps = [
-      { id: "pending", label: "Placed" },
-      { id: "processing", label: "Processing" },
-      { id: "shipped", label: "Shipped" },
-      { id: "delivered", label: "Delivered" },
+      { id: "pending", label: t("orders.progress.placed") },
+      { id: "processing", label: t("orders.progress.processing") },
+      { id: "shipped", label: t("orders.progress.shipped") },
+      { id: "delivered", label: t("orders.progress.delivered") },
     ];
 
     // Simple logic to determine current step index
@@ -342,7 +342,7 @@ const OrderTrackPage = () => {
                         <Calendar className="w-5 h-5 text-violet-600 dark:text-violet-400" />
                       </div>
                       <span className="text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest">
-                        Est. Delivery
+                        {t("orders.estimatedDelivery")}
                       </span>
                     </div>
                     <div className="text-xl font-bold text-slate-900 dark:text-white">
@@ -492,16 +492,16 @@ const OrderTrackPage = () => {
                       </div>
                     </div>
                     <div className="flex gap-3">
-                      <Button
+                    <Button
                         variant="outline"
                         className="rounded-xl border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300"
-                      >
-                        <Mail className="w-4 h-4 mr-2" />
-                        Email Support
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      {t("orders.support.email")}
                       </Button>
-                      <Button className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none">
+                    <Button className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none">
                         <Phone className="w-4 h-4 mr-2" />
-                        Call Us
+                        {t("orders.support.call")}
                       </Button>
                     </div>
                   </div>
@@ -519,7 +519,7 @@ const OrderTrackPage = () => {
                   <Package className="h-10 w-10 text-slate-400" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                  {t("orders.orderNotFound") || "Order not found"}
+                  {t("orders.orderNotFound")}
                 </h3>
                 <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
                   {order?.tracking?.[0]?.messageEn ||

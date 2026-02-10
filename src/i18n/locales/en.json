@@ -512,6 +512,18 @@
     "shippingUpdateFailed": "Failed to update shipping",
     "orderNotFound": "Order Not Found",
     "orderNotFoundDesc": "The order you're looking for doesn't exist",
+    "trackingIdCopied": "Tracking ID copied to clipboard",
+    "estimatedDelivery": "Est. Delivery",
+    "progress": {
+      "placed": "Placed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered"
+    },
+    "support": {
+      "email": "Email Support",
+      "call": "Call Us"
+    },
     "loadingOrderDetails": "Loading order details...",
     "orderDetails": "Order Details",
     "totalItems": "Total Items",

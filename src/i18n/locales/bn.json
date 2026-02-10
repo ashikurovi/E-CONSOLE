@@ -541,6 +541,18 @@
     "paymentInformation": "পেমেন্ট তথ্য",
     "shippingInformation": "শিপিং তথ্য",
     "quantity": "পরিমাণ",
+    "trackingIdCopied": "ট্র্যাকিং আইডি কপি হয়েছে",
+    "estimatedDelivery": "আনুমানিক ডেলিভারি",
+    "progress": {
+      "placed": "অর্ডার প্লেসড",
+      "processing": "প্রক্রিয়াধীন",
+      "shipped": "শিপড",
+      "delivered": "ডেলিভার্ড"
+    },
+    "support": {
+      "email": "ইমেইল সাপোর্ট",
+      "call": "আমাদের কল করুন"
+    },
     "unitPrice": "ইউনিট মূল্য",
     "unknownProduct": "অজানা পণ্য",
     "customerPlaceholder": "জন ডো",

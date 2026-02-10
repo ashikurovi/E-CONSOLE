@@ -3,7 +3,7 @@ import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
 import { hasPermission } from "@/constants/feature-permission";
 import AtomLoader from "@/components/loader/AtomLoader";
 
-const PermissionRoute = ({ children, permission, redirectTo = "/" }) => {
+const PermissionRoute = ({ children, permission, redirectTo = "/login" }) => {
   const location = useLocation();
   // Fetch user data from API instead of Redux
   const { data: user, isLoading: isLoadingUser } = useGetCurrentUserQuery();
