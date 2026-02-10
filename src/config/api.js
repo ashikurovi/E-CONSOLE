@@ -12,7 +12,7 @@
 export const API_BASE_URL = 
   import.meta.env.VITE_API_BASE_URL || 
   import.meta.env.VITE_API_URL || 
-  "http://localhost:8000";
+  "https://squadcart-backend.up.railway.app";
   // https://squadcart-backend.up.railway.app
 // Export other API-related configs if needed
 export const API_CONFIG = {
