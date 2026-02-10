@@ -8,33 +8,35 @@ import {
   useUpdateSaleInvoiceMutation,
 } from "@/features/invoice/saleInvoiceApiSlice";
 import { toast } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 const STATUS_OPTIONS = [
-  { value: "draft", label: "Draft" },
-  { value: "pending", label: "Pending" },
-  { value: "sent", label: "Sent" },
-  { value: "paid", label: "Paid" },
-  { value: "partial", label: "Partial" },
-  { value: "overdue", label: "Overdue" },
-  { value: "cancelled", label: "Cancelled" },
+  { value: "draft", labelKey: "invoices.statuses.draft" },
+  { value: "pending", labelKey: "invoices.statuses.pending" },
+  { value: "sent", labelKey: "invoices.statuses.sent" },
+  { value: "paid", labelKey: "invoices.statuses.paid" },
+  { value: "partial", labelKey: "invoices.statuses.partial" },
+  { value: "overdue", labelKey: "invoices.statuses.overdue" },
+  { value: "cancelled", labelKey: "invoices.statuses.cancelled" },
 ];
 
 const DELIVERY_OPTIONS = [
-  { value: "N/A", label: "N/A" },
-  { value: "pending", label: "Pending" },
-  { value: "shipped", label: "Shipped" },
-  { value: "delivered", label: "Delivered" },
+  { value: "N/A", labelKey: "invoices.edit.delivery.na" },
+  { value: "pending", labelKey: "invoices.edit.delivery.pending" },
+  { value: "shipped", labelKey: "invoices.edit.delivery.shipped" },
+  { value: "delivered", labelKey: "invoices.edit.delivery.delivered" },
 ];
 
 const FULFILLMENT_OPTIONS = [
-  { value: "unfulfilled", label: "Unfulfilled" },
-  { value: "fulfilled", label: "Fulfilled" },
+  { value: "unfulfilled", labelKey: "invoices.statuses.unfulfilled" },
+  { value: "fulfilled", labelKey: "invoices.statuses.fulfilled" },
 ];
 
 const SaleInvoiceEditPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
+  const { t } = useTranslation();
   const { data: invoice, isLoading, error } = useGetSaleInvoiceQuery(
     { id, companyId: authUser?.companyId },
     { skip: !id || !authUser?.companyId }
@@ -68,10 +70,12 @@ const SaleInvoiceEditPage = () => {
         deliveryStatus,
         fulfillmentStatus,
       }).unwrap();
-      toast.success("Invoice updated successfully");
+      toast.success(t("invoices.edit.toast.updatedSuccess"));
       navigate(`/invoices/${id}`);
     } catch (err) {
-      toast.error(err?.data?.message || "Failed to update invoice");
+      toast.error(
+        err?.data?.message || t("invoices.edit.toast.updatedFailed"),
+      );
     }
   };
 
@@ -89,8 +93,12 @@ const SaleInvoiceEditPage = () => {
         <div className="p-4 rounded-full bg-red-50 dark:bg-red-900/10 text-red-500">
           <FileText className="w-10 h-10" />
         </div>
-        <h2 className="text-xl font-bold">Invoice Not Found</h2>
-        <Button onClick={() => navigate("/invoices")}>Back to Invoices</Button>
+        <h2 className="text-xl font-bold">
+          {t("invoices.details.notFound")}
+        </h2>
+        <Button onClick={() => navigate("/invoices")}>
+          {t("invoices.details.backToList")}
+        </Button>
       </div>
     );
   }
@@ -109,10 +117,12 @@ const SaleInvoiceEditPage = () => {
           </Button>
           <div>
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              Edit Invoice #{invoice.invoiceNumber}
+              {t("invoices.edit.header.title", {
+                number: invoice.invoiceNumber,
+              })}
             </h1>
             <p className="text-sm text-gray-500">
-              Update status and fulfillment details
+              {t("invoices.edit.header.subtitle")}
             </p>
           </div>
         </div>
@@ -123,7 +133,7 @@ const SaleInvoiceEditPage = () => {
         >
           <div className="space-y-4">
             <label className="block text-sm font-medium text-gray-900 dark:text-white">
-              Invoice Status
+              {t("invoices.edit.fields.invoiceStatus")}
             </label>
             <select
               value={status}
@@ -132,7 +142,7 @@ const SaleInvoiceEditPage = () => {
             >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
-                  {opt.label}
+                  {t(opt.labelKey)}
                 </option>
               ))}
             </select>
@@ -140,7 +150,7 @@ const SaleInvoiceEditPage = () => {
 
           <div className="space-y-4">
             <label className="block text-sm font-medium text-gray-900 dark:text-white">
-              Delivery Status
+              {t("invoices.edit.fields.deliveryStatus")}
             </label>
             <select
               value={deliveryStatus}
@@ -149,7 +159,7 @@ const SaleInvoiceEditPage = () => {
             >
               {DELIVERY_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
-                  {opt.label}
+                  {t(opt.labelKey)}
                 </option>
               ))}
             </select>
@@ -157,7 +167,7 @@ const SaleInvoiceEditPage = () => {
 
           <div className="space-y-4">
             <label className="block text-sm font-medium text-gray-900 dark:text-white">
-              Fulfillment Status
+              {t("invoices.edit.fields.fulfillmentStatus")}
             </label>
             <select
               value={fulfillmentStatus}
@@ -166,7 +176,7 @@ const SaleInvoiceEditPage = () => {
             >
               {FULFILLMENT_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
-                  {opt.label}
+                  {t(opt.labelKey)}
                 </option>
               ))}
             </select>
@@ -179,7 +189,7 @@ const SaleInvoiceEditPage = () => {
               onClick={() => navigate(`/invoices/${id}`)}
               className="flex-1"
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               type="submit"
@@ -189,10 +199,10 @@ const SaleInvoiceEditPage = () => {
               {isUpdating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Updating...
+                  {t("common.updating")}
                 </>
               ) : (
-                "Save Changes"
+                t("common.saveChanges")
               )}
             </Button>
           </div>

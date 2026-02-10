@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
+import { useTranslation } from "react-i18next";
 
 import { AlignLeft } from "lucide-react";
 import { navSections } from "./data";
 import { hasPermission } from "@/constants/feature-permission";
 
 const SidebarMenu = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const sidebarRef = useRef(null);
   // Fetch user data from API instead of Redux
@@ -82,7 +84,7 @@ const SidebarMenu = () => {
           {visibleNavSections?.map((section, sectionIndex) => (
             <div key={section.id} className="flex flex-col gap-2">
               <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-wider">
-                {section.title}
+                {section.tKey ? t(section.tKey) : section.title}
               </h3>
               <ul className="flex flex-col gap-3">
                 {section.items.map((item, itemIndex) => (
@@ -92,7 +94,7 @@ const SidebarMenu = () => {
                       to={item?.link}
                       className="w-fit hover:text-primary tr block"
                     >
-                      {item.title}
+                      {item.tKey ? t(item.tKey) : item.title}
                     </Link>
                     {item?.children && item.children.length > 0 && (
                       <div className="flex flex-col gap-2 mt-2">
@@ -103,7 +105,7 @@ const SidebarMenu = () => {
                             onClick={() => setIsOpen(false)}
                             className="text-sm ml-4 w-fit hover:text-primary tr"
                           >
-                            {subitem.title}
+                            {subitem.tKey ? t(subitem.tKey) : subitem.title}
                           </Link>
                         ))}
                       </div>

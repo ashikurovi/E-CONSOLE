@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/input/TextField";
 import { ArrowLeft, Save, UserCog, Shield, Building } from "lucide-react";
@@ -14,39 +15,46 @@ import { useGetSystemuserQuery, useUpdateSystemuserMutation } from "@/features/s
 const EditUserPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { t } = useTranslation();
   const { data: user, isLoading: isLoadingUser, isError, error } = useGetSystemuserQuery(id, { skip: !id });
   const [updateSystemuser, { isLoading }] = useUpdateSystemuserMutation();
 
-  const editUserSchema = useMemo(() => yup.object().shape({
-    name: yup
-      .string()
-      .required("Name is required")
-      .min(2, "Name must be at least 2 characters"),
-    companyName: yup
-      .string()
-      .required("Company name is required")
-      .min(2, "Company name must be at least 2 characters")
-      .max(100, "Company name must be less than 100 characters"),
-    email: yup
-      .string()
-      .required("Email is required")
-      .email("Please enter a valid email address"),
-    phone: yup
-      .string()
-      .required("Phone number is required"),
-    role: yup
-      .string()
-      .required("Role is required"),
-    password: yup
-      .string()
-      .nullable()
-      .transform((value, originalValue) => (originalValue === "" ? null : value))
-      .min(6, "Password must be at least 6 characters")
-      .max(50, "Password must be less than 50 characters"),
-    isActive: yup
-      .boolean()
-      .required("Status is required"),
-  }), []);
+  const editUserSchema = useMemo(
+    () =>
+      yup.object().shape({
+        name: yup
+          .string()
+          .required(t("manageUsers.validation.nameRequired"))
+          .min(2, t("manageUsers.validation.nameMin")),
+        companyName: yup
+          .string()
+          .required(t("manageUsers.validation.companyRequired"))
+          .min(2, t("manageUsers.validation.companyMin"))
+          .max(100, t("manageUsers.validation.companyMax")),
+        email: yup
+          .string()
+          .required(t("manageUsers.validation.emailRequired"))
+          .email(t("manageUsers.validation.emailInvalid")),
+        phone: yup
+          .string()
+          .required(t("manageUsers.validation.phoneRequired")),
+        role: yup
+          .string()
+          .required(t("manageUsers.validation.roleRequired")),
+        password: yup
+          .string()
+          .nullable()
+          .transform((value, originalValue) =>
+            originalValue === "" ? null : value,
+          )
+          .min(6, t("manageUsers.validation.passwordMin"))
+          .max(50, t("manageUsers.validation.passwordMax")),
+        isActive: yup
+          .boolean()
+          .required(t("manageUsers.validation.statusRequired")),
+      }),
+    [t],
+  );
 
   const { register, control, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(editUserSchema),
@@ -64,10 +72,14 @@ const EditUserPage = () => {
 
   useEffect(() => {
     if (isError) {
-      toast.error(error?.data?.message || error?.data?.error || "User not found");
+      toast.error(
+        error?.data?.message ||
+          error?.data?.error ||
+          t("manageUsers.edit.notFound"),
+      );
       navigate("/manage-users");
     }
-  }, [isError, error, navigate]);
+  }, [isError, error, navigate, t]);
 
   useEffect(() => {
     if (user) {
@@ -99,10 +111,14 @@ const EditUserPage = () => {
         payload.password = data.password.trim();
       }
       await updateSystemuser({ id, ...payload }).unwrap();
-      toast.success("System user updated");
+      toast.success(t("manageUsers.edit.updatedSuccess"));
       navigate("/manage-users");
     } catch (err) {
-      toast.error(err?.data?.message || err?.data?.error || "Failed to update user");
+      toast.error(
+        err?.data?.message ||
+          err?.data?.error ||
+          t("manageUsers.edit.updatedFailed"),
+      );
     }
   };
 
@@ -136,10 +152,10 @@ const EditUserPage = () => {
         </Button>
         <div>
           <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-            Edit System User
+            {t("manageUsers.edit.headerTitle")}
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Update system user information and status
+            {t("manageUsers.edit.headerSubtitle")}
           </p>
         </div>
       </div>
@@ -153,7 +169,7 @@ const EditUserPage = () => {
                 <UserCog className="h-5 w-5" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                User Information
+                {t("manageUsers.edit.userInfoTitle")}
               </h3>
             </div>
 
@@ -162,16 +178,16 @@ const EditUserPage = () => {
               {/* Personal Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <TextField
-                  label="Name *"
-                  placeholder="e.g. John Doe"
+                  label={t("manageUsers.edit.nameLabel")}
+                  placeholder={t("manageUsers.create.namePlaceholder")}
                   register={register}
                   name="name"
                   error={errors.name}
                   className="rounded-xl"
                 />
                 <TextField
-                  label="Company Name *"
-                  placeholder="e.g. SquadCart Inc."
+                  label={t("manageUsers.edit.companyLabel")}
+                  placeholder={t("manageUsers.create.companyPlaceholder")}
                   register={register}
                   name="companyName"
                   error={errors.companyName}
@@ -183,17 +199,17 @@ const EditUserPage = () => {
               {/* Contact Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <TextField
-                  label="Email *"
+                  label={t("manageUsers.emailLabel")}
                   type="email"
-                  placeholder="e.g. john@company.com"
+                  placeholder={t("manageUsers.create.emailPlaceholder")}
                   register={register}
                   name="email"
                   error={errors.email}
                   className="rounded-xl"
                 />
                 <TextField
-                  label="Phone *"
-                  placeholder="e.g. +1 234 567 890"
+                  label={t("manageUsers.phoneLabel")}
+                  placeholder={t("manageUsers.create.phonePlaceholder")}
                   register={register}
                   name="phone"
                   error={errors.phone}
@@ -204,7 +220,9 @@ const EditUserPage = () => {
               {/* Role */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="flex flex-col gap-2">
-                  <label className="text-gray-700 dark:text-gray-300 text-sm font-medium ml-1">Role</label>
+                  <label className="text-gray-700 dark:text-gray-300 text-sm font-medium ml-1">
+                    {t("manageUsers.create.roleLabel")}
+                  </label>
                   <div className="relative">
                     <select
                       {...register("role")}
@@ -212,10 +230,18 @@ const EditUserPage = () => {
                         errors.role ? "border-red-500" : "border-gray-200 dark:border-gray-800 focus:border-black dark:focus:border-white"
                       }`}
                     >
-                      <option value="EMPLOYEE">Employee</option>
-                      <option value="MANAGER">Manager</option>
-                      <option value="SUPER_ADMIN">Super Admin</option>
-                      <option value="SYSTEM_OWNER">System Owner</option>
+                      <option value="EMPLOYEE">
+                        {t("manageUsers.roles.employee")}
+                      </option>
+                      <option value="MANAGER">
+                        {t("manageUsers.roles.manager")}
+                      </option>
+                      <option value="SUPER_ADMIN">
+                        {t("manageUsers.roles.superAdmin")}
+                      </option>
+                      <option value="SYSTEM_OWNER">
+                        {t("manageUsers.roles.systemOwner")}
+                      </option>
                     </select>
                     <Shield className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                   </div>
@@ -226,9 +252,9 @@ const EditUserPage = () => {
               {/* Password & Status */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <TextField
-                  label="New Password (optional)"
+                  label={t("manageUsers.edit.passwordLabel")}
                   type="password"
-                  placeholder="Leave blank to keep current"
+                  placeholder={t("manageUsers.edit.passwordPlaceholder")}
                   register={register}
                   name="password"
                   error={errors.password}
@@ -237,7 +263,9 @@ const EditUserPage = () => {
                 
                 {/* Status Toggle */}
                 <div className="flex flex-col gap-2">
-                   <label className="text-gray-700 dark:text-gray-300 text-sm font-medium ml-1">Account Status</label>
+                   <label className="text-gray-700 dark:text-gray-300 text-sm font-medium ml-1">
+                     {t("manageUsers.create.accountStatusLabel")}
+                   </label>
                    <div className="h-[50px] flex items-center px-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#1a1f26]">
                      <Controller
                         name="isActive"
@@ -245,7 +273,9 @@ const EditUserPage = () => {
                         render={({ field }) => (
                           <div className="flex items-center justify-between w-full">
                             <span className={`text-sm ${field.value ? "text-green-600 font-medium" : "text-gray-500"}`}>
-                              {field.value ? "Active Account" : "Inactive Account"}
+                              {field.value
+                                ? t("manageUsers.create.activeAccount")
+                                : t("manageUsers.create.inactiveAccount")}
                             </span>
                             <Switch
                               checked={field.value}
@@ -266,7 +296,9 @@ const EditUserPage = () => {
         <div className="lg:col-span-1 space-y-6">
           <div className="sticky top-6 space-y-6">
             <div className="rounded-[24px] bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Actions</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                {t("manageUsers.edit.actionsTitle")}
+              </h3>
               <div className="flex flex-col gap-3">
                 <Button
                   type="button"
@@ -276,7 +308,7 @@ const EditUserPage = () => {
                   className="w-full justify-start rounded-xl h-12 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -285,25 +317,49 @@ const EditUserPage = () => {
                   className="w-full justify-start rounded-xl h-12 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-lg shadow-indigo-500/20 border-0"
                 >
                   <Save className="mr-2 h-4 w-4" />
-                  {isLoading ? "Updating..." : "Save Changes"}
+                  {isLoading ? t("common.updating") : t("common.saveChanges")}
                 </Button>
               </div>
             </div>
 
             <div className="rounded-[24px] bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-900/10 dark:to-violet-900/10 border border-indigo-100 dark:border-indigo-900/30 p-6">
-              <h4 className="font-medium text-indigo-900 dark:text-indigo-200 mb-2">Role Permissions</h4>
+              <h4 className="font-medium text-indigo-900 dark:text-indigo-200 mb-2">
+                {t("manageUsers.rolesCard.title")}
+              </h4>
               <ul className="text-sm text-indigo-700 dark:text-indigo-300/80 space-y-2 list-disc pl-4">
-                <li><span className="font-semibold">System Owner:</span> Full access to everything.</li>
-                <li><span className="font-semibold">Super Admin:</span> Manage users and settings.</li>
-                <li><span className="font-semibold">Manager:</span> Manage orders and customers.</li>
-                <li><span className="font-semibold">Employee:</span> Limited view and product management.</li>
+                <li>
+                  <span className="font-semibold">
+                    {t("manageUsers.rolesCard.systemOwnerLabel")}
+                  </span>{" "}
+                  {t("manageUsers.rolesCard.systemOwnerDesc")}
+                </li>
+                <li>
+                  <span className="font-semibold">
+                    {t("manageUsers.rolesCard.superAdminLabel")}
+                  </span>{" "}
+                  {t("manageUsers.rolesCard.superAdminDesc")}
+                </li>
+                <li>
+                  <span className="font-semibold">
+                    {t("manageUsers.rolesCard.managerLabel")}
+                  </span>{" "}
+                  {t("manageUsers.rolesCard.managerDesc")}
+                </li>
+                <li>
+                  <span className="font-semibold">
+                    {t("manageUsers.rolesCard.employeeLabel")}
+                  </span>{" "}
+                  {t("manageUsers.rolesCard.employeeDesc")}
+                </li>
               </ul>
             </div>
             
             <div className="rounded-[24px] bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 p-6">
-              <h4 className="font-medium text-blue-900 dark:text-blue-200 mb-2">Security Note</h4>
+              <h4 className="font-medium text-blue-900 dark:text-blue-200 mb-2">
+                {t("manageUsers.edit.securityNoteTitle")}
+              </h4>
               <p className="text-sm text-blue-700 dark:text-blue-300/80">
-                Changing the password will require the user to log in again with the new credentials immediately.
+                {t("manageUsers.edit.securityNote")}
               </p>
             </div>
           </div>

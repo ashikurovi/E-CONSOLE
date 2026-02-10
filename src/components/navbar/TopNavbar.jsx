@@ -267,10 +267,11 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
         id: notification.id || notification._id,
         type: notification.type || "general",
         title: title,
-        message: notification.message || `Notification message`,
+        message:
+          notification.message || t("notifications.defaultMessage"),
         time: notification.createdAt
           ? moment(notification.createdAt).fromNow()
-          : "Just now",
+          : t("notifications.justNow"),
         createdAt: notification.createdAt,
         icon: icon,
         iconColor: iconColor,

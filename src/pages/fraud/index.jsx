@@ -25,13 +25,13 @@ const FraudPage = () => {
   const [error, setError] = useState(null);
 
   const getOperatorName = (phone) => {
-    if (!phone || phone.length < 3) return "Unknown";
+    if (!phone || phone.length < 3) return t("fraud.operatorUnknown");
     const prefix = phone.substring(0, 3);
-    if (["017", "013"].includes(prefix)) return "Grameenphone";
-    if (["019", "014"].includes(prefix)) return "Banglalink";
-    if (["018", "016"].includes(prefix)) return "Robi/Airtel";
-    if (["015"].includes(prefix)) return "Teletalk";
-    return "Unknown Operator";
+    if (["017", "013"].includes(prefix)) return t("fraud.operatorGp");
+    if (["019", "014"].includes(prefix)) return t("fraud.operatorBl");
+    if (["018", "016"].includes(prefix)) return t("fraud.operatorRobiAirtel");
+    if (["015"].includes(prefix)) return t("fraud.operatorTeletalk");
+    return t("fraud.operatorUnknown");
   };
 
   const getFormattedNumber = (phone) => {
@@ -258,7 +258,9 @@ const FraudPage = () => {
                       <Truck className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-900 dark:text-white">Pathao</h4>
+                      <h4 className="font-bold text-gray-900 dark:text-white">
+                        {t("fraud.courierPathao")}
+                      </h4>
                       <p className="text-xs text-gray-500 dark:text-gray-400">{t("fraud.courierService")}</p>
                     </div>
                   </div>
@@ -310,7 +312,9 @@ const FraudPage = () => {
                       <Package className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-900 dark:text-white">Steadfast</h4>
+                      <h4 className="font-bold text-gray-900 dark:text-white">
+                        {t("fraud.courierSteadfast")}
+                      </h4>
                       <p className="text-xs text-gray-500 dark:text-gray-400">{t("fraud.courierService")}</p>
                     </div>
                   </div>
@@ -360,7 +364,9 @@ const FraudPage = () => {
                       <Truck className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-900 dark:text-white">RedX</h4>
+                      <h4 className="font-bold text-gray-900 dark:text-white">
+                        {t("fraud.courierRedx")}
+                      </h4>
                       <p className="text-xs text-gray-500 dark:text-gray-400">{t("fraud.courierService")}</p>
                     </div>
                   </div>

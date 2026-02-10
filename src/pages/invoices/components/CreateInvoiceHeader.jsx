@@ -1,8 +1,11 @@
 import React from "react";
 import { ChevronLeft, Eye } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 export default function CreateInvoiceHeader({ onBack, onPreview }) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex justify-between items-center mb-6">
       <div className="flex items-center gap-4">
@@ -15,7 +18,7 @@ export default function CreateInvoiceHeader({ onBack, onPreview }) {
           <ChevronLeft className="w-5 h-5" />
         </Button>
         <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-          Invoice
+          {t("invoices.create.header.title")}
         </h1>
       </div>
       <Button
@@ -24,7 +27,7 @@ export default function CreateInvoiceHeader({ onBack, onPreview }) {
         onClick={onPreview}
       >
         <Eye className="w-4 h-4 mr-2" />
-        Preview
+        {t("invoices.create.header.preview")}
       </Button>
     </div>
   );

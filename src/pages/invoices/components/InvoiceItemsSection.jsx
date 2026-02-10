@@ -1,5 +1,6 @@
 import React from "react";
 import { Plus, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 export default function InvoiceItemsSection({
@@ -11,15 +12,19 @@ export default function InvoiceItemsSection({
   handleProductSelect,
   calcItemAmount,
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-        Items & Details
+        {t("invoices.create.items.title")}
       </h2>
 
       <div className="space-y-4">
         <div className="flex items-center gap-6">
-          <span className="text-sm font-medium">Item Type</span>
+          <span className="text-sm font-medium">
+            {t("invoices.create.items.itemType")}
+          </span>
           <div className="flex items-center gap-4">
             <div className="flex items-center space-x-2">
               <input
@@ -31,7 +36,7 @@ export default function InvoiceItemsSection({
                 className="w-4 h-4 accent-[#7c3aed]"
               />
               <label htmlFor="product" className="text-xs font-medium">
-                Product
+                {t("invoices.create.items.product")}
               </label>
             </div>
             <div className="flex items-center space-x-2">
@@ -43,7 +48,7 @@ export default function InvoiceItemsSection({
                 className="w-4 h-4 accent-[#7c3aed]"
               />
               <label htmlFor="service" className="text-xs font-medium">
-                Service
+                {t("invoices.create.items.service")}
               </label>
             </div>
           </div>
@@ -51,10 +56,10 @@ export default function InvoiceItemsSection({
 
         <div className="p-4 bg-gray-50/50 dark:bg-black/10 rounded-xl border border-gray-100 dark:border-gray-800 lg:w-1/3">
           <label className="text-xs text-gray-500 mb-1 block font-medium">
-            Quick add product (select row first)
+            {t("invoices.create.items.quickAddTitle")}
           </label>
           <p className="text-xs text-gray-400">
-            Select a product from each row below to auto-fill
+            {t("invoices.create.items.quickAddSubtitle")}
           </p>
         </div>
       </div>
@@ -65,25 +70,25 @@ export default function InvoiceItemsSection({
             <thead>
               <tr className="bg-gray-900 dark:bg-black py-4">
                 <th className="text-left py-3 px-4 text-white text-xs font-semibold rounded-tl-xl w-1/4">
-                  Product/Service
+                  {t("invoices.create.items.colProductService")}
                 </th>
                 <th className="text-left py-3 px-4 text-white text-xs font-semibold">
-                  Quantity
+                  {t("invoices.create.items.colQuantity")}
                 </th>
                 <th className="text-left py-3 px-4 text-white text-xs font-semibold">
-                  Unit
+                  {t("invoices.create.items.colUnit")}
                 </th>
                 <th className="text-left py-3 px-4 text-white text-xs font-semibold">
-                  Rate
+                  {t("invoices.create.items.colRate")}
                 </th>
                 <th className="text-left py-3 px-4 text-white text-xs font-semibold w-1/6">
-                  Discount
+                  {t("invoices.create.items.colDiscount")}
                 </th>
                 <th className="text-left py-3 px-4 text-white text-xs font-semibold">
-                  Tax (%)
+                  {t("invoices.create.items.colTax")}
                 </th>
                 <th className="text-left py-3 px-4 text-white text-xs font-semibold">
-                  Amount
+                  {t("invoices.create.items.colAmount")}
                 </th>
                 <th className="text-right py-3 px-4 text-white text-xs font-semibold rounded-tr-xl"></th>
               </tr>
@@ -103,16 +108,20 @@ export default function InvoiceItemsSection({
                           handleProductSelect(item.id, e.target.value)
                         }
                       >
-                        <option value="">Select product</option>
+                        <option value="">
+                          {t("invoices.create.items.selectProduct")}
+                        </option>
                         {products.map((p) => (
                           <option key={p.id} value={p.id}>
-                            {p.name} - BDT {p.price}
+                            {p.name} - {p.price}
                           </option>
                         ))}
                       </select>
                       <input
                         value={item.name}
-                        placeholder="Or enter name manually"
+                        placeholder={t(
+                          "invoices.create.items.namePlaceholder",
+                        )}
                         className="flex h-10 w-full rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-800"
                         onChange={(e) => {
                           const newItems = items.map((i) =>
@@ -294,7 +303,7 @@ export default function InvoiceItemsSection({
         className="text-[#7c3aed] border-[#7c3aed]/20 hover:bg-[#7c3aed]/5 font-semibold"
       >
         <Plus className="w-4 h-4 mr-2" />
-        Add New
+        {t("invoices.create.items.addNew")}
       </Button>
     </div>
   );

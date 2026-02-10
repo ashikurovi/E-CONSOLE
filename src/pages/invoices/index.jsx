@@ -14,6 +14,7 @@ import {
   isWithinInterval,
 } from "date-fns";
 import { toast } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import {
   useGetSaleInvoicesQuery,
   useDeleteSaleInvoiceMutation,
@@ -29,6 +30,7 @@ import {
 const InvoicesPage = () => {
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
+  const { t } = useTranslation();
 
   const [statusFilter, setStatusFilter] = useState("All");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -236,7 +238,7 @@ const InvoicesPage = () => {
 
     return [
       {
-        label: "Total Invoices",
+        label: t("invoices.stats.totalInvoices"),
         value: total,
         trend: `${totalTrend > 0 ? "+" : ""}${totalTrend.toFixed(1)}%`,
         trendDir: totalTrend >= 0 ? "up" : "down",
@@ -246,7 +248,7 @@ const InvoicesPage = () => {
         wave: "text-blue-500",
       },
       {
-        label: "Total Revenue",
+        label: t("invoices.stats.totalRevenue"),
         value: new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "BDT",
@@ -260,7 +262,7 @@ const InvoicesPage = () => {
         wave: "text-emerald-500",
       },
       {
-        label: "Pending Invoices",
+        label: t("invoices.stats.pendingInvoices"),
         value: pendingCount,
         trend: `${pendingTrend > 0 ? "+" : ""}${pendingTrend.toFixed(1)}%`,
         trendDir: pendingTrend >= 0 ? "up" : "down",
@@ -270,7 +272,7 @@ const InvoicesPage = () => {
         wave: "text-orange-500",
       },
       {
-        label: "Overdue Invoices",
+        label: t("invoices.stats.overdueInvoices"),
         value: overdueCount,
         trend: `${overdueTrend > 0 ? "+" : ""}${overdueTrend.toFixed(1)}%`,
         trendDir: overdueTrend >= 0 ? "up" : "down",
@@ -280,17 +282,17 @@ const InvoicesPage = () => {
         wave: "text-red-500",
       },
     ];
-  }, [saleInvoicesData]);
+  }, [saleInvoicesData, t]);
 
   const tabs = [
-    { key: "All", label: "All" },
-    { key: "draft", label: "Draft" },
-    { key: "pending", label: "Pending" },
-    { key: "sent", label: "Sent" },
-    { key: "paid", label: "Paid" },
-    { key: "partial", label: "Partial" },
-    { key: "overdue", label: "Overdue" },
-    { key: "cancelled", label: "Cancelled" },
+    { key: "All", label: t("invoices.tabs.all") },
+    { key: "draft", label: t("invoices.tabs.draft") },
+    { key: "pending", label: t("invoices.tabs.pending") },
+    { key: "sent", label: t("invoices.tabs.sent") },
+    { key: "paid", label: t("invoices.tabs.paid") },
+    { key: "partial", label: t("invoices.tabs.partial") },
+    { key: "overdue", label: t("invoices.tabs.overdue") },
+    { key: "cancelled", label: t("invoices.tabs.cancelled") },
   ];
 
   const statusCounts = useMemo(() => {
@@ -324,13 +326,15 @@ const InvoicesPage = () => {
         id: invoiceToDelete.id,
         companyId: authUser.companyId,
       }).unwrap();
-      toast.success("Invoice deleted successfully");
+      toast.success(t("invoices.toast.deletedSuccess"));
       setDeleteModalOpen(false);
       setInvoiceToDelete(null);
     } catch (err) {
-      toast.error(err?.data?.message || "Failed to delete invoice");
+      toast.error(
+        err?.data?.message || t("invoices.toast.deletedFailed"),
+      );
     }
-  }, [invoiceToDelete, authUser?.companyId, deleteSaleInvoice]);
+  }, [invoiceToDelete, authUser?.companyId, deleteSaleInvoice, t]);
 
   return (
     <div className="rounded-2xl bg-white dark:bg-[#1a1f26] border border-gray-100 dark:border-gray-800 p-6 space-y-6">

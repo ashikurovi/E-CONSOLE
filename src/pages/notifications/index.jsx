@@ -274,10 +274,11 @@ const NotificationsPage = () => {
         id: notification.id || notification._id,
         type: notification.type || "general",
         title: title,
-        message: notification.message || `Notification message`,
+        message:
+          notification.message || t("notifications.defaultMessage"),
         time: notification.createdAt
           ? moment(notification.createdAt).fromNow()
-          : "Just now",
+          : t("notifications.justNow"),
         rawTime: notification.createdAt || new Date(),
         icon: icon,
         iconColor: iconColor,
@@ -347,17 +348,17 @@ const NotificationsPage = () => {
   };
 
   const filters = [
-    { id: "all", label: "All" },
-    { id: "unread", label: "Unread" },
-    { id: "orders", label: "Orders" },
-    { id: "customers", label: "Customers" },
-    { id: "stock", label: "Stock & Products" },
+    { id: "all", label: t("notifications.filters.all") },
+    { id: "unread", label: t("notifications.filters.unread") },
+    { id: "orders", label: t("notifications.filters.orders") },
+    { id: "customers", label: t("notifications.filters.customers") },
+    { id: "stock", label: t("notifications.filters.stock") },
   ];
 
   // Stats for Premium UI
   const stats = [
     {
-      label: "Total Unread",
+      label: t("notifications.stats.totalUnread"),
       value: notifications.filter((n) => !n.read).length,
       icon: Bell,
       color: "text-red-500",
@@ -365,7 +366,7 @@ const NotificationsPage = () => {
       border: "border-red-100 dark:border-red-900/30",
     },
     {
-      label: "Order Updates",
+      label: t("notifications.stats.orderUpdates"),
       value: notifications.filter((n) => n.type.toLowerCase().includes("order"))
         .length,
       icon: ShoppingCart,
@@ -374,7 +375,7 @@ const NotificationsPage = () => {
       border: "border-[#976DF7]/20 dark:border-[#976DF7]/30",
     },
     {
-      label: "Stock Alerts",
+      label: t("notifications.stats.stockAlerts"),
       value: notifications.filter((n) => n.type.toLowerCase().includes("stock"))
         .length,
       icon: Package,
@@ -395,12 +396,14 @@ const NotificationsPage = () => {
             </h1>
             {newNotificationCount > 0 && (
               <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
-                {newNotificationCount} New
+                {t("notifications.newBadge", {
+                  count: newNotificationCount,
+                })}
               </span>
             )}
           </div>
           <p className="text-gray-500 dark:text-gray-400">
-            Stay updated with your store's latest activities
+            {t("notifications.subtitle")}
           </p>
         </div>
 
@@ -479,7 +482,7 @@ const NotificationsPage = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search..."
+            placeholder={t("notifications.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#976DF7]/20 focus:border-[#976DF7] transition-all"
@@ -502,19 +505,23 @@ const NotificationsPage = () => {
               <Bell className="h-10 w-10 text-gray-400" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">
-              No notifications found
+              {t("notifications.noneTitle")}
             </h3>
             <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm">
               {activeFilter === "all"
                 ? t("notifications.noNotifications")
-                : `You don't have any ${activeFilter} notifications at the moment.`}
+                : t("notifications.noneForFilter", {
+                    filter: t(
+                      `notifications.filters.${activeFilter}`,
+                    ).toLowerCase(),
+                  })}
             </p>
             {activeFilter !== "all" && (
               <button
                 onClick={() => setActiveFilter("all")}
                 className="mt-4 text-[#976DF7] dark:text-[#976DF7] hover:underline font-medium"
               >
-                View all notifications
+                {t("notifications.viewAll")}
               </button>
             )}
           </div>
@@ -577,7 +584,7 @@ const NotificationsPage = () => {
                                   });
                                 }}
                                 className="p-1.5 rounded-lg bg-white dark:bg-gray-700 text-gray-500 hover:text-[#976DF7] shadow-sm border border-gray-100 dark:border-gray-600"
-                                title="Mark as read"
+                                title={t("notifications.markAsRead")}
                               >
                                 <Check className="h-4 w-4" />
                               </button>

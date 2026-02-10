@@ -1,5 +1,6 @@
 import React from "react";
 import { PlusCircle, Upload, X, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Switch } from "@/components/ui/switch";
 
 export default function InvoiceSummarySection({
@@ -14,30 +15,40 @@ export default function InvoiceSummarySection({
   removeSignature,
   isUploadingSignature,
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-6">
       <div className="p-8 rounded-2xl bg-gray-50/50 dark:bg-black/10 border border-gray-100 dark:border-gray-800 space-y-4">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Amount</span>
+          <span className="text-gray-500">
+            {t("invoices.create.summary.amount")}
+          </span>
           <span className="font-bold">${subTotal.toLocaleString()}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-500">CGST (9%)</span>
+          <span className="text-gray-500">
+            {t("invoices.create.summary.cgst")}
+          </span>
           <span className="font-bold">${cgst.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-500">SGST (9%)</span>
+          <span className="text-gray-500">
+            {t("invoices.create.summary.sgst")}
+          </span>
           <span className="font-bold">${sgst.toFixed(2)}</span>
         </div>
         <div className="flex items-center gap-2 pt-2 text-[#7c3aed] cursor-pointer">
           <PlusCircle className="w-4 h-4" />
           <span className="text-sm font-medium">
-            Add Additional Charges
+            {t("invoices.create.summary.addCharges")}
           </span>
         </div>
         <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-800">
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium">Discount</span>
+            <span className="text-sm font-medium">
+              {t("invoices.create.summary.discount")}
+            </span>
             <div className="flex bg-white dark:bg-[#1a1f26] border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden h-8">
               <input
                 type="number"
@@ -71,7 +82,7 @@ export default function InvoiceSummarySection({
           <div className="flex items-center gap-2">
             <Switch checked />
             <span className="text-xs font-medium text-gray-500">
-              Round Off Total
+              {t("invoices.create.summary.roundOff")}
             </span>
           </div>
           <span className="font-bold text-lg">
@@ -81,7 +92,7 @@ export default function InvoiceSummarySection({
         <div className="pt-4 border-t border-gray-200 dark:border-gray-800 flex justify-between items-end">
           <div>
             <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">
-              Total (USD)
+              {t("invoices.create.summary.totalTitle")}
             </h4>
           </div>
           <div className="text-right">
@@ -92,10 +103,10 @@ export default function InvoiceSummarySection({
         </div>
         <div className="pt-2 text-right">
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-            Total In Words
+            {t("invoices.create.summary.totalInWords")}
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400 font-medium italic">
-            Five Hundred & Ninety Six Dollars
+            {t("invoices.create.summary.totalInWordsSample")}
           </p>
         </div>
       </div>
@@ -111,16 +122,20 @@ export default function InvoiceSummarySection({
             })
           }
         >
-          <option value="adrian">Adrian</option>
-          <option value="other">Other</option>
+          <option value="adrian">
+            {t("invoices.create.summary.signaturePresetAdrian")}
+          </option>
+          <option value="other">
+            {t("invoices.create.summary.signaturePresetOther")}
+          </option>
         </select>
         <div className="text-center py-2 text-xs text-gray-400 font-bold">
-          OR
+          {t("invoices.create.summary.or")}
         </div>
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-xs text-gray-500 font-medium">
-              Signature Name
+              {t("invoices.create.summary.signatureName")}
             </label>
             <input
               value={invoiceData.signatureName}
@@ -169,8 +184,8 @@ export default function InvoiceSummarySection({
               )}
               <span className="text-xs text-[#7c3aed] font-semibold">
                 {isUploadingSignature
-                  ? "Uploading..."
-                  : "Upload Signature"}
+                  ? t("invoices.create.summary.uploading")
+                  : t("invoices.create.summary.uploadSignature")}
               </span>
             </button>
           )}

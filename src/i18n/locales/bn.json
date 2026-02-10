@@ -63,6 +63,17 @@
     "searchMenuItems": "মেনু আইটেম খুঁজুন...",
     "menuItems": "মেনু আইটেম",
     "noMenuItemsFound": "\"{{term}}\" এর জন্য কোন মেনু আইটেম পাওয়া যায়নি",
+    "main": "প্রধান",
+    "aiDailyReport": "এআই দৈনিক প্রতিবেদন",
+    "media": "মিডিয়া",
+    "aiLiveFeed": "এআই লাইভ ফিড",
+    "aiSalesDirection": "এআই বিক্রয় নির্দেশনা",
+    "statistics": "পরিসংখ্যান",
+    "orderManagement": "অর্ডার ব্যবস্থাপনা",
+    "productManagement": "ইনভেন্টরি ব্যবস্থাপনা",
+    "customerManagement": "গ্রাহক ব্যবস্থাপনা",
+    "contentPolicy": "কনটেন্ট ও নীতি",
+    "system": "অ্যাডমিন",
     "overview": "সংক্ষিপ্ত বিবরণ",
     "catalogManagement": "ক্যাটালগ ব্যবস্থাপনা",
     "ordersFulfillment": "অর্ডার ও পূরণ",
@@ -73,6 +84,7 @@
     "account": "অ্যাকাউন্ট",
     "dashboard": "ড্যাশবোর্ড",
     "categories": "ক্যাটাগরি",
+    "inventory": "ইনভেন্টরি",
     "product": "পণ্য",
     "flashSell": "ফ্ল্যাশ সেল",
     "order": "অর্ডার",
@@ -81,7 +93,9 @@
     "redxCourier": "রেডএক্স কুরিয়ার",
     "courier": "কুরিয়ার",
     "banners": "ব্যানার",
+    "bannersOffers": "ব্যানার ও অফার",
     "promocodes": "প্রমো কোড",
+    "creditNotes": "ক্রেডিট নোট",
     "fraudChecker": "জালিয়াতি পরীক্ষক",
     "privacyPolicy": "গোপনীয়তা নীতি",
     "termsConditions": "শর্তাবলী",
@@ -90,7 +104,18 @@
     "upgradePlan": "প্ল্যান আপগ্রেড",
     "settings": "সেটিংস",
     "help": "সাহায্য",
-    "personalInformation": "ব্যক্তিগত তথ্য"
+    "personalInformation": "ব্যক্তিগত তথ্য",
+    "invoiceManagement": "ইনভয়েস ব্যবস্থাপনা",
+    "invoiceList": "ইনভয়েস তালিকা",
+    "recurringInvoices": "রিকারিং ইনভয়েস",
+    "allUsers": "সব ব্যবহারকারী",
+    "activeUsers": "সক্রিয়",
+    "inactiveUsers": "নিষ্ক্রিয়",
+    "settingsGeneral": "জেনারেল",
+    "settingsPreferences": "পছন্দসমূহ",
+    "settingsAccount": "অ্যাকাউন্ট",
+    "settingsBillings": "বিলিংস",
+    "settingsNotifications": "নোটিফিকেশন"
   },
   "search": {
     "placeholder": "অর্ডার, পণ্য, গ্রাহক খুঁজুন...",
@@ -123,7 +148,28 @@
     "productUpdated": "পণ্য আপডেট হয়েছে",
     "emailBroadcast": "ইমেইল ব্রডকাস্ট",
     "smsBroadcast": "এসএমএস ব্রডকাস্ট",
-    "notification": "বিজ্ঞপ্তি"
+    "notification": "বিজ্ঞপ্তি",
+    "defaultMessage": "বিজ্ঞপ্তির বার্তা",
+    "justNow": "এইমাত্র",
+    "filters": {
+      "all": "সব",
+      "unread": "অপঠিত",
+      "orders": "অর্ডার",
+      "customers": "গ্রাহক",
+      "stock": "স্টক ও পণ্য"
+    },
+    "stats": {
+      "totalUnread": "মোট অপঠিত",
+      "orderUpdates": "অর্ডার আপডেট",
+      "stockAlerts": "স্টক অ্যালার্ট"
+    },
+    "newBadge": "{{count}} টি নতুন",
+    "subtitle": "আপনার স্টোরের সর্বশেষ কার্যকলাপ সম্পর্কে আপডেট থাকুন",
+    "searchPlaceholder": "নোটিফিকেশন সার্চ করুন...",
+    "noneTitle": "কোন নোটিফিকেশন পাওয়া যায়নি",
+    "noneForFilter": "এ মুহূর্তে আপনার কোন {{filter}} নোটিফিকেশন নেই।",
+    "viewAll": "সব নোটিফিকেশন দেখুন",
+    "markAsRead": "পঠিত হিসেবে চিহ্নিত করুন"
   },
   "dashboard": {
     "welcomeBack": "আবার স্বাগতম, {{name}}!",
@@ -495,6 +541,18 @@
     "paymentInformation": "পেমেন্ট তথ্য",
     "shippingInformation": "শিপিং তথ্য",
     "quantity": "পরিমাণ",
+    "trackingIdCopied": "ট্র্যাকিং আইডি কপি হয়েছে",
+    "estimatedDelivery": "আনুমানিক ডেলিভারি",
+    "progress": {
+      "placed": "অর্ডার প্লেসড",
+      "processing": "প্রক্রিয়াধীন",
+      "shipped": "শিপড",
+      "delivered": "ডেলিভার্ড"
+    },
+    "support": {
+      "email": "ইমেইল সাপোর্ট",
+      "call": "আমাদের কল করুন"
+    },
     "unitPrice": "ইউনিট মূল্য",
     "unknownProduct": "অজানা পণ্য",
     "customerPlaceholder": "জন ডো",
@@ -1764,7 +1822,389 @@
     "deliveryRate": "ডেলিভারি হার",
     "courierBreakdown": "কুরিয়ার বিভাজন",
     "lastChecked": "সর্বশেষ পরীক্ষা",
-    "emptyState": "জালিয়াতি ইতিহাস পরীক্ষা করতে ফোন নম্বর লিখুন"
+    "emptyState": "জালিয়াতি ইতিহাস পরীক্ষা করতে ফোন নম্বর লিখুন",
+    "operatorGp": "গ্রামীণফোন",
+    "operatorBl": "বাংলালিংক",
+    "operatorRobiAirtel": "রবি/এয়ারটেল",
+    "operatorTeletalk": "টেলিটক",
+    "operatorUnknown": "অজানা অপারেটর",
+    "courierPathao": "পাঠাও",
+    "courierSteadfast": "স্টেডফাস্ট",
+    "courierRedx": "রেডএক্স",
+    "phoneInfo": "ফোন নম্বর তথ্য",
+    "formatted": "ফরম্যাট করা নম্বর",
+    "operator": "অপারেটর",
+    "format": "আন্তর্জাতিক ফরম্যাট",
+    "overallSuccessRate": "সামগ্রিক সাফল্যের হার",
+    "newCustomer": "নতুন গ্রাহক",
+    "success": "সাফল্য",
+    "failed": "ব্যর্থ",
+    "courierService": "কুরিয়ার সার্ভিস",
+    "howToUse": "কিভাবে ব্যবহার করবেন",
+    "step1": "বাংলাদেশি ফোন নম্বর লিখুন (যেমন: 01712345678)",
+    "step2": "Pathao, Steadfast এবং RedX কুরিয়ার সার্ভিসের ডেটা দেখুন",
+    "step3": "ঝুঁকি এবং সাফল্যের হার বিশ্লেষণ করুন"
+  },
+  "invoices": {
+    "header": {
+      "title": "ইনভয়েস",
+      "subtitle": "আপনার ইনভয়েসগুলো ম্যানেজ ও ট্র্যাক করুন",
+      "newInvoice": "নতুন ইনভয়েস"
+    },
+    "stats": {
+      "totalInvoices": "মোট ইনভয়েস",
+      "totalRevenue": "মোট আয়",
+      "pendingInvoices": "অপেক্ষমাণ ইনভয়েস",
+      "overdueInvoices": "বিলম্বিত ইনভয়েস"
+    },
+    "tabs": {
+      "all": "সব",
+      "draft": "খসড়া",
+      "pending": "অপেক্ষমাণ",
+      "sent": "পাঠানো হয়েছে",
+      "paid": "পরিশোধিত",
+      "partial": "আংশিক পরিশোধিত",
+      "overdue": "বিলম্বিত",
+      "cancelled": "বাতিল"
+    },
+    "toast": {
+      "deletedSuccess": "ইনভয়েস সফলভাবে মুছে ফেলা হয়েছে",
+      "deletedFailed": "ইনভয়েস মুছতে ব্যর্থ হয়েছে",
+      "downloadSuccess": "ইনভয়েস ডাউনলোড হয়েছে",
+      "downloadFailed": "PDF ডাউনলোড করতে ব্যর্থ হয়েছে"
+    },
+    "table": {
+      "id": "আইডি",
+      "created": "তৈরি হয়েছে",
+      "customer": "গ্রাহক",
+      "paidStatus": "পেমেন্ট অবস্থা",
+      "total": "মোট",
+      "deliveryStatus": "ডেলিভারি",
+      "items": "আইটেম",
+      "fulfillmentStatus": "ফুলফিলমেন্ট স্ট্যাটাস",
+      "actions": "অ্যাকশন",
+      "unknownCustomer": "অজানা গ্রাহক",
+      "na": "প্রযোজ্য নয়",
+      "itemsSuffix": "টি আইটেম",
+      "openMenu": "মেনু খুলুন",
+      "actionsLabel": "অ্যাকশন",
+      "viewDetails": "বিস্তারিত দেখুন",
+      "edit": "এডিট",
+      "downloadPdf": "PDF ডাউনলোড",
+      "delete": "ডিলিট",
+      "searchPlaceholder": "ইনভয়েস সার্চ করুন..."
+    },
+    "statuses": {
+      "paid": "পরিশোধিত",
+      "overdue": "বিলম্বিত",
+      "cancelled": "বাতিল",
+      "sent": "পাঠানো হয়েছে",
+      "draft": "খসড়া",
+      "partial": "আংশিক পরিশোধিত",
+      "pending": "অপেক্ষমাণ",
+      "fulfilled": "ফুলফিল্ড",
+      "unfulfilled": "আনফুলফিল্ড"
+    },
+    "create": {
+      "header": {
+        "title": "ইনভয়েস",
+        "preview": "প্রিভিউ"
+      },
+      "billFrom": "প্রেরক (Bill From)",
+      "billTo": "প্রাপক (Bill To)",
+      "addNewCustomer": "নতুন যুক্ত করুন",
+      "customerLabel": "গ্রাহক",
+      "selectCustomer": "গ্রাহক নির্বাচন করুন",
+      "items": {
+        "title": "আইটেম ও বিবরণ",
+        "itemType": "আইটেমের ধরন",
+        "product": "প্রোডাক্ট",
+        "service": "সার্ভিস",
+        "quickAddTitle": "দ্রুত পণ্য যোগ করুন (আগে সারি নির্বাচন করুন)",
+        "quickAddSubtitle": "প্রতিটি সারি থেকে একটি পণ্য নির্বাচন করুন, ডাটা অটো-ফিল হবে",
+        "colProductService": "প্রোডাক্ট/সার্ভিস",
+        "colQuantity": "পরিমাণ",
+        "colUnit": "ইউনিট",
+        "colRate": "রেট",
+        "colDiscount": "ডিসকাউন্ট",
+        "colTax": "ট্যাক্স (%)",
+        "colAmount": "মোট",
+        "selectProduct": "পণ্য নির্বাচন করুন",
+        "namePlaceholder": "অথবা নাম ম্যানুয়ালি লিখুন",
+        "addNew": "নতুন আইটেম যোগ করুন"
+      },
+      "extra": {
+        "title": "অতিরিক্ত তথ্য",
+        "tabNotes": "নোট যোগ করুন",
+        "tabTerms": "টার্মস অ্যান্ড কন্ডিশনস",
+        "tabBank": "ব্যাংক ডিটেইলস",
+        "notesLabel": "অতিরিক্ত নোট",
+        "notesPlaceholder": "যেকোনো অতিরিক্ত তথ্য লিখুন...",
+        "termsLabel": "টার্মস অ্যান্ড কন্ডিশনস",
+        "termsPlaceholder": "টার্মস অ্যান্ড কন্ডিশনস লিখুন...",
+        "bankTitle": "ব্যাংক ডিটেইলস",
+        "bankName": "ব্যাংকের নাম",
+        "bankNamePlaceholder": "যেমন: ABC Bank",
+        "accountNumber": "অ্যাকাউন্ট নম্বর",
+        "accountNumberPlaceholder": "যেমন: 782459739212",
+        "ifsc": "IFSC / রাউটিং কোড",
+        "ifscPlaceholder": "যেমন: ABC0001345",
+        "paymentRef": "পেমেন্ট রেফারেন্স",
+        "paymentRefPlaceholder": "যেমন: {{invoiceNumber}}"
+      },
+      "summary": {
+        "amount": "পরিমাণ",
+        "cgst": "CGST (৯%)",
+        "sgst": "SGST (৯%)",
+        "addCharges": "অতিরিক্ত চার্জ যোগ করুন",
+        "discount": "ডিসকাউন্ট",
+        "roundOff": "রাউন্ড অফ টোটাল",
+        "totalTitle": "মোট (USD)",
+        "totalInWords": "মোট (অক্ষরে)",
+        "totalInWordsSample": "Five Hundred & Ninety Six Dollars",
+        "signaturePresetAdrian": "Adrian",
+        "signaturePresetOther": "Other",
+        "or": "অথবা",
+        "signatureName": "স্বাক্ষরের নাম",
+        "uploading": "আপলোড হচ্ছে...",
+        "uploadSignature": "স্বাক্ষর আপলোড করুন"
+      },
+      "validation": {
+        "customerRequired": "অনুগ্রহ করে একজন গ্রাহক নির্বাচন করুন",
+        "itemsRequired": "কমপক্ষে একটি আইটেমের নাম, পরিমাণ ও রেট দিন"
+      },
+      "toast": {
+        "createdSuccess": "ইনভয়েস সফলভাবে তৈরি হয়েছে",
+        "createdFailed": "ইনভয়েস তৈরি করতে ব্যর্থ হয়েছে"
+      },
+      "details": {
+        "printOpened": "প্রিন্ট ডায়ালগ ওপেন হয়েছে",
+        "printFailed": "প্রিন্ট করতে ব্যর্থ হয়েছে",
+        "noCustomerEmail": "গ্রাহকের কোনো ইমেইল ঠিকানা নেই",
+        "emailSent": "ইনভয়েস পাঠানো হয়েছে {{email}} ঠিকানায়",
+        "emailFailed": "ইনভয়েস ইমেইল পাঠাতে ব্যর্থ হয়েছে",
+        "notFound": "ইনভয়েস পাওয়া যায়নি",
+        "backToList": "ইনভয়েস তালিকায় ফিরে যান"
+      },
+      "edit": {
+        "header": {
+          "title": "ইনভয়েস এডিট #{{number}}",
+          "subtitle": "স্ট্যাটাস ও ফুলফিলমেন্ট ডিটেইলস আপডেট করুন"
+        },
+        "fields": {
+          "invoiceStatus": "ইনভয়েস স্ট্যাটাস",
+          "deliveryStatus": "ডেলিভারি স্ট্যাটাস",
+          "fulfillmentStatus": "ফুলফিলমেন্ট স্ট্যাটাস"
+        },
+        "delivery": {
+          "na": "প্রযোজ্য নয়",
+          "pending": "অপেক্ষমাণ",
+          "shipped": "শিপড",
+          "delivered": "ডেলিভারড"
+        },
+        "toast": {
+          "updatedSuccess": "ইনভয়েস সফলভাবে আপডেট হয়েছে",
+          "updatedFailed": "ইনভয়েস আপডেট করতে ব্যর্থ হয়েছে"
+        }
+      }
+    }
+  },
+  "manageUsers": {
+    "header": {
+      "title": "সিস্টেম ইউজার",
+      "subtitle": "অ্যাক্সেস ও পারমিশন ম্যানেজ করুন",
+      "addUser": "ইউজার যোগ করুন"
+    },
+    "tabs": {
+      "all-users": "সব ইউজার",
+      "active": "সক্রিয়",
+      "inactive": "নিষ্ক্রিয়"
+    },
+    "search": {
+      "placeholder": "ইউজার সার্চ করুন..."
+    },
+    "table": {
+      "userDetails": "ইউজার ডিটেইলস",
+      "role": "রোল",
+      "status": "স্ট্যাটাস",
+      "actions": "অ্যাকশন"
+    },
+    "status": {
+      "active": "সক্রিয়",
+      "inactive": "নিষ্ক্রিয়"
+    },
+    "stats": {
+      "totalUsers": "মোট ইউজার",
+      "activeNow": "এখন সক্রিয়",
+      "inactive": "নিষ্ক্রিয়",
+      "newThisMonth": "এই মাসে নতুন"
+    },
+    "actions": {
+      "edit": "এডিট",
+      "permissions": "পারমিশন",
+      "setActive": "সক্রিয় করুন",
+      "setInactive": "নিষ্ক্রিয় করুন",
+      "deleteUser": "ইউজার ডিলিট করুন"
+    },
+    "empty": {
+      "title": "কোন ইউজার পাওয়া যায়নি",
+      "subtitle": "সার্চ বা ফিল্টার পরিবর্তন করে আবার চেষ্টা করুন"
+    },
+    "footer": {
+      "showing": "{{count}} জন ইউজার দেখানো হচ্ছে"
+    },
+    "details": {
+      "id": "আইডি: {{id}}",
+      "contactTitle": "যোগাযোগের তথ্য",
+      "phoneLabel": "ফোন নম্বর",
+      "companyLabel": "কোম্পানি",
+      "systemAccessTitle": "সিস্টেম অ্যাক্সেস",
+      "securityClearanceLabel": "সিকিউরিটি ক্লিয়ারেন্স",
+      "securityClearanceValue": "হাই প্রায়োরিটি",
+      "logsTitle": "সিস্টেম লগ",
+      "noLogs": "কোন কার্যকলাপ লগ নেই",
+      "modifyAccess": "সিস্টেম অ্যাক্সেস পরিবর্তন করুন",
+      "revokeAccess": "ইউজার অ্যাক্সেস বাতিল করুন",
+      "emptyTitle": "কোন ইউজার সিলেক্ট করা নেই",
+      "emptySubtitle": "ডান পাশে বিস্তারিত দেখতে বাম দিকের তালিকা থেকে একজন ইউজার নির্বাচন করুন"
+    },
+    "mobile": {
+      "back": "ব্যাক",
+      "title": "ইউজার ডিটেইলস",
+      "contactTitle": "যোগাযোগ",
+      "activityTitle": "সাম্প্রতিক কার্যকলাপ",
+      "editDetails": "ডিটেইলস এডিট করুন",
+      "removeUser": "ইউজার রিমুভ করুন"
+    },
+    "deleteConfirm": "আপনি কি নিশ্চিত এই ইউজারকে ({{email}}) ডিলিট করতে চান?",
+    "deleteConfirmDesc": "এটি পূর্বাবস্থায় ফেরানো যাবে না। ইউজার স্থায়ীভাবে অ্যাক্সেস হারাবে।",
+    "activeConfirmTitle": "ইউজারকে সক্রিয় করবেন?",
+    "activeConfirmDesc": "ইউজার আবার সিস্টেমে লগইন করতে পারবে।",
+    "inactiveConfirmTitle": "ইউজারকে নিষ্ক্রিয় করবেন?",
+    "inactiveConfirmDesc": "ইউজার আর সিস্টেমে লগইন করতে পারবে না।",
+    "setInactive": "নিষ্ক্রিয় করুন",
+    "roles": {
+      "employee": "এমপ্লয়ি",
+      "manager": "ম্যানেজার",
+      "superAdmin": "সুপার অ্যাডমিন",
+      "systemOwner": "সিস্টেম ওনার"
+    },
+    "create": {
+      "subtitle": "নির্দিষ্ট রোল ও অ্যাক্সেসসহ নতুন সিস্টেম ইউজার তৈরি করুন।",
+      "userInfoTitle": "ইউজার তথ্য",
+      "companyLabel": "কোম্পানির নাম",
+      "companyPlaceholder": "যেমন: SquadCart Inc.",
+      "namePlaceholder": "যেমন: John Doe",
+      "emailPlaceholder": "যেমন: john@company.com",
+      "phonePlaceholder": "যেমন: +8801XXXXXXXXX",
+      "roleLabel": "রোল",
+      "passwordPlaceholder": "••••••••",
+      "accountStatusLabel": "অ্যাকাউন্ট স্ট্যাটাস",
+      "activeAccount": "সক্রিয় অ্যাকাউন্ট",
+      "inactiveAccount": "নিষ্ক্রিয় অ্যাকাউন্ট"
+    },
+    "validation": {
+      "nameRequired": "নাম অবশ্যই দিতে হবে",
+      "nameMin": "নাম কমপক্ষে ২ অক্ষরের হতে হবে",
+      "companyRequired": "কোম্পানির নাম অবশ্যই দিতে হবে",
+      "companyMin": "কোম্পানির নাম কমপক্ষে ২ অক্ষরের হতে হবে",
+      "companyMax": "কোম্পানির নাম ১০০ অক্ষরের কম হতে হবে",
+      "emailRequired": "ইমেইল অবশ্যই দিতে হবে",
+      "emailInvalid": "একটি সঠিক ইমেইল ঠিকানা দিন",
+      "phoneRequired": "ফোন নম্বর অবশ্যই দিতে হবে",
+      "roleRequired": "রোল নির্বাচন করুন",
+      "passwordRequired": "পাসওয়ার্ড অবশ্যই দিতে হবে",
+      "passwordMin": "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে",
+      "passwordMax": "পাসওয়ার্ড ৫০ অক্ষরের কম হতে হবে",
+      "statusRequired": "স্ট্যাটাস নির্বাচন করুন"
+    },
+    "userCreated": "ইউজার সফলভাবে তৈরি হয়েছে",
+    "userCreateFailed": "ইউজার তৈরি করতে ব্যর্থ হয়েছে",
+    "edit": {
+      "notFound": "ইউজার পাওয়া যায়নি",
+      "updatedSuccess": "সিস্টেম ইউজার আপডেট হয়েছে",
+      "updatedFailed": "ইউজার আপডেট করতে ব্যর্থ হয়েছে",
+      "headerTitle": "সিস্টেম ইউজার এডিট",
+      "headerSubtitle": "সিস্টেম ইউজারের তথ্য এবং স্ট্যাটাস আপডেট করুন",
+      "userInfoTitle": "ইউজার তথ্য",
+      "nameLabel": "নাম *",
+      "companyLabel": "কোম্পানির নাম *",
+      "passwordLabel": "নতুন পাসওয়ার্ড (ঐচ্ছিক)",
+      "passwordPlaceholder": "বর্তমান পাসওয়ার্ড রাখতে ফাঁকা রাখুন",
+      "actionsTitle": "অ্যাকশন",
+      "securityNoteTitle": "সিকিউরিটি নোট",
+      "securityNote": "পাসওয়ার্ড পরিবর্তন করলে ইউজারকে নতুন পাসওয়ার্ড দিয়ে পুনরায় লগইন করতে হবে।"
+    },
+    "rolesCard": {
+      "title": "রোল পারমিশন",
+      "systemOwnerLabel": "সিস্টেম ওনার:",
+      "systemOwnerDesc": "সবকিছুর পূর্ণ অ্যাক্সেস।",
+      "superAdminLabel": "সুপার অ্যাডমিন:",
+      "superAdminDesc": "ইউজার ও সেটিংস ম্যানেজ করতে পারে।",
+      "managerLabel": "ম্যানেজার:",
+      "managerDesc": "অর্ডার ও কাস্টমার ম্যানেজ করতে পারে।",
+      "employeeLabel": "এমপ্লয়ি:",
+      "employeeDesc": "সীমিত ভিউ এবং প্রোডাক্ট ম্যানেজমেন্ট।"
+    },
+    "permissions": {
+      "headerTitle": "পারমিশন ম্যানেজ করুন",
+      "headerSubtitle": "এই ইউজারের জন্য অ্যাক্সেস লেভেল ও ফিচার নির্ধারণ করুন",
+      "selectAll": "সব পারমিশন সিলেক্ট করুন",
+      "deselectAll": "সব সিলেক্ট বাতিল করুন",
+      "emptyOwnerOnly": "শুধু সিস্টেম ওনারের কাছে থাকা পারমিশনই অ্যাসাইন করা যাবে।",
+      "emptyNoAssignable": "আপনার অ্যাকাউন্ট থেকে অ্যাসাইন করার মত কোন পারমিশন নেই।",
+      "groups": {
+        "core": "কোর ফিচার",
+        "management": "ম্যানেজমেন্ট",
+        "marketing": "মার্কেটিং ও কনটেন্ট",
+        "notifications": "নোটিফিকেশন",
+        "shipping": "শিপিং",
+        "reports": "রিপোর্ট ও অ্যানালিটিক্স",
+        "payments": "পেমেন্ট",
+        "configuration": "কনফিগারেশন"
+      },
+      "none": "কোনটিই নয়",
+      "all": "সব",
+      "labels": {
+        "dashboard": "ড্যাশবোর্ড",
+        "products": "পণ্য",
+        "orders": "অর্ডার",
+        "orderItems": "অর্ডার আইটেম",
+        "category": "ক্যাটাগরি",
+        "customers": "গ্রাহক",
+        "manageUsers": "ইউজার ম্যানেজ",
+        "staff": "স্টাফ",
+        "settings": "সেটিংস",
+        "activityLogs": "অ্যাক্টিভিটি লগ",
+        "banners": "ব্যানার",
+        "promocodes": "প্রমোকোড",
+        "help": "হেল্প",
+        "notifications": "নোটিফিকেশন",
+        "emailNotifications": "ইমেইল নোটিফিকেশন",
+        "whatsappNotifications": "হোয়াটসঅ্যাপ নোটিফিকেশন",
+        "smsNotifications": "এসএমএস নোটিফিকেশন",
+        "steadfastCourier": "স্টেডফাস্ট কুরিয়ার",
+        "pathaoCourier": "পাঠাও কুরিয়ার",
+        "redxCourier": "রেডএক্স কুরিয়ার",
+        "reports": "রিপোর্ট",
+        "fraudChecker": "ফ্রড চেকার",
+        "revenue": "রেভিনিউ",
+        "newCustomers": "নতুন গ্রাহক",
+        "repeatPurchaseRate": "রিপিট পারচেজ রেট",
+        "averageOrderValue": "অ্যাভারেজ অর্ডার ভ্যালু",
+        "stats": "স্ট্যাটস",
+        "paymentMethods": "পেমেন্ট মেথড",
+        "paymentGateways": "পেমেন্ট গেটওয়ে",
+        "paymentStatus": "পেমেন্ট স্ট্যাটাস",
+        "paymentTransactions": "পেমেন্ট ট্রানজেকশন",
+        "smsConfiguration": "এসএমএস কনফিগারেশন",
+        "emailConfiguration": "ইমেইল কনফিগারেশন"
+      },
+      "toast": {
+        "success": "পারমিশন সফলভাবে অ্যাসাইন হয়েছে",
+        "failed": "পারমিশন অ্যাসাইন করতে ব্যর্থ হয়েছে"
+      }
+    }
   },
   "steadfast": {
     "title": "স্টেডফাস্ট কুরিয়ার",
@@ -2283,6 +2723,9 @@
     "companyContextRequired": "কোম্পানি কনটেক্সট প্রয়োজন",
     "uploadSuccess": "মিডিয়া সফলভাবে আপলোড হয়েছে",
     "uploadFailed": "আপলোড ব্যর্থ",
-    "copied": "ক্লিপবোর্ডে কপি করা হয়েছে"
+    "copied": "ক্লিপবোর্ডে কপি করা হয়েছে",
+    "noImage": "কোন ছবি পাওয়া যায়নি",
+    "prevImage": "আগের ছবি",
+    "nextImage": "পরের ছবি"
   }
 }

@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { useCreateSaleInvoiceMutation } from "@/features/invoice/saleInvoiceApiSlice";
 import { useGetUsersQuery } from "@/features/user/userApiSlice";
 import { useGetProductsQuery } from "@/features/product/productApiSlice";
@@ -20,6 +21,7 @@ import {
 const CreateInvoicePage = () => {
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
+  const { t } = useTranslation();
 
   const [items, setItems] = useState([
     {
@@ -93,12 +95,12 @@ const CreateInvoicePage = () => {
 
   const handleSave = async () => {
     if (!invoiceData.customerId) {
-      toast.error("Please select a customer");
+      toast.error(t("invoices.create.validation.customerRequired"));
       return;
     }
     const validItems = items.filter((i) => i.name && i.quantity > 0 && i.rate > 0);
     if (validItems.length === 0) {
-      toast.error("Please add at least one item with name, quantity, and rate");
+      toast.error(t("invoices.create.validation.itemsRequired"));
       return;
     }
     try {
@@ -145,10 +147,12 @@ const CreateInvoicePage = () => {
       };
 
       const result = await createSaleInvoice(payload).unwrap();
-      toast.success("Invoice created successfully");
+      toast.success(t("invoices.create.toast.createdSuccess"));
       navigate(`/invoices/${result.id}`);
     } catch (err) {
-      toast.error(err?.data?.message || "Failed to create invoice");
+      toast.error(
+        err?.data?.message || t("invoices.create.toast.createdFailed"),
+      );
     }
   };
 

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useSelector } from "react-redux";
 import { useGetSaleInvoiceQuery, useSendInvoiceEmailMutation } from "@/features/invoice/saleInvoiceApiSlice";
 import { toast } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import {
   generateSaleInvoicePDF,
   downloadSaleInvoicePDF,
@@ -23,6 +24,7 @@ const SaleInvoiceDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const authUser = useSelector((state) => state.auth.user);
+  const { t } = useTranslation();
   const { data: invoice, isLoading, error } = useGetSaleInvoiceQuery(
     { id, companyId: authUser?.companyId },
     { skip: !id || !authUser?.companyId }
@@ -39,24 +41,24 @@ const SaleInvoiceDetailsPage = () => {
   const handleDownloadPDF = () => {
     try {
       downloadSaleInvoicePDF(invoice, companyInfo);
-      toast.success("Invoice downloaded");
+      toast.success(t("invoices.toast.downloadSuccess"));
     } catch (err) {
-      toast.error("Failed to download PDF");
+      toast.error(t("invoices.toast.downloadFailed"));
     }
   };
 
   const handlePrint = () => {
     try {
       printSaleInvoicePDF(invoice, companyInfo);
-      toast.success("Print dialog opened");
+      toast.success(t("invoices.details.printOpened"));
     } catch (err) {
-      toast.error("Failed to print");
+      toast.error(t("invoices.details.printFailed"));
     }
   };
 
   const handleSendEmail = async () => {
     if (!invoice?.customer?.email) {
-      toast.error("Customer has no email address");
+      toast.error(t("invoices.details.noCustomerEmail"));
       return;
     }
     try {
@@ -66,9 +68,15 @@ const SaleInvoiceDetailsPage = () => {
         companyId: authUser?.companyId,
         pdfBase64,
       }).unwrap();
-      toast.success(`Invoice sent to ${invoice.customer.email}`);
+      toast.success(
+        t("invoices.details.emailSent", {
+          email: invoice.customer.email,
+        }),
+      );
     } catch (err) {
-      toast.error(err?.data?.message || "Failed to send invoice email");
+      toast.error(
+        err?.data?.message || t("invoices.details.emailFailed"),
+      );
     }
   };
 
@@ -86,8 +94,12 @@ const SaleInvoiceDetailsPage = () => {
         <div className="p-4 rounded-full bg-red-50 dark:bg-red-900/10 text-red-500">
           <FileText className="w-10 h-10" />
         </div>
-        <h2 className="text-xl font-bold">Invoice Not Found</h2>
-        <Button onClick={() => navigate("/invoices")}>Back to Invoices</Button>
+        <h2 className="text-xl font-bold">
+          {t("invoices.details.notFound")}
+        </h2>
+        <Button onClick={() => navigate("/invoices")}>
+          {t("invoices.details.backToList")}
+        </Button>
       </div>
     );
   }

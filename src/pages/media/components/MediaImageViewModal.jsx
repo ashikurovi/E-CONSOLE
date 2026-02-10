@@ -142,7 +142,7 @@ export default function MediaImageViewModal({
                 onPrev();
               }}
               className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 z-50"
-              aria-label="Previous image"
+              aria-label={t("media.prevImage")}
             >
               <ChevronLeft className="w-8 h-8" />
             </button>
@@ -156,7 +156,9 @@ export default function MediaImageViewModal({
               className="max-w-full max-h-full object-contain shadow-2xl"
             />
           ) : (
-            <div className="text-gray-500">No image available</div>
+            <div className="text-gray-500">
+              {t("media.noImage")}
+            </div>
           )}
 
           {hasNext && (
@@ -166,7 +168,7 @@ export default function MediaImageViewModal({
                 onNext();
               }}
               className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 z-50"
-              aria-label="Next image"
+              aria-label={t("media.nextImage")}
             >
               <ChevronRight className="w-8 h-8" />
             </button>

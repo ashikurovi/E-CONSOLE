@@ -28,7 +28,7 @@ const CreateUserPage = () => {
           .min(2, t("manageUsers.validation.nameMin")),
         companyName: yup
           .string()
-          .required("Company Name is required"),
+          .required(t("manageUsers.validation.companyRequired")),
         email: yup
           .string()
           .required(t("manageUsers.validation.emailRequired"))
@@ -38,7 +38,7 @@ const CreateUserPage = () => {
           .required(t("manageUsers.validation.phoneRequired")),
         role: yup
           .string()
-          .required("Role is required"),
+          .required(t("manageUsers.validation.roleRequired")),
         password: yup
           .string()
           .required(t("manageUsers.validation.passwordRequired"))
@@ -109,7 +109,7 @@ const CreateUserPage = () => {
             {t("manageUsers.createEmployee")}
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Create a new system user with specific role and access.
+            {t("manageUsers.create.subtitle")}
           </p>
         </div>
       </div>
@@ -123,7 +123,7 @@ const CreateUserPage = () => {
                 <UserPlus className="h-5 w-5" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                User Information
+                {t("manageUsers.create.userInfoTitle")}
               </h3>
             </div>
 
@@ -133,15 +133,15 @@ const CreateUserPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <TextField
                   label={t("manageUsers.nameLabel")}
-                  placeholder="e.g. John Doe"
+                  placeholder={t("manageUsers.create.namePlaceholder")}
                   register={register}
                   name="name"
                   error={errors.name}
                   className="rounded-xl"
                 />
                 <TextField
-                  label="Company Name"
-                  placeholder="e.g. SquadCart Inc."
+                  label={t("manageUsers.create.companyLabel")}
+                  placeholder={t("manageUsers.create.companyPlaceholder")}
                   register={register}
                   name="companyName"
                   error={errors.companyName}
@@ -155,7 +155,7 @@ const CreateUserPage = () => {
                 <TextField
                   label={t("manageUsers.emailLabel")}
                   type="email"
-                  placeholder="e.g. john@company.com"
+                  placeholder={t("manageUsers.create.emailPlaceholder")}
                   register={register}
                   name="email"
                   error={errors.email}
@@ -163,7 +163,7 @@ const CreateUserPage = () => {
                 />
                 <TextField
                   label={t("manageUsers.phoneLabel")}
-                  placeholder="e.g. +1 234 567 890"
+                  placeholder={t("manageUsers.create.phonePlaceholder")}
                   register={register}
                   name="phone"
                   error={errors.phone}
@@ -174,7 +174,9 @@ const CreateUserPage = () => {
               {/* Role */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="flex flex-col gap-2">
-                  <label className="text-gray-700 dark:text-gray-300 text-sm font-medium ml-1">Role</label>
+                  <label className="text-gray-700 dark:text-gray-300 text-sm font-medium ml-1">
+                    {t("manageUsers.create.roleLabel")}
+                  </label>
                   <div className="relative">
                     <select
                       {...register("role")}
@@ -182,10 +184,18 @@ const CreateUserPage = () => {
                         errors.role ? "border-red-500" : "border-gray-200 dark:border-gray-800 focus:border-black dark:focus:border-white"
                       }`}
                     >
-                      <option value="EMPLOYEE">Employee</option>
-                      <option value="MANAGER">Manager</option>
-                      <option value="SUPER_ADMIN">Super Admin</option>
-                      <option value="SYSTEM_OWNER">System Owner</option>
+                      <option value="EMPLOYEE">
+                        {t("manageUsers.roles.employee")}
+                      </option>
+                      <option value="MANAGER">
+                        {t("manageUsers.roles.manager")}
+                      </option>
+                      <option value="SUPER_ADMIN">
+                        {t("manageUsers.roles.superAdmin")}
+                      </option>
+                      <option value="SYSTEM_OWNER">
+                        {t("manageUsers.roles.systemOwner")}
+                      </option>
                     </select>
                     <Shield className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                   </div>
@@ -198,7 +208,7 @@ const CreateUserPage = () => {
                 <TextField
                   label={t("manageUsers.passwordLabel")}
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={t("manageUsers.create.passwordPlaceholder")}
                   register={register}
                   name="password"
                   error={errors.password}
@@ -207,7 +217,9 @@ const CreateUserPage = () => {
                 
                 {/* Status Toggle */}
                 <div className="flex flex-col gap-2">
-                   <label className="text-gray-700 dark:text-gray-300 text-sm font-medium ml-1">Account Status</label>
+                   <label className="text-gray-700 dark:text-gray-300 text-sm font-medium ml-1">
+                     {t("manageUsers.create.accountStatusLabel")}
+                   </label>
                    <div className="h-[50px] flex items-center px-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#1a1f26]">
                      <Controller
                         name="isActive"
@@ -215,7 +227,9 @@ const CreateUserPage = () => {
                         render={({ field }) => (
                           <div className="flex items-center justify-between w-full">
                             <span className={`text-sm ${field.value ? "text-green-600 font-medium" : "text-gray-500"}`}>
-                              {field.value ? "Active Account" : "Inactive Account"}
+                              {field.value
+                                ? t("manageUsers.create.activeAccount")
+                                : t("manageUsers.create.inactiveAccount")}
                             </span>
                             <Switch
                               checked={field.value}
@@ -261,12 +275,34 @@ const CreateUserPage = () => {
             </div>
 
             <div className="rounded-[24px] bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-900/10 dark:to-violet-900/10 border border-indigo-100 dark:border-indigo-900/30 p-6">
-              <h4 className="font-medium text-indigo-900 dark:text-indigo-200 mb-2">Role Permissions</h4>
+              <h4 className="font-medium text-indigo-900 dark:text-indigo-200 mb-2">
+                {t("manageUsers.rolesCard.title")}
+              </h4>
               <ul className="text-sm text-indigo-700 dark:text-indigo-300/80 space-y-2 list-disc pl-4">
-                <li><span className="font-semibold">System Owner:</span> Full access to everything.</li>
-                <li><span className="font-semibold">Super Admin:</span> Manage users and settings.</li>
-                <li><span className="font-semibold">Manager:</span> Manage orders and customers.</li>
-                <li><span className="font-semibold">Employee:</span> Limited view and product management.</li>
+                <li>
+                  <span className="font-semibold">
+                    {t("manageUsers.rolesCard.systemOwnerLabel")}
+                  </span>{" "}
+                  {t("manageUsers.rolesCard.systemOwnerDesc")}
+                </li>
+                <li>
+                  <span className="font-semibold">
+                    {t("manageUsers.rolesCard.superAdminLabel")}
+                  </span>{" "}
+                  {t("manageUsers.rolesCard.superAdminDesc")}
+                </li>
+                <li>
+                  <span className="font-semibold">
+                    {t("manageUsers.rolesCard.managerLabel")}
+                  </span>{" "}
+                  {t("manageUsers.rolesCard.managerDesc")}
+                </li>
+                <li>
+                  <span className="font-semibold">
+                    {t("manageUsers.rolesCard.employeeLabel")}
+                  </span>{" "}
+                  {t("manageUsers.rolesCard.employeeDesc")}
+                </li>
               </ul>
             </div>
           </div>
