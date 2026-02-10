@@ -8,13 +8,13 @@ const ControlsSection = ({ generatedAt, langMode, handleTranslate, isTranslating
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
-      className="flex flex-wrap items-center justify-between gap-6 mb-10 bg-white/80 dark:bg-[#1a1f26]/80 backdrop-blur-xl p-6 rounded-3xl border-2 border-gray-100 dark:border-gray-800 shadow-2xl max-w-3xl mx-auto relative overflow-hidden"
+      className="flex flex-col sm:flex-row flex-wrap items-center justify-between gap-6 mb-10 bg-white/80 dark:bg-[#1a1f26]/80 backdrop-blur-xl p-4 sm:p-6 rounded-3xl border-2 border-gray-100 dark:border-gray-800 shadow-2xl max-w-3xl mx-auto relative overflow-hidden"
     >
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#887CFD]/5 via-transparent to-[#16C8C7]/5 pointer-events-none" />
 
       {/* Status indicator */}
-      <div className="flex items-center gap-3 relative z-10">
+      <div className="flex items-center gap-3 relative z-10 w-full sm:w-auto justify-center sm:justify-start">
         <div className="relative">
           <div className="w-3 h-3 rounded-full bg-[#16C8C7] animate-pulse" />
           <div className="absolute inset-0 w-3 h-3 rounded-full bg-[#16C8C7] animate-ping" />
@@ -40,7 +40,7 @@ const ControlsSection = ({ generatedAt, langMode, handleTranslate, isTranslating
       </div>
 
       {/* Language buttons */}
-      <div className="flex gap-3 relative z-10">
+      <div className="flex flex-wrap justify-center gap-3 relative z-10 w-full sm:w-auto">
         {[
           { code: "bn", labelKey: "bangla", icon: "🇧🇩" },
           { code: "bn-Latn", labelKey: "minglish", icon: "🔤" },
@@ -52,7 +52,7 @@ const ControlsSection = ({ generatedAt, langMode, handleTranslate, isTranslating
             disabled={isTranslating || langMode === code || !hasDirections}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className={`relative px-5 py-3 rounded-2xl transition-all flex items-center gap-2.5 text-sm font-black overflow-hidden ${
+            className={`relative px-4 sm:px-5 py-2 sm:py-3 rounded-2xl transition-all flex items-center gap-2 text-xs sm:text-sm font-black overflow-hidden flex-1 sm:flex-none justify-center ${
               langMode === code
                 ? "bg-gradient-to-r from-[#887CFD] to-[#6f63e3] text-white shadow-xl shadow-[#887CFD]/40 border-2 border-[#887CFD]"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border-2 border-transparent"
@@ -65,10 +65,10 @@ const ControlsSection = ({ generatedAt, langMode, handleTranslate, isTranslating
                 transition={{ duration: 1.5, repeat: Infinity }}
               />
             )}
-            <span className="text-lg">{icon}</span>
-            <span className="relative z-10">{t("aiSalesDirection." + labelKey)}</span>
+            <span className="text-base sm:text-lg">{icon}</span>
+            <span className="relative z-10 whitespace-nowrap">{t("aiSalesDirection." + labelKey)}</span>
             {langMode === code && (
-              <CheckCircle2 className="w-4 h-4 relative z-10" />
+              <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 relative z-10" />
             )}
           </motion.button>
         ))}

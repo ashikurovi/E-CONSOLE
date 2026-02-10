@@ -53,16 +53,16 @@ const HeaderSection = ({ t }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white mb-4 tracking-tight"
+        className="text-3xl sm:text-4xl md:text-5xl  font-black text-gray-900 dark:text-white mb-4 tracking-tight px-4"
       >
         {t("aiSalesDirection.aiSales")}{" "}
-        <span className="relative inline-block">
+        <span className="relative inline-block whitespace-nowrap">
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#887CFD] via-[#7c6ff5] to-[#6f63e3]">
             {t("aiSalesDirection.direction")}
           </span>
           {/* Underline accent */}
           <motion.div
-            className="absolute -bottom-2 left-0 right-0 h-1.5 bg-gradient-to-r from-[#887CFD] to-[#6f63e3] rounded-full"
+            className="absolute -bottom-1.5 sm:-bottom-2 left-0 right-0 h-1 sm:h-1.5 bg-gradient-to-r from-[#887CFD] to-[#6f63e3] rounded-full"
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
@@ -74,7 +74,7 @@ const HeaderSection = ({ t }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-lg sm:text-xl font-medium leading-relaxed"
+        className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-base sm:text-lg md:text-xl font-medium leading-relaxed px-4"
       >
         {t("aiSalesDirection.subtitle")}
       </motion.p>

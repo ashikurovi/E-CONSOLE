@@ -4,9 +4,14 @@ import OrbitingNodes from "./OrbitingNodes";
 import SVGArcsLayer from "./SVGArcsLayer";
 
 // Premium Circular Strategy Map
-const CircularStrategyMap = ({ directions, getDisplayDirection, t }) => {
+const CircularStrategyMap = ({
+  directions,
+  getDisplayDirection,
+  t,
+  className = "",
+}) => {
   const center = 400;
-  
+
   // Responsive layout configuration
   const [layoutConfig, setLayoutConfig] = useState({
     radiusMain: 160,
@@ -62,7 +67,9 @@ const CircularStrategyMap = ({ directions, getDisplayDirection, t }) => {
   };
 
   return (
-    <div className="relative w-[800px] h-[800px] mx-auto flex items-center justify-center my-12 select-none scale-[0.45] md:scale-[0.55] lg:scale-[0.65] xl:scale-[0.75] 2xl:scale-[0.9] transition-transform">
+    <div
+      className={`relative w-[800px] h-[800px] mx-auto flex items-center justify-center select-none scale-[0.45] md:scale-[0.55] lg:scale-[0.65] xl:scale-[0.75] 2xl:scale-[0.9] transition-transform ${className}`}
+    >
       {/* Ambient glow layers */}
       <div className="absolute inset-0">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#887CFD]/20 blur-[100px] rounded-full animate-pulse" />

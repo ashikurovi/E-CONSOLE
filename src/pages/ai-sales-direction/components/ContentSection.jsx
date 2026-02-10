@@ -7,8 +7,8 @@ import CircularStrategyMap from "./CircularStrategyMap";
 const ContentSection = ({ directions, getDisplayDirection, t }) => {
   return (
     <div className="relative pb-16">
-      {/* Mobile Timeline */}
-      <div className="block lg:hidden space-y-4 max-w-3xl mx-auto">
+      {/* Timeline List - Visible on all devices */}
+      <div className="space-y-4 max-w-3xl mx-auto">
         {directions.map((dir, idx) => {
           const disp = getDisplayDirection(idx);
           const direction =
@@ -32,15 +32,6 @@ const ContentSection = ({ directions, getDisplayDirection, t }) => {
             />
           );
         })}
-      </div>
-
-      {/* Desktop Circular View */}
-      <div className="hidden md:block">
-        <CircularStrategyMap
-          directions={directions}
-          getDisplayDirection={getDisplayDirection}
-          t={t}
-        />
       </div>
     </div>
   );
