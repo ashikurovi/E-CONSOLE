@@ -11,7 +11,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PieChart as PieChartIcon, ChevronDown } from "lucide-react";
 
-export default function SalesDistributionCard({ data, filter, onFilterChange }) {
+export default function SalesDistributionCard({
+  data,
+  filter,
+  onFilterChange,
+}) {
   const { t } = useTranslation();
 
   const getFilterLabel = (value) => {
@@ -36,7 +40,8 @@ export default function SalesDistributionCard({ data, filter, onFilterChange }) 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="h-8 gap-1">
-              {getFilterLabel(filter)} <ChevronDown className="w-3 h-3 opacity-50" />
+              {getFilterLabel(filter)}{" "}
+              <ChevronDown className="w-3 h-3 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -69,7 +74,9 @@ export default function SalesDistributionCard({ data, filter, onFilterChange }) 
                     {item.name}
                   </span>
                 </div>
-                <p className="text-lg font-bold tracking-tight">${item.value}</p>
+                <p className="text-lg font-bold tracking-tight">
+                  ${item.value}
+                </p>
               </div>
             ))}
           </div>

@@ -24,6 +24,12 @@ import {
   MoreVertical,
   Check,
   X,
+  Users,
+  UserCheck,
+  UserX,
+  UserPlus,
+  ArrowUpRight,
+  ArrowDownRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,7 +53,10 @@ import {
   useUpdateSystemuserMutation,
 } from "@/features/systemuser/systemuserApiSlice";
 import { useGetCurrentUserQuery } from "@/features/auth/authApiSlice";
-import { hasPermission, FeaturePermission } from "@/constants/feature-permission";
+import {
+  hasPermission,
+  FeaturePermission,
+} from "@/constants/feature-permission";
 
 // Normalize API user to UI shape (image, joinedDate, lastActive, permissions, activities)
 function normalizeUser(u) {
@@ -69,6 +78,7 @@ function normalizeUser(u) {
     isActive: u.isActive ?? true,
     image: u.photo ?? u.image ?? null,
     joinedDate: createdAt,
+    rawCreatedAt: u.createdAt, // Keep raw for stats
     lastActive: u.lastActiveAt ?? "—",
     permissions: Array.isArray(u.permissions) ? u.permissions : [],
     activities: Array.isArray(u.activities) ? u.activities : [],
@@ -79,10 +89,10 @@ function normalizeUser(u) {
 
 const StatusBadge = ({ active }) => (
   <span
-    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
       active
-        ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
-        : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
+        ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
+        : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20"
     }`}
   >
     {active ? "Active" : "Inactive"}
@@ -92,18 +102,18 @@ const StatusBadge = ({ active }) => (
 const RoleBadge = ({ role }) => {
   const colors = {
     SYSTEM_OWNER:
-      "text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-900/20 dark:border-blue-800",
+      "text-indigo-600 bg-indigo-50 border-indigo-100 dark:text-indigo-400 dark:bg-indigo-500/10 dark:border-indigo-500/20",
     SUPER_ADMIN:
-      "text-purple-700 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-900/20 dark:border-purple-800",
+      "text-violet-600 bg-violet-50 border-violet-100 dark:text-violet-400 dark:bg-violet-500/10 dark:border-violet-500/20",
     MANAGER:
-      "text-orange-700 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-900/20 dark:border-orange-800",
+      "text-amber-600 bg-amber-50 border-amber-100 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20",
     EMPLOYEE:
-      "text-slate-700 bg-slate-50 border-slate-200 dark:text-slate-400 dark:bg-slate-800 dark:border-slate-700",
+      "text-slate-600 bg-slate-50 border-slate-100 dark:text-slate-400 dark:bg-slate-800/50 dark:border-slate-700",
   };
 
   if (!role) {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border text-gray-500 bg-gray-50 border-gray-200 dark:text-gray-400 dark:bg-gray-800 dark:border-gray-700">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border text-slate-500 bg-slate-50 border-slate-200 dark:text-slate-400 dark:bg-slate-800 dark:border-slate-700">
         No Role
       </span>
     );
@@ -111,10 +121,81 @@ const RoleBadge = ({ role }) => {
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${colors[role] || colors.EMPLOYEE}`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${colors[role] || colors.EMPLOYEE}`}
     >
       {role.replace(/_/g, " ")}
     </span>
+  );
+};
+
+// Premium Stats Card Component (Wave Design)
+const StatCard = ({
+  title,
+  value,
+  trend,
+  trendDir,
+  icon: Icon,
+  color,
+  bg,
+  wave,
+}) => {
+  return (
+    <motion.div
+      whileHover={{ y: -5 }}
+      className="relative bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden group hover:shadow-xl transition-all duration-300"
+    >
+      <div className="relative z-10">
+        <div className="flex items-center gap-4 mb-4">
+          <div
+            className={`p-3 rounded-xl ${bg} ${color} transition-transform group-hover:scale-110 duration-300`}
+          >
+            <Icon className="w-6 h-6" />
+          </div>
+          <p className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            {title}
+          </p>
+        </div>
+
+        <div>
+          <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
+            {value}
+          </h3>
+          <div className="flex items-center gap-2">
+            <span
+              className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md border ${
+                trendDir === "up"
+                  ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-500/20"
+                  : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-500/20"
+              }`}
+            >
+              {trendDir === "up" ? (
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              ) : (
+                <ArrowDownRight className="w-3.5 h-3.5" />
+              )}
+              {trend}
+            </span>
+            <span className="text-xs text-gray-400 font-medium">
+              vs last month
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Wave Graphic */}
+      <div
+        className={`absolute bottom-0 right-0 w-24 h-16 opacity-10 group-hover:opacity-20 transition-opacity duration-300 ${wave}`}
+      >
+        <svg
+          viewBox="0 0 100 60"
+          fill="currentColor"
+          preserveAspectRatio="none"
+          className="w-full h-full"
+        >
+          <path d="M0 60 C 20 60, 20 20, 50 20 C 80 20, 80 50, 100 50 L 100 60 Z" />
+        </svg>
+      </div>
+    </motion.div>
   );
 };
 
@@ -122,10 +203,15 @@ const ManageUsersPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: currentUser } = useGetCurrentUserQuery();
-  const canManageUsers = hasPermission(currentUser, FeaturePermission.MANAGE_USERS);
+  const canManageUsers = hasPermission(
+    currentUser,
+    FeaturePermission.MANAGE_USERS,
+  );
   const { data: apiData, isLoading, isError, error } = useGetSystemusersQuery();
-  const [deleteSystemuser, { isLoading: isDeleting }] = useDeleteSystemuserMutation();
-  const [updateSystemuser, { isLoading: isUpdating }] = useUpdateSystemuserMutation();
+  const [deleteSystemuser, { isLoading: isDeleting }] =
+    useDeleteSystemuserMutation();
+  const [updateSystemuser, { isLoading: isUpdating }] =
+    useUpdateSystemuserMutation();
 
   const rawList = apiData?.data ?? apiData ?? [];
   const users = useMemo(
@@ -188,11 +274,69 @@ const ManageUsersPage = () => {
     });
   }, [users, searchTerm, activeTab]);
 
+  // Stats Calculation
+  const stats = useMemo(() => {
+    const total = users.length;
+    const active = users.filter((u) => u.isActive).length;
+    const inactive = total - active;
+    
+    // Calculate new users this month
+    const now = new Date();
+    const newUsers = users.filter(u => {
+      if (!u.rawCreatedAt) return false;
+      const date = new Date(u.rawCreatedAt);
+      return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    }).length;
+
+    return [
+      {
+        title: "Total Users",
+        value: total,
+        trend: "+12%", // Mock data for trend
+        trendDir: "up",
+        icon: Users,
+        color: "text-indigo-600 dark:text-indigo-400",
+        bg: "bg-indigo-50 dark:bg-indigo-900/20",
+        wave: "text-indigo-500",
+      },
+      {
+        title: "Active Now",
+        value: active,
+        trend: "+5%",
+        trendDir: "up",
+        icon: UserCheck,
+        color: "text-emerald-600 dark:text-emerald-400",
+        bg: "bg-emerald-50 dark:bg-emerald-900/20",
+        wave: "text-emerald-500",
+      },
+      {
+        title: "Inactive",
+        value: inactive,
+        trend: "-2%",
+        trendDir: "down",
+        icon: UserX,
+        color: "text-rose-600 dark:text-rose-400",
+        bg: "bg-rose-50 dark:bg-rose-900/20",
+        wave: "text-rose-500",
+      },
+      {
+        title: "New This Month",
+        value: newUsers,
+        trend: "+8%",
+        trendDir: "up",
+        icon: UserPlus,
+        color: "text-violet-600 dark:text-violet-400",
+        bg: "bg-violet-50 dark:bg-violet-900/20",
+        wave: "text-violet-500",
+      },
+    ];
+  }, [users]);
+
   const [actionUserId, setActionUserId] = useState(null); // id being acted on (delete/active/inactive)
   const [confirmModal, setConfirmModal] = useState({
     open: false,
     action: null, // 'delete' | 'active' | 'inactive'
-    user: null,   // { id, name, email }
+    user: null, // { id, name, email }
   });
 
   const closeConfirmModal = () => {
@@ -200,15 +344,27 @@ const ManageUsersPage = () => {
   };
 
   const handleDeleteClick = (user) => {
-    setConfirmModal({ open: true, action: "delete", user: { id: user.id, name: user.name, email: user.email } });
+    setConfirmModal({
+      open: true,
+      action: "delete",
+      user: { id: user.id, name: user.name, email: user.email },
+    });
   };
 
   const handleActiveClick = (user) => {
-    setConfirmModal({ open: true, action: "active", user: { id: user.id, name: user.name, email: user.email } });
+    setConfirmModal({
+      open: true,
+      action: "active",
+      user: { id: user.id, name: user.name, email: user.email },
+    });
   };
 
   const handleInactiveClick = (user) => {
-    setConfirmModal({ open: true, action: "inactive", user: { id: user.id, name: user.name, email: user.email } });
+    setConfirmModal({
+      open: true,
+      action: "inactive",
+      user: { id: user.id, name: user.name, email: user.email },
+    });
   };
 
   const handleConfirmSubmit = async () => {
@@ -233,7 +389,12 @@ const ManageUsersPage = () => {
       }
       closeConfirmModal();
     } catch (err) {
-      toast.error(err?.data?.message || (action === "delete" ? "Failed to delete user" : "Failed to update user"));
+      toast.error(
+        err?.data?.message ||
+          (action === "delete"
+            ? "Failed to delete user"
+            : "Failed to update user"),
+      );
     } finally {
       setActionUserId(null);
     }
@@ -273,7 +434,7 @@ const ManageUsersPage = () => {
   }
 
   return (
-    <div className="min-h-screen  p-4 md:p-6 lg:h-screen lg:overflow-hidden flex flex-col">
+    <div className="min-h-screen p-4 md:p-6 lg:h-screen lg:overflow-hidden flex flex-col bg-slate-50 dark:bg-black">
       {/* Top Header */}
       <div className="flex flex-wrap justify-between items-center mb-6 gap-4 shrink-0">
         <div className="flex items-center gap-3">
@@ -302,13 +463,42 @@ const ManageUsersPage = () => {
         )}
       </div>
 
+      {/* Stats Cards */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6 shrink-0"
+      >
+        {stats.map((stat, idx) => (
+          <StatCard key={idx} {...stat} />
+        ))}
+      </motion.div>
+
       {/* Main Layout Grid */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
         {/* CENTER - USER LIST */}
         <div className="col-span-1 lg:col-span-8 xl:col-span-9 flex flex-col bg-white dark:bg-[#1a1f26] rounded-[24px] shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
-          {/* Toolbar */}
-          <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between gap-4">
-            <div className="relative flex-1 max-w-md">
+          {/* Toolbar & Tabs */}
+          <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+            {/* Tabs */}
+            <div className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
+              {Object.keys(REVERSE_TAB_MAPPING).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => handleTabChange(tab)}
+                  className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 ${
+                    activeTab === tab
+                      ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+                      : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {/* Search */}
+            <div className="relative flex-1 max-w-xs w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
@@ -318,16 +508,11 @@ const ManageUsersPage = () => {
                 className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 font-medium hidden sm:inline-block">
-                {filteredUsers.length} Users Found
-              </span>
-            </div>
           </div>
 
           {/* Table Header */}
-          <div className="grid grid-cols-12 px-4 py-3 bg-gray-50/50 dark:bg-gray-800/30 border-b border-gray-100 dark:border-gray-800 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            <div className="col-span-8 md:col-span-4 pl-2 md:pl-8">
+          <div className="grid grid-cols-12 px-4 py-3 bg-gray-50/80 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 text-[10px] font-bold text-gray-500 uppercase tracking-wider backdrop-blur-sm">
+            <div className="col-span-8 md:col-span-4 pl-2 md:pl-4">
               User Details
             </div>
             <div className="hidden md:block md:col-span-3">Role</div>
@@ -369,20 +554,20 @@ const ManageUsersPage = () => {
                         <img
                           src={user.image}
                           alt=""
-                          className="h-9 w-9 rounded-full object-cover ring-2 ring-white dark:ring-gray-800"
+                          className="h-10 w-10 rounded-full object-cover ring-2 ring-white dark:ring-gray-800"
                         />
                       ) : (
-                        <div className="h-9 w-9 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center ring-2 ring-white dark:ring-gray-800 text-indigo-600 dark:text-indigo-400 font-medium text-xs">
+                        <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center ring-2 ring-white dark:ring-gray-800 text-indigo-600 dark:text-indigo-400 font-bold text-sm">
                           {user.name.charAt(0)}
                         </div>
                       )}
                       <span
-                        className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-gray-800 ${user.isActive ? "bg-green-500" : "bg-gray-300"}`}
+                        className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white dark:border-gray-800 ${user.isActive ? "bg-emerald-500" : "bg-gray-300"}`}
                       />
                     </div>
                     <div className="min-w-0">
                       <h4
-                        className={`text-sm font-semibold truncate ${selectedUserId === user.id ? "text-indigo-900 dark:text-indigo-100" : "text-gray-900 dark:text-white"}`}
+                        className={`text-sm font-bold truncate ${selectedUserId === user.id ? "text-indigo-900 dark:text-indigo-100" : "text-gray-900 dark:text-white"}`}
                       >
                         {user.name}
                       </h4>
@@ -410,19 +595,19 @@ const ManageUsersPage = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                            className="h-8 w-8 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg"
                           >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
 
-                        <DropdownMenuContent align="end" className="w-40">
+                        <DropdownMenuContent align="end" className="w-48 rounded-xl">
                           {/* Edit */}
                           <DropdownMenuItem
                             onClick={() =>
                               navigate(`/manage-users/edit/${user.id}`)
                             }
-                            className="cursor-pointer"
+                            className="cursor-pointer font-medium"
                             disabled={isBusy(user.id)}
                           >
                             <Edit className="mr-2 h-4 w-4" />
@@ -433,7 +618,7 @@ const ManageUsersPage = () => {
                             onClick={() =>
                               navigate(`/manage-users/permissions/${user.id}`)
                             }
-                            className="cursor-pointer"
+                            className="cursor-pointer font-medium"
                             disabled={isBusy(user.id)}
                           >
                             <Shield className="mr-2 h-4 w-4" />
@@ -444,30 +629,30 @@ const ManageUsersPage = () => {
                           <DropdownMenuItem
                             onClick={() => handleActiveClick(user)}
                             disabled={isBusy(user.id) || user.isActive}
-                            className="cursor-pointer text-green-600 focus:text-green-600 focus:bg-green-50 dark:focus:bg-green-900/10"
+                            className="cursor-pointer text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50 dark:focus:bg-emerald-900/10 font-medium"
                           >
                             <CheckCircle className="mr-2 h-4 w-4" />
-                            <span>{isBusy(user.id) ? "..." : "Active"}</span>
+                            <span>{isBusy(user.id) ? "..." : "Set Active"}</span>
                           </DropdownMenuItem>
 
                           {/* Inactive */}
                           <DropdownMenuItem
                             onClick={() => handleInactiveClick(user)}
                             disabled={isBusy(user.id) || !user.isActive}
-                            className="cursor-pointer text-yellow-600 focus:text-yellow-600 focus:bg-yellow-50 dark:focus:bg-yellow-900/10"
+                            className="cursor-pointer text-amber-600 focus:text-amber-600 focus:bg-amber-50 dark:focus:bg-amber-900/10 font-medium"
                           >
                             <XCircle className="mr-2 h-4 w-4" />
-                            <span>{isBusy(user.id) ? "..." : "Inactive"}</span>
+                            <span>{isBusy(user.id) ? "..." : "Set Inactive"}</span>
                           </DropdownMenuItem>
 
                           {/* Delete */}
                           <DropdownMenuItem
                             onClick={() => handleDeleteClick(user)}
                             disabled={isBusy(user.id)}
-                            className="text-red-600 focus:text-red-600 cursor-pointer focus:bg-red-50 dark:focus:bg-red-900/10"
+                            className="text-red-600 focus:text-red-600 cursor-pointer focus:bg-red-50 dark:focus:bg-red-900/10 font-medium"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            <span>{isBusy(user.id) ? "..." : "Delete"}</span>
+                            <span>{isBusy(user.id) ? "..." : "Delete User"}</span>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -477,8 +662,11 @@ const ManageUsersPage = () => {
               ))
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-gray-400">
-                <Search className="h-10 w-10 mb-3 opacity-20" />
-                <p>No users found</p>
+                <div className="h-16 w-16 bg-gray-50 dark:bg-gray-800/50 rounded-full flex items-center justify-center mb-4">
+                   <Search className="h-8 w-8 opacity-20" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">No users found</h3>
+                <p className="text-sm">Try adjusting your search or filters</p>
               </div>
             )}
           </div>
@@ -559,7 +747,9 @@ const ManageUsersPage = () => {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleActiveClick(selectedUser)}
-                          disabled={isBusy(selectedUser.id) || selectedUser.isActive}
+                          disabled={
+                            isBusy(selectedUser.id) || selectedUser.isActive
+                          }
                           className="cursor-pointer text-green-600 focus:text-green-600 focus:bg-green-50 dark:focus:bg-green-900/10"
                         >
                           <CheckCircle className="mr-2 h-4 w-4" />
@@ -567,7 +757,9 @@ const ManageUsersPage = () => {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleInactiveClick(selectedUser)}
-                          disabled={isBusy(selectedUser.id) || !selectedUser.isActive}
+                          disabled={
+                            isBusy(selectedUser.id) || !selectedUser.isActive
+                          }
                           className="cursor-pointer text-yellow-600 focus:text-yellow-600 focus:bg-yellow-50 dark:focus:bg-yellow-900/10"
                         >
                           <XCircle className="mr-2 h-4 w-4" />
@@ -707,7 +899,7 @@ const ManageUsersPage = () => {
                           const label =
                             typeof perm === "string"
                               ? perm
-                              : perm?.name ?? perm?.code ?? "—";
+                              : (perm?.name ?? perm?.code ?? "—");
                           return (
                             <span
                               key={idx}
@@ -743,7 +935,9 @@ const ManageUsersPage = () => {
                     <div className="absolute left-[11px] top-2 bottom-2 w-[1px] bg-gray-200 dark:bg-gray-800" />
                     <div className="space-y-6">
                       {(selectedUser.activities ?? []).length === 0 ? (
-                        <p className="text-xs text-gray-400 pl-6">No activity logs</p>
+                        <p className="text-xs text-gray-400 pl-6">
+                          No activity logs
+                        </p>
                       ) : (
                         (selectedUser.activities ?? []).map((activity, idx) => {
                           const time =
@@ -758,7 +952,10 @@ const ManageUsersPage = () => {
                             "—";
                           const type = activity.type ?? activity.action ?? "";
                           return (
-                            <div key={activity.id ?? idx} className="relative pl-6 group">
+                            <div
+                              key={activity.id ?? idx}
+                              className="relative pl-6 group"
+                            >
                               <div
                                 className={`absolute left-[7px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-[#1a1f26] shadow-sm transition-transform group-hover:scale-125 ${
                                   type === "system"
@@ -772,7 +969,7 @@ const ManageUsersPage = () => {
                                 <span className="text-[10px] font-mono text-gray-400 uppercase tracking-tight">
                                   {typeof time === "string"
                                     ? time
-                                    : time?.toLocaleString?.() ?? "—"}
+                                    : (time?.toLocaleString?.() ?? "—")}
                                 </span>
                                 <p className="text-sm text-gray-700 dark:text-gray-300 font-medium leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                                   {text}
@@ -805,7 +1002,9 @@ const ManageUsersPage = () => {
                       variant="ghost"
                       className="text-green-600 hover:bg-green-50 dark:hover:bg-green-900/10 h-10 rounded-xl font-medium"
                       onClick={() => handleActiveClick(selectedUser)}
-                      disabled={isBusy(selectedUser.id) || selectedUser.isActive}
+                      disabled={
+                        isBusy(selectedUser.id) || selectedUser.isActive
+                      }
                     >
                       <CheckCircle className="h-4 w-4 mr-1" />
                       {isBusy(selectedUser.id) ? "..." : "Active"}
@@ -814,7 +1013,9 @@ const ManageUsersPage = () => {
                       variant="ghost"
                       className="text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/10 h-10 rounded-xl font-medium"
                       onClick={() => handleInactiveClick(selectedUser)}
-                      disabled={isBusy(selectedUser.id) || !selectedUser.isActive}
+                      disabled={
+                        isBusy(selectedUser.id) || !selectedUser.isActive
+                      }
                     >
                       <XCircle className="h-4 w-4 mr-1" />
                       {isBusy(selectedUser.id) ? "..." : "Inactive"}
@@ -994,35 +1195,54 @@ const ManageUsersPage = () => {
       </AnimatePresence>
 
       {/* Confirmation modal for Delete / Active / Inactive */}
-      <Dialog open={confirmModal.open} onOpenChange={(open) => !open && closeConfirmModal()}>
+      <Dialog
+        open={confirmModal.open}
+        onOpenChange={(open) => !open && closeConfirmModal()}
+      >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>
               {confirmModal.action === "delete" &&
-                t("manageUsers.deleteConfirm", { email: confirmModal.user?.email ?? "" })}
-              {confirmModal.action === "active" && t("manageUsers.activeConfirmTitle")}
-              {confirmModal.action === "inactive" && t("manageUsers.inactiveConfirmTitle")}
+                t("manageUsers.deleteConfirm", {
+                  email: confirmModal.user?.email ?? "",
+                })}
+              {confirmModal.action === "active" &&
+                t("manageUsers.activeConfirmTitle")}
+              {confirmModal.action === "inactive" &&
+                t("manageUsers.inactiveConfirmTitle")}
             </DialogTitle>
             <DialogDescription>
-              {confirmModal.action === "delete" && t("manageUsers.deleteConfirmDesc")}
-              {confirmModal.action === "active" && t("manageUsers.activeConfirmDesc")}
-              {confirmModal.action === "inactive" && t("manageUsers.inactiveConfirmDesc")}
+              {confirmModal.action === "delete" &&
+                t("manageUsers.deleteConfirmDesc")}
+              {confirmModal.action === "active" &&
+                t("manageUsers.activeConfirmDesc")}
+              {confirmModal.action === "inactive" &&
+                t("manageUsers.inactiveConfirmDesc")}
             </DialogDescription>
           </DialogHeader>
           {confirmModal.user && (
             <p className="text-sm text-gray-700 dark:text-gray-300">
               <span className="font-medium">{confirmModal.user.name}</span>
               {confirmModal.user.email && (
-                <span className="text-gray-500 dark:text-gray-400"> — {confirmModal.user.email}</span>
+                <span className="text-gray-500 dark:text-gray-400">
+                  {" "}
+                  — {confirmModal.user.email}
+                </span>
               )}
             </p>
           )}
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="ghost" onClick={closeConfirmModal} disabled={!!actionUserId}>
+            <Button
+              variant="ghost"
+              onClick={closeConfirmModal}
+              disabled={!!actionUserId}
+            >
               {t("common.cancel")}
             </Button>
             <Button
-              variant={confirmModal.action === "delete" ? "destructive" : "default"}
+              variant={
+                confirmModal.action === "delete" ? "destructive" : "default"
+              }
               onClick={handleConfirmSubmit}
               disabled={!!actionUserId}
               className={
