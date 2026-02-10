@@ -203,13 +203,13 @@ export default function TicketDetailView({
             <div className="flex flex-col">
               <h2 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 {selectedTicket.subject}
-                <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] text-gray-500 font-mono">
+                <span className="px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-[10px] font-bold text-violet-600 dark:text-violet-400 font-mono tracking-wider">
                   {selectedTicket.id}
                 </span>
               </h2>
               <span className="text-xs text-gray-500 flex items-center gap-1">
-                Requested by <span className="font-medium text-gray-700 dark:text-gray-300">{requester?.name ?? requester?.company ?? selectedTicket?.email ?? "Unknown"}</span>
-                {!isStandalone && " via WhatsApp"}
+                Requested by <span className="font-medium text-gray-900 dark:text-white">{requester?.name ?? requester?.company ?? selectedTicket?.email ?? "Unknown"}</span>
+                {!isStandalone && <span className="text-gray-400">• via WhatsApp</span>}
               </span>
             </div>
           </div>
@@ -217,11 +217,11 @@ export default function TicketDetailView({
           <div className="flex items-center gap-2">
             {!isStandalone && (
               <>
-                <Button variant="outline" size="sm" className="gap-2 rounded-xl h-9 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                <Button variant="outline" size="sm" className="gap-2 rounded-xl h-9 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm hover:shadow transition-all">
                   <Phone className="w-3.5 h-3.5" />
                   Call
                 </Button>
-                <Button variant="outline" size="sm" className="rounded-xl h-9 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-red-600 hover:text-red-700 dark:text-red-400">
+                <Button variant="outline" size="sm" className="rounded-xl h-9 border-gray-200 dark:border-gray-700 hover:bg-red-50 dark:hover:bg-red-900/10 text-red-600 hover:text-red-700 dark:text-red-400 shadow-sm hover:shadow transition-all hover:border-red-200 dark:hover:border-red-800">
                   Close Ticket
                 </Button>
               </>
@@ -230,7 +230,7 @@ export default function TicketDetailView({
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/30 dark:bg-black/20">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/50 dark:bg-black/20">
           {selectedTicket.messages?.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-gray-400">
               <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
@@ -261,11 +261,11 @@ export default function TicketDetailView({
                 >
                   <div className="flex-shrink-0 pt-1">
                     {isMe ? (
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-md shadow-indigo-500/20">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-indigo-500/20 ring-2 ring-white dark:ring-[#1a1f26]">
                         YOU
                       </div>
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-200 font-bold text-xs shadow-sm">
+                      <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-200 font-bold text-xs shadow-sm ring-2 ring-white dark:ring-[#1a1f26]">
                         {sender.name?.[0]?.toUpperCase() || "?"}
                       </div>
                     )}
@@ -273,17 +273,17 @@ export default function TicketDetailView({
 
                   <div className="flex flex-col">
                     <div className={cn("flex items-center gap-2 mb-1", isMe ? "justify-end" : "")}>
-                      <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                      <span className="text-xs font-semibold text-gray-900 dark:text-white">
                         {sender.name}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-[10px] text-gray-500">
                         {format(msg.timestamp || new Date(), "HH:mm")}
                       </span>
                     </div>
 
                     <div
                       className={cn(
-                        "p-5 rounded-2xl text-sm leading-relaxed shadow-sm max-w-xl",
+                        "p-5 rounded-[20px] text-sm leading-relaxed shadow-sm max-w-xl transition-all hover:shadow-md",
                         isMe
                           ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white rounded-tr-none shadow-indigo-500/10"
                           : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-tl-none border border-gray-100 dark:border-gray-700",
@@ -307,21 +307,21 @@ export default function TicketDetailView({
                 animate={{ opacity: 1, y: 0 }}
                 className="flex flex-wrap gap-2 mb-3"
               >
-                <div className="text-xs text-gray-500 font-medium py-1">
+                <div className="text-xs text-gray-500 font-medium py-1 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-amber-500" />
                   AI Suggested:
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 text-xs rounded-full bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100 dark:bg-violet-900/20 dark:text-violet-300 dark:border-violet-800"
+                  className="h-7 text-xs rounded-full bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100 dark:bg-violet-900/20 dark:text-violet-300 dark:border-violet-800 transition-colors"
                 >
-                  <Sparkles className="w-3 h-3 mr-1" />
                   Request ID proof
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 text-xs rounded-full border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  className="h-7 text-xs rounded-full border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   Ask for screenshot
                 </Button>
@@ -329,28 +329,35 @@ export default function TicketDetailView({
             )}
 
           {showReplyForm && (
-          <form onSubmit={handleSendReply} className="relative group">
+          <form onSubmit={handleSendReply} className="relative group bg-gray-50 dark:bg-gray-900/50 p-2 rounded-[24px] border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-violet-500/20 focus-within:border-violet-500 transition-all shadow-sm">
             <textarea
               placeholder="Type your reply..."
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
-              className="w-full p-4 pr-32 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 min-h-[80px] transition-all"
-              rows={3}
+              className="w-full p-3 pl-4 pr-32 rounded-xl bg-transparent text-sm resize-none focus:outline-none min-h-[50px] transition-all placeholder:text-gray-400"
+              rows={1}
+              style={{ minHeight: '50px', maxHeight: '150px' }}
+              onInput={(e) => {
+                e.target.style.height = 'auto';
+                e.target.style.height = e.target.scrollHeight + 'px';
+              }}
               disabled={isReplying}
             />
-            <div className="absolute bottom-3 right-3 flex items-center gap-2">
-              {!isStandalone && (
-                <>
-                  <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-gray-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl transition-colors">
-                    <Smile className="w-5 h-5" />
-                  </Button>
-                  <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-gray-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl transition-colors">
-                    <Paperclip className="w-5 h-5" />
-                  </Button>
-                </>
-              )}
-              <Button type="submit" className="h-9 px-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-indigo-500/20 transition-all hover:scale-105 active:scale-95 disabled:opacity-50" disabled={isReplying || !replyText.trim()}>
-                <Send className="w-4 h-4 mr-2" /> Send
+            <div className="flex items-center justify-between px-2 pb-1 mt-2 border-t border-gray-200/50 dark:border-gray-700/50 pt-2">
+              <div className="flex items-center gap-1">
+                {!isStandalone && (
+                  <>
+                    <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-full transition-colors">
+                      <Smile className="w-4 h-4" />
+                    </Button>
+                    <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-full transition-colors">
+                      <Paperclip className="w-4 h-4" />
+                    </Button>
+                  </>
+                )}
+              </div>
+              <Button type="submit" className="h-8 px-4 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-md shadow-indigo-500/20 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 text-xs font-bold" disabled={isReplying || !replyText.trim()}>
+                <Send className="w-3 h-3 mr-2" /> Send
               </Button>
             </div>
           </form>

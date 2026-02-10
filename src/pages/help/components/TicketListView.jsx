@@ -10,12 +10,85 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
+  ArrowUpRight,
+  ArrowDownRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { StatusBadge, PriorityIcon } from "./HelpComponents";
 import { USERS } from "../data";
 import { motion } from "framer-motion";
+
+// Premium Stats Card Component (Wave Design)
+const StatCard = ({
+  title,
+  value,
+  trend,
+  trendDir,
+  icon: Icon,
+  color,
+  bg,
+  wave,
+}) => {
+  return (
+    <motion.div
+      whileHover={{ y: -5 }}
+      className="relative bg-white dark:bg-[#1a1f26] rounded-[24px] p-6 shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden group hover:shadow-xl transition-all duration-300"
+    >
+      <div className="relative z-10">
+        <div className="flex items-center gap-4 mb-4">
+          <div
+            className={`p-3 rounded-xl ${bg} ${color} transition-transform group-hover:scale-110 duration-300`}
+          >
+            <Icon className="w-6 h-6" />
+          </div>
+          <p className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            {title}
+          </p>
+        </div>
+
+        <div>
+          <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
+            {value}
+          </h3>
+          <div className="flex items-center gap-2">
+            <span
+              className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md border ${
+                trendDir === "up"
+                  ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-500/20"
+                  : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-500/20"
+              }`}
+            >
+              {trendDir === "up" ? (
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              ) : (
+                <ArrowDownRight className="w-3.5 h-3.5" />
+              )}
+              {trend}
+            </span>
+            <span className="text-xs text-gray-400 font-medium">
+              vs last month
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Wave Graphic */}
+      <div
+        className={`absolute bottom-0 right-0 w-24 h-16 opacity-10 group-hover:opacity-20 transition-opacity duration-300 ${wave}`}
+      >
+        <svg
+          viewBox="0 0 100 60"
+          fill="currentColor"
+          preserveAspectRatio="none"
+          className="w-full h-full"
+        >
+          <path d="M0 60 C 20 60, 20 20, 50 20 C 80 20, 80 50, 100 50 L 100 60 Z" />
+        </svg>
+      </div>
+    </motion.div>
+  );
+};
 
 export default function TicketListView({
   setActiveView,
@@ -97,81 +170,59 @@ export default function TicketListView({
   // Stats from API (follow frontend card layout: Total, Pending, Resolved, Open Issues)
   const stats = [
     {
-      label: "Total Tickets",
+      title: "Total Tickets",
       value: statsLoading ? "—" : String(statsFromApi?.total ?? 0),
+      trend: "+12%",
+      trendDir: "up",
       icon: Inbox,
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-      gradient: "from-blue-500 to-indigo-500",
+      color: "text-blue-600 dark:text-blue-400",
+      bg: "bg-blue-50 dark:bg-blue-900/20",
+      wave: "text-blue-500",
     },
     {
-      label: "Pending",
+      title: "Pending",
       value: statsLoading ? "—" : String(statsFromApi?.pending ?? 0),
+      trend: "+5%",
+      trendDir: "up",
       icon: Clock,
-      color: "text-amber-600",
-      bg: "bg-amber-50",
-      gradient: "from-amber-500 to-orange-500",
+      color: "text-amber-600 dark:text-amber-400",
+      bg: "bg-amber-50 dark:bg-amber-900/20",
+      wave: "text-amber-500",
     },
     {
-      label: "Resolved",
+      title: "Resolved",
       value: statsLoading ? "—" : String(statsFromApi?.resolved ?? 0),
+      trend: "+8%",
+      trendDir: "up",
       icon: CheckCircle,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50",
-      gradient: "from-emerald-500 to-teal-500",
+      color: "text-emerald-600 dark:text-emerald-400",
+      bg: "bg-emerald-50 dark:bg-emerald-900/20",
+      wave: "text-emerald-500",
     },
     {
-      label: "Open Issues",
+      title: "Open Issues",
       value: statsLoading ? "—" : String(statsFromApi?.active ?? 0),
+      trend: "-2%",
+      trendDir: "down",
       icon: AlertCircle,
-      color: "text-violet-600",
-      bg: "bg-violet-50",
-      gradient: "from-violet-500 to-purple-500",
+      color: "text-violet-600 dark:text-violet-400",
+      bg: "bg-violet-50 dark:bg-violet-900/20",
+      wave: "text-violet-500",
     },
   ];
 
   return (
     <div className="flex flex-col h-full space-y-6">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="group relative overflow-hidden bg-white dark:bg-[#1a1f26] p-5 rounded-[24px] shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 hover:-translate-y-1"
-          >
-            <div
-              className={`absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity`}
-            >
-              <stat.icon className={`w-24 h-24 ${stat.color}`} />
-            </div>
-
-            <div className="relative z-10 flex flex-col justify-between h-full">
-              <div className="flex items-center justify-between mb-4">
-                <div className={cn("p-3 rounded-2xl shadow-inner", stat.bg)}>
-                  <stat.icon className={cn("w-6 h-6", stat.color)} />
-                </div>
-              </div>
-
-              <div>
-                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-gray-500 font-medium">
-                  {stat.label}
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom Gradient Line */}
-            <div
-              className={`absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity`}
-            />
-          </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+      >
+        {stats.map((stat, idx) => (
+          <StatCard key={idx} {...stat} />
         ))}
-      </div>
+      </motion.div>
 
       <div className="flex flex-col flex-1 bg-white dark:bg-[#1a1f26] rounded-[24px] border border-gray-200 dark:border-gray-800 overflow-hidden shadow-xl">
         {/* Header */}
@@ -215,12 +266,15 @@ export default function TicketListView({
         {/* Tabs */}
         <div className="px-8 pt-4 pb-0 overflow-x-auto">
           <div className="flex items-center gap-2 p-1.5 bg-gray-100/80 dark:bg-gray-800/80 rounded-2xl w-fit backdrop-blur-sm">
-            {(tabCountsFromApi?.length ? tabCountsFromApi : [
-              { id: "active", label: "All Active", count: 0 },
-              { id: "pending", label: "Pending", count: 0 },
-              { id: "in_progress", label: "In progress", count: 0 },
-              { id: "resolved", label: "Resolved", count: 0 },
-            ]).map((tab) => (
+            {(tabCountsFromApi?.length
+              ? tabCountsFromApi
+              : [
+                  { id: "active", label: "All Active", count: 0 },
+                  { id: "pending", label: "Pending", count: 0 },
+                  { id: "in_progress", label: "In progress", count: 0 },
+                  { id: "resolved", label: "Resolved", count: 0 },
+                ]
+            ).map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -276,13 +330,16 @@ export default function TicketListView({
                 const subject = ticket.subject ?? ticket.issue ?? "—";
                 const priority = ticket.priority ?? "medium";
                 const requesterPrimary = u?.company ?? ticket.email ?? "—";
-                const requesterSecondary = u?.name ?? (ticket.email ? null : "—");
+                const requesterSecondary =
+                  u?.name ?? (ticket.email ? null : "—");
                 return (
                   <motion.div
+                    layoutId={ticket.id}
                     key={ticket.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
                     onClick={() => {
                       setSelectedTicketId(ticket.id);
                       setActiveView("detail");
@@ -331,7 +388,9 @@ export default function TicketListView({
                       </span>
                     </div>
                     <div className="col-span-3 text-sm font-medium text-gray-600 dark:text-gray-300 truncate group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                      {subject.length > 80 ? `${subject.slice(0, 80)}…` : subject}
+                      {subject.length > 80
+                        ? `${subject.slice(0, 80)}…`
+                        : subject}
                     </div>
                     <div className="col-span-2 flex items-center justify-between">
                       <div className="ml-auto px-4 transform group-hover:scale-105 transition-transform">
