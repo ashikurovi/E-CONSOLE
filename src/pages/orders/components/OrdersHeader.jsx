@@ -136,14 +136,14 @@ const OrdersHeader = ({
               {t("orders.trackOrder") || "Track Order"}
             </Button>
           )}
-          {canCreateOrder && (
+        
             <Button
               onClick={() => navigate("/orders/create")}
               className="h-10 rounded-xl bg-[#5347CE] hover:bg-[#4338ca] text-white text-sm font-bold px-6 shadow-lg shadow-indigo-200 dark:shadow-none transition-all hover:scale-[1.02]"
             >
               Create order
             </Button>
-          )}
+          
         </div>
       </div>
     </div>

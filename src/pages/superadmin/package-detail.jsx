@@ -4,6 +4,13 @@ import { useGetPackageQuery } from "@/features/package/packageApiSlice";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
   ArrowLeft,
   Package,
   Tag,
@@ -13,6 +20,7 @@ import {
   DollarSign,
   Star,
   XCircle,
+  Info,
 } from "lucide-react";
 
 // Animation variants
@@ -40,6 +48,7 @@ const PackageDetailPage = () => {
   const navigate = useNavigate();
   
   const { data: pkg, isLoading, isError } = useGetPackageQuery(id);
+  const [featureModal, setFeatureModal] = React.useState(null);
 
   const formatDate = (dateString) => {
     if (!dateString) return "-";
@@ -214,17 +223,41 @@ const PackageDetailPage = () => {
             </h2>
             {pkg.features && pkg.features.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {pkg.features.map((feature, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20"
-                  >
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
-                    <span className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
-                      {feature.replace(/_/g, " ")}
-                    </span>
-                  </div>
-                ))}
+                {pkg.features.map((feature, index) => {
+                  const meta = FEATURES_OPTIONS.find((f) => f.value === feature);
+                  const label = meta?.label || feature.replace(/_/g, " ");
+                  const details = meta?.details;
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-start gap-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20"
+                    >
+                      <div className="w-2 h-2 mt-1 rounded-full bg-emerald-500 flex-shrink-0" />
+                      <div className="flex-1 flex items-start gap-2">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
+                            {label}
+                          </span>
+                          {details && (
+                            <span className="text-xs text-emerald-800/80 dark:text-emerald-200/80 mt-0.5">
+                              {details}
+                            </span>
+                          )}
+                        </div>
+                        {details && (
+                          <button
+                            type="button"
+                            className="mt-0.5 text-emerald-700/70 dark:text-emerald-200/70 hover:text-emerald-800 dark:hover:text-emerald-100"
+                            title={details}
+                            onClick={() => setFeatureModal({ label, details })}
+                          >
+                            <Info className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-8 text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
@@ -315,6 +348,26 @@ const PackageDetailPage = () => {
           </div>
         </motion.div>
       </div>
+      <Dialog
+        open={!!featureModal}
+        onOpenChange={(open) => {
+          if (!open) setFeatureModal(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-[420px] rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Info className="h-4 w-4 text-emerald-600" />
+              {featureModal?.label || "Feature details"}
+            </DialogTitle>
+            {featureModal?.details && (
+              <DialogDescription className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                {featureModal.details}
+              </DialogDescription>
+            )}
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };
