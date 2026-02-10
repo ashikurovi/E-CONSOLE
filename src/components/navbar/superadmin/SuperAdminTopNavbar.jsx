@@ -16,7 +16,7 @@ const SuperAdminTopNavbar = ({ setIsMobileMenuOpen }) => {
   const handleLogout = () => {
     dispatch(superadminLoggedOut());
     toast.success(t("auth.loggedOut"));
-    navigate("/superadmin/login");
+    navigate("/login");
   };
 
   return (
