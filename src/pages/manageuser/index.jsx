@@ -221,18 +221,29 @@ const ManageUsersPage = () => {
 
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Select first user when list loads
+  // Select first user when list loads or sync with URL
   useEffect(() => {
-    if (users.length > 0 && !selectedUserId) {
-      setSelectedUserId(users[0].id);
-    }
-    if (users.length === 0) {
+    if (users.length > 0) {
+      const urlUserId = searchParams.get("userId");
+      if (urlUserId) {
+        // Find user by ID (loose comparison for string/number)
+        const user = users.find((u) => String(u.id) === urlUserId);
+        if (user) {
+          setSelectedUserId(user.id);
+          return;
+        }
+      }
+      
+      // Fallback to first user if no URL param or user not found
+      if (!selectedUserId) {
+        setSelectedUserId(users[0].id);
+      }
+    } else if (users.length === 0) {
       setSelectedUserId(null);
     }
-  }, [users, selectedUserId]);
-
-  const [searchParams, setSearchParams] = useSearchParams();
+  }, [users, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
   const TAB_MAPPING = {
     "all-users": "All Users",
     active: "Active",
@@ -279,13 +290,16 @@ const ManageUsersPage = () => {
     const total = users.length;
     const active = users.filter((u) => u.isActive).length;
     const inactive = total - active;
-    
+
     // Calculate new users this month
     const now = new Date();
-    const newUsers = users.filter(u => {
+    const newUsers = users.filter((u) => {
       if (!u.rawCreatedAt) return false;
       const date = new Date(u.rawCreatedAt);
-      return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+      return (
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear()
+      );
     }).length;
 
     return [
@@ -405,6 +419,13 @@ const ManageUsersPage = () => {
   // Mobile detail view handler
   const handleUserClick = (id) => {
     setSelectedUserId(id);
+    // Update URL with selected user ID
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set("userId", id);
+      return newParams;
+    });
+    
     // On mobile, show detail view
     if (window.innerWidth < 1024) {
       setShowMobileDetail(true);
@@ -464,7 +485,7 @@ const ManageUsersPage = () => {
       </div>
 
       {/* Stats Cards */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6 shrink-0"
@@ -601,7 +622,10 @@ const ManageUsersPage = () => {
                           </Button>
                         </DropdownMenuTrigger>
 
-                        <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                        <DropdownMenuContent
+                          align="end"
+                          className="w-48 rounded-xl"
+                        >
                           {/* Edit */}
                           <DropdownMenuItem
                             onClick={() =>
@@ -632,7 +656,9 @@ const ManageUsersPage = () => {
                             className="cursor-pointer text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50 dark:focus:bg-emerald-900/10 font-medium"
                           >
                             <CheckCircle className="mr-2 h-4 w-4" />
-                            <span>{isBusy(user.id) ? "..." : "Set Active"}</span>
+                            <span>
+                              {isBusy(user.id) ? "..." : "Set Active"}
+                            </span>
                           </DropdownMenuItem>
 
                           {/* Inactive */}
@@ -642,7 +668,9 @@ const ManageUsersPage = () => {
                             className="cursor-pointer text-amber-600 focus:text-amber-600 focus:bg-amber-50 dark:focus:bg-amber-900/10 font-medium"
                           >
                             <XCircle className="mr-2 h-4 w-4" />
-                            <span>{isBusy(user.id) ? "..." : "Set Inactive"}</span>
+                            <span>
+                              {isBusy(user.id) ? "..." : "Set Inactive"}
+                            </span>
                           </DropdownMenuItem>
 
                           {/* Delete */}
@@ -652,7 +680,9 @@ const ManageUsersPage = () => {
                             className="text-red-600 focus:text-red-600 cursor-pointer focus:bg-red-50 dark:focus:bg-red-900/10 font-medium"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            <span>{isBusy(user.id) ? "..." : "Delete User"}</span>
+                            <span>
+                              {isBusy(user.id) ? "..." : "Delete User"}
+                            </span>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -663,9 +693,11 @@ const ManageUsersPage = () => {
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-gray-400">
                 <div className="h-16 w-16 bg-gray-50 dark:bg-gray-800/50 rounded-full flex items-center justify-center mb-4">
-                   <Search className="h-8 w-8 opacity-20" />
+                  <Search className="h-8 w-8 opacity-20" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">No users found</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                  No users found
+                </h3>
                 <p className="text-sm">Try adjusting your search or filters</p>
               </div>
             )}
