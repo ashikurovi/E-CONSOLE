@@ -1,19 +1,45 @@
 import React from "react";
 
-export default function InvoiceDetailsTopBanner({ companyName, branchLocation, status }) {
+export default function InvoiceDetailsTopBanner({
+  companyName,
+  branchLocation,
+  status,
+  logoImage,
+  logoWidth,
+  logoHeight,
+}) {
   const isPaid = status?.toLowerCase() === "paid";
 
   return (
     <div className="relative h-48 w-full overflow-hidden bg-white dark:bg-[#1a1f26]">
       <div className="absolute top-0 right-0 w-[60%] h-full bg-gradient-to-l from-purple-100/50 to-transparent dark:from-purple-900/10" />
       <div className="absolute top-0 right-0 w-32 h-32 bg-[#7c3aed]/5 rounded-full -mr-16 -mt-16 blur-3xl" />
-      <div className="absolute top-0 right-0 p-12 flex items-center gap-2">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#7c3aed] to-[#3b82f6] flex items-center justify-center text-white shadow-lg">
-          <div className="w-2 h-2 rounded-full bg-white" />
-        </div>
-        <span className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-          {companyName || "SquadCart"}
-        </span>
+      
+      {/* Logo / Company Name Section */}
+      <div className="absolute top-0 right-0 p-12 flex items-center gap-4">
+        {logoImage ? (
+          <img
+            src={logoImage}
+            alt="Company Logo"
+            style={{
+              width: logoWidth ? `${logoWidth}px` : "auto",
+              height: logoHeight ? `${logoHeight}px` : "auto",
+              maxWidth: logoWidth ? "none" : "250px",
+              maxHeight: logoHeight ? "none" : "150px",
+              objectFit: "contain",
+            }}
+            className="object-contain"
+          />
+        ) : (
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#7c3aed] to-[#3b82f6] flex items-center justify-center text-white shadow-lg">
+              <div className="w-2 h-2 rounded-full bg-white" />
+            </div>
+            <span className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+              {companyName || "SquadCart"}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="absolute top-0 left-0 p-12">

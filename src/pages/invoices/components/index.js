@@ -11,3 +11,4 @@ export { default as InvoiceItemsSection } from "./InvoiceItemsSection";
 export { default as ExtraInfoSection } from "./ExtraInfoSection";
 export { default as InvoiceSummarySection } from "./InvoiceSummarySection";
 export { default as CreateInvoiceFooter } from "./CreateInvoiceFooter";
+export { default as InvoicePreviewModal } from "./InvoicePreviewModal";

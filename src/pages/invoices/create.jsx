@@ -16,6 +16,7 @@ import {
   ExtraInfoSection,
   InvoiceSummarySection,
   CreateInvoiceFooter,
+  InvoicePreviewModal,
 } from "./components";
 
 const CreateInvoicePage = () => {
@@ -54,6 +55,9 @@ const CreateInvoicePage = () => {
     termsAndConditions: "",
     signatureName: "",
     signatureImage: "",
+    logoImage: "",
+    logoWidth: 120,
+    logoHeight: 120,
     roundOff: true,
     discountTotal: 0,
     discountType: "%",
@@ -68,6 +72,7 @@ const CreateInvoicePage = () => {
   });
 
   const [extraInfoTab, setExtraInfoTab] = useState("notes");
+  const [showPreview, setShowPreview] = useState(false);
   const signatureInputRef = useRef(null);
 
   const [createSaleInvoice, { isLoading }] = useCreateSaleInvoiceMutation();
@@ -79,13 +84,23 @@ const CreateInvoicePage = () => {
     { companyId: authUser?.companyId },
     { skip: !authUser?.companyId }
   );
-  const { uploadImage, isUploading: isUploadingSignature } = useImageUpload();
+  const { uploadImage: uploadSignature, isUploading: isUploadingSignature } = useImageUpload();
+  const { uploadImage: uploadLogo, isUploading: isUploadingLogo } = useImageUpload();
 
   const subTotal = items.reduce((acc, item) => acc + item.amount, 0);
   const cgst = subTotal * 0.09;
   const sgst = subTotal * 0.09;
   const discountTotalCalc = subTotal * (invoiceData.discountTotal / 100);
   const total = subTotal + cgst + sgst - discountTotalCalc;
+
+  const selectedCustomer = customers.find(c => c.id === Number(invoiceData.customerId));
+  
+  const companyInfo = {
+    companyName: authUser?.companyName,
+    branchLocation: authUser?.branchLocation,
+    phone: authUser?.phone,
+    email: authUser?.email,
+  };
 
   const calcItemAmount = (qty, rate, discount = 0, tax = 0) => {
     const base = qty * rate;
@@ -178,11 +193,18 @@ const CreateInvoicePage = () => {
   const handleSignatureUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = await uploadImage(file);
+    const url = await uploadSignature(file);
     if (url) {
       setInvoiceData((prev) => ({ ...prev, signatureImage: url }));
     }
     e.target.value = "";
+  };
+
+  const handleLogoUpload = async (file) => {
+    const url = await uploadLogo(file);
+    if (url) {
+      setInvoiceData((prev) => ({ ...prev, logoImage: url }));
+    }
   };
 
   const removeSignature = () => {
@@ -221,7 +243,7 @@ const CreateInvoicePage = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-[#0b0f14] p-4 lg:p-8">
       <CreateInvoiceHeader
         onBack={() => navigate(-1)}
-        onPreview={() => {}}
+        onPreview={() => setShowPreview(true)}
       />
 
       <div className="bg-white dark:bg-[#1a1f26] rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
@@ -234,6 +256,8 @@ const CreateInvoicePage = () => {
             <InvoiceSidebar
               invoiceData={invoiceData}
               setInvoiceData={setInvoiceData}
+              onLogoUpload={handleLogoUpload}
+              isUploadingLogo={isUploadingLogo}
             />
           </div>
 
@@ -291,6 +315,19 @@ const CreateInvoicePage = () => {
           />
         </div>
       </div>
+      
+      <InvoicePreviewModal
+        open={showPreview}
+        onOpenChange={setShowPreview}
+        invoiceData={invoiceData}
+        items={items}
+        customer={selectedCustomer}
+        companyInfo={companyInfo}
+        subTotal={subTotal}
+        taxTotal={cgst + sgst}
+        discountTotal={discountTotalCalc}
+        total={total}
+      />
     </div>
   );
 };
