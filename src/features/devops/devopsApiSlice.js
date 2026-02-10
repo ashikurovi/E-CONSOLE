@@ -11,12 +11,37 @@ export const devopsApiSlice = apiSlice.injectEndpoints({
     }),
     addCustomDomain: builder.mutation({
       query: ({ id, domain }) => ({
-        url: `/devops/tenant/${id}/domain`,
+        url: `/settings/domain`,
         method: "POST",
-        body: { domain },
+        body: { customDomain: domain },
+      }),
+    }),
+    getDomain: builder.query({
+      query: () => ({
+        url: `/settings/domain`,
+        method: "GET",
+      }),
+    }),
+    verifyDomain: builder.mutation({
+      query: () => ({
+        url: `/settings/domain/verify`,
+        method: "POST",
+      }),
+    }),
+    toggleSubdomain: builder.mutation({
+      query: (enabled) => ({
+        url: `/settings/domain/subdomain/toggle`,
+        method: "POST",
+        body: { enabled },
       }),
     }),
   }),
 });
 
-export const { useCreateTenantMutation, useAddCustomDomainMutation } = devopsApiSlice;
+export const { 
+  useCreateTenantMutation, 
+  useAddCustomDomainMutation,
+  useGetDomainQuery,
+  useVerifyDomainMutation,
+  useToggleSubdomainMutation,
+} = devopsApiSlice;
