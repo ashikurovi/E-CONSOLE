@@ -23,7 +23,6 @@ import {
   Trash2,
   Save,
   X,
-  Package,
   CheckCircle2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -227,48 +226,26 @@ const CreateOrderPage = () => {
       className="max-w-[1600px] mx-auto space-y-8"
     >
       {/* Header Section */}
-      <div className="relative rounded-[12px] overflow-hidden bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-900 dark:to-violet-900 p-8 md:p-12 shadow-2xl shadow-indigo-500/20">
-        <div className="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
-          <ShoppingCart className="w-64 h-64 text-white" />
+      <div className="space-y-2">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/orders")}
+            className="rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-white transition-all duration-300"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+            {t("orders.createOrder", "Create Order")}
+          </h1>
         </div>
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/orders")}
-                className="rounded-full bg-white/20 hover:bg-white/30 text-white border border-white/20 transition-all duration-300"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
-                {t("orders.createOrder", "Create Order")}
-              </h1>
-            </div>
-            <p className="text-indigo-100 text-lg max-w-xl font-medium pl-14">
-              {t(
-                "createEdit.createOrderDesc",
-                "Create a new order for your customers efficiently.",
-              )}
-            </p>
-          </div>
-          <div className="flex gap-3 pl-14 md:pl-0">
-            <div className="px-6 py-3 rounded-[20px] bg-white/10 border border-white/20 backdrop-blur-md flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                <Package className="w-5 h-5 text-emerald-300" />
-              </div>
-              <div>
-                <p className="text-xs text-indigo-200 uppercase font-bold tracking-wider">
-                  Stock Status
-                </p>
-                <p className="text-white font-bold">
-                  {products.length} Products
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <p className="text-slate-500 dark:text-slate-400 text-lg font-medium pl-14">
+          {t(
+            "createEdit.createOrderDesc",
+            "Create a new order for your customers efficiently.",
+          )}
+        </p>
       </div>
 
       <form
