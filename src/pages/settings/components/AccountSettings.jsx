@@ -12,11 +12,24 @@ import {
   Mail,
   Phone,
   Building,
+  Power,
+  Trash2,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const AccountSettings = ({ user: userFromApi }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [isActive, setIsActive] = useState(true);
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const user = userFromApi ?? null;
   const displayName = user?.name ?? "";
   const email = user?.email ?? "";
@@ -91,9 +104,9 @@ const AccountSettings = ({ user: userFromApi }) => {
                   Status
                 </p>
                 <div className="flex items-center justify-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span className={`w-2 h-2 rounded-full ${isActive ? "bg-emerald-500" : "bg-gray-400"}`}></span>
                   <p className="font-semibold text-gray-900 dark:text-white text-sm">
-                    Active
+                    {isActive ? "Active" : "Inactive"}
                   </p>
                 </div>
               </div>
@@ -230,20 +243,107 @@ const AccountSettings = ({ user: userFromApi }) => {
             <div className="p-6 md:p-8 border-b border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10">
               <h3 className="text-lg font-bold text-red-600 dark:text-red-400 flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5" />
-                Delete Account
+                Danger Zone
               </h3>
             </div>
 
-            <div className="p-6 md:p-8">
-              <p className="text-sm text-gray-500 dark:text-gray-400 max-w-3xl leading-relaxed">
-                When you delete your account, you lose access to Front account
-                services, and we permanently delete your personal data. You can
-                cancel the deletion for 14 days.
-              </p>
+            <div className="p-6 md:p-8 space-y-6">
+              {/* Deactivate Option */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800 transition-all hover:border-gray-300 dark:hover:border-gray-700">
+                <div className="space-y-1">
+                  <h4 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <Power className="w-4 h-4 text-gray-500" />
+                    {isActive ? "Deactivate Account" : "Activate Account"}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {isActive 
+                      ? "Temporarily disable your account. You can reactivate it at any time."
+                      : "Your account is currently disabled. Reactivate to restore access."}
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => setShowDeactivateModal(true)}
+                  variant={isActive ? "outline" : "default"}
+                  className={isActive ? "border-gray-200 hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300" : "bg-emerald-600 hover:bg-emerald-700 text-white"}
+                >
+                  {isActive ? "Deactivate" : "Activate Account"}
+                </Button>
+              </div>
+
+              {/* Delete Option */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 transition-all hover:border-red-200 dark:hover:border-red-900/50">
+                <div className="space-y-1">
+                  <h4 className="font-bold text-red-700 dark:text-red-400 flex items-center gap-2">
+                    <Trash2 className="w-4 h-4" />
+                    Delete Account
+                  </h4>
+                  <p className="text-sm text-red-600/70 dark:text-red-400/70">
+                    Permanently remove your account and all associated data. This action cannot be undone.
+                  </p>
+                </div>
+                <Button 
+                  variant="destructive" 
+                  className="bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20"
+                  onClick={() => setShowDeleteModal(true)}
+                >
+                  Delete Account
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Deactivate/Activate Modal */}
+      <Dialog open={showDeactivateModal} onOpenChange={setShowDeactivateModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{isActive ? "Deactivate Account" : "Activate Account"}</DialogTitle>
+            <DialogDescription>
+              {isActive 
+                ? "Are you sure you want to deactivate your account? You won't be able to access your data until you reactivate it."
+                : "Are you sure you want to activate your account? You will regain access to all your data."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeactivateModal(false)}>Cancel</Button>
+            <Button 
+              className={isActive ? "bg-red-600 hover:bg-red-700 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white"}
+              onClick={() => {
+                setIsActive(!isActive);
+                setShowDeactivateModal(false);
+              }}
+            >
+              {isActive ? "Deactivate" : "Activate"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Account Modal */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Account</DialogTitle>
+            <DialogDescription>
+              This action is permanent and cannot be undone. All your data, including profile information and settings, will be permanently deleted.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
+            <Button 
+              variant="destructive" 
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={() => {
+                // Add delete logic here
+                setShowDeleteModal(false);
+              }}
+            >
+              Delete Permanently
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };

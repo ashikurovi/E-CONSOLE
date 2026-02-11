@@ -132,7 +132,8 @@ const ProfileSettings = ({ user: userFromApi }) => {
           <div className="p-2.5 rounded-xl bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400">
             <Building className="h-6 w-6" />
           </div>
-          {t("settings.companyProfile")}
+          {/* {t("settings.companyProfile")} */}
+          Company Profile
         </h2>
       </div>
 
