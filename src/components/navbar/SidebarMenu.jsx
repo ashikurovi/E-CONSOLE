@@ -40,24 +40,30 @@ const SidebarMenu = () => {
     isLoadingUser || !user
       ? []
       : navSections
-    .map((section) => ({
-      ...section,
-      items: section.items
-        .filter(
-          (item) =>
-            hasPermission(user, item.permission) ||
-            (item?.children?.length &&
-              item.children.some((child) => hasPermission(user, child.permission)))
-        )
-        .map((item) => ({
-          ...item,
-          children: item?.children?.filter((child) =>
-            hasPermission(user, child.permission)
-          ),
-        }))
-        .filter((item) => (item.children?.length ? item.children.length > 0 : true)),
-    }))
-    .filter((section) => section.items.length > 0);
+    .map((section) => {
+      if (section.link) {
+        if (hasPermission(user, section.permission)) return section;
+        return null;
+      }
+      return {
+        ...section,
+        items: section.items
+          .filter(
+            (item) =>
+              hasPermission(user, item.permission) ||
+              (item?.children?.length &&
+                item.children.some((child) => hasPermission(user, child.permission)))
+          )
+          .map((item) => ({
+            ...item,
+            children: item?.children?.filter((child) =>
+              hasPermission(user, child.permission)
+            ),
+          }))
+          .filter((item) => (item.children?.length ? item.children.length > 0 : true)),
+      };
+    })
+    .filter((section) => section && (section.link || section.items.length > 0));
 
   return (
     <div>
@@ -82,6 +88,17 @@ const SidebarMenu = () => {
       >
         <div className="flex flex-col gap-6">
           {visibleNavSections?.map((section, sectionIndex) => (
+            section.link ? (
+               <Link 
+                  key={section.id} 
+                  to={section.link}
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 text-base font-semibold text-gray-800 dark:text-gray-200 hover:text-primary tr"
+               >
+                  {section.icon && <section.icon className="h-5 w-5" />}
+                  {section.tKey ? t(section.tKey) : section.title}
+               </Link>
+            ) : (
             <div key={section.id} className="flex flex-col gap-2">
               <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-wider">
                 {section.tKey ? t(section.tKey) : section.title}
@@ -114,6 +131,7 @@ const SidebarMenu = () => {
                 ))}
               </ul>
             </div>
+            )
           ))}
         </div>
       </div>

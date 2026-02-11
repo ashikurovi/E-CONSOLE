@@ -37,31 +37,45 @@ const BagIcon = (props) => (
 const getFilteredNav = (user) => {
   if (!user) return [];
   return navSections
-    .map((section) => ({
-      id: section.id,
-      title: section.title,
-      tKey: section.tKey,
-      icon: section.icon,
-      items: section.items
-        .filter(
-          (item) =>
-            hasPermission(user, item.permission) ||
-            (item?.children?.length &&
-              item.children.some((child) => hasPermission(user, child.permission)))
-        )
-        .map((item) => ({
-          label: item.title,
-          tKey: item.tKey,
-          to: item.link,
-          icon: item.icon,
-          badge: item.title === "Review" ? "02" : undefined,
-          children: item?.children?.filter((child) =>
-            hasPermission(user, child.permission)
+    .map((section) => {
+      // Handle direct link sections (like Global Navlinks)
+      if (section.link) {
+        if (hasPermission(user, section.permission)) {
+          return section;
+        }
+        return null;
+      }
+
+      return {
+        id: section.id,
+        title: section.title,
+        tKey: section.tKey,
+        icon: section.icon,
+        items: section.items
+          .filter(
+            (item) =>
+              hasPermission(user, item.permission) ||
+              (item?.children?.length &&
+                item.children.some((child) =>
+                  hasPermission(user, child.permission),
+                )),
+          )
+          .map((item) => ({
+            label: item.title,
+            tKey: item.tKey,
+            to: item.link,
+            icon: item.icon,
+            badge: item.title === "Review" ? "02" : undefined,
+            children: item?.children?.filter((child) =>
+              hasPermission(user, child.permission),
+            ),
+          }))
+          .filter((item) =>
+            item.children?.length ? item.children.length > 0 : true,
           ),
-        }))
-        .filter((item) => (item.children?.length ? item.children.length > 0 : true)),
-    }))
-    .filter((section) => section.items.length > 0);
+      };
+    })
+    .filter((section) => section && (section.link || section.items.length > 0));
 };
 
 /**
@@ -418,14 +432,64 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
         {/* Navigation Items - Scrollable Area */}
         <div className="flex-1 overflow-y-auto custom-scrollbar py-2">
           <nav className="flex flex-col gap-1">
-            {nav.map((section) => (
-              <CollapsibleSection
-                key={section.id}
-                section={section}
-                isCollapsed={isCollapsed}
-                t={t}
-              />
-            ))}
+            {nav.map((section) =>
+              section.link ? (
+                isCollapsed ? (
+                  <div
+                    key={section.id}
+                    className="mb-2 px-2 flex justify-center group relative"
+                  >
+                    <Link
+                      to={section.link}
+                      className={`p-2 rounded-xl transition-colors ${
+                        location.pathname === section.link
+                          ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-indigo-500/30"
+                          : "hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
+                      }`}
+                    >
+                      {section.icon && (
+                        <section.icon size={20} strokeWidth={1.5} />
+                      )}
+                    </Link>
+                    <div className="absolute left-full top-2 ml-2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity">
+                      {section.tKey ? t(section.tKey) : section.title}
+                    </div>
+                  </div>
+                ) : (
+                  <div key={section.id} className="px-4 mb-1">
+                    <Link
+                      to={section.link}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${
+                        location.pathname === section.link
+                          ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-1 ring-white/20"
+                          : "text-gray-600 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-white/5 hover:text-indigo-600 dark:hover:text-white"
+                      }`}
+                    >
+                      {location.pathname === section.link && (
+                        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      )}
+                      {section.icon && (
+                        <section.icon
+                          size={22}
+                          strokeWidth={1.5}
+                          className={`relative z-10 ${location.pathname === section.link ? "text-white" : ""}`}
+                        />
+                      )}
+                      <span className="font-bold text-[15px] tracking-wide relative z-10">
+                        {section.tKey ? t(section.tKey) : section.title}
+                      </span>
+                    </Link>
+                  </div>
+                )
+              ) : (
+                <CollapsibleSection
+                  key={section.id}
+                  section={section}
+                  isCollapsed={isCollapsed}
+                  t={t}
+                />
+              ),
+            )}
           </nav>
         </div>
 
