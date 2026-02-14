@@ -1614,7 +1614,21 @@
     "notificationSaved": "Notification settings saved successfully",
     "notificationSaveFailed": "Failed to save notification settings",
     "notificationSaveFailedShort": "Failed to save notification settings",
-    "notificationNote": "You will receive order notifications on the provided email and WhatsApp number"
+    "notificationNote": "You will receive order notifications on the provided email and WhatsApp number",
+    "changePassword": "Change Password",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Enter new password (min. 6 characters)",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Re-enter your new password",
+    "passwordUpdated": "Password updated successfully",
+    "passwordUpdateFailed": "Failed to update password",
+    "passwordSecurityTip": "Password Security",
+    "passwordSecurityDesc": "Use a strong password with at least 6 characters. We recommend combining letters, numbers, and symbols.",
+    "passwordRequired": "New password is required",
+    "passwordMin": "Password must be at least 6 characters",
+    "passwordMax": "Password must be less than 50 characters",
+    "confirmPasswordRequired": "Please confirm your password",
+    "passwordsMustMatch": "Passwords must match"
   },
   "help": {
     "title": "Help & Support",

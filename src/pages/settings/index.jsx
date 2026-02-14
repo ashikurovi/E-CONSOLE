@@ -14,11 +14,13 @@ import {
   Truck, 
   Globe, 
   CreditCard,
+  KeyRound,
   ChevronLeft
 } from "lucide-react";
 
 // Import Settings Components
 import PreferencesSettings from "./components/PreferencesSettings";
+import PasswordSettings from "./components/PasswordSettings";
 import NotificationSettings from "./components/NotificationSettings";
 import AccountSettings from "./components/AccountSettings";
 import UserPermissionSettings from "./components/UserPermissionSettings";
@@ -48,6 +50,7 @@ const SettingsPage = () => {
 
   const tabs = [
     { id: "profile", label: "Profile", icon: User },
+    { id: "password", label: "Update Password", icon: KeyRound },
     { id: "preferences", label: "Preferences", icon: Settings },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "account", label: "Account", icon: Building2 },
@@ -61,6 +64,7 @@ const SettingsPage = () => {
     if (
       isLoadingUser &&
       (activeTab === "profile" ||
+        activeTab === "password" ||
         activeTab === "account" ||
         activeTab === "courier" ||
         activeTab === "domain" ||
@@ -76,6 +80,8 @@ const SettingsPage = () => {
     switch (activeTab) {
       case "profile":
         return <ProfileSettings user={currentUser} />;
+      case "password":
+        return <PasswordSettings user={currentUser} />;
       case "preferences":
         return <PreferencesSettings />;
       case "notifications":

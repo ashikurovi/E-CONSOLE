@@ -1587,7 +1587,21 @@
     "notificationSaved": "বিজ্ঞপ্তি সেটিংস সফলভাবে সংরক্ষণ হয়েছে",
     "notificationSaveFailed": "বিজ্ঞপ্তি সেটিংস সংরক্ষণ করতে ব্যর্থ",
     "notificationSaveFailedShort": "বিজ্ঞপ্তি সেটিংস সংরক্ষণ করতে ব্যর্থ",
-    "notificationNote": "আপনি প্রদত্ত ইমেইল এবং হোয়াটসঅ্যাপ নম্বরে অর্ডার বিজ্ঞপ্তি পাবেন"
+    "notificationNote": "আপনি প্রদত্ত ইমেইল এবং হোয়াটসঅ্যাপ নম্বরে অর্ডার বিজ্ঞপ্তি পাবেন",
+    "changePassword": "পাসওয়ার্ড পরিবর্তন করুন",
+    "newPassword": "নতুন পাসওয়ার্ড",
+    "newPasswordPlaceholder": "নতুন পাসওয়ার্ড লিখুন (কমপক্ষে ৬ অক্ষর)",
+    "confirmPassword": "পাসওয়ার্ড নিশ্চিত করুন",
+    "confirmPasswordPlaceholder": "নতুন পাসওয়ার্ড আবার লিখুন",
+    "passwordUpdated": "পাসওয়ার্ড সফলভাবে আপডেট হয়েছে",
+    "passwordUpdateFailed": "পাসওয়ার্ড আপডেট ব্যর্থ",
+    "passwordSecurityTip": "পাসওয়ার্ড সুরক্ষা",
+    "passwordSecurityDesc": "কমপক্ষে ৬ অক্ষরের শক্তিশালী পাসওয়ার্ড ব্যবহার করুন। অক্ষর, সংখ্যা এবং চিহ্ন মিলিয়ে ব্যবহার করার পরামর্শ দেওয়া হয়।",
+    "passwordRequired": "নতুন পাসওয়ার্ড প্রয়োজন",
+    "passwordMin": "পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে",
+    "passwordMax": "পাসওয়ার্ড ৫০ অক্ষরের কম হতে হবে",
+    "confirmPasswordRequired": "অনুগ্রহ করে পাসওয়ার্ড নিশ্চিত করুন",
+    "passwordsMustMatch": "পাসওয়ার্ড মিলতে হবে"
   },
   "help": {
     "title": "সাহায্য ও সাপোর্ট",
