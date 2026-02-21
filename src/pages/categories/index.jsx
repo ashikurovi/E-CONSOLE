@@ -427,14 +427,20 @@ const CategoriesPage = () => {
         />
 
         {/* Reusable Table */}
-        <ReusableTable
-          data={filteredData}
-          headers={headers}
-          total={filteredData.length}
-          isLoading={activeTab === "trash" ? isTrashLoading : isCategoriesLoading}
-          py="py-4"
-          searchable={false}
-        />
+        {!authUser?.companyId ? (
+          <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+            {t("categories.noCompanyId") || "Please log in with a company account to view categories."}
+          </div>
+        ) : (
+          <ReusableTable
+            data={filteredData}
+            headers={headers}
+            total={filteredData.length}
+            isLoading={activeTab === "trash" ? isTrashLoading : isCategoriesLoading}
+            py="py-4"
+            searchable={false}
+          />
+        )}
       </div>
 
       <DeleteModal
