@@ -59,6 +59,23 @@
     "back": "ফিরে যান",
     "backToReviews": "রিভিউ তালিকায় ফিরে যান"
   },
+  "resellers": {
+    "title": "রিসেলার ওভারভিউ",
+    "subtitle": "কোন রিসেলার কত প্রোডাক্ট যোগ করেছে, কত বিক্রয় হয়েছে এবং কে পেমেন্ট রিকোয়েস্ট দিয়েছে দেখুন।",
+    "reseller": "রিসেলার",
+    "productsAdded": "প্রোডাক্ট",
+    "sold": "বিক্রয়",
+    "earning": "আয়",
+    "pendingPayout": "পেন্ডিং",
+    "paymentRequests": "পেমেন্ট রিকোয়েস্ট",
+    "noResellers": "কোন রিসেলার নেই।",
+    "pending": "পেন্ডিং",
+    "payoutHistory": "পেমেন্ট রিকোয়েস্ট",
+    "markPaid": "পেইড মার্ক করুন",
+    "approve": "অনুমোদন",
+    "payoutMarkedPaid": "অনুমোদন সম্পন্ন। ইনভয়েস তৈরি হয়েছে।",
+    "downloadInvoice": "ইনভয়েস ডাউনলোড"
+  },
   "nav": {
     "searchMenuItems": "মেনু আইটেম খুঁজুন...",
     "menuItems": "মেনু আইটেম",
@@ -101,6 +118,7 @@
     "termsConditions": "শর্তাবলী",
     "refundPolicy": "রিফান্ড নীতি",
     "manageUsers": "ব্যবহারকারী পরিচালনা",
+    "resellers": "রিসেলার",
     "upgradePlan": "প্ল্যান আপগ্রেড",
     "settings": "সেটিংস",
     "help": "সাহায্য",
@@ -2099,6 +2117,7 @@
     "setInactive": "নিষ্ক্রিয় করুন",
     "roles": {
       "employee": "এমপ্লয়ি",
+      "reseller": "রিসেলার",
       "manager": "ম্যানেজার",
       "superAdmin": "সুপার অ্যাডমিন",
       "systemOwner": "সিস্টেম ওনার"
@@ -2155,6 +2174,8 @@
       "systemOwnerDesc": "সবকিছুর পূর্ণ অ্যাক্সেস।",
       "superAdminLabel": "সুপার অ্যাডমিন:",
       "superAdminDesc": "ইউজার ও সেটিংস ম্যানেজ করতে পারে।",
+      "resellerLabel": "রিসেলার:",
+      "resellerDesc": "প্রোডাক্ট যোগ, ক্যাটাগরি ম্যানেজ, সেল ও আয় দেখতে ও পেমেন্ট রিকোয়েস্ট করতে পারে।",
       "managerLabel": "ম্যানেজার:",
       "managerDesc": "অর্ডার ও কাস্টমার ম্যানেজ করতে পারে।",
       "employeeLabel": "এমপ্লয়ি:",

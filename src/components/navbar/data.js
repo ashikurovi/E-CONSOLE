@@ -363,6 +363,14 @@ export const navSections = [
         ],
       },
       {
+        id: 15.5,
+        title: "Resellers",
+        tKey: "nav.resellers",
+        link: "/resellers",
+        permission: FeaturePermission.STAFF,
+        icon: Package,
+      },
+      {
         id: 16,
         title: "Settings",
         tKey: "nav.settings",

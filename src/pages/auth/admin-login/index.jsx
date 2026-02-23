@@ -59,10 +59,18 @@ const AdminLoginPage = () => {
           const { payload } = decodeJWT(accessToken);
           const userRole = payload.role || responseData?.user?.role;
 
-          if (userRole === "SYSTEM_OWNER" || userRole === "EMPLOYEE") {
+          if (
+            userRole === "SYSTEM_OWNER" ||
+            userRole === "EMPLOYEE" ||
+            userRole === "RESELLER"
+          ) {
             dispatch(userLoggedIn({ accessToken, refreshToken, rememberMe }));
             toast.success(t("auth.adminLoginSuccess"));
-            navigate("/");
+            if (userRole === "RESELLER") {
+              navigate("/reseller");
+            } else {
+              navigate("/");
+            }
             return;
           }
         }

@@ -143,7 +143,11 @@ export const apiSlice = createApi({
     "manualInvoice",
     "CreditNote",
     "media",
-    "banners"
+    "banners",
+    "reseller-summary",
+    "reseller-payouts",
+    "admin-resellers",
+    "admin-payouts"
   ],
 
   // ✅ Keep cache for 60s (avoid data disappearing)

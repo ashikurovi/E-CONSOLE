@@ -109,6 +109,8 @@ import ConnectedAppsPage from "./pages/connected-apps";
 import BannersOffersPage from "./pages/marketing/banners-offers";
 import MediaPage from "./pages/media";
 import RecurringInvoicesPage from "./pages/invoices/recurring";
+import ResellerDashboardPage from "./pages/reseller";
+import ResellersListPage from "./pages/resellers-list";
 
 export const routes = createBrowserRouter([
   {
@@ -552,6 +554,18 @@ export const routes = createBrowserRouter([
             <ActivityLogsPage />
           </PermissionRoute>
         ),
+      },
+      {
+        path: "/resellers",
+        element: (
+          <PermissionRoute permission={FeaturePermission.STAFF}>
+            <ResellersListPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/reseller",
+        element: <ResellerDashboardPage />,
       },
       {
         path: "/privacy-policy",

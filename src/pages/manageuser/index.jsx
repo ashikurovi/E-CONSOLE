@@ -108,6 +108,8 @@ const RoleBadge = ({ role }) => {
       "text-indigo-600 bg-indigo-50 border-indigo-100 dark:text-indigo-400 dark:bg-indigo-500/10 dark:border-indigo-500/20",
     SUPER_ADMIN:
       "text-violet-600 bg-violet-50 border-violet-100 dark:text-violet-400 dark:bg-violet-500/10 dark:border-violet-500/20",
+    RESELLER:
+      "text-emerald-600 bg-emerald-50 border-emerald-100 dark:text-emerald-400 dark:bg-emerald-500/10 dark:border-emerald-500/20",
     MANAGER:
       "text-amber-600 bg-amber-50 border-amber-100 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20",
     EMPLOYEE:

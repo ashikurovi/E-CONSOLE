@@ -29,12 +29,12 @@ export const superadminAuthApiSlice = createApi({
           method: "POST",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",
-          },
+          },  
           body: {
             email: data.email || data.name,
             password: data.password,
           },
-          credentials: "include",
+          credentials: "omit",
         };
       },
       invalidatesTags: ["auth"],
@@ -69,7 +69,7 @@ export const superadminAuthApiSlice = createApi({
       query: () => ({
         url: `/auth/me`,
         method: "GET",
-        credentials: "include",
+        credentials: "omit",
       }),
       providesTags: ["auth"],
       transformResponse: (response) => {

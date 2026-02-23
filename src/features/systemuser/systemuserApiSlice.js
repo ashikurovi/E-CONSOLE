@@ -48,10 +48,10 @@ export const systemuserApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: [{ type: "systemuser", id: "LIST" }],
     }),
 
-    // Optional: login endpoint if needed
+    // Systemuser login - uses shared auth/login endpoint
     loginSystemuser: builder.mutation({
       query: (body) => ({
-        url: "/systemuser/login",
+        url: "/auth/login",
         method: "POST",
         headers: { "Content-Type": "application/json;charset=UTF-8" },
         body,

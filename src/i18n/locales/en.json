@@ -59,6 +59,23 @@
     "back": "Back",
     "backToReviews": "Back to Reviews"
   },
+  "resellers": {
+    "title": "Resellers Overview",
+    "subtitle": "View which reseller added how many products, sold how much, and who requested payment.",
+    "reseller": "Reseller",
+    "productsAdded": "Products",
+    "sold": "Sold",
+    "earning": "Earning",
+    "pendingPayout": "Pending",
+    "paymentRequests": "Payment requests",
+    "noResellers": "No resellers found.",
+    "pending": "pending",
+    "payoutHistory": "Payout requests",
+    "markPaid": "Mark paid",
+    "approve": "Approve",
+    "payoutMarkedPaid": "Payout approved. Invoice generated.",
+    "downloadInvoice": "Download invoice"
+  },
   "nav": {
     "searchMenuItems": "Search menu items...",
     "menuItems": "Menu Items",
@@ -106,6 +123,7 @@
     "termsConditions": "Terms & Conditions",
     "refundPolicy": "Refund Policy",
     "manageUsers": "Manage Users",
+    "resellers": "Resellers",
     "upgradePlan": "Upgrade Plan",
     "settings": "Settings",
     "help": "Help",
@@ -2140,6 +2158,7 @@
     "setInactive": "Set Inactive",
     "roles": {
       "employee": "Employee",
+      "reseller": "Reseller",
       "manager": "Manager",
       "superAdmin": "Super Admin",
       "systemOwner": "System Owner"
@@ -2196,6 +2215,8 @@
       "systemOwnerDesc": "Full access to everything.",
       "superAdminLabel": "Super Admin:",
       "superAdminDesc": "Manage users and settings.",
+      "resellerLabel": "Reseller:",
+      "resellerDesc": "Add products, manage categories, view sales and earnings, request payouts.",
       "managerLabel": "Manager:",
       "managerDesc": "Manage orders and customers.",
       "employeeLabel": "Employee:",

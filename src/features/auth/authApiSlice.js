@@ -11,8 +11,8 @@ export const authApiSlice = apiSlice.injectEndpoints({
             "Content-Type": "application/json;charset=UTF-8",
           },
           body: data,
-          credentials: "include",
-        };
+          credentials: "omit",
+        };  
       },
       invalidatesTags: ["auth", "my-profile"],
     }),
@@ -67,7 +67,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
       query: () => ({
         url: `/auth/me`,
         method: "GET",
-        credentials: "include",
+        credentials: "omit",
       }),
       providesTags: ["my-profile"],
       transformResponse: (response) => {

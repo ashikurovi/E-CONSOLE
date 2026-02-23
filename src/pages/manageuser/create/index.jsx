@@ -187,6 +187,9 @@ const CreateUserPage = () => {
                       <option value="EMPLOYEE">
                         {t("manageUsers.roles.employee")}
                       </option>
+                      <option value="RESELLER">
+                        {t("manageUsers.roles.reseller")}
+                      </option>
                       <option value="MANAGER">
                         {t("manageUsers.roles.manager")}
                       </option>
@@ -290,6 +293,12 @@ const CreateUserPage = () => {
                     {t("manageUsers.rolesCard.superAdminLabel")}
                   </span>{" "}
                   {t("manageUsers.rolesCard.superAdminDesc")}
+                </li>
+                <li>
+                  <span className="font-semibold">
+                    {t("manageUsers.rolesCard.resellerLabel")}
+                  </span>{" "}
+                  {t("manageUsers.rolesCard.resellerDesc")}
                 </li>
                 <li>
                   <span className="font-semibold">
