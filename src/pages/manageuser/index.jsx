@@ -404,10 +404,10 @@ const ManageUsersPage = () => {
         }
         toast.success("User deleted successfully");
       } else if (action === "active") {
-        await updateSystemuser({ id, isActive: true }).unwrap();
+        await updateSystemuser({ id, companyId: currentUser?.companyId, isActive: true }).unwrap();
         toast.success("User set to active");
       } else if (action === "inactive") {
-        await updateSystemuser({ id, isActive: false }).unwrap();
+        await updateSystemuser({ id, companyId: currentUser?.companyId, isActive: false }).unwrap();
         toast.success("User set to inactive");
       }
       closeConfirmModal();

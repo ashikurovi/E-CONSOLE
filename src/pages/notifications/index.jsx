@@ -35,6 +35,20 @@ const NotificationsPage = () => {
   const { data: user } = useGetCurrentUserQuery();
   const companyId = user?.companyId;
 
+  const isNotificationForUser = (notification) => {
+    if (!user || user.role !== "RESELLER") return true;
+    const userId = user.id || user._id;
+    if (!userId) return true;
+
+    return (
+      notification.userId === userId ||
+      notification.resellerId === userId ||
+      notification.receiverId === userId ||
+      notification.user?.id === userId ||
+      notification.meta?.resellerId === userId
+    );
+  };
+
   // Single source: all data from notifications API
   const {
     data: apiNotifications = [],
@@ -48,6 +62,7 @@ const NotificationsPage = () => {
 
   // Transform API notifications to match UI format
   const notifications = apiNotifications
+    .filter(isNotificationForUser)
     .map((notification) => {
       // Determine icon and color based on notification type (matching backend enum)
       let icon = Bell;

@@ -1,4 +1,6 @@
+import React from "react";
 import { createBrowserRouter } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 // LAYOUTS
 import Layout from "./layout/layout";
@@ -10,6 +12,7 @@ import LoginPage from "./pages/auth/login";
 import AdminLoginPage from "./pages/auth/admin-login";
 import SuperAdminLoginPage from "./pages/superadmin/login";
 import UnifiedLoginPage from "./pages/auth/unified-login";
+import ResellerInactiveInfoPage from "./pages/auth/reseller-inactive";
 
 import PrivateRoute from "./hooks/usePrivateRoute";
 import SuperAdminPrivateRoute from "./hooks/useSuperAdminPrivateRoute";
@@ -108,9 +111,28 @@ import StatisticsPage from "./pages/statistics";
 import ConnectedAppsPage from "./pages/connected-apps";
 import BannersOffersPage from "./pages/marketing/banners-offers";
 import MediaPage from "./pages/media";
+import TopProductsPage from "./pages/top-products";
+import TopProductsCreatePage from "./pages/top-products/create";
+import TopProductsEditPage from "./pages/top-products/_id/edit";
 import RecurringInvoicesPage from "./pages/invoices/recurring";
 import ResellerDashboardPage from "./pages/reseller";
+import ResellerProfilePage from "./pages/reseller/profile";
 import ResellersListPage from "./pages/resellers-list";
+import ResellerDetailPage from "./pages/resellers-list/detail";
+
+const RoleBasedDashboard = () => {
+  const user = useSelector((state) => state.auth.user);
+
+  if (user?.role === "RESELLER") {
+    return <ResellerDashboardPage />;
+  }
+
+  return (
+    <PermissionRoute permission={FeaturePermission.DASHBOARD}>
+      <DashboardPage />
+    </PermissionRoute>
+  );
+};
 
 export const routes = createBrowserRouter([
   {
@@ -123,11 +145,7 @@ export const routes = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: (
-          <PermissionRoute permission={FeaturePermission.DASHBOARD}>
-            <DashboardPage />
-          </PermissionRoute>
-        ),
+        element: <RoleBasedDashboard />,
       },
       {
         path: "/ai-report",
@@ -184,6 +202,30 @@ export const routes = createBrowserRouter([
             permission={FeaturePermission.BANNERS_OFFERS_MARKETING}
           >
             <BannersOffersPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/top-products",
+        element: (
+          <PermissionRoute permission={FeaturePermission.SETTINGS}>
+            <TopProductsPage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/top-products/create",
+        element: (
+          <PermissionRoute permission={FeaturePermission.SETTINGS}>
+            <TopProductsCreatePage />
+          </PermissionRoute>
+        ),
+      },
+      {
+        path: "/top-products/:id/edit",
+        element: (
+          <PermissionRoute permission={FeaturePermission.THEME_MANAGEMENT}>
+            <TopProductsEditPage />
           </PermissionRoute>
         ),
       },
@@ -564,8 +606,20 @@ export const routes = createBrowserRouter([
         ),
       },
       {
+        path: "/resellers/:id",
+        element: (
+          <PermissionRoute permission={FeaturePermission.STAFF}>
+            <ResellerDetailPage />
+          </PermissionRoute>
+        ),
+      },
+      {
         path: "/reseller",
         element: <ResellerDashboardPage />,
+      },
+      {
+        path: "/reseller/profile",
+        element: <ResellerProfilePage />,
       },
       {
         path: "/privacy-policy",
@@ -880,6 +934,7 @@ export const routes = createBrowserRouter([
 
   // { path: "/superadmin/login", element: <SuperAdminLoginPage /> },
   { path: "/login", element: <AdminLoginPage /> },
+  { path: "/reseller-inactive", element: <ResellerInactiveInfoPage /> },
   // { path: "/sign-in", element: <LoginPage /> },
   // { path: "/login", element: <UnifiedLoginPage /> },
   { path: "/register", element: <RegisterPage /> },

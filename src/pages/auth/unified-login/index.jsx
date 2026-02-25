@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +28,17 @@ const UnifiedLoginPage = () => {
 
   const [superadminLogin] = useSuperadminLoginMutation();
   const [loginSystemuser] = useLoginSystemuserMutation();
+
+  // Show any logout message set by API (e.g., deactivated account)
+  useEffect(() => {
+    if (typeof window !== "undefined" && window?.localStorage) {
+      const msg = window.localStorage.getItem("logoutMessage");
+      if (msg) {
+        toast.error(msg);
+        window.localStorage.removeItem("logoutMessage");
+      }
+    }
+  }, []);
 
   const onSubmit = async (data) => {
     setIsLoading(true);

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,12 @@ const EditUserPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { t } = useTranslation();
-  const { data: user, isLoading: isLoadingUser, isError, error } = useGetSystemuserQuery(id, { skip: !id });
+  const authUser = useSelector((state) => state.auth.user);
+  const queryArg = useMemo(
+    () => (authUser?.companyId ? { id, companyId: authUser.companyId } : id),
+    [id, authUser?.companyId],
+  );
+  const { data: user, isLoading: isLoadingUser, isError, error } = useGetSystemuserQuery(queryArg, { skip: !id });
   const [updateSystemuser, { isLoading }] = useUpdateSystemuserMutation();
 
   const editUserSchema = useMemo(
@@ -52,11 +58,19 @@ const EditUserPage = () => {
         isActive: yup
           .boolean()
           .required(t("manageUsers.validation.statusRequired")),
+        resellerCommissionRate: yup
+          .number()
+          .nullable()
+          .transform((value, originalValue) =>
+            originalValue === "" || originalValue == null ? null : value,
+          )
+          .min(0, t("manageUsers.validation.commissionMin") || "Min 0")
+          .max(100, t("manageUsers.validation.commissionMax") || "Max 100"),
       }),
     [t],
   );
 
-  const { register, control, handleSubmit, reset, formState: { errors } } = useForm({
+  const { register, control, handleSubmit, reset, watch, formState: { errors } } = useForm({
     resolver: yupResolver(editUserSchema),
     defaultValues: {
       id: "",
@@ -67,6 +81,7 @@ const EditUserPage = () => {
       role: "EMPLOYEE",
       password: "",
       isActive: true,
+      resellerCommissionRate: "",
     },
   });
 
@@ -93,6 +108,10 @@ const EditUserPage = () => {
         role: user.role || "EMPLOYEE",
         password: "",
         isActive: user.isActive ?? true,
+        resellerCommissionRate:
+          user.resellerCommissionRate != null
+            ? String(user.resellerCommissionRate)
+            : "",
       });
     }
   }, [user, reset]);
@@ -110,7 +129,14 @@ const EditUserPage = () => {
       if (data.password?.trim()) {
         payload.password = data.password.trim();
       }
-      await updateSystemuser({ id, ...payload }).unwrap();
+      if (data.role === "RESELLER" && data.resellerCommissionRate !== undefined) {
+        const rate =
+          data.resellerCommissionRate === "" || data.resellerCommissionRate == null
+            ? null
+            : Number(data.resellerCommissionRate);
+        if (!Number.isNaN(rate)) payload.resellerCommissionRate = rate;
+      }
+      await updateSystemuser({ id, companyId: authUser?.companyId, ...payload }).unwrap();
       toast.success(t("manageUsers.edit.updatedSuccess"));
       navigate("/manage-users");
     } catch (err) {
@@ -250,6 +276,20 @@ const EditUserPage = () => {
                   </div>
                   {errors.role && <span className="text-red-500 text-xs ml-1 font-medium">{errors.role.message}</span>}
                 </div>
+                {watch("role") === "RESELLER" && (
+                  <TextField
+                    label={t("manageUsers.edit.resellerCommissionLabel") || "Commission % (Reseller)"}
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.01}
+                    placeholder="e.g. 10"
+                    register={register}
+                    name="resellerCommissionRate"
+                    error={errors.resellerCommissionRate}
+                    className="rounded-xl"
+                  />
+                )}
               </div>
 
               {/* Password & Status */}

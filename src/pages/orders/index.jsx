@@ -193,19 +193,7 @@ const OrdersPage = () => {
     const res = await processOrder({ id: processModal.order.id });
     if (res?.data) {
       toast.success(t("orders.orderProcessing"));
-      try {
-        const shipped = await shipOrder({
-          id: processModal.order.id,
-          body: {},
-        }).unwrap();
-        setShipModal({ isOpen: true, order: shipped });
-        setShipForm({
-          trackingId: shipped?.shippingTrackingId || "",
-          provider: shipped?.shippingProvider || "",
-        });
-      } catch (err) {
-        toast.error(err?.data?.message || t("common.failed"));
-      }
+      // Only mark as processing here; shipping is handled separately via Ship modal
       setProcessModal({ isOpen: false, order: null });
     } else {
       toast.error(res?.error?.data?.message || t("common.failed"));

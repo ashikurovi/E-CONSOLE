@@ -25,6 +25,7 @@ import {
   Download,
 } from "lucide-react";
 import { useGetOrderQuery, useProcessOrderMutation } from "@/features/order/orderApiSlice";
+import { useSelector } from "react-redux";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,8 @@ const OrderViewPage = () => {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
+  const authUser = useSelector((state) => state.auth.user);
+  const isReseller = authUser?.role === "RESELLER";
   const { data: order, isLoading, error } = useGetOrderQuery(parseInt(id));
   const [processOrder, { isLoading: isProcessing }] = useProcessOrderMutation();
   const [processModal, setProcessModal] = useState(false);
@@ -138,8 +141,9 @@ const OrderViewPage = () => {
   ) ?? 0;
 
   const canMarkProcessing =
-    order.status?.toLowerCase() === "pending" ||
-    order.status?.toLowerCase() === "paid";
+    !isReseller &&
+    (order.status?.toLowerCase() === "pending" ||
+      order.status?.toLowerCase() === "paid");
 
   const handleProcess = async () => {
     const res = await processOrder({ id: order.id });
@@ -229,21 +233,25 @@ const OrderViewPage = () => {
               {isProcessing ? t("common.processing") : t("orders.markProcessing", "Mark Processing")}
             </Button>
           )}
-          <Button
-            variant="outline"
-            className="flex-1 lg:flex-none h-11 rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium"
-          >
-            <Printer className="h-4 w-4 mr-2" />
-            {t("common.print", "Print Invoice")}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => navigate(`/orders/${id}/edit`)}
-            className="flex-1 lg:flex-none h-11 rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium"
-          >
-            <Edit className="h-4 w-4 mr-2" />
-            {t("common.edit", "Edit Order")}
-          </Button>
+          {!isReseller && (
+            <>
+              <Button
+                variant="outline"
+                className="flex-1 lg:flex-none h-11 rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium"
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                {t("common.print", "Print Invoice")}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/orders/${id}/edit`)}
+                className="flex-1 lg:flex-none h-11 rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium"
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                {t("common.edit", "Edit Order")}
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

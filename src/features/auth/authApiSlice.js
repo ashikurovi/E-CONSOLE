@@ -62,6 +62,16 @@ export const authApiSlice = apiSlice.injectEndpoints({
       },
     }),
 
+    // Update current user profile data (for reseller/admin)
+    updateCurrentUser: builder.mutation({
+      query: (payload) => ({
+        url: `/auth/me`,
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: ["my-profile"],
+    }),
+
     // Get current user profile data
     getCurrentUser: builder.query({
       query: () => ({
@@ -84,5 +94,6 @@ export const {
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useChangePasswordMutation,
+  useUpdateCurrentUserMutation,
   useGetCurrentUserQuery,
 } = authApiSlice;

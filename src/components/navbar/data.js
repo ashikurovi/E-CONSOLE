@@ -291,6 +291,14 @@ export const navSections = [
         permission: FeaturePermission.BANNERS_OFFERS_MARKETING,
         icon: Megaphone,
       },
+      {
+        id: 11.6,
+        title: "Top Products",
+        tKey: "nav.topProducts",
+        link: "/top-products",
+        permission: FeaturePermission.SETTINGS,
+        icon: LayoutDashboard,
+      },
     ],
   },
   {

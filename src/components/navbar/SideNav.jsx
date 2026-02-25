@@ -15,6 +15,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   LayoutDashboard,
+  User,
 } from "lucide-react";
 
 // Custom Bag Icon Component
@@ -36,7 +37,11 @@ const BagIcon = (props) => (
  */
 const getFilteredNav = (user) => {
   if (!user) return [];
-  return navSections
+
+  const baseSections = navSections
+    .filter((section) => {
+      return true;
+    })
     .map((section) => {
       // Handle direct link sections (like Global Navlinks)
       if (section.link) {
@@ -46,12 +51,20 @@ const getFilteredNav = (user) => {
         return null;
       }
 
+      // For reseller role, hide specific items from the Orders section
+      let sectionItems = section.items || [];
+      if (user.role === "RESELLER" && section.id === "orders") {
+        sectionItems = sectionItems.filter(
+          (item) => item.title !== "Credit Notes",
+        );
+      }
+
       return {
         id: section.id,
         title: section.title,
         tKey: section.tKey,
         icon: section.icon,
-        items: section.items
+        items: sectionItems
           .filter(
             (item) =>
               hasPermission(user, item.permission) ||
@@ -76,6 +89,31 @@ const getFilteredNav = (user) => {
       };
     })
     .filter((section) => section && (section.link || section.items.length > 0));
+
+  // For reseller role, prepend direct links to reseller dashboard & profile
+  if (user.role === "RESELLER") {
+    const resellerDashboardLink = {
+      id: "reseller-dashboard",
+      title: "Reseller Dashboard",
+      tKey: null,
+      icon: LayoutDashboard,
+      link: "/reseller",
+      permission: null,
+    };
+
+    const resellerProfileLink = {
+      id: "reseller-profile",
+      title: "My Profile",
+      tKey: null,
+      icon: User,
+      link: "/reseller/profile",
+      permission: null,
+    };
+
+    return [resellerDashboardLink, resellerProfileLink, ...baseSections];
+  }
+
+  return baseSections;
 };
 
 /**
@@ -378,56 +416,55 @@ export default function SideNav({ isMobileMenuOpen, setIsMobileMenuOpen }) {
           </div>
           {!isCollapsed && (
             <div className="flex flex-col">
-              <span className="font-bold text-lg leading-tight text-gray-900 dark:text-white tracking-tight">
-                Squadlog
-              </span>
-              <span className="text-[10px] font-medium text-gray-500 uppercase tracking-widest">
-                Console
-              </span>
+              <div className="text-xl font-bold text-black">
+             {user?.companyName}
+            </div>
             </div>
           )}
         </div>
 
-        {/* Dashboard Link */}
-        <div className="px-4 pt-4 pb-2">
-          {isCollapsed ? (
-            <div className="flex justify-center mb-2">
+        {/* Dashboard Link - hidden for reseller role */}
+        {user?.role !== "RESELLER" && (
+          <div className="px-4 pt-4 pb-2">
+            {isCollapsed ? (
+              <div className="flex justify-center mb-2">
+                <Link
+                  to="/"
+                  className={`p-3 rounded-xl transition-all duration-300 ${
+                    location.pathname === "/"
+                      ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-indigo-500/30"
+                      : "text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-white/5"
+                  }`}
+                >
+                  <LayoutDashboard size={24} strokeWidth={1.5} />
+                </Link>
+              </div>
+            ) : (
               <Link
                 to="/"
-                className={`p-3 rounded-xl transition-all duration-300 ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${
                   location.pathname === "/"
-                    ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-indigo-500/30"
-                    : "text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-white/5"
+                    ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-1 ring-white/20"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-white/5 hover:text-indigo-600 dark:hover:text-white"
                 }`}
               >
-                <LayoutDashboard size={24} strokeWidth={1.5} />
+                {location.pathname === "/" && (
+                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                )}
+                <LayoutDashboard
+                  size={22}
+                  strokeWidth={1.5}
+                  className={`relative z-10 ${
+                    location.pathname === "/" ? "text-white" : ""
+                  }`}
+                />
+                <span className="font-bold text-[15px] tracking-wide relative z-10">
+                  {t("nav.dashboard")}
+                </span>
               </Link>
-            </div>
-          ) : (
-            <Link
-              to="/"
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${
-                location.pathname === "/"
-                  ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-1 ring-white/20"
-                  : "text-gray-600 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-white/5 hover:text-indigo-600 dark:hover:text-white"
-              }`}
-            >
-              {location.pathname === "/" && (
-                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-              )}
-              <LayoutDashboard
-                size={22}
-                strokeWidth={1.5}
-                className={`relative z-10 ${
-                  location.pathname === "/" ? "text-white" : ""
-                }`}
-              />
-              <span className="font-bold text-[15px] tracking-wide relative z-10">
-                {t("nav.dashboard")}
-              </span>
-            </Link>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Navigation Items - Scrollable Area */}
         <div className="flex-1 overflow-y-auto custom-scrollbar py-2">

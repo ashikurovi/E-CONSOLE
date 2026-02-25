@@ -74,6 +74,15 @@ const AdminLoginPage = () => {
             return;
           }
         }
+      } else if (loginRes?.error?.data?.message) {
+        const msg = loginRes.error.data.message;
+        if (
+          typeof msg === "string" &&
+          msg.toLowerCase().includes("reseller account is inactive")
+        ) {
+          navigate("/reseller-inactive", { state: { message: msg } });
+          return;
+        }
       }
 
       // 2nd: Try superadmin login if systemuser failed

@@ -12,7 +12,6 @@ import {
   Building2, 
   ShieldCheck, 
   Truck, 
-  Globe, 
   CreditCard,
   KeyRound,
   ChevronLeft
@@ -25,7 +24,6 @@ import NotificationSettings from "./components/NotificationSettings";
 import AccountSettings from "./components/AccountSettings";
 import UserPermissionSettings from "./components/UserPermissionSettings";
 import CourierSettings from "./components/CourierSettings";
-import DomainSettings from "./components/DomainSettings";
 import BillingSettings from "./components/BillingSettings";
 import ProfileSettings from "./components/ProfileSettings";
 
@@ -56,7 +54,6 @@ const SettingsPage = () => {
     { id: "account", label: "Account", icon: Building2 },
     { id: "permissions", label: "Permissions", icon: ShieldCheck },
     { id: "courier", label: "Courier Integration", icon: Truck },
-    { id: "domain", label: "Custom Domain", icon: Globe },
     { id: "billings", label: "Billings", icon: CreditCard },
   ];
 
@@ -67,7 +64,6 @@ const SettingsPage = () => {
         activeTab === "password" ||
         activeTab === "account" ||
         activeTab === "courier" ||
-        activeTab === "domain" ||
         activeTab === "billings" ||
         activeTab === "notifications")
     ) {
@@ -92,8 +88,6 @@ const SettingsPage = () => {
         return <UserPermissionSettings />;
       case "courier":
         return <CourierSettings user={currentUser} />;
-      case "domain":
-        return <DomainSettings user={currentUser} />;
       case "billings":
         return <BillingSettings user={currentUser} />;
       default:

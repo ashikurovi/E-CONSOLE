@@ -40,30 +40,43 @@ const SidebarMenu = () => {
     isLoadingUser || !user
       ? []
       : navSections
-    .map((section) => {
-      if (section.link) {
-        if (hasPermission(user, section.permission)) return section;
-        return null;
-      }
-      return {
-        ...section,
-        items: section.items
-          .filter(
-            (item) =>
-              hasPermission(user, item.permission) ||
-              (item?.children?.length &&
-                item.children.some((child) => hasPermission(user, child.permission)))
-          )
-          .map((item) => ({
-            ...item,
-            children: item?.children?.filter((child) =>
-              hasPermission(user, child.permission)
-            ),
-          }))
-          .filter((item) => (item.children?.length ? item.children.length > 0 : true)),
-      };
-    })
-    .filter((section) => section && (section.link || section.items.length > 0));
+          .map((section) => {
+            if (section.link) {
+              if (hasPermission(user, section.permission)) return section;
+              return null;
+            }
+
+            // For reseller role, hide specific items from the Orders section
+            let sectionItems = section.items || [];
+            if (user.role === "RESELLER" && section.id === "orders") {
+              sectionItems = sectionItems.filter(
+                (item) => item.title !== "Credit Notes",
+              );
+            }
+
+            return {
+              ...section,
+              items: sectionItems
+                .filter(
+                  (item) =>
+                    hasPermission(user, item.permission) ||
+                    (item?.children?.length &&
+                      item.children.some((child) =>
+                        hasPermission(user, child.permission),
+                      )),
+                )
+                .map((item) => ({
+                  ...item,
+                  children: item?.children?.filter((child) =>
+                    hasPermission(user, child.permission),
+                  ),
+                }))
+                .filter((item) =>
+                  item.children?.length ? item.children.length > 0 : true,
+                ),
+            };
+          })
+          .filter((section) => section && (section.link || section.items.length > 0));
 
   return (
     <div>

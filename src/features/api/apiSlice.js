@@ -43,6 +43,12 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
   const { accessToken, refreshToken, rememberMe } = getTokens();
   let retryCount = 0;
 
+  const setLogoutMessage = (message) => {
+    if (typeof window !== "undefined" && window?.localStorage) {
+      window.localStorage.setItem("logoutMessage", message);
+    }
+  };
+
   // Try refreshing token if unauthorized (401)
   // Note: Superadmin tokens don't have refresh logic yet, so we only retry for regular users
   while (
@@ -83,19 +89,31 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
             break;
           } else {
             console.error("Refresh token response missing accessToken");
+            setLogoutMessage("Your session has expired. Please log in again.");
             api.dispatch(userLoggedOut());
             break;
           }
         } else {
+          const backendMessage =
+            refreshResult.data?.message || refreshResult.error?.data?.message;
+          if (backendMessage?.toLowerCase().includes("inactive")) {
+            setLogoutMessage(
+              "Your account has been deactivated by the admin. Please contact support."
+            );
+          } else {
+            setLogoutMessage("Your session has expired. Please log in again.");
+          }
           api.dispatch(userLoggedOut());
           break;
         }
       } else {
+        setLogoutMessage("Your session has expired. Please log in again.");
         api.dispatch(userLoggedOut());
         break;
       }
     } catch (error) {
       console.error("Refresh token failed:", error);
+      setLogoutMessage("Your session has expired. Please log in again.");
       api.dispatch(userLoggedOut());
       break;
     }
@@ -144,6 +162,7 @@ export const apiSlice = createApi({
     "CreditNote",
     "media",
     "banners",
+    "topProducts",
     "reseller-summary",
     "reseller-payouts",
     "admin-resellers",

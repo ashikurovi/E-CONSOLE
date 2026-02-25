@@ -47,6 +47,20 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
 
   const companyId = user?.companyId;
 
+  const isNotificationForUser = (notification) => {
+    if (!user || user.role !== "RESELLER") return true;
+    const userId = user.id || user._id;
+    if (!userId) return true;
+
+    return (
+      notification.userId === userId ||
+      notification.resellerId === userId ||
+      notification.receiverId === userId ||
+      notification.user?.id === userId ||
+      notification.meta?.resellerId === userId
+    );
+  };
+
   // Global search state
   const [searchTerm, setSearchTerm] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -79,6 +93,7 @@ const TopNavbar = ({ setIsMobileMenuOpen }) => {
 
   // Transform API notifications to match UI format
   const notifications = apiNotifications
+    .filter(isNotificationForUser)
     .map((notification) => {
       // Determine icon and color based on notification type (matching backend enum)
       let icon = Bell;
