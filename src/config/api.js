@@ -9,7 +9,7 @@
  */
 
 // Get API base URL from environment variable with fallback
-export const API_BASE_URL = "https://e-api-omega.vercel.app";
+export const API_BASE_URL = "http://localhost:8000";
   // https://e-api-omega.vercel.app
 // https://squadcart-backend.up.railway.app
 // Export other API-related configs if needed
