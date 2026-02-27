@@ -2,7 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { getTokens } from "./useToken";
 
-const API_BASE_URL = 'https://squadlog-cdn.up.railway.app';
+const API_BASE_URL = 'https://e-cdn.vercel.app';
 
 /**
  * Custom hook for uploading images to backend server
