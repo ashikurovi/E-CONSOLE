@@ -12,7 +12,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "console" {
-  bucket = "squadcart-console-assets"
+  bucket = "innowavecart-console-assets"
 }
 
 resource "aws_s3_bucket_public_access_block" "console" {
@@ -48,7 +48,7 @@ resource "aws_s3_bucket_policy" "console" {
 }
 
 resource "aws_cloudfront_origin_access_control" "console" {
-  name                              = "squadcart-console-oac"
+  name                              = "innowavecart-console-oac"
   description                       = "OAC for Console S3"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"

@@ -23,7 +23,7 @@ i18n
     detection: {
       order: ["localStorage", "navigator"],
       caches: ["localStorage"],
-      lookupLocalStorage: "squadcart_lang",
+      lookupLocalStorage: "innowavecart_lang",
     },
   });
 

@@ -26,12 +26,12 @@ export const generateParcelSlip = async (order, options = {}) => {
     options.companyDomain ||
     import.meta.env.VITE_APP_URL ||
     import.meta.env.VITE_TRACKING_PAGE_URL ||
-    (typeof window !== "undefined" ? window.location.origin : "https://squadcart.com");
+    (typeof window !== "undefined" ? window.location.origin : "https://innowavecart.com");
   const trackingUrl = `${trackingPageBase.replace(/\/$/, "")}/track-order?trackingId=${encodeURIComponent(trackingId)}`;
 
-  const companyName = options.companyName || "SquadCart";
+  const companyName = options.companyName || "InnowaveCart";
   const companyLogo = options.companyLogo || null;
-  const courierName = order.shippingProvider || "SquadCart";
+  const courierName = order.shippingProvider || "InnowaveCart";
   const clientName = order.customer?.name || order.customerName || "N/A";
   const clientAddress = order.customerAddress || "N/A";
   const clientPhone = order.customerPhone || order.customer?.phone || "";

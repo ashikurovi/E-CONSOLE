@@ -171,7 +171,7 @@ const AdminLoginPage = () => {
                 Get Started
               </h1>
               <p className="text-slate-500 text-lg">
-                Welcome to SquadCart - Let's create your account
+                Welcome to InnowaveCart - Let's create your account
               </p>
             </motion.div>
 

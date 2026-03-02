@@ -50,7 +50,7 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         { type: "orders", id: `track-${trackingId}` },
       ],
     }),
-    // Unified tracking: RedX → Steadfast → Pathao → SquadCart
+    // Unified tracking: RedX → Steadfast → Pathao → InnowaveCart
     trackOrderUnified: builder.query({
       query: (trackingId) => ({
         url: `/track/${encodeURIComponent(trackingId)}`,

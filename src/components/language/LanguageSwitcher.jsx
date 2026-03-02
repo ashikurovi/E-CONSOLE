@@ -8,7 +8,7 @@ const LanguageSwitcher = ({ variant = "default", className = "" }) => {
   const toggleLanguage = () => {
     const newLang = i18n.language === "en" ? "bn" : "en";
     i18n.changeLanguage(newLang);
-    localStorage.setItem("squadcart_lang", newLang);
+    localStorage.setItem("innowavecart_lang", newLang);
   };
 
   const currentLang =

@@ -178,7 +178,7 @@ const DomainSettings = ({ user: userFromApi }) => {
   const customDomainStatus = domainData?.customDomainStatus || user?.customDomainStatus || 'pending';
   const verificationRequired = domainData?.verificationRequired;
   const txtVerification = domainData?.txtVerification;
-  const mainDomain = "console.squadcart.app";
+  const mainDomain = "console.innowavecart.app";
   const fullSubdomain = domainData?.platformSubdomain || (subdomain ? `${subdomain}.${mainDomain}` : null);
 
   return (
