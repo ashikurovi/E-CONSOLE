@@ -11,7 +11,7 @@ export default function DashboardHeader({ currentDateTime, getGreeting }) {
 
       <div className="relative z-10">
         <h1 className="text-4xl font-black bg-gradient-to-r from-gray-900 via-nexus-primary to-gray-900 dark:from-white dark:via-nexus-primary dark:to-gray-400 bg-clip-text text-transparent tracking-tighter animate-gradient-x bg-[length:200%_auto]">
-          {getGreeting()}, InnowaveCart
+          {getGreeting()}, NexoviaSoft
         </h1>
         <div className="text-gray-500 dark:text-gray-400 mt-2 font-medium flex items-center gap-2">
           <span className="relative flex h-3 w-3">

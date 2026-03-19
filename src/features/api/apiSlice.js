@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { userLoggedIn, userLoggedOut } from "@/features/auth/authSlice";
 import { getTokens } from "@/hooks/useToken";
-import { getSuperadminTokens } from "@/features/superadminAuth/superadminAuthSlice";
+import { getSuperadminTokens, superadminLoggedOut } from "@/features/superadminAuth/superadminAuthSlice";
 import { API_BASE_URL, API_CONFIG } from "@/config/api";
 
 const BASE_URL = API_BASE_URL;
@@ -39,6 +39,15 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
   const { accessToken: superadminToken, refreshToken: superadminRefreshToken } = getSuperadminTokens();
   const isSuperadmin = superadminToken && typeof superadminToken === 'string' && superadminToken.length > 10;
   
+  // If superadmin and got 401, clear superadmin session immediately
+  if (isSuperadmin && result?.error && result.error.status === 401) {
+    if (typeof window !== "undefined" && window?.localStorage) {
+      window.localStorage.setItem("logoutMessage", "Your session has expired. Please log in again.");
+    }
+    api.dispatch(superadminLoggedOut());
+    return result;
+  }
+
   // Get regular user tokens as fallback
   const { accessToken, refreshToken, rememberMe } = getTokens();
   let retryCount = 0;

@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { getSuperadminTokens } from "@/features/superadminAuth/superadminAuthSlice";
 import { decodeJWT } from "@/utils/jwt-decoder";
 
-const SuperAdminPrivateRoute = ({ children, redirectTo = "/login" }) => {
+const SuperAdminPrivateRoute = ({ children, redirectTo = "/superadmin/login" }) => {
   const location = useLocation();
   const { isAuthenticated, user } = useSelector(
     (state) => state.superadminAuth,

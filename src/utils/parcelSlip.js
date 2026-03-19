@@ -29,9 +29,9 @@ export const generateParcelSlip = async (order, options = {}) => {
     (typeof window !== "undefined" ? window.location.origin : "https://innowavecart.com");
   const trackingUrl = `${trackingPageBase.replace(/\/$/, "")}/track-order?trackingId=${encodeURIComponent(trackingId)}`;
 
-  const companyName = options.companyName || "InnowaveCart";
+  const companyName = options.companyName || "NexoviaSoft";
   const companyLogo = options.companyLogo || null;
-  const courierName = order.shippingProvider || "InnowaveCart";
+  const courierName = order.shippingProvider || "NexoviaSoft";
   const clientName = order.customer?.name || order.customerName || "N/A";
   const clientAddress = order.customerAddress || "N/A";
   const clientPhone = order.customerPhone || order.customer?.phone || "";

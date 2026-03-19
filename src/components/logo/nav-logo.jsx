@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 export const NavLogo = () => {
   const user = useSelector((state) => state.auth.user);
   const logo = user?.companyLogo;
-  const companyName = user?.companyName || "InnowaveCart";
+  const companyName = user?.companyName || "NexoviaSoft";
 
   return (
     <Link
@@ -20,7 +20,7 @@ export const NavLogo = () => {
 export const FooterLogo = () => {
   const user = useSelector((state) => state.auth.user);
   const logo = user?.companyLogo;
-  const companyName = user?.companyName || "InnowaveCart";
+  const companyName = user?.companyName || "NexoviaSoft";
 
   return (
     <Link to={"/"} className={``}>

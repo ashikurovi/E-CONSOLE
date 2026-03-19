@@ -19,13 +19,13 @@ const useAuth = () => {
     if (!isAuthenticated) {
       setAuthChecked(true);
       // Reset document title when not authenticated
-      document.title = "InnowaveCart Console";
+      document.title = "NexoviaSoft Console";
       return;
     }
 
     // Show loading state while fetching user data
     if (isLoading) {
-      document.title = "Loading... - InnowaveCart Console";
+      document.title = "Loading... - NexoviaSoft Console";
       return;
     }
 
@@ -37,13 +37,13 @@ const useAuth = () => {
       dispatch(userDetailsFetched(data));
       
       // Update document title with company name and company ID from API
-      const companyName = data.companyName || "InnowaveCart";
+      const companyName = data.companyName || "NexoviaSoft";
       const companyId = data.companyId || "";
       
       if (companyId) {
-        document.title = `${companyName} (${companyId}) - InnowaveCart Console`;
+        document.title = `${companyName} (${companyId}) - NexoviaSoft Console`;
       } else {
-        document.title = `${companyName} - InnowaveCart Console`;
+        document.title = `${companyName} - NexoviaSoft Console`;
       }
     }
   }, [

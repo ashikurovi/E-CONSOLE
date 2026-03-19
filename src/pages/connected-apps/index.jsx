@@ -306,7 +306,7 @@ export default function ConnectedAppsPage() {
       name: "Loom",
       url: "https://loom.com",
       description:
-        "Connect InnowaveCart with Loom to automatically capture, transcribe, and organize video messages.",
+        "Connect NexoviaSoft with Loom to automatically capture, transcribe, and organize video messages.",
       icon: <BrandIcons.Loom className="w-6 h-6" />,
       status: true,
     },
@@ -315,7 +315,7 @@ export default function ConnectedAppsPage() {
       name: "Dropbox",
       url: "https://dropbox.com",
       description:
-        "Connect InnowaveCart with Dropbox to capture, transcribe, and organize video insights automatically",
+        "Connect NexoviaSoft with Dropbox to capture, transcribe, and organize video insights automatically",
       icon: <BrandIcons.Dropbox className="w-6 h-6" />,
       status: false,
     },
@@ -324,7 +324,7 @@ export default function ConnectedAppsPage() {
       name: "Zapier",
       url: "https://zapier.com",
       description:
-        "Connect InnowaveCart with Zapier to automate workflows between InnowaveCart and thousands of apps, enabling seamless data",
+        "Connect NexoviaSoft with Zapier to automate workflows between NexoviaSoft and thousands of apps, enabling seamless data",
       icon: <BrandIcons.Zapier className="w-6 h-6" />,
       status: true,
     },
@@ -333,7 +333,7 @@ export default function ConnectedAppsPage() {
       name: "Github",
       url: "https://github.com",
       description:
-        "Connect InnowaveCart with Github to track repositories, pull requests, and commits, allowing InnowaveCart to",
+        "Connect NexoviaSoft with Github to track repositories, pull requests, and commits, allowing NexoviaSoft to",
       icon: (
         <BrandIcons.Github className="w-6 h-6 text-gray-900 dark:text-white" />
       ),
@@ -344,7 +344,7 @@ export default function ConnectedAppsPage() {
       name: "Jira",
       url: "https://jira.atlassian.com",
       description:
-        "Connect InnowaveCart with Jira to sync issues, tickets, and project updates, giving InnowaveCart full context to analyze progress",
+        "Connect NexoviaSoft with Jira to sync issues, tickets, and project updates, giving NexoviaSoft full context to analyze progress",
       icon: <BrandIcons.Jira className="w-6 h-6" />,
       status: false,
     },
@@ -353,7 +353,7 @@ export default function ConnectedAppsPage() {
       name: "Confluence",
       url: "https://confluence.atlassian.com",
       description:
-        "Connect InnowaveCart with Confluence to centralize documentation, sync knowledge, and enhance",
+        "Connect NexoviaSoft with Confluence to centralize documentation, sync knowledge, and enhance",
       icon: <BrandIcons.Confluence className="w-6 h-6" />,
       status: false,
     },
@@ -365,7 +365,7 @@ export default function ConnectedAppsPage() {
       name: "Gitlab",
       url: "https://gitlab.com",
       description:
-        "Integrate InnowaveCart with GitLab to seamlessly sync your repositories and manage issues more effectively.",
+        "Integrate NexoviaSoft with GitLab to seamlessly sync your repositories and manage issues more effectively.",
       icon: <BrandIcons.Gitlab className="w-5 h-5" />,
       rating: 5.0,
       connectedCount: "100K+",
@@ -375,7 +375,7 @@ export default function ConnectedAppsPage() {
       name: "Notion",
       url: "https://notion.com",
       description:
-        "Integrate InnowaveCart with Notion to effectively centralize all your notes and tasks in one convenient location.",
+        "Integrate NexoviaSoft with Notion to effectively centralize all your notes and tasks in one convenient location.",
       icon: (
         <BrandIcons.Notion className="w-5 h-5 text-gray-900 dark:text-white" />
       ),
@@ -387,7 +387,7 @@ export default function ConnectedAppsPage() {
       name: "Gmail",
       url: "https://gmail.com",
       description:
-        "Integrate InnowaveCart with your Gmail account to seamlessly extract valuable insights and actionable items.",
+        "Integrate NexoviaSoft with your Gmail account to seamlessly extract valuable insights and actionable items.",
       icon: <BrandIcons.Gmail className="w-5 h-5" />,
       rating: 4.9,
       connectedCount: "1M+",
@@ -550,7 +550,7 @@ export default function ConnectedAppsPage() {
               Your Integrations
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              View, connect, and manage your integrations with InnowaveCart.
+              View, connect, and manage your integrations with NexoviaSoft.
             </p>
           </div>
           <Button variant="ghost" size="icon" className="text-gray-400">

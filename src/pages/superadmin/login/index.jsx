@@ -136,7 +136,7 @@ const SuperAdminLoginPage = () => {
 
                     <div className="mt-8 text-center">
                         <p className="text-xs text-slate-400 dark:text-slate-500">
-                            Secured by InnowaveCart Console
+                            Secured by NexoviaSoft Console
                         </p>
                     </div>
                 </div>
@@ -146,7 +146,6 @@ const SuperAdminLoginPage = () => {
 };
 
 export default SuperAdminLoginPage;
-
 
 
 
