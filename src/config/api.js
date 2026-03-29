@@ -10,10 +10,13 @@
 
 // Get API base URL from environment variable with fallback
 export const API_BASE_URL = "https://e-api-omega.vercel.app";
-  // https://e-api-omega.vercel.app
+// https://e-api-omega.vercel.app
 // Export other API-related configs if needed
 export const API_CONFIG = {
   baseUrl: API_BASE_URL,
   timeout: 30000, // 30 seconds
   retryCount: 3,
 };
+
+
+///////
